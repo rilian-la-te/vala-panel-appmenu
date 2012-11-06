@@ -1,0 +1,7 @@
+<schemalist>
+  <schema id='com.canonical.Unity.GtkModule' path='/com/canonical/Unity/GtkModule/'>
+    <key name='menubar-mode' enum='com.canonical.Unity.GtkModule.MenuBarMode'>
+      <default>'global'</default>
+    </key>
+  </schema>
+</schemalist>
