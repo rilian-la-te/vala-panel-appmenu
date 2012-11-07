@@ -40,8 +40,6 @@ static void (* pre_hijacked_menubar_unrealize)                      (GtkWidget  
 static void
 hijacked_window_realize (GtkWidget *widget)
 {
-  g_print ("%s\n", __func__);
-
   static gint id;
 
   GMenu *menu;
@@ -49,6 +47,8 @@ hijacked_window_realize (GtkWidget *widget)
   GdkX11Window *window;
   gchar object_path[80];
   GDBusConnection *session;
+
+  g_message ("%s (%p)", __func__, widget);
 
   (* pre_hijacked_window_realize) (widget);
 
@@ -82,7 +82,7 @@ hijacked_window_realize (GtkWidget *widget)
 static void
 hijacked_window_unrealize (GtkWidget *widget)
 {
-  g_print ("%s\n", __func__);
+  g_message ("%s (%p)", __func__, widget);
 
   (* pre_hijacked_window_unrealize) (widget);
 }
@@ -92,7 +92,7 @@ hijacked_menubar_get_preferred_width (GtkWidget *widget,
                                       gint      *minimum_width,
                                       gint      *natural_width)
 {
-  g_print ("%s\n", __func__);
+  g_message ("%s (%p, %p, %p)", __func__, widget, minimum_width, natural_width);
 
   *minimum_width = 0;
   *natural_width = 0;
@@ -103,7 +103,7 @@ hijacked_menubar_get_preferred_height (GtkWidget *widget,
                                        gint      *minimum_height,
                                        gint      *natural_height)
 {
-  g_print ("%s\n", __func__);
+  g_message ("%s (%p, %p, %p)", __func__, widget, minimum_height, natural_height);
 
   *minimum_height = 0;
   *natural_height = 0;
@@ -115,7 +115,7 @@ hijacked_menubar_get_preferred_width_for_height (GtkWidget *widget,
                                                  gint      *minimum_width,
                                                  gint      *natural_width)
 {
-  g_print ("%s\n", __func__);
+  g_message ("%s (%p, %d, %p, %p)", __func__, widget, height, minimum_width, natural_width);
 
   *minimum_width = 0;
   *natural_width = 0;
@@ -127,7 +127,7 @@ hijacked_menubar_get_preferred_height_for_width (GtkWidget *widget,
                                                  gint      *minimum_height,
                                                  gint      *natural_height)
 {
-  g_print ("%s\n", __func__);
+  g_message ("%s (%p, %d, %p, %p)", __func__, widget, width, minimum_height, natural_height);
 
   *minimum_height = 0;
   *natural_height = 0;
@@ -137,10 +137,10 @@ static void
 hijacked_menubar_size_allocate (GtkWidget     *widget,
                                 GtkAllocation *allocation)
 {
-  g_print ("%s\n", __func__);
-
   GtkAllocation zero = { 0, 0, 0, 0 };
   GdkWindow *window;
+
+  g_message ("%s (%p, %p)", __func__, widget, allocation);
 
   /* We manually assign an empty allocation to the menubar to
    * prevent the container from attempting to draw it at all.
@@ -160,11 +160,11 @@ hijacked_menubar_size_allocate (GtkWidget     *widget,
 static void
 hijacked_menubar_realize (GtkWidget *widget)
 {
-  g_print ("%s\n", __func__);
-
   GMenu *menu;
   GtkWidget *window;
   UnityGtkMenuParser *parser;
+
+  g_message ("%s (%p)", __func__, widget);
 
   (* pre_hijacked_menubar_realize) (widget);
 
@@ -180,11 +180,11 @@ hijacked_menubar_realize (GtkWidget *widget)
 static void
 hijacked_menubar_unrealize (GtkWidget *widget)
 {
-  g_print ("%s\n", __func__);
-
   GMenu *menu;
   GtkWidget *window;
   guint n, i;
+
+  g_message ("%s (%p)", __func__, widget);
 
   window = gtk_widget_get_toplevel (widget);
   menu = g_object_get_qdata (G_OBJECT (window), unity_gtk_module_menu_model_quark ());
