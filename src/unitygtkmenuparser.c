@@ -138,8 +138,6 @@ unity_gtk_menu_item_notify (GObject    *object,
   parser = item->parent;
   g_assert (UNITY_GTK_IS_MENU_PARSER (parser));
 
-  g_print ("Change %s\n", pspec->name);
-
   if (pspec->name == interned_active && GTK_IS_CHECK_MENU_ITEM (object))
     {
       const GVariantType *state_type;

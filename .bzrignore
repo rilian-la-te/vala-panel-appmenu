@@ -1,5 +1,9 @@
 *.la
 *.lo
 .libs
+Makefile
+Makefile.in
+autom4te.cache
+config.log
 hello
 unity-gtk-menu-tester

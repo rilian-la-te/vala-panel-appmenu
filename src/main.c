@@ -3,39 +3,39 @@
 
 #include "unitygtkmenuparser.h"
 
-G_DEFINE_QUARK(UnityGtkModuleMenuModel, unity_gtk_module_menu_model)
+G_DEFINE_QUARK(window_menu, window_menu)
 
-static void (* widget_class_size_allocate)                          (GtkWidget     *widget,
-                                                                     GtkAllocation *allocation);
+static void (* pre_hijacked_widget_size_allocate)                    (GtkWidget     *widget,
+                                                                      GtkAllocation *allocation);
 
-static void (* pre_hijacked_window_realize)                         (GtkWidget     *widget);
+static void (* pre_hijacked_window_realize)                          (GtkWidget     *widget);
 
-static void (* pre_hijacked_window_unrealize)                       (GtkWidget     *widget);
+static void (* pre_hijacked_window_unrealize)                        (GtkWidget     *widget);
 
-static void (* pre_hijacked_menubar_get_preferred_width)            (GtkWidget     *widget,
-                                                                     gint          *minimum_width,
-                                                                     gint          *natural_width);
+static void (* pre_hijacked_menu_bar_get_preferred_width)            (GtkWidget     *widget,
+                                                                      gint          *minimum_width,
+                                                                      gint          *natural_width);
 
-static void (* pre_hijacked_menubar_get_preferred_height)           (GtkWidget     *widget,
-                                                                     gint          *minimum_height,
-                                                                     gint          *natural_height);
+static void (* pre_hijacked_menu_bar_get_preferred_height)           (GtkWidget     *widget,
+                                                                      gint          *minimum_height,
+                                                                      gint          *natural_height);
 
-static void (* pre_hijacked_menubar_get_preferred_width_for_height) (GtkWidget     *widget,
-                                                                     gint           height,
-                                                                     gint          *minimum_width,
-                                                                     gint          *natural_width);
+static void (* pre_hijacked_menu_bar_get_preferred_width_for_height) (GtkWidget     *widget,
+                                                                      gint           height,
+                                                                      gint          *minimum_width,
+                                                                      gint          *natural_width);
 
-static void (* pre_hijacked_menubar_get_preferred_height_for_width) (GtkWidget     *widget,
-                                                                     gint           width,
-                                                                     gint          *minimum_height,
-                                                                     gint          *natural_height);
+static void (* pre_hijacked_menu_bar_get_preferred_height_for_width) (GtkWidget     *widget,
+                                                                      gint           width,
+                                                                      gint          *minimum_height,
+                                                                      gint          *natural_height);
 
-static void (* pre_hijacked_menubar_size_allocate)                  (GtkWidget     *widget,
-                                                                     GtkAllocation *allocation);
+static void (* pre_hijacked_menu_bar_size_allocate)                  (GtkWidget     *widget,
+                                                                      GtkAllocation *allocation);
 
-static void (* pre_hijacked_menubar_realize)                        (GtkWidget     *widget);
+static void (* pre_hijacked_menu_bar_realize)                        (GtkWidget     *widget);
 
-static void (* pre_hijacked_menubar_unrealize)                      (GtkWidget     *widget);
+static void (* pre_hijacked_menu_bar_unrealize)                      (GtkWidget     *widget);
 
 static void
 hijacked_window_realize (GtkWidget *widget)
@@ -76,7 +76,7 @@ hijacked_window_realize (GtkWidget *widget)
                                     "_GTK_MENUBAR_OBJECT_PATH",
                                     object_path);
 
-  g_object_set_qdata (G_OBJECT (widget), unity_gtk_module_menu_model_quark (), menu);
+  g_object_set_qdata (G_OBJECT (widget), window_menu_quark (), menu);
 }
 
 static void
@@ -88,9 +88,9 @@ hijacked_window_unrealize (GtkWidget *widget)
 }
 
 static void
-hijacked_menubar_get_preferred_width (GtkWidget *widget,
-                                      gint      *minimum_width,
-                                      gint      *natural_width)
+hijacked_menu_bar_get_preferred_width (GtkWidget *widget,
+                                       gint      *minimum_width,
+                                       gint      *natural_width)
 {
   g_message ("%s (%p, %p, %p)", __func__, widget, minimum_width, natural_width);
 
@@ -99,9 +99,9 @@ hijacked_menubar_get_preferred_width (GtkWidget *widget,
 }
 
 static void
-hijacked_menubar_get_preferred_height (GtkWidget *widget,
-                                       gint      *minimum_height,
-                                       gint      *natural_height)
+hijacked_menu_bar_get_preferred_height (GtkWidget *widget,
+                                        gint      *minimum_height,
+                                        gint      *natural_height)
 {
   g_message ("%s (%p, %p, %p)", __func__, widget, minimum_height, natural_height);
 
@@ -110,10 +110,10 @@ hijacked_menubar_get_preferred_height (GtkWidget *widget,
 }
 
 static void
-hijacked_menubar_get_preferred_width_for_height (GtkWidget *widget,
-                                                 gint       height,
-                                                 gint      *minimum_width,
-                                                 gint      *natural_width)
+hijacked_menu_bar_get_preferred_width_for_height (GtkWidget *widget,
+                                                  gint       height,
+                                                  gint      *minimum_width,
+                                                  gint      *natural_width)
 {
   g_message ("%s (%p, %d, %p, %p)", __func__, widget, height, minimum_width, natural_width);
 
@@ -122,10 +122,10 @@ hijacked_menubar_get_preferred_width_for_height (GtkWidget *widget,
 }
 
 static void
-hijacked_menubar_get_preferred_height_for_width (GtkWidget *widget,
-                                                 gint       width,
-                                                 gint      *minimum_height,
-                                                 gint      *natural_height)
+hijacked_menu_bar_get_preferred_height_for_width (GtkWidget *widget,
+                                                  gint       width,
+                                                  gint      *minimum_height,
+                                                  gint      *natural_height)
 {
   g_message ("%s (%p, %d, %p, %p)", __func__, widget, width, minimum_height, natural_height);
 
@@ -134,20 +134,20 @@ hijacked_menubar_get_preferred_height_for_width (GtkWidget *widget,
 }
 
 static void
-hijacked_menubar_size_allocate (GtkWidget     *widget,
-                                GtkAllocation *allocation)
+hijacked_menu_bar_size_allocate (GtkWidget     *widget,
+                                 GtkAllocation *allocation)
 {
   GtkAllocation zero = { 0, 0, 0, 0 };
   GdkWindow *window;
 
   g_message ("%s (%p, %p)", __func__, widget, allocation);
 
-  /* We manually assign an empty allocation to the menubar to
+  /* We manually assign an empty allocation to the menu bar to
    * prevent the container from attempting to draw it at all.
    */
-  (* widget_class_size_allocate) (widget, &zero);
+  (* pre_hijacked_widget_size_allocate) (widget, &zero);
 
-  /* Then we move the GdkWindow belonging to the menubar outside of
+  /* Then we move the GdkWindow belonging to the menu bar outside of
    * the clipping rectangle of the parent window so that we can't
    * see it.
    */
@@ -158,7 +158,7 @@ hijacked_menubar_size_allocate (GtkWidget     *widget,
 }
 
 static void
-hijacked_menubar_realize (GtkWidget *widget)
+hijacked_menu_bar_realize (GtkWidget *widget)
 {
   GMenu *menu;
   GtkWidget *window;
@@ -166,10 +166,10 @@ hijacked_menubar_realize (GtkWidget *widget)
 
   g_message ("%s (%p)", __func__, widget);
 
-  (* pre_hijacked_menubar_realize) (widget);
+  (* pre_hijacked_menu_bar_realize) (widget);
 
   window = gtk_widget_get_toplevel (widget);
-  menu = g_object_get_qdata (G_OBJECT (window), unity_gtk_module_menu_model_quark ());
+  menu = g_object_get_qdata (G_OBJECT (window), window_menu_quark ());
 
   g_assert (menu != NULL);
 
@@ -178,7 +178,7 @@ hijacked_menubar_realize (GtkWidget *widget)
 }
 
 static void
-hijacked_menubar_unrealize (GtkWidget *widget)
+hijacked_menu_bar_unrealize (GtkWidget *widget)
 {
   GMenu *menu;
   GtkWidget *window;
@@ -187,7 +187,7 @@ hijacked_menubar_unrealize (GtkWidget *widget)
   g_message ("%s (%p)", __func__, widget);
 
   window = gtk_widget_get_toplevel (widget);
-  menu = g_object_get_qdata (G_OBJECT (window), unity_gtk_module_menu_model_quark ());
+  menu = g_object_get_qdata (G_OBJECT (window), window_menu_quark ());
 
   g_assert (menu != NULL);
 
@@ -196,11 +196,11 @@ hijacked_menubar_unrealize (GtkWidget *widget)
   for (i = 2; i < n; i++)
     g_menu_remove (menu, 2);
 
-  (* pre_hijacked_menubar_unrealize) (widget);
+  (* pre_hijacked_menu_bar_unrealize) (widget);
 }
 
 static void
-patch_window_class_vtable (GType type)
+hijack_window_class_vtable (GType type)
 {
   GtkWidgetClass *widget_class;
   GType *children;
@@ -216,12 +216,12 @@ patch_window_class_vtable (GType type)
 
   children = g_type_children (type, &n);
   for (i = 0; i < n; i++)
-    patch_window_class_vtable (children[i]);
+    hijack_window_class_vtable (children[i]);
   g_free (children);
 }
 
 static void
-patch_menubar_class_vtable (GType type)
+hijack_menu_bar_class_vtable (GType type)
 {
   GtkWidgetClass *widget_class;
   GType *children;
@@ -229,30 +229,30 @@ patch_menubar_class_vtable (GType type)
 
   widget_class = g_type_class_ref (type);
 
-  if (widget_class->get_preferred_height == pre_hijacked_menubar_get_preferred_height)
-    widget_class->get_preferred_height = hijacked_menubar_get_preferred_height;
+  if (widget_class->get_preferred_width == pre_hijacked_menu_bar_get_preferred_width)
+    widget_class->get_preferred_width = hijacked_menu_bar_get_preferred_width;
 
-  if (widget_class->get_preferred_width_for_height == pre_hijacked_menubar_get_preferred_width_for_height)
-    widget_class->get_preferred_width_for_height = hijacked_menubar_get_preferred_width_for_height;
+  if (widget_class->get_preferred_height == pre_hijacked_menu_bar_get_preferred_height)
+    widget_class->get_preferred_height = hijacked_menu_bar_get_preferred_height;
 
-  if (widget_class->get_preferred_width == pre_hijacked_menubar_get_preferred_width)
-    widget_class->get_preferred_width = hijacked_menubar_get_preferred_width;
+  if (widget_class->get_preferred_width_for_height == pre_hijacked_menu_bar_get_preferred_width_for_height)
+    widget_class->get_preferred_width_for_height = hijacked_menu_bar_get_preferred_width_for_height;
 
-  if (widget_class->get_preferred_height_for_width == pre_hijacked_menubar_get_preferred_height_for_width)
-    widget_class->get_preferred_height_for_width = hijacked_menubar_get_preferred_height_for_width;
+  if (widget_class->get_preferred_height_for_width == pre_hijacked_menu_bar_get_preferred_height_for_width)
+    widget_class->get_preferred_height_for_width = hijacked_menu_bar_get_preferred_height_for_width;
 
-  if (widget_class->size_allocate == pre_hijacked_menubar_size_allocate)
-    widget_class->size_allocate = hijacked_menubar_size_allocate;
+  if (widget_class->size_allocate == pre_hijacked_menu_bar_size_allocate)
+    widget_class->size_allocate = hijacked_menu_bar_size_allocate;
 
-  if (widget_class->realize == pre_hijacked_menubar_realize)
-    widget_class->realize = hijacked_menubar_realize;
+  if (widget_class->realize == pre_hijacked_menu_bar_realize)
+    widget_class->realize = hijacked_menu_bar_realize;
 
-  if (widget_class->unrealize == pre_hijacked_menubar_unrealize)
-    widget_class->unrealize = hijacked_menubar_unrealize;
+  if (widget_class->unrealize == pre_hijacked_menu_bar_unrealize)
+    widget_class->unrealize = hijacked_menu_bar_unrealize;
 
   children = g_type_children (type, &n);
   for (i = 0; i < n; i++)
-    patch_menubar_class_vtable (children[i]);
+    hijack_menu_bar_class_vtable (children[i]);
   g_free (children);
 }
 
@@ -263,22 +263,22 @@ gtk_module_init (void)
 
   /* store the base GtkWidget size_allocate vfunc */
   widget_class = g_type_class_ref (GTK_TYPE_WIDGET);
-  widget_class_size_allocate = widget_class->size_allocate;
+  pre_hijacked_widget_size_allocate = widget_class->size_allocate;
 
   /* intercept window realize vcalls on GtkWindow */
   widget_class = g_type_class_ref (GTK_TYPE_WINDOW);
   pre_hijacked_window_realize = widget_class->realize;
   pre_hijacked_window_unrealize = widget_class->unrealize;
-  patch_window_class_vtable (GTK_TYPE_WINDOW);
+  hijack_window_class_vtable (GTK_TYPE_WINDOW);
 
   /* intercept size request and allocate vcalls on GtkMenuBar (for hiding) */
   widget_class = g_type_class_ref (GTK_TYPE_MENU_BAR);
-  pre_hijacked_menubar_get_preferred_width = widget_class->get_preferred_width;
-  pre_hijacked_menubar_get_preferred_height = widget_class->get_preferred_height;
-  pre_hijacked_menubar_get_preferred_width_for_height = widget_class->get_preferred_width_for_height;
-  pre_hijacked_menubar_get_preferred_height_for_width = widget_class->get_preferred_height_for_width;
-  pre_hijacked_menubar_size_allocate = widget_class->size_allocate;
-  pre_hijacked_menubar_realize = widget_class->realize;
-  pre_hijacked_menubar_unrealize = widget_class->unrealize;
-  patch_menubar_class_vtable (GTK_TYPE_MENU_BAR);
+  pre_hijacked_menu_bar_get_preferred_width = widget_class->get_preferred_width;
+  pre_hijacked_menu_bar_get_preferred_height = widget_class->get_preferred_height;
+  pre_hijacked_menu_bar_get_preferred_width_for_height = widget_class->get_preferred_width_for_height;
+  pre_hijacked_menu_bar_get_preferred_height_for_width = widget_class->get_preferred_height_for_width;
+  pre_hijacked_menu_bar_size_allocate = widget_class->size_allocate;
+  pre_hijacked_menu_bar_realize = widget_class->realize;
+  pre_hijacked_menu_bar_unrealize = widget_class->unrealize;
+  hijack_menu_bar_class_vtable (GTK_TYPE_MENU_BAR);
 }
