@@ -1,0 +1,5 @@
+*.la
+*.lo
+.libs
+hello
+unity-gtk-menu-tester
