@@ -280,7 +280,34 @@ static void
 insert_menu_item (GtkToolButton *button,
                   gpointer       user_data)
 {
-  /* XXX */
+  GtkTreeSelection *selection;
+  GtkTreeModel *tree_model;
+  GtkTreeIter parent_iter;
+  GtkTreeIter child_iter;
+
+  selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (tree_view));
+  tree_model = GTK_TREE_MODEL (tree_store);
+
+  if (selection != NULL &&
+      gtk_tree_selection_get_selected (selection, NULL, &child_iter) &&
+      gtk_tree_model_iter_parent (tree_model, &parent_iter, &child_iter))
+    {
+      GtkMenuShell *shell;
+      GtkWidget *menu_item;
+      guint shell_index;
+
+      shell = get_menu_shell (GTK_MENU_SHELL (menu_bar), tree_model, &parent_iter);
+
+      for (shell_index = 0; gtk_tree_model_iter_previous (tree_model, &child_iter); shell_index++);
+
+      menu_item = create_menu_item ();
+      gtk_menu_shell_insert (shell, menu_item, shell_index);
+      gtk_widget_show (menu_item);
+
+      gtk_tree_store_clear (tree_store);
+      update_model (tree_store, NULL, GTK_MENU_SHELL (menu_bar));
+      gtk_tree_view_expand_all (GTK_TREE_VIEW (tree_view));
+    }
 }
 
 
@@ -289,7 +316,33 @@ static void
 remove_menu_item (GtkToolButton *button,
                   gpointer       user_data)
 {
-  /* XXX */
+  GtkTreeSelection *selection;
+  GtkTreeIter tree_iter;
+
+  selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (tree_view));
+
+  if (selection != NULL && gtk_tree_selection_get_selected (selection, NULL, &tree_iter))
+    {
+      GtkWidget *menu_item;
+
+      menu_item = GTK_WIDGET (get_menu_item (GTK_MENU_SHELL (menu_bar), GTK_TREE_MODEL (tree_store), &tree_iter));
+
+      if (menu_item != NULL)
+        {
+          GtkWidget *parent;
+
+          parent = gtk_widget_get_parent (menu_item);
+
+          if (parent != NULL)
+            {
+              gtk_container_remove (GTK_CONTAINER (parent), menu_item);
+
+              gtk_tree_store_clear (tree_store);
+              update_model (tree_store, NULL, GTK_MENU_SHELL (menu_bar));
+              gtk_tree_view_expand_all (GTK_TREE_VIEW (tree_view));
+            }
+        }
+    }
 }
 
 
