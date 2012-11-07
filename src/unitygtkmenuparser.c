@@ -431,11 +431,11 @@ unity_gtk_menu_parser_get_item_attributes (GMenuModel  *model,
 
   if (GTK_IS_SEPARATOR_MENU_ITEM (item->menu_item))
     {
-      g_hash_table_insert (*quark_table, GINT_TO_POINTER(g_quark_from_static_string ("type")), g_variant_ref_sink (g_variant_new_string ("separator")));
+      g_hash_table_insert (*quark_table, "type", g_variant_ref_sink (g_variant_new_string ("separator")));
     }
   else if (!gtk_widget_get_visible (GTK_WIDGET (item->menu_item)))
     {
-      g_hash_table_insert (*quark_table, GINT_TO_POINTER(g_quark_from_static_string ("type")), g_variant_ref_sink (g_variant_new_string ("placeholder")));
+      g_hash_table_insert (*quark_table, "type", g_variant_ref_sink (g_variant_new_string ("placeholder")));
 
     }
   else
