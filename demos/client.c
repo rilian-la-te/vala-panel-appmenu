@@ -1,7 +1,5 @@
 #include <gtk/gtk.h>
 
-#include <gtkapp/gtkmenubinding.h>
-
 #include "menusource.h"
 #include "altgrabber.h"
 #include "altmonitor.h"
@@ -37,17 +35,14 @@ menu_changed (GObject    *object,
   g_print ("\n");
   if (menu)
     {
-      g_menu_markup_print_stderr (menu);
      // g_signal_connect (menu, "items-changed", G_CALLBACK (items_changed), NULL);
-      gtk_menu_binding_setup (GTK_MENU_SHELL (bar), actions, G_MENU_MODEL (menu));
+      gtk_menu_shell_bind_model (GTK_MENU_SHELL (bar), G_MENU_MODEL (menu), 0, 0);
     }
   else
     {
       GMenu *empty;
-  empty = g_menu_proxy_get (g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL), ":1.252", "/TestMenuBar");
-
-//      empty = g_menu_new ();
-      gtk_menu_binding_setup (GTK_MENU_SHELL (bar), actions, G_MENU_MODEL (empty));
+  empty = g_menu_new();
+      gtk_menu_shell_bind_model (GTK_MENU_SHELL (bar), G_MENU_MODEL (empty), 0, 0);
       g_print ("[no menu]\n");
     }
   g_print ("\n");
@@ -67,7 +62,7 @@ main (int argc, char **argv)
   bar = gtk_menu_bar_new ();
   gtk_window_set_accept_focus (GTK_WINDOW (win), FALSE);
   gtk_container_add (GTK_CONTAINER (win), bar);
-  gtk_window_set_resizable (GTK_WINDOW (win), FALSE);
+  gtk_window_set_default_size (GTK_WINDOW (win), 800, 200);
   gtk_widget_show_all (win);
 
   source = menu_source_get_for_screen (gdk_screen_get_default ());

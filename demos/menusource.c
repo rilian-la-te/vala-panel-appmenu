@@ -49,18 +49,20 @@ static GSettings *menubar_mode_settings;
 static MenuBarMode menubar_mode;
 static GSList *menu_sources;
 static Atom atoms[N_XPROP];
+static Atom utf8_atom =  279;
 
 static void
 menu_source_update (MenuSource *menu_source)
 {
+  g_print ("msu\n");
   if (menu_source->menu)
     g_object_unref (menu_source->menu);
 
   if (menu_source->properties[0] && menu_source->properties[1])
     {
-      GMenuProxy *proxy;
+      GDBusMenuModel *proxy;
 
-      proxy = g_menu_proxy_get (menu_source->session,
+      proxy = g_dbus_menu_model_get (menu_source->session,
                                 menu_source->properties[0],
                                 menu_source->properties[1]);
       menu_source->menu = G_MENU_MODEL (proxy);
@@ -129,6 +131,8 @@ menu_source_update_window_property (MenuSource *menu_source,
   gchar *value = NULL;
   gboolean changed;
 
+  g_print ("uwp %d\n", deleted);
+
   if (!deleted)
     {
       unsigned long bytes_after_return;
@@ -139,11 +143,15 @@ menu_source_update_window_property (MenuSource *menu_source,
 
       if (XGetWindowProperty (GDK_SCREEN_XDISPLAY (menu_source->gdk_screen),
                               gdk_x11_window_get_xid (menu_source->gdk_window), atoms[atom_index],
-                              0, 1024, False, XA_STRING, &actual_type_return, &actual_format_return,
+                              0, 1024, False, utf8_atom, &actual_type_return, &actual_format_return,
                               &nitems_return, &bytes_after_return, &prop_return) == Success)
         {
           if (actual_format_return == 8 && bytes_after_return == 0)
+            {
+              g_print ("I see %s\n", value);
             value = g_strndup ((gchar *) prop_return, nitems_return);
+            }
+
           XFree (prop_return);
         }
     }
@@ -339,16 +347,17 @@ menu_source_get_for_screen (GdkScreen *screen)
   /* if this is the first one, create the GSettings */
   if (menu_sources == NULL)
     {
-      menubar_mode_settings = g_settings_new ("com.canonical.Unity.GtkModule");
-      g_signal_connect (menubar_mode_settings, "changed::menubar-mode", G_CALLBACK (menubar_mode_changed), NULL);
-      menubar_mode = g_settings_get_enum (menubar_mode_settings, "menubar-mode");
+      //menubar_mode_settings = g_settings_new ("com.canonical.Unity.GtkModule");
+      //g_signal_connect (menubar_mode_settings, "changed::menubar-mode", G_CALLBACK (menubar_mode_changed), NULL);
+      //menubar_mode = g_settings_get_enum (menubar_mode_settings, "menubar-mode");
     }
+  menubar_mode = MENU_BAR_MODE_GLOBAL;
 
   menu_sources = g_slist_prepend (menu_sources, menu_source);
 
   if (atoms[0] == 0)
     {
-      const gchar * const names[] = { "PROPOSED_NET_WM_DBUS_BUS_NAME", "PROPOSED_NET_WM_DBUS_OBJECT_PATH" };
+      const gchar * const names[] = { "_GTK_UNIQUE_BUS_NAME", "_GTK_MENUBAR_OBJECT_PATH" };
       G_STATIC_ASSERT(G_N_ELEMENTS(names) == G_N_ELEMENTS(atoms));
       XInternAtoms (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()), (char **) names, 2, False, atoms);
     }
