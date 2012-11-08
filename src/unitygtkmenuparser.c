@@ -423,6 +423,9 @@ unity_gtk_menu_parser_get_item_attributes (GMenuModel  *model,
   UnityGtkMenuItem *item;
 
   iter = g_sequence_get_iter_at_pos (parser->items, item_index);
+  if (g_sequence_iter_is_end (iter))
+    iter = g_sequence_iter_prev (iter);
+
   item = g_sequence_get (iter);
 
   *quark_table = g_hash_table_new (NULL, NULL);
@@ -458,6 +461,9 @@ unity_gtk_menu_parser_get_item_links (GMenuModel  *model,
   GSequenceIter *iter;
 
   iter = g_sequence_get_iter_at_pos (parser->items, item_index);
+  if (g_sequence_iter_is_end (iter))
+    iter = g_sequence_iter_prev (iter);
+
   item = g_sequence_get (iter);
 
   *quark_table = g_hash_table_new_full (NULL, NULL, NULL, g_object_unref);
