@@ -49,7 +49,6 @@ static GSettings *menubar_mode_settings;
 static MenuBarMode menubar_mode;
 static GSList *menu_sources;
 static Atom atoms[N_XPROP];
-static Atom utf8_atom =  279;
 
 static void
 menu_source_update (MenuSource *menu_source)
@@ -135,11 +134,15 @@ menu_source_update_window_property (MenuSource *menu_source,
 
   if (!deleted)
     {
+      gchar *name = "UTF8_STRING";
       unsigned long bytes_after_return;
       unsigned long nitems_return;
       unsigned char *prop_return;
       gint actual_format_return;
       Atom actual_type_return;
+      Atom utf8_atom;
+
+      XInternAtoms (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()), &name, 1, False, &utf8_atom);
 
       if (XGetWindowProperty (GDK_SCREEN_XDISPLAY (menu_source->gdk_screen),
                               gdk_x11_window_get_xid (menu_source->gdk_window), atoms[atom_index],
