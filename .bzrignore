@@ -1,9 +1,12 @@
 *.la
 *.lo
+*.stamp
 .libs
 Makefile
 Makefile.in
 autom4te.cache
+black
+client
 config.log
 hello
 unity-gtk-menu-tester
