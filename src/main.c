@@ -20,13 +20,19 @@ typedef struct _WindowData WindowData;
 static WindowData *
 window_data_new (void)
 {
+  g_message ("%s ()", __func__);
+
   return g_slice_new0 (WindowData);
 }
 
 static void
 window_data_free (gpointer data)
 {
-  WindowData *window_data = data;
+  WindowData *window_data;
+
+  g_message ("%s (%p)", __func__, data);
+
+  window_data = data;
 
   if (window_data != NULL)
     {
@@ -119,9 +125,9 @@ hijacked_window_unrealize (GtkWidget *widget)
 {
   g_message ("%s (%p)", __func__, widget);
 
-  window_data_free (g_object_get_qdata (G_OBJECT (widget), window_data_quark ()));
-
   (* pre_hijacked_window_unrealize) (widget);
+
+  g_object_set_qdata (G_OBJECT (widget), window_data_quark (), NULL);
 }
 
 static void
@@ -236,6 +242,8 @@ hijacked_menu_bar_unrealize (GtkWidget *widget)
   GtkWidget *window;
   WindowData *window_data;
 
+  (* pre_hijacked_menu_bar_unrealize) (widget);
+
   g_message ("%s (%p)", __func__, widget);
 
   window = gtk_widget_get_toplevel (widget);
@@ -246,10 +254,12 @@ hijacked_menu_bar_unrealize (GtkWidget *widget)
       gint i = g_slist_index (window_data->menu_shells, widget);
 
       if (i >= 0)
-        g_menu_remove (window_data->menu, i);
-    }
+        {
+          window_data->menu_shells = g_slist_remove (window_data->menu_shells, widget);
 
-  (* pre_hijacked_menu_bar_unrealize) (widget);
+          g_menu_remove (window_data->menu, i);
+        }
+    }
 }
 
 static void
