@@ -501,5 +501,9 @@ main (int   argc,
 
   gtk_main ();
 
+  g_object_unref (entry);
+  g_object_unref (tree_view);
+  g_object_unref (menu_bar);
+
   return 0;
 }
