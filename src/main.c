@@ -3,7 +3,48 @@
 
 #include "unitygtkmenuparser.h"
 
-G_DEFINE_QUARK(window_menu, window_menu)
+#define WINDOW_OBJECT_PATH "/com/canonical/Unity/Gtk/Window"
+
+G_DEFINE_QUARK (window_data, window_data);
+
+struct _WindowData
+{
+  guint   window_id;
+  guint   export_id;
+  GMenu  *menu;
+  GSList *menu_shells;
+};
+
+typedef struct _WindowData WindowData;
+
+static WindowData *
+window_data_new (void)
+{
+  return g_slice_new0 (WindowData);
+}
+
+static void
+window_data_free (gpointer data)
+{
+  WindowData *window_data = data;
+
+  if (window_data != NULL)
+    {
+      if (window_data->export_id)
+        {
+          GDBusConnection *session;
+
+          session = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
+
+          g_dbus_connection_unexport_menu_model (session, window_data->export_id);
+        }
+
+      if (window_data->menu != NULL)
+        g_object_unref (window_data->menu);
+
+      g_slice_free (WindowData, data);
+    }
+}
 
 static void (* pre_hijacked_widget_size_allocate)                    (GtkWidget     *widget,
                                                                       GtkAllocation *allocation);
@@ -40,49 +81,45 @@ static void (* pre_hijacked_menu_bar_unrealize)                      (GtkWidget 
 static void
 hijacked_window_realize (GtkWidget *widget)
 {
-  static gint id;
-
-  GMenu *menu;
-  GMenu *submenu;
-  GdkX11Window *window;
-  gchar object_path[80];
-  GDBusConnection *session;
+  WindowData *window_data;
 
   g_message ("%s (%p)", __func__, widget);
 
   (* pre_hijacked_window_realize) (widget);
 
-  menu = g_menu_new ();
+  window_data = g_object_get_qdata (G_OBJECT (widget), window_data_quark ());
 
-  submenu = g_menu_new ();
-  g_menu_append (submenu, "World", NULL);
-  g_menu_append_submenu (menu, "Hello", G_MENU_MODEL (submenu));
+  if (window_data == NULL)
+    {
+      static guint window_id;
 
-  submenu = g_menu_new ();
-  g_menu_append (submenu, "World", NULL);
-  g_menu_append_submenu (menu, "Goodbye", G_MENU_MODEL (submenu));
+      GDBusConnection *session;
+      gchar object_path[80];
+      GdkX11Window *window;
 
-  session = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
-  sprintf (object_path, "/com/canonical/Unity/GtkModule/Window/%d", id++);
+      window_data = window_data_new ();
+      window_data->menu = g_menu_new ();
+      window_data->window_id = window_id++;
 
-  g_dbus_connection_export_menu_model (session, object_path, G_MENU_MODEL (menu), NULL);
+      session = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
+      sprintf (object_path, WINDOW_OBJECT_PATH "/%d", window_data->window_id);
+      window_data->export_id = g_dbus_connection_export_menu_model (session, object_path, G_MENU_MODEL (window_data->menu), NULL);
 
-  window = GDK_X11_WINDOW (gtk_widget_get_window (widget));
+      window = GDK_X11_WINDOW (gtk_widget_get_window (widget));
 
-  gdk_x11_window_set_utf8_property (window,
-                                    "_GTK_UNIQUE_BUS_NAME",
-                                    g_dbus_connection_get_unique_name (session));
-  gdk_x11_window_set_utf8_property (window,
-                                    "_GTK_MENUBAR_OBJECT_PATH",
-                                    object_path);
+      gdk_x11_window_set_utf8_property (window, "_GTK_MENUBAR_OBJECT_PATH", object_path);
+      gdk_x11_window_set_utf8_property (window, "_GTK_UNIQUE_BUS_NAME", g_dbus_connection_get_unique_name (session));
 
-  g_object_set_qdata (G_OBJECT (widget), window_menu_quark (), menu);
+      g_object_set_qdata_full (G_OBJECT (widget), window_data_quark (), window_data, window_data_free);
+    }
 }
 
 static void
 hijacked_window_unrealize (GtkWidget *widget)
 {
   g_message ("%s (%p)", __func__, widget);
+
+  window_data_free (g_object_get_qdata (G_OBJECT (widget), window_data_quark ()));
 
   (* pre_hijacked_window_unrealize) (widget);
 }
@@ -94,6 +131,8 @@ hijacked_menu_bar_get_preferred_width (GtkWidget *widget,
 {
   g_message ("%s (%p, %p, %p)", __func__, widget, minimum_width, natural_width);
 
+  (* pre_hijacked_menu_bar_get_preferred_width) (widget, minimum_width, natural_width);
+
   *minimum_width = 0;
   *natural_width = 0;
 }
@@ -104,6 +143,8 @@ hijacked_menu_bar_get_preferred_height (GtkWidget *widget,
                                         gint      *natural_height)
 {
   g_message ("%s (%p, %p, %p)", __func__, widget, minimum_height, natural_height);
+
+  (* pre_hijacked_menu_bar_get_preferred_height) (widget, minimum_height, natural_height);
 
   *minimum_height = 0;
   *natural_height = 0;
@@ -117,6 +158,8 @@ hijacked_menu_bar_get_preferred_width_for_height (GtkWidget *widget,
 {
   g_message ("%s (%p, %d, %p, %p)", __func__, widget, height, minimum_width, natural_width);
 
+  (* pre_hijacked_menu_bar_get_preferred_width_for_height) (widget, height, minimum_width, natural_width);
+
   *minimum_width = 0;
   *natural_width = 0;
 }
@@ -128,6 +171,8 @@ hijacked_menu_bar_get_preferred_height_for_width (GtkWidget *widget,
                                                   gint      *natural_height)
 {
   g_message ("%s (%p, %d, %p, %p)", __func__, widget, width, minimum_height, natural_height);
+
+  (* pre_hijacked_menu_bar_get_preferred_height_for_width) (widget, width, minimum_height, natural_height);
 
   *minimum_height = 0;
   *natural_height = 0;
@@ -160,41 +205,49 @@ hijacked_menu_bar_size_allocate (GtkWidget     *widget,
 static void
 hijacked_menu_bar_realize (GtkWidget *widget)
 {
-  GMenu *menu;
   GtkWidget *window;
-  UnityGtkMenuParser *parser;
+  WindowData *window_data;
 
   g_message ("%s (%p)", __func__, widget);
 
   (* pre_hijacked_menu_bar_realize) (widget);
 
   window = gtk_widget_get_toplevel (widget);
-  menu = g_object_get_qdata (G_OBJECT (window), window_menu_quark ());
+  window_data = g_object_get_qdata (G_OBJECT (window), window_data_quark ());
 
-  g_assert (menu != NULL);
+  if (window_data != NULL)
+    {
+      GSList *iter = g_slist_find (window_data->menu_shells, widget);
 
-  parser = unity_gtk_menu_parser_new (GTK_MENU_SHELL (widget));
-  g_menu_append_section (menu, NULL, G_MENU_MODEL (parser));
+      if (iter == NULL)
+        {
+          UnityGtkMenuParser *parser = unity_gtk_menu_parser_new (GTK_MENU_SHELL (widget));
+
+          g_menu_append_section (window_data->menu, NULL, G_MENU_MODEL (parser));
+
+          window_data->menu_shells = g_slist_append (window_data->menu_shells, widget);
+        }
+    }
 }
 
 static void
 hijacked_menu_bar_unrealize (GtkWidget *widget)
 {
-  GMenu *menu;
   GtkWidget *window;
-  guint n, i;
+  WindowData *window_data;
 
   g_message ("%s (%p)", __func__, widget);
 
   window = gtk_widget_get_toplevel (widget);
-  menu = g_object_get_qdata (G_OBJECT (window), window_menu_quark ());
+  window_data = g_object_get_qdata (G_OBJECT (window), window_data_quark ());
 
-  g_assert (menu != NULL);
+  if (window_data != NULL)
+    {
+      gint i = g_slist_index (window_data->menu_shells, widget);
 
-  n = g_menu_model_get_n_items (G_MENU_MODEL (menu));
-
-  for (i = 2; i < n; i++)
-    g_menu_remove (menu, 2);
+      if (i >= 0)
+        g_menu_remove (window_data->menu, i);
+    }
 
   (* pre_hijacked_menu_bar_unrealize) (widget);
 }
