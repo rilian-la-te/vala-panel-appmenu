@@ -609,7 +609,7 @@ main.lo: main.c \
  /home/william/Code/jhbuild/install/include/gtk-3.0/gdk/x11/gdkx11utils.h \
  /home/william/Code/jhbuild/install/include/gtk-3.0/gdk/x11/gdkx11visual.h \
  /home/william/Code/jhbuild/install/include/gtk-3.0/gdk/x11/gdkx11window.h \
- unitygtkmenuparser.h
+ unitygtkmenu.h
 
 /home/william/Code/jhbuild/install/include/gtk-3.0/gtk/gtk.h:
 
@@ -1861,4 +1861,4 @@ main.lo: main.c \
 
 /home/william/Code/jhbuild/install/include/gtk-3.0/gdk/x11/gdkx11window.h:
 
-unitygtkmenuparser.h:
+unitygtkmenu.h:

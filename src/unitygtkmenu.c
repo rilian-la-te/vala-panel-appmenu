@@ -19,7 +19,42 @@ struct _UnityGtkMenuPrivate
   guint         section_valid : 1;
 };
 
+enum
+{
+  PROP_0,
+  PROP_MENU_SHELL,
+  PROP_SHELL_OFFSET,
+  PROP_MENU_ITEMS,
+  PROP_SECTION,
+  N_PROPERTIES
+};
+
+static GParamSpec *properties[N_PROPERTIES] = { NULL };
+
 G_DEFINE_TYPE (UnityGtkMenu, unity_gtk_menu, G_TYPE_MENU);
+
+static UnityGtkMenuItem *
+unity_gtk_menu_item_new (GtkMenuItem *menu_item)
+{
+  UnityGtkMenuItem *item = g_slice_new0 (UnityGtkMenuItem);
+
+  item->menu_item = menu_item;
+
+  return item;
+}
+
+static void
+unity_gtk_menu_item_free (gpointer data)
+{
+  UnityGtkMenuItem *menu_item = data;
+
+  g_return_if_fail (menu_item != NULL);
+
+  if (menu_item->submenu != NULL)
+    g_object_unref (menu_item->submenu);
+
+  g_slice_free (UnityGtkMenuItem, menu_item);
+}
 
 static void
 unity_gtk_menu_dispose (GObject *object)
@@ -45,36 +80,6 @@ unity_gtk_menu_dispose (GObject *object)
     }
 
   G_OBJECT_CLASS (unity_gtk_menu_parent_class)->dispose (object);
-}
-
-static gboolean
-unity_gtk_menu_is_mutable (GMenuModel *model)
-{
-  g_return_val_if_fail (model != NULL, FALSE);
-
-  /* model->menu_shell can change at any time. */
-  return FALSE;
-}
-
-static UnityGtkMenuItem *
-unity_gtk_menu_item_new (GtkMenuItem *menu_item)
-{
-  UnityGtkMenuItem *item = g_slice_new0 (UnityGtkMenuItem);
-
-  item->menu_item = menu_item;
-
-  return item;
-}
-
-static void
-unity_gtk_menu_item_free (UnityGtkMenuItem *menu_item)
-{
-  g_return_if_fail (menu_item != NULL);
-
-  if (menu_item->submenu != NULL)
-    g_object_unref (menu_item->submenu);
-
-  g_slice_free (UnityGtkMenuItem, menu_item);
 }
 
 static GPtrArray *
@@ -120,6 +125,16 @@ unity_gtk_menu_get_menu_items (UnityGtkMenu *menu)
 }
 
 static UnityGtkMenu *
+unity_gtk_menu_new_with_offset (GtkMenuShell *menu_shell,
+                                guint         shell_offset)
+{
+  return g_object_new (UNITY_GTK_TYPE_MENU,
+                       "menu-shell", menu_shell,
+                       "shell-offset", shell_offset,
+                       NULL);
+}
+
+static UnityGtkMenu *
 unity_gtk_menu_get_section (UnityGtkMenu *menu)
 {
   UnityGtkMenuPrivate *priv;
@@ -151,16 +166,94 @@ unity_gtk_menu_get_section (UnityGtkMenu *menu)
             }
 
           if (start != NULL)
-            {
-              priv->section = unity_gtk_menu_new (priv->menu_shell);
-              priv->section->shell_offset = i + 1;
-            }
+            priv->section = unity_gtk_menu_new_with_offset (priv->menu_shell, i + 1);
         }
 
       priv->section_valid = TRUE;
     }
 
   return priv->section;
+}
+
+static void
+unity_gtk_menu_get_property (GObject    *object,
+                             guint       property_id,
+                             GValue     *value,
+                             GParamSpec *pspec)
+{
+  UnityGtkMenu *menu;
+  UnityGtkMenuPrivate *priv;
+
+  g_return_if_fail (object != NULL);
+  g_return_if_fail (value != NULL);
+  g_return_if_fail (pspec != NULL);
+
+  menu = UNITY_GTK_MENU (object);
+  priv = menu->priv;
+
+  switch (property_id)
+    {
+    case PROP_MENU_SHELL:
+      g_value_take_object (value, priv->menu_shell);
+      break;
+
+    case PROP_SHELL_OFFSET:
+      g_value_set_uint (value, priv->shell_offset);
+      break;
+
+    case PROP_MENU_ITEMS:
+      g_value_set_pointer (value, unity_gtk_menu_get_menu_items (menu));
+      break;
+
+    case PROP_SECTION:
+      g_value_set_object (value, unity_gtk_menu_get_section (menu));
+      break;
+
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
+    }
+}
+
+static void
+unity_gtk_menu_set_property (GObject      *object,
+                             guint         property_id,
+                             const GValue *value,
+                             GParamSpec   *pspec)
+{
+  UnityGtkMenu *menu;
+  UnityGtkMenuPrivate *priv;
+
+  g_return_if_fail (object != NULL);
+  g_return_if_fail (value != NULL);
+  g_return_if_fail (pspec != NULL);
+
+  menu = UNITY_GTK_MENU (object);
+  priv = menu->priv;
+
+  switch (property_id)
+    {
+    case PROP_MENU_SHELL:
+      priv->menu_shell = g_value_get_object (value);
+      break;
+
+    case PROP_SHELL_OFFSET:
+      priv->shell_offset = g_value_get_uint (value);
+      break;
+
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
+    }
+}
+
+static gboolean
+unity_gtk_menu_is_mutable (GMenuModel *model)
+{
+  g_return_val_if_fail (model != NULL, FALSE);
+
+  /* model->menu_shell can change at any time. */
+  return FALSE;
 }
 
 static gint
@@ -178,20 +271,40 @@ unity_gtk_menu_get_item_attributes (GMenuModel  *model,
                                     gint         item_index,
                                     GHashTable **attributes)
 {
-}
+  UnityGtkMenu *menu;
+  GPtrArray *menu_items;
+  GHashTable *hash_table;
 
-static GMenuAttributeIter *
-unity_gtk_menu_iterate_item_attributes (GMenuModel *model,
-                                        gint        item_index)
-{
-}
+  g_return_if_fail (model != NULL);
+  g_return_if_fail (attributes != NULL);
+  g_return_if_fail (0 <= item_index && item_index < unity_gtk_menu_get_n_items (model));
 
-static GVariant *
-unity_gtk_menu_get_item_attribute_value (GMenuModel         *model,
-                                         gint                item_index,
-                                         const gchar        *attribute,
-                                         const GVariantType *expected_type)
-{
+  menu = UNITY_GTK_MENU (model);
+  menu_items = unity_gtk_menu_get_menu_items (menu);
+  hash_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, (GDestroyNotify) g_variant_unref);
+
+  if (item_index < menu_items->len)
+    {
+      UnityGtkMenuItem *item = g_ptr_array_index (menu_items, item_index);
+
+      if (item != NULL)
+        {
+          GtkMenuItem *menu_item = item->menu_item;
+
+          if (menu_item != NULL)
+            {
+              const gchar *label = gtk_menu_item_get_label (menu_item);
+
+              g_hash_table_insert (hash_table, G_MENU_ATTRIBUTE_LABEL, g_variant_new_string (label));
+            }
+          else
+            g_assert_not_reached ();
+        }
+      else
+        g_assert_not_reached ();
+    }
+
+  *attributes = hash_table;
 }
 
 static void
@@ -199,33 +312,82 @@ unity_gtk_menu_get_item_links (GMenuModel  *model,
                                gint         item_index,
                                GHashTable **links)
 {
-}
+  UnityGtkMenu *menu;
+  GPtrArray *menu_items;
+  GHashTable *hash_table;
 
-static GMenuLinkIter *
-unity_gtk_menu_iterate_item_links (GMenuModel *model,
-                                   gint        item_index)
-{
-}
+  g_return_if_fail (model != NULL);
+  g_return_if_fail (links != NULL);
+  g_return_if_fail (0 <= item_index && item_index < unity_gtk_menu_get_n_items (model));
 
-static GMenuModel *
-unity_gtk_menu_get_item_link (GMenuModel  *model,
-                              gint         item_index,
-                              const gchar *link)
-{
+  menu = UNITY_GTK_MENU (model);
+  menu_items = unity_gtk_menu_get_menu_items (menu);
+  hash_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref);
+
+  if (item_index < menu_items->len)
+    {
+      UnityGtkMenuItem *menu_item = g_ptr_array_index (menu_items, item_index);
+
+      if (menu_item != NULL)
+        {
+          UnityGtkMenu *submenu = menu_item->submenu;
+
+          if (submenu != NULL)
+            g_hash_table_insert (hash_table, G_MENU_LINK_SUBMENU, g_object_ref (submenu));
+        }
+      else
+        g_assert_not_reached ();
+    }
+  else
+    {
+      UnityGtkMenu *section = unity_gtk_menu_get_section (menu);
+
+      if (section != NULL)
+        g_hash_table_insert (hash_table, G_MENU_LINK_SECTION, g_object_ref (section));
+    }
+
+  *links = hash_table;
 }
 
 static void
 unity_gtk_menu_class_init (UnityGtkMenuClass *klass)
 {
-  G_OBJECT_CLASS (klass)->dispose                  = unity_gtk_menu_dispose;
-  G_MENU_CLASS   (klass)->is_mutable               = unity_gtk_menu_is_mutable;
-  G_MENU_CLASS   (klass)->get_n_items              = unity_gtk_menu_get_n_items;
-  G_MENU_CLASS   (klass)->get_item_attributes      = unity_gtk_menu_get_item_attributes;
-  G_MENU_CLASS   (klass)->iterate_item_attributes  = unity_gtk_menu_iterate_item_attributes;
-  G_MENU_CLASS   (klass)->get_item_attribute_value = unity_gtk_menu_get_item_attribute_value;
-  G_MENU_CLASS   (klass)->get_item_links           = unity_gtk_menu_get_item_links;
-  G_MENU_CLASS   (klass)->iterate_item_links       = unity_gtk_menu_iterate_item_links;
-  G_MENU_CLASS   (klass)->get_item_link            = unity_gtk_menu_get_item_link;
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  GMenuModelClass *menu_model_class = G_MENU_MODEL_CLASS (klass);
+
+  object_class->dispose = unity_gtk_menu_dispose;
+  object_class->get_property = unity_gtk_menu_get_property;
+  object_class->set_property = unity_gtk_menu_set_property;
+  menu_model_class->is_mutable = unity_gtk_menu_is_mutable;
+  menu_model_class->get_n_items = unity_gtk_menu_get_n_items;
+  menu_model_class->get_item_attributes = unity_gtk_menu_get_item_attributes;
+  menu_model_class->get_item_links = unity_gtk_menu_get_item_links;
+
+  properties[PROP_MENU_SHELL] = g_param_spec_object ("menu-shell",
+                                                     "Menu shell",
+                                                     "Menu shell",
+                                                     GTK_TYPE_MENU_SHELL,
+                                                     G_PARAM_READWRITE |
+                                                     G_PARAM_CONSTRUCT_ONLY);
+  properties[PROP_SHELL_OFFSET] = g_param_spec_uint ("shell-offset",
+                                                     "Menu shell offset",
+                                                     "Index of first GtkMenuItem",
+                                                     0,
+                                                     G_MAXUINT,
+                                                     0,
+                                                     G_PARAM_READWRITE |
+                                                     G_PARAM_CONSTRUCT_ONLY);
+  properties[PROP_MENU_ITEMS] = g_param_spec_pointer ("menu-items",
+                                                      "Menu items",
+                                                      "Menu items",
+                                                      G_PARAM_READABLE);
+  properties[PROP_SECTION] = g_param_spec_object ("section",
+                                                  "Menu section",
+                                                  "Menu section",
+                                                  UNITY_GTK_TYPE_MENU,
+                                                  G_PARAM_READABLE);
+
+  g_object_class_install_properties (object_class, N_PROPERTIES, properties);
 
   g_type_class_add_private (klass, sizeof (UnityGtkMenuPrivate));
 }
@@ -238,7 +400,5 @@ unity_gtk_menu_init (UnityGtkMenu *self)
 UnityGtkMenu *
 unity_gtk_menu_new (GtkMenuShell *menu_shell)
 {
-  return g_object_new (UNITY_GTK_TYPE_MENU,
-                       "menu-shell", menu_shell,
-                       NULL);
+  return unity_gtk_menu_new_with_offset (menu_shell, 0);
 }

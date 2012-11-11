@@ -1,7 +1,7 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
 
-#include "unitygtkmenuparser.h"
+#include "unitygtkmenu.h"
 
 #define WINDOW_OBJECT_PATH "/com/canonical/Unity/Gtk/Window"
 
@@ -227,9 +227,9 @@ hijacked_menu_bar_realize (GtkWidget *widget)
 
       if (iter == NULL)
         {
-          UnityGtkMenuParser *parser = unity_gtk_menu_parser_new (GTK_MENU_SHELL (widget));
+          UnityGtkMenu *menu = unity_gtk_menu_new (GTK_MENU_SHELL (widget));
 
-          g_menu_append_section (window_data->menu, NULL, G_MENU_MODEL (parser));
+          g_menu_append_section (window_data->menu, NULL, G_MENU_MODEL (menu));
 
           window_data->menu_shells = g_slist_append (window_data->menu_shells, widget);
         }

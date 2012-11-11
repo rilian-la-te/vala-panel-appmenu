@@ -5,8 +5,8 @@ AM_CFLAGS = $(gtk_CFLAGS) -Wall
 AM_LDFLAGS = -shared -module -avoid-version
 
 libunity_gtk_module_la_SOURCES = \
-	unitygtkmenuparser.h		\
-	unitygtkmenuparser.c		\
+	unitygtkmenu.h		\
+	unitygtkmenu.c		\
 	main.c
 
 hello_SOURCES = \

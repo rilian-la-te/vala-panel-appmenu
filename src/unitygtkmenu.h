@@ -16,7 +16,7 @@ typedef struct _UnityGtkMenuPrivate UnityGtkMenuPrivate;
 
 struct _UnityGtkMenu
 {
-  GMenu parent_instance;
+  GMenuModel parent_instance;
 
   /*< private >*/
   UnityGtkMenuPrivate *priv;
@@ -24,7 +24,7 @@ struct _UnityGtkMenu
 
 struct _UnityGtkMenuClass
 {
-  GMenuClass parent_class;
+  GMenuModelClass parent_class;
 };
 
 GType          unity_gtk_menu_get_type (void) G_GNUC_INTERNAL;
