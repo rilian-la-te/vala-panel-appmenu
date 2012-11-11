@@ -31,7 +31,7 @@ enum
 
 static GParamSpec *properties[N_PROPERTIES] = { NULL };
 
-G_DEFINE_TYPE (UnityGtkMenu, unity_gtk_menu, G_TYPE_MENU);
+G_DEFINE_TYPE (UnityGtkMenu, unity_gtk_menu, G_TYPE_MENU_MODEL);
 
 static UnityGtkMenuItem *
 unity_gtk_menu_item_new (GtkMenuItem *menu_item)
@@ -181,15 +181,15 @@ unity_gtk_menu_get_property (GObject    *object,
                              GValue     *value,
                              GParamSpec *pspec)
 {
-  UnityGtkMenu *menu;
+  UnityGtkMenu *self;
   UnityGtkMenuPrivate *priv;
 
   g_return_if_fail (object != NULL);
   g_return_if_fail (value != NULL);
   g_return_if_fail (pspec != NULL);
 
-  menu = UNITY_GTK_MENU (object);
-  priv = menu->priv;
+  self = UNITY_GTK_MENU (object);
+  priv = self->priv;
 
   switch (property_id)
     {
@@ -202,11 +202,11 @@ unity_gtk_menu_get_property (GObject    *object,
       break;
 
     case PROP_MENU_ITEMS:
-      g_value_set_pointer (value, unity_gtk_menu_get_menu_items (menu));
+      g_value_set_pointer (value, unity_gtk_menu_get_menu_items (self));
       break;
 
     case PROP_SECTION:
-      g_value_set_object (value, unity_gtk_menu_get_section (menu));
+      g_value_set_object (value, unity_gtk_menu_get_section (self));
       break;
 
     default:
@@ -221,15 +221,15 @@ unity_gtk_menu_set_property (GObject      *object,
                              const GValue *value,
                              GParamSpec   *pspec)
 {
-  UnityGtkMenu *menu;
+  UnityGtkMenu *self;
   UnityGtkMenuPrivate *priv;
 
   g_return_if_fail (object != NULL);
   g_return_if_fail (value != NULL);
   g_return_if_fail (pspec != NULL);
 
-  menu = UNITY_GTK_MENU (object);
-  priv = menu->priv;
+  self = UNITY_GTK_MENU (object);
+  priv = self->priv;
 
   switch (property_id)
     {
@@ -395,6 +395,7 @@ unity_gtk_menu_class_init (UnityGtkMenuClass *klass)
 static void
 unity_gtk_menu_init (UnityGtkMenu *self)
 {
+  self->priv = UNITY_GTK_MENU_GET_PRIVATE (self);
 }
 
 UnityGtkMenu *
