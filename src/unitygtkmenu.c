@@ -281,7 +281,8 @@ unity_gtk_menu_get_item_attributes (GMenuModel  *model,
 
   menu = UNITY_GTK_MENU (model);
   menu_items = unity_gtk_menu_get_menu_items (menu);
-  hash_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, (GDestroyNotify) g_variant_unref);
+  hash_table = g_hash_table_new (g_str_hash, g_str_equal);
+  /* XXX: hash_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, (GDestroyNotify) g_variant_unref); */
 
   if (item_index < menu_items->len)
     {
