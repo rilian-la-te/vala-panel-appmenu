@@ -385,6 +385,18 @@ main (int   argc,
   gtk_container_add (GTK_CONTAINER (menu), menu_item);
   menu_item = gtk_menu_item_new_with_label ("Save");
   gtk_container_add (GTK_CONTAINER (menu), menu_item);
+  menu_item = gtk_separator_menu_item_new ();
+  gtk_container_add (GTK_CONTAINER (menu), menu_item);
+  menu_item = gtk_menu_item_new_with_label ("Recent File 1");
+  gtk_container_add (GTK_CONTAINER (menu), menu_item);
+  menu_item = gtk_menu_item_new_with_label ("Recent File 2");
+  gtk_container_add (GTK_CONTAINER (menu), menu_item);
+  menu_item = gtk_menu_item_new_with_label ("Recent File 3");
+  gtk_container_add (GTK_CONTAINER (menu), menu_item);
+  menu_item = gtk_menu_item_new_with_label ("Recent File 4");
+  gtk_container_add (GTK_CONTAINER (menu), menu_item);
+  menu_item = gtk_separator_menu_item_new ();
+  gtk_container_add (GTK_CONTAINER (menu), menu_item);
   menu_item = gtk_menu_item_new_with_label ("Quit");
   gtk_container_add (GTK_CONTAINER (menu), menu_item);
 
@@ -396,6 +408,8 @@ main (int   argc,
   menu_item = gtk_menu_item_new_with_label ("Select All");
   gtk_container_add (GTK_CONTAINER (menu), menu_item);
   menu_item = gtk_separator_menu_item_new ();
+  gtk_container_add (GTK_CONTAINER (menu), menu_item);
+  menu_item = gtk_menu_item_new_with_label ("Cut");
   gtk_container_add (GTK_CONTAINER (menu), menu_item);
   menu_item = gtk_menu_item_new_with_label ("Copy");
   gtk_container_add (GTK_CONTAINER (menu), menu_item);
