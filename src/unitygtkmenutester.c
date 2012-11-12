@@ -393,6 +393,10 @@ main (int   argc,
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (menu_item), menu);
   gtk_container_add (GTK_CONTAINER (menu_bar), menu_item);
 
+  menu_item = gtk_menu_item_new_with_label ("Select All");
+  gtk_container_add (GTK_CONTAINER (menu), menu_item);
+  menu_item = gtk_separator_menu_item_new ();
+  gtk_container_add (GTK_CONTAINER (menu), menu_item);
   menu_item = gtk_menu_item_new_with_label ("Copy");
   gtk_container_add (GTK_CONTAINER (menu), menu_item);
   menu_item = gtk_menu_item_new_with_label ("Paste");
