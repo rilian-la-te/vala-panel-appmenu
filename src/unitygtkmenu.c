@@ -8,6 +8,7 @@ struct _UnityGtkMenuItem
 {
   GtkMenuItem  *menu_item;
   UnityGtkMenu *submenu;
+  guint         submenu_valid : 1;
 };
 
 struct _UnityGtkMenuPrivate
@@ -46,14 +47,41 @@ unity_gtk_menu_item_new (GtkMenuItem *menu_item)
 static void
 unity_gtk_menu_item_free (gpointer data)
 {
-  UnityGtkMenuItem *menu_item = data;
+  UnityGtkMenuItem *item = data;
 
-  g_return_if_fail (menu_item != NULL);
+  g_return_if_fail (item != NULL);
 
-  if (menu_item->submenu != NULL)
-    g_object_unref (menu_item->submenu);
+  if (item->submenu != NULL)
+    g_object_unref (item->submenu);
 
-  g_slice_free (UnityGtkMenuItem, menu_item);
+  g_slice_free (UnityGtkMenuItem, item);
+}
+
+static UnityGtkMenu *
+unity_gtk_menu_item_get_submenu (UnityGtkMenuItem *item)
+{
+  g_return_val_if_fail (item != NULL, NULL);
+
+  if (!item->submenu_valid)
+    {
+      if (item->submenu != NULL)
+        {
+          g_object_unref (item->submenu);
+          item->submenu = NULL;
+        }
+
+      if (item->menu_item != NULL)
+        {
+          GtkWidget *submenu = gtk_menu_item_get_submenu (item->menu_item);
+
+          if (submenu != NULL)
+            item->submenu = unity_gtk_menu_new (GTK_MENU_SHELL (submenu));
+        }
+
+      item->submenu_valid = TRUE;
+    }
+
+  return item->submenu;
 }
 
 static void
@@ -128,6 +156,8 @@ static UnityGtkMenu *
 unity_gtk_menu_new_with_offset (GtkMenuShell *menu_shell,
                                 guint         shell_offset)
 {
+  g_message ("%s (%p, %u)", __func__, menu_shell, shell_offset);
+
   return g_object_new (UNITY_GTK_TYPE_MENU,
                        "menu-shell", menu_shell,
                        "shell-offset", shell_offset,
@@ -138,6 +168,8 @@ static UnityGtkMenu *
 unity_gtk_menu_get_section (UnityGtkMenu *menu)
 {
   UnityGtkMenuPrivate *priv;
+
+  g_message ("%s (%p)", __func__, menu);
 
   g_return_val_if_fail (menu != NULL, NULL);
 
@@ -327,11 +359,11 @@ unity_gtk_menu_get_item_links (GMenuModel  *model,
 
   if (item_index < menu_items->len)
     {
-      UnityGtkMenuItem *menu_item = g_ptr_array_index (menu_items, item_index);
+      UnityGtkMenuItem *item = g_ptr_array_index (menu_items, item_index);
 
-      if (menu_item != NULL)
+      if (item != NULL)
         {
-          UnityGtkMenu *submenu = menu_item->submenu;
+          UnityGtkMenu *submenu = unity_gtk_menu_item_get_submenu (item);
 
           if (submenu != NULL)
             g_hash_table_insert (hash_table, G_MENU_LINK_SUBMENU, g_object_ref (submenu));
