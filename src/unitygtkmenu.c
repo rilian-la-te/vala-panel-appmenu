@@ -156,8 +156,6 @@ static UnityGtkMenu *
 unity_gtk_menu_new_with_offset (GtkMenuShell *menu_shell,
                                 guint         shell_offset)
 {
-  g_message ("%s (%p, %u)", __func__, menu_shell, shell_offset);
-
   return g_object_new (UNITY_GTK_TYPE_MENU,
                        "menu-shell", menu_shell,
                        "shell-offset", shell_offset,
@@ -168,8 +166,6 @@ static UnityGtkMenu *
 unity_gtk_menu_get_section (UnityGtkMenu *menu)
 {
   UnityGtkMenuPrivate *priv;
-
-  g_message ("%s (%p)", __func__, menu);
 
   g_return_val_if_fail (menu != NULL, NULL);
 
@@ -334,6 +330,7 @@ unity_gtk_menu_get_item_attributes (GMenuModel  *model,
             g_assert_not_reached ();
         }
       else
+        /* menu_items should not contain NULLs. */
         g_assert_not_reached ();
     }
 
@@ -366,9 +363,14 @@ unity_gtk_menu_get_item_links (GMenuModel  *model,
           UnityGtkMenu *submenu = unity_gtk_menu_item_get_submenu (item);
 
           if (submenu != NULL)
-            g_hash_table_insert (hash_table, G_MENU_LINK_SUBMENU, g_object_ref (submenu));
+            {
+              g_message ("%s (%p, %d, %p) submenu = %p", __func__, model, item_index, links, submenu);
+
+              g_hash_table_insert (hash_table, G_MENU_LINK_SUBMENU, g_object_ref (submenu));
+            }
         }
       else
+        /* menu_items should not contain NULLs. */
         g_assert_not_reached ();
     }
   else
@@ -376,7 +378,11 @@ unity_gtk_menu_get_item_links (GMenuModel  *model,
       UnityGtkMenu *section = unity_gtk_menu_get_section (menu);
 
       if (section != NULL)
-        g_hash_table_insert (hash_table, G_MENU_LINK_SECTION, g_object_ref (section));
+        {
+          g_message ("%s (%p, %d, %p) section = %p", __func__, model, item_index, links, section);
+
+          g_hash_table_insert (hash_table, G_MENU_LINK_SECTION, g_object_ref (section));
+        }
     }
 
   *links = hash_table;
@@ -435,4 +441,49 @@ UnityGtkMenu *
 unity_gtk_menu_new (GtkMenuShell *menu_shell)
 {
   return unity_gtk_menu_new_with_offset (menu_shell, 0);
+}
+
+static void
+unity_gtk_menu_print_with_depth (UnityGtkMenu *menu,
+                                 guint         depth)
+{
+  GPtrArray *menu_items = unity_gtk_menu_get_menu_items (menu);
+  UnityGtkMenu *section = unity_gtk_menu_get_section (menu);
+  gchar *indent;
+  guint i;
+
+  indent = g_strnfill (2 * depth, ' ');
+
+  for (i = 0; i < menu_items->len; i++)
+    {
+      UnityGtkMenuItem *item = g_ptr_array_index (menu_items, i);
+      GtkMenuItem *menu_item = item->menu_item;
+      UnityGtkMenu *submenu = unity_gtk_menu_item_get_submenu (item);
+
+      g_print ("%s%s\n", indent, gtk_menu_item_get_label (menu_item));
+
+      if (submenu != NULL)
+        {
+          g_print ("%s submenu\n", indent);
+
+          unity_gtk_menu_print_with_depth (submenu, depth + 1);
+        }
+    }
+
+  if (section != NULL)
+    {
+      g_print ("%s section\n", indent);
+
+      unity_gtk_menu_print_with_depth (section, depth + 1);
+    }
+
+  g_free (indent);
+}
+
+void
+unity_gtk_menu_print (UnityGtkMenu *menu)
+{
+  g_return_if_fail (menu != NULL);
+
+  unity_gtk_menu_print_with_depth (menu, 0);
 }
