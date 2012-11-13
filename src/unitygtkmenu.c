@@ -38,6 +38,7 @@ struct _UnityGtkMenuPrivate
 {
   GtkMenuShell *menu_shell;
   GPtrArray    *sections;
+  gulong        insert_handler_id;
 };
 
 G_DEFINE_TYPE (UnityGtkMenuSection, unity_gtk_menu_section, G_TYPE_MENU_MODEL);
@@ -414,11 +415,27 @@ unity_gtk_menu_dispose (GObject *object)
 
   if (priv->sections != NULL)
     {
+      if (priv->insert_handler_id)
+        {
+          g_assert (priv->menu_shell != NULL);
+
+          g_signal_handler_disconnect (priv->menu_shell, priv->insert_handler_id);
+          priv->insert_handler_id = 0;
+        }
+
       g_ptr_array_free (priv->sections, TRUE);
       priv->sections = NULL;
     }
 
   G_OBJECT_CLASS (unity_gtk_menu_parent_class)->dispose (object);
+}
+
+static void
+unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
+                              GtkWidget    *child,
+                              gint          position,
+                              gpointer      user_data)
+{
 }
 
 static GPtrArray *
@@ -451,6 +468,8 @@ unity_gtk_menu_get_sections (UnityGtkMenu *menu)
               if (iter != NULL)
                 iter = g_list_next (iter);
             }
+
+          priv->insert_handler_id = g_signal_connect (menu_shell, "insert", G_CALLBACK (unity_gtk_menu_handle_insert), menu);
         }
     }
 
@@ -511,6 +530,14 @@ unity_gtk_menu_set_property (GObject      *object,
         {
           if (priv->sections != NULL)
             {
+              if (priv->insert_handler_id)
+                {
+                  g_assert (priv->menu_shell != NULL);
+
+                  g_signal_handler_disconnect (priv->menu_shell, priv->insert_handler_id);
+                  priv->insert_handler_id = 0;
+                }
+
               g_ptr_array_free (priv->sections, TRUE);
               priv->sections = NULL;
             }
