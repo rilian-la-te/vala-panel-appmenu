@@ -576,7 +576,7 @@ unity_gtk_menu_get_item_links (GMenuModel  *model,
   hash_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref);
 
   if (section != NULL)
-    g_hash_table_insert (hash_table, G_MENU_LINK_SECTION, section);
+    g_hash_table_insert (hash_table, G_MENU_LINK_SECTION, g_object_ref (section));
 
   *links = hash_table;
 }
