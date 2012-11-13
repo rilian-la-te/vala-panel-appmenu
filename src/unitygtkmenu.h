@@ -31,6 +31,4 @@ GType          unity_gtk_menu_get_type (void) G_GNUC_INTERNAL;
 
 UnityGtkMenu * unity_gtk_menu_new      (GtkMenuShell *shell) G_GNUC_INTERNAL;
 
-void           unity_gtk_menu_print    (UnityGtkMenu *menu) G_GNUC_INTERNAL;
-
 #endif /* __UNITY_GTK_MENU_H__ */
