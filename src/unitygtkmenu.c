@@ -289,7 +289,6 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
 
   section = UNITY_GTK_MENU_SECTION (model);
   menu_items = unity_gtk_menu_section_get_menu_items (section);
-  /* XXX: We should free values with g_variant_unref (). */
   hash_table = g_hash_table_new (g_str_hash, g_str_equal);
 
   if (menu_items != NULL)
@@ -552,7 +551,6 @@ unity_gtk_menu_get_item_attributes (GMenuModel  *model,
   g_return_if_fail (0 <= item_index && item_index < unity_gtk_menu_get_n_items (model));
   g_return_if_fail (attributes != NULL);
 
-  /* XXX: We should free values with g_variant_unref (). */
   *attributes = g_hash_table_new (g_str_hash, g_str_equal);
 }
 
