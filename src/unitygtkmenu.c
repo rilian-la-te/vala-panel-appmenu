@@ -447,6 +447,9 @@ unity_gtk_menu_get_sections (UnityGtkMenu *menu)
 
               for (; iter != NULL && !GTK_IS_SEPARATOR_MENU_ITEM (iter->data); i++)
                 iter = g_list_next (iter);
+
+              if (iter != NULL)
+                iter = g_list_next (iter);
             }
         }
     }
@@ -618,4 +621,50 @@ unity_gtk_menu_new (GtkMenuShell *menu_shell)
   return g_object_new (UNITY_GTK_TYPE_MENU,
                        "menu-shell", menu_shell,
                        NULL);
+}
+
+static void
+unity_gtk_menu_model_print (GMenuModel *model,
+                            guint       depth)
+{
+  gchar *indent;
+  guint n;
+  guint i;
+
+  g_return_if_fail (G_IS_MENU_MODEL (model));
+
+  indent = g_strnfill (2 * depth, ' ');
+
+  n = g_menu_model_get_n_items (model);
+
+  for (i = 0; i < n; i++)
+    {
+      GVariant *label = g_menu_model_get_item_attribute_value (model, i, G_MENU_ATTRIBUTE_LABEL, G_VARIANT_TYPE_STRING);
+      GMenuModel *section = g_menu_model_get_item_link (model, i, G_MENU_LINK_SECTION);
+      GMenuModel *submenu = g_menu_model_get_item_link (model, i, G_MENU_LINK_SUBMENU);
+
+      g_print ("%s%s\n", indent, label != NULL ? g_variant_get_string (label, NULL) : "(null)");
+
+      if (section != NULL)
+        {
+          g_print ("%s section\n", indent);
+          unity_gtk_menu_model_print (section, depth + 1);
+        }
+
+      if (submenu != NULL)
+        {
+          g_print ("%s submenu\n", indent);
+          unity_gtk_menu_model_print (submenu, depth + 1);
+        }
+    }
+
+  g_free (indent);
+}
+
+void
+unity_gtk_menu_print (UnityGtkMenu *menu)
+{
+  g_return_if_fail (UNITY_GTK_IS_MENU (menu));
+
+  unity_gtk_menu_model_print (G_MENU_MODEL (menu), 0);
 }
