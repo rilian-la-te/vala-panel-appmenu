@@ -76,14 +76,15 @@ unity_gtk_menu_item_new (GtkMenuItem *menu_item)
 static void
 unity_gtk_menu_item_free (gpointer data)
 {
-  UnityGtkMenuItem *item = data;
+  if (data != NULL)
+    {
+      UnityGtkMenuItem *item = data;
 
-  g_return_if_fail (data != NULL);
+      if (item->submenu != NULL)
+        g_object_unref (item->submenu);
 
-  if (item->submenu != NULL)
-    g_object_unref (item->submenu);
-
-  g_slice_free (UnityGtkMenuItem, item);
+      g_slice_free (UnityGtkMenuItem, item);
+    }
 }
 
 static UnityGtkMenu *
