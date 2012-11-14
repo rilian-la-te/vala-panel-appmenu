@@ -14,9 +14,10 @@ typedef struct _UnityGtkMenuSectionClass UnityGtkMenuSectionClass;
 
 struct _UnityGtkMenuItem
 {
-  GtkMenuItem  *menu_item;
-  UnityGtkMenu *submenu;
-  guint         submenu_valid : 1;
+  GtkMenuItem         *menu_item;
+  UnityGtkMenuSection *parent_section;
+  UnityGtkMenu        *submenu;
+  guint                submenu_valid : 1;
 };
 
 struct _UnityGtkMenuSection
@@ -65,11 +66,15 @@ static GParamSpec *menu_section_properties[MENU_SECTION_N_PROPERTIES] = { NULL }
 static GParamSpec *menu_properties[MENU_N_PROPERTIES] = { NULL };
 
 static UnityGtkMenuItem *
-unity_gtk_menu_item_new (GtkMenuItem *menu_item)
+unity_gtk_menu_item_new (GtkMenuItem         *menu_item,
+                         UnityGtkMenuSection *parent_section)
 {
   UnityGtkMenuItem *item = g_slice_new0 (UnityGtkMenuItem);
 
   item->menu_item = menu_item;
+  item->parent_section = parent_section;
+  if (item->parent_section != NULL)
+    g_object_ref (item->parent_section);
 
   return item;
 }
@@ -83,6 +88,9 @@ unity_gtk_menu_item_free (gpointer data)
 
       if (item->submenu != NULL)
         g_object_unref (item->submenu);
+
+      if (item->parent_section != NULL)
+        g_object_unref (item->parent_section);
 
       g_slice_free (UnityGtkMenuItem, item);
     }
@@ -164,7 +172,7 @@ unity_gtk_menu_section_get_menu_items (UnityGtkMenuSection *section)
       section->menu_items = g_ptr_array_new_full (n, unity_gtk_menu_item_free);
 
       for (iter = start; iter != finish; iter = g_list_next (iter))
-        g_ptr_array_add (section->menu_items, unity_gtk_menu_item_new (iter->data));
+        g_ptr_array_add (section->menu_items, unity_gtk_menu_item_new (iter->data, section));
     }
 
   return section->menu_items;
@@ -521,7 +529,7 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
   else if (section->menu_items != NULL)
     {
       GtkMenuItem *menu_item = GTK_MENU_ITEM (child);
-      UnityGtkMenuItem *item = unity_gtk_menu_item_new (menu_item);
+      UnityGtkMenuItem *item = unity_gtk_menu_item_new (menu_item, section);
       guint index = position - section->shell_offset;
 
       g_ptr_array_insert (section->menu_items, item, index);
