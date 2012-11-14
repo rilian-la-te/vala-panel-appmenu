@@ -262,10 +262,10 @@ unity_gtk_menu_section_set_property (GObject      *object,
 static gboolean
 unity_gtk_menu_section_is_mutable (GMenuModel *model)
 {
-  g_return_val_if_fail (UNITY_GTK_IS_MENU_SECTION (model), FALSE);
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_SECTION (model), TRUE);
 
   /* The menu can change at any time. */
-  return FALSE;
+  return TRUE;
 }
 
 static gint
@@ -653,10 +653,10 @@ unity_gtk_menu_set_property (GObject      *object,
 static gboolean
 unity_gtk_menu_is_mutable (GMenuModel *model)
 {
-  g_return_val_if_fail (UNITY_GTK_IS_MENU (model), FALSE);
+  g_return_val_if_fail (UNITY_GTK_IS_MENU (model), TRUE);
 
   /* The menu can change at any time. */
-  return FALSE;
+  return TRUE;
 }
 
 static gint
