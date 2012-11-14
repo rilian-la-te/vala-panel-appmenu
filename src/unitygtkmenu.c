@@ -431,11 +431,93 @@ unity_gtk_menu_dispose (GObject *object)
 }
 
 static void
+g_ptr_array_insert (GPtrArray *ptr_array,
+                    gpointer   data,
+                    gint       index)
+{
+  guint i;
+
+  g_return_if_fail (ptr_array != NULL);
+  g_warn_if_fail (-1 <= index && index <= ptr_array->len);
+
+  if (index < 0 || index > ptr_array->len)
+    index = ptr_array->len;
+
+  g_ptr_array_add (ptr_array, NULL);
+
+  for (i = ptr_array->len - 1; i > index; i--)
+    ptr_array->pdata[i] = g_ptr_array_index (ptr_array, i - 1);
+
+  ptr_array->pdata[index] = data;
+}
+
+static void
 unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
                               GtkWidget    *child,
                               gint          position,
                               gpointer      user_data)
 {
+  UnityGtkMenu *menu = user_data;
+  UnityGtkMenuPrivate *priv = menu->priv;
+  GPtrArray *sections = priv->sections;
+  UnityGtkMenuSection *section;
+  guint i;
+  guint j;
+
+  g_return_if_fail (sections != NULL);
+
+  if (position < 0)
+    position = g_list_length (gtk_container_get_children (GTK_CONTAINER (menu_shell))) - 1;
+
+  /* Find the index of the modified section. */
+  for (i = 0; i + 1 < sections->len; i++)
+    {
+      section = g_ptr_array_index (sections, i + 1);
+
+      if (section->shell_offset > position)
+        break;
+    }
+
+  /* Shift shell offsets up by 1. */
+  for (j = i + 1; j < sections->len; j++)
+    {
+      section = g_ptr_array_index (sections, j);
+      section->shell_offset++;
+    }
+
+  section = g_ptr_array_index (sections, i);
+
+  if (GTK_IS_SEPARATOR_MENU_ITEM (child))
+    {
+      UnityGtkMenuSection *new_section = unity_gtk_menu_section_new (menu, position + 1);
+
+      g_ptr_array_insert (sections, new_section, i + 1);
+
+      if (section->menu_items != NULL)
+        {
+          guint size = position - section->shell_offset;
+          guint new_size = section->menu_items->len - size;
+
+          new_section->menu_items = g_ptr_array_new_full (new_size, unity_gtk_menu_item_free);
+
+          /* Move menu items to the new section. */
+          for (i = 0; i < new_size; i++)
+            {
+              new_section->menu_items->pdata[i] = g_ptr_array_index (section->menu_items, size + i);
+              section->menu_items->pdata[size + i] = NULL;
+            }
+
+          g_ptr_array_set_size (section->menu_items, size);
+        }
+    }
+  else if (section->menu_items != NULL)
+    {
+      GtkMenuItem *menu_item = GTK_MENU_ITEM (child);
+      UnityGtkMenuItem *item = unity_gtk_menu_item_new (menu_item);
+      guint index = position - section->shell_offset;
+
+      g_ptr_array_insert (section->menu_items, item, index);
+    }
 }
 
 static GPtrArray *
