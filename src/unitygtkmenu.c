@@ -285,8 +285,6 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
   GPtrArray *menu_items;
   GHashTable *hash_table;
 
-  g_message ("%s (%p, %d, %p)", __func__, model, item_index, attributes);
-
   g_return_if_fail (UNITY_GTK_IS_MENU_SECTION (model));
   g_return_if_fail (0 <= item_index && item_index < unity_gtk_menu_section_get_n_items (model));
   g_return_if_fail (attributes != NULL);
@@ -327,8 +325,6 @@ unity_gtk_menu_section_get_item_links (GMenuModel  *model,
   UnityGtkMenuSection *section;
   GPtrArray *menu_items;
   GHashTable *hash_table;
-
-  g_message ("%s (%p, %d, %p)", __func__, model, item_index, links);
 
   g_return_if_fail (UNITY_GTK_IS_MENU_SECTION (model));
   g_return_if_fail (0 <= item_index && item_index < unity_gtk_menu_section_get_n_items (model));
@@ -509,7 +505,7 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
           /* Move menu items to the new section. */
           for (i = 0; i < new_size; i++)
             {
-              new_section->menu_items->pdata[i] = g_ptr_array_index (section->menu_items, size + i);
+              g_ptr_array_add (new_section->menu_items, g_ptr_array_index (section->menu_items, size + i));
               section->menu_items->pdata[size + i] = NULL;
             }
 
@@ -672,8 +668,6 @@ unity_gtk_menu_get_item_attributes (GMenuModel  *model,
                                     gint         item_index,
                                     GHashTable **attributes)
 {
-  g_message ("%s (%p, %d, %p)", __func__, model, item_index, attributes);
-
   g_return_if_fail (UNITY_GTK_IS_MENU (model));
   g_return_if_fail (0 <= item_index && item_index < unity_gtk_menu_get_n_items (model));
   g_return_if_fail (attributes != NULL);
@@ -690,8 +684,6 @@ unity_gtk_menu_get_item_links (GMenuModel  *model,
   GPtrArray *sections;
   UnityGtkMenuSection *section;
   GHashTable *hash_table;
-
-  g_message ("%s (%p, %d, %p)", __func__, model, item_index, links);
 
   g_return_if_fail (UNITY_GTK_IS_MENU (model));
   g_return_if_fail (0 <= item_index && item_index < unity_gtk_menu_get_n_items (model));
