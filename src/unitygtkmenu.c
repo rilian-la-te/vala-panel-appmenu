@@ -285,6 +285,8 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
   GPtrArray *menu_items;
   GHashTable *hash_table;
 
+  g_message ("%s (%p, %d, %p)", __func__, model, item_index, attributes);
+
   g_return_if_fail (UNITY_GTK_IS_MENU_SECTION (model));
   g_return_if_fail (0 <= item_index && item_index < unity_gtk_menu_section_get_n_items (model));
   g_return_if_fail (attributes != NULL);
@@ -325,6 +327,8 @@ unity_gtk_menu_section_get_item_links (GMenuModel  *model,
   UnityGtkMenuSection *section;
   GPtrArray *menu_items;
   GHashTable *hash_table;
+
+  g_message ("%s (%p, %d, %p)", __func__, model, item_index, links);
 
   g_return_if_fail (UNITY_GTK_IS_MENU_SECTION (model));
   g_return_if_fail (0 <= item_index && item_index < unity_gtk_menu_section_get_n_items (model));
@@ -511,9 +515,11 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
 
           g_ptr_array_set_size (section->menu_items, size);
 
+          g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (section), size, new_size, 0);
           g_menu_model_items_changed (G_MENU_MODEL (section), size, new_size, 0);
         }
 
+      g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (menu), section_index + 1, 0, 1);
       g_menu_model_items_changed (G_MENU_MODEL (menu), section_index + 1, 0, 1);
     }
   else if (section->menu_items != NULL)
@@ -524,6 +530,7 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
 
       g_ptr_array_insert (section->menu_items, item, index);
 
+      g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (section), index, 0, 1);
       g_menu_model_items_changed (G_MENU_MODEL (section), index, 0, 1);
     }
 }
@@ -665,6 +672,8 @@ unity_gtk_menu_get_item_attributes (GMenuModel  *model,
                                     gint         item_index,
                                     GHashTable **attributes)
 {
+  g_message ("%s (%p, %d, %p)", __func__, model, item_index, attributes);
+
   g_return_if_fail (UNITY_GTK_IS_MENU (model));
   g_return_if_fail (0 <= item_index && item_index < unity_gtk_menu_get_n_items (model));
   g_return_if_fail (attributes != NULL);
@@ -681,6 +690,8 @@ unity_gtk_menu_get_item_links (GMenuModel  *model,
   GPtrArray *sections;
   UnityGtkMenuSection *section;
   GHashTable *hash_table;
+
+  g_message ("%s (%p, %d, %p)", __func__, model, item_index, links);
 
   g_return_if_fail (UNITY_GTK_IS_MENU (model));
   g_return_if_fail (0 <= item_index && item_index < unity_gtk_menu_get_n_items (model));

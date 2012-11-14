@@ -196,6 +196,7 @@ unity_gtk_menu_item_notify (GObject    *object,
         }
     }
 
+  g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (parser), position, 1, !removed);
   g_menu_model_items_changed (G_MENU_MODEL (parser), position, 1, !removed);
 }
 
@@ -372,6 +373,7 @@ unity_gtk_menu_parser_inserted (GtkMenuShell *menu_shell,
 
       iter = g_sequence_get_iter_at_pos (parser->items, position);
       iter = unity_gtk_menu_item_insert (iter, parser, GTK_MENU_ITEM (child));
+      g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (parser), position, 0, 1);
       g_menu_model_items_changed (G_MENU_MODEL (parser), position, 0, 1);
     }
 }
@@ -422,6 +424,8 @@ unity_gtk_menu_parser_get_item_attributes (GMenuModel  *model,
   GSequenceIter *iter;
   UnityGtkMenuItem *item;
 
+  g_message ("%s", __func__);
+
   iter = g_sequence_get_iter_at_pos (parser->items, item_index);
   if (g_sequence_iter_is_end (iter))
     iter = g_sequence_iter_prev (iter);
@@ -459,6 +463,8 @@ unity_gtk_menu_parser_get_item_links (GMenuModel  *model,
   UnityGtkMenuParser *parser = (UnityGtkMenuParser *) model;
   UnityGtkMenuItem *item;
   GSequenceIter *iter;
+
+  g_message ("%s", __func__);
 
   iter = g_sequence_get_iter_at_pos (parser->items, item_index);
   if (g_sequence_iter_is_end (iter))
@@ -565,6 +571,7 @@ unity_gtk_menu_parser_destroy (UnityGtkMenuParser *parser)
         {
           g_sequence_remove_range (g_sequence_get_begin_iter (parser->items),
                                    g_sequence_get_end_iter (parser->items));
+          g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (parser), 0, n_items, 0);
           g_menu_model_items_changed (G_MENU_MODEL (parser), 0, n_items, 0);
         }
     }

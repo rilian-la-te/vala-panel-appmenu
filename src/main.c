@@ -191,8 +191,6 @@ hijacked_menu_bar_size_allocate (GtkWidget     *widget,
   GtkAllocation zero = { 0, 0, 0, 0 };
   GdkWindow *window;
 
-  g_message ("%s (%p, %p)", __func__, widget, allocation);
-
   /* We manually assign an empty allocation to the menu bar to
    * prevent the container from attempting to draw it at all.
    */
