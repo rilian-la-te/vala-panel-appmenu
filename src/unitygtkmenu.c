@@ -67,8 +67,8 @@ enum
 static GParamSpec *menu_section_properties[MENU_SECTION_N_PROPERTIES] = { NULL };
 static GParamSpec *menu_properties[MENU_N_PROPERTIES] = { NULL };
 
-static void unity_gtk_menu_remove_menu_item (UnityGtkMenu     *menu,
-                                             UnityGtkMenuItem *item);
+static void unity_gtk_menu_remove_item (UnityGtkMenu     *menu,
+                                        UnityGtkMenuItem *item);
 
 static void
 unity_gtk_menu_item_handle_notify (GObject    *gobject,
@@ -92,7 +92,7 @@ unity_gtk_menu_item_handle_notify (GObject    *gobject,
           g_assert (item->parent_section != NULL);
           g_assert (item->parent_section->parent_menu != NULL);
 
-          unity_gtk_menu_remove_menu_item (item->parent_section->parent_menu, item);
+          unity_gtk_menu_remove_item (item->parent_section->parent_menu, item);
         }
     }
 }
@@ -372,7 +372,7 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
   GHashTable *hash_table;
 
   g_return_if_fail (UNITY_GTK_IS_MENU_SECTION (model));
-  g_return_if_fail (0 <= item_index && item_index < unity_gtk_menu_section_get_n_items (model));
+  g_return_if_fail (0 <= item_index && item_index < g_menu_model_get_n_items (model));
   g_return_if_fail (attributes != NULL);
 
   section = UNITY_GTK_MENU_SECTION (model);
@@ -413,7 +413,7 @@ unity_gtk_menu_section_get_item_links (GMenuModel  *model,
   GHashTable *hash_table;
 
   g_return_if_fail (UNITY_GTK_IS_MENU_SECTION (model));
-  g_return_if_fail (0 <= item_index && item_index < unity_gtk_menu_section_get_n_items (model));
+  g_return_if_fail (0 <= item_index && item_index < g_menu_model_get_n_items (model));
   g_return_if_fail (links != NULL);
 
   section = UNITY_GTK_MENU_SECTION (model);
@@ -600,7 +600,7 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
           section->items->pdata[size] = unity_gtk_menu_item_new (GTK_MENU_ITEM (child), section);
 
           if (new_size)
-            g_menu_model_items_changed (G_MENU_MODEL (section), size, new_size, 0);
+            g_menu_model_items_changed (G_MENU_MODEL (section), size, new_size - 1, 0);
         }
 
       g_menu_model_items_changed (G_MENU_MODEL (menu), section_index + 1, 0, 1);
@@ -617,8 +617,8 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
 }
 
 static void
-unity_gtk_menu_remove_menu_item (UnityGtkMenu     *menu,
-                                 UnityGtkMenuItem *item)
+unity_gtk_menu_remove_item (UnityGtkMenu     *menu,
+                            UnityGtkMenuItem *item)
 {
   GPtrArray *sections;
   UnityGtkMenuSection *section;
@@ -671,15 +671,22 @@ unity_gtk_menu_remove_menu_item (UnityGtkMenu     *menu,
 
           if (section->items != NULL && next_section->items != NULL)
             {
-              guint offset = section->items->len;
+              guint separator_index = section->items->len - 1;
+              guint next_section_length = g_menu_model_get_n_items (G_MENU_MODEL (next_section));
 
-              g_ptr_array_set_size (section->items, section->items->len + next_section->items->len);
+              /* The separator should be at the end. */
+              g_assert (g_ptr_array_index (section->items, separator_index) == item);
+
+              g_ptr_array_set_size (section->items, separator_index + next_section->items->len);
+              unity_gtk_menu_item_free (g_ptr_array_index (section->items, separator_index));
 
               for (i = 0; i < next_section->items->len; i++)
                 {
-                  section->items->pdata[offset + i] = g_ptr_array_index (next_section->items, i);
+                  section->items->pdata[separator_index + i] = g_ptr_array_index (next_section->items, i);
                   next_section->items->pdata[i] = NULL;
                 }
+
+              g_menu_model_items_changed (G_MENU_MODEL (section), separator_index, 0, next_section_length);
             }
 
           g_ptr_array_remove_index (sections, section_index + 1);
@@ -688,7 +695,7 @@ unity_gtk_menu_remove_menu_item (UnityGtkMenu     *menu,
         }
     }
 
-  if (section->items != NULL)
+  if (section->items != NULL && !GTK_IS_SEPARATOR_MENU_ITEM (menu_item))
     {
       guint i;
 
@@ -701,8 +708,7 @@ unity_gtk_menu_remove_menu_item (UnityGtkMenu     *menu,
 
       g_ptr_array_remove_index (section->items, i);
 
-      if (!GTK_IS_SEPARATOR_MENU_ITEM (menu_item))
-        g_menu_model_items_changed (G_MENU_MODEL (section), i, 1, 0);
+      g_menu_model_items_changed (G_MENU_MODEL (section), i, 1, 0);
     }
 }
 
@@ -850,7 +856,7 @@ unity_gtk_menu_get_item_attributes (GMenuModel  *model,
                                     GHashTable **attributes)
 {
   g_return_if_fail (UNITY_GTK_IS_MENU (model));
-  g_return_if_fail (0 <= item_index && item_index < unity_gtk_menu_get_n_items (model));
+  g_return_if_fail (0 <= item_index && item_index < g_menu_model_get_n_items (model));
   g_return_if_fail (attributes != NULL);
 
   *attributes = g_hash_table_new (g_str_hash, g_str_equal);
@@ -867,7 +873,7 @@ unity_gtk_menu_get_item_links (GMenuModel  *model,
   GHashTable *hash_table;
 
   g_return_if_fail (UNITY_GTK_IS_MENU (model));
-  g_return_if_fail (0 <= item_index && item_index < unity_gtk_menu_get_n_items (model));
+  g_return_if_fail (0 <= item_index && item_index < g_menu_model_get_n_items (model));
   g_return_if_fail (links != NULL);
 
   menu = UNITY_GTK_MENU (model);
@@ -924,47 +930,114 @@ unity_gtk_menu_new (GtkMenuShell *menu_shell)
 }
 
 static void
-unity_gtk_menu_model_print (GMenuModel *model,
-                            guint       depth)
+unity_gtk_menu_item_print (UnityGtkMenuItem *item,
+                           guint             depth)
 {
   gchar *indent;
-  guint n;
+  GtkMenuItem *menu_item;
+  const gchar *label;
+  UnityGtkMenu *submenu;
+
+  g_return_if_fail (item != NULL);
+
+  indent = g_strnfill (2 + 3 * depth, ' ');
+  menu_item = item->menu_item;
+  label = menu_item != NULL ? gtk_menu_item_get_label (menu_item) : NULL;
+  submenu = item->submenu;
+
+  if (label != NULL && label[0] != '\0')
+    g_print ("%s(%s *) %p \"%s\"\n", indent, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (menu_item)), item, label);
+  else
+    g_print ("%s(%s *) %p\n", indent, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (menu_item)), item);
+
+  if (submenu != NULL)
+    unity_gtk_menu_print (submenu, depth + 1);
+
+  g_free (indent);
+}
+
+static void
+unity_gtk_menu_section_print (UnityGtkMenuSection *section,
+                              guint                depth)
+{
+  gchar *indent;
+  GPtrArray *items;
   guint i;
 
-  g_return_if_fail (G_IS_MENU_MODEL (model));
+  g_return_if_fail (UNITY_GTK_IS_MENU_SECTION (section));
 
-  indent = g_strnfill (2 * depth, ' ');
+  indent = g_strnfill (1 + 3 * depth, ' ');
+  items = unity_gtk_menu_section_get_items (section);
 
-  n = g_menu_model_get_n_items (model);
+  g_print ("%s(%s *) %p\n", indent, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (section)), section);
 
-  for (i = 0; i < n; i++)
-    {
-      GVariant *label = g_menu_model_get_item_attribute_value (model, i, G_MENU_ATTRIBUTE_LABEL, G_VARIANT_TYPE_STRING);
-      GMenuModel *section = g_menu_model_get_item_link (model, i, G_MENU_LINK_SECTION);
-      GMenuModel *submenu = g_menu_model_get_item_link (model, i, G_MENU_LINK_SUBMENU);
-
-      g_print ("%s%s\n", indent, label != NULL ? g_variant_get_string (label, NULL) : "(null)");
-
-      if (section != NULL)
-        {
-          g_print ("%s section\n", indent);
-          unity_gtk_menu_model_print (section, depth + 1);
-        }
-
-      if (submenu != NULL)
-        {
-          g_print ("%s submenu\n", indent);
-          unity_gtk_menu_model_print (submenu, depth + 1);
-        }
-    }
+  for (i = 0; i < items->len; i++)
+    unity_gtk_menu_item_print (g_ptr_array_index (items, i), depth);
 
   g_free (indent);
 }
 
 void
-unity_gtk_menu_print (UnityGtkMenu *menu)
+unity_gtk_menu_print (UnityGtkMenu *menu,
+                      guint         depth)
 {
+  gchar *indent;
+  GPtrArray *sections;
+  guint i;
+
   g_return_if_fail (UNITY_GTK_IS_MENU (menu));
 
-  unity_gtk_menu_model_print (G_MENU_MODEL (menu), 0);
+  indent = g_strnfill (3 * depth, ' ');
+  sections = unity_gtk_menu_get_sections (menu);
+
+  g_print ("%s(%s *) %p\n", indent, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (menu)), menu);
+
+  for (i = 0; i < sections->len; i++)
+    unity_gtk_menu_section_print (g_ptr_array_index (sections, i), depth);
+
+  g_free (indent);
+}
+
+void
+g_menu_model_print (GMenuModel *model,
+                    guint       depth)
+{
+  gchar *indent;
+  guint i;
+
+  g_return_if_fail (G_IS_MENU_MODEL (model));
+
+  indent = g_strnfill (3 * depth, ' ');
+
+  g_print ("%s(%s *) %p\n", indent, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (model)), model);
+
+  for (i = 0; i < g_menu_model_get_n_items (model); i++)
+    {
+      GVariant *variant = g_menu_model_get_item_attribute_value (model, i, G_MENU_ATTRIBUTE_LABEL, G_VARIANT_TYPE_STRING);
+      GMenuModel *section = g_menu_model_get_item_link (model, i, G_MENU_LINK_SECTION);
+      GMenuModel *submenu = g_menu_model_get_item_link (model, i, G_MENU_LINK_SUBMENU);
+      const gchar *label = NULL;
+
+      if (variant != NULL)
+        label = g_variant_get_string (variant, NULL);
+
+      if (label != NULL)
+        g_print ("%s %d: %s\n", indent, i, label);
+      else
+        g_print ("%s %d\n", indent, i);
+
+      if (section != NULL)
+        {
+          g_print ("%s  section\n", indent);
+          g_menu_model_print (section, depth + 1);
+        }
+
+      if (submenu != NULL)
+        {
+          g_print ("%s  submenu\n", indent);
+          g_menu_model_print (submenu, depth + 1);
+        }
+    }
+
+  g_free (indent);
 }
