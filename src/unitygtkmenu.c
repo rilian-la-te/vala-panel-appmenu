@@ -21,6 +21,7 @@ struct _UnityGtkMenuItem
   gulong               menu_item_notify_handler_id;
 };
 
+/* The last item may be a separator. */
 struct _UnityGtkMenuSection
 {
   GMenuModel parent_instance;
@@ -66,55 +67,8 @@ enum
 static GParamSpec *menu_section_properties[MENU_SECTION_N_PROPERTIES] = { NULL };
 static GParamSpec *menu_properties[MENU_N_PROPERTIES] = { NULL };
 
-static void
-unity_gtk_menu_remove_menu_item (UnityGtkMenu     *menu,
-                                 UnityGtkMenuItem *item)
-{
-  GPtrArray *sections;
-  UnityGtkMenuSection *section;
-
-  g_return_if_fail (UNITY_GTK_IS_MENU (menu));
-  g_return_if_fail (item != NULL);
-
-  sections = menu->priv->sections;
-  section = item->parent_section;
-
-  /* Not really sure how to handle this. */
-  g_assert (section != NULL);
-
-  if (sections != NULL)
-    {
-      guint section_index;
-      guint i;
-
-      for (section_index = 0; section_index < sections->len; section_index++)
-        if (g_ptr_array_index (sections, section_index) == section)
-          break;
-
-      /* The item's parent section should be in the menu. */
-      g_assert (section_index < sections->len);
-
-      /* Shift shell offsets down by 1. */
-      for (i = section_index + 1; i < sections->len; i++)
-        UNITY_GTK_MENU_SECTION (g_ptr_array_index (sections, i))->shell_offset--;
-    }
-
-  if (section->items != NULL)
-    {
-      guint i;
-
-      for (i = 0; i < section->items->len; i++)
-        if (g_ptr_array_index (section->items, i) == item)
-          break;
-
-      /* The item should be in its section. */
-      g_assert (i < section->items->len);
-
-      g_ptr_array_remove_index (section->items, i);
-
-      g_menu_model_items_changed (G_MENU_MODEL (section), i, 1, 0);
-    }
-}
+static void unity_gtk_menu_remove_menu_item (UnityGtkMenu     *menu,
+                                             UnityGtkMenuItem *item);
 
 static void
 unity_gtk_menu_item_handle_notify (GObject    *gobject,
@@ -272,6 +226,13 @@ unity_gtk_menu_section_get_items (UnityGtkMenuSection *section)
       for (n = 0; finish != NULL && !GTK_IS_SEPARATOR_MENU_ITEM (finish->data); n++)
         finish = g_list_next (finish);
 
+      /* Store the separator too. */
+      if (finish != NULL)
+        {
+          finish = g_list_next (finish);
+          n++;
+        }
+
       section->items = g_ptr_array_new_full (n, unity_gtk_menu_item_free);
 
       for (iter = start; iter != finish; iter = g_list_next (iter))
@@ -382,9 +343,23 @@ unity_gtk_menu_section_is_mutable (GMenuModel *model)
 static gint
 unity_gtk_menu_section_get_n_items (GMenuModel *model)
 {
+  GPtrArray *items;
+
   g_return_val_if_fail (UNITY_GTK_IS_MENU_SECTION (model), 0);
 
-  return unity_gtk_menu_section_get_items (UNITY_GTK_MENU_SECTION (model))->len;
+  items = unity_gtk_menu_section_get_items (UNITY_GTK_MENU_SECTION (model));
+
+  if (items->len > 0)
+    {
+      UnityGtkMenuItem *item = g_ptr_array_index (items, items->len - 1);
+
+      if (item != NULL && GTK_IS_SEPARATOR_MENU_ITEM (item->menu_item))
+        return items->len - 1;
+      else
+        return items->len;
+    }
+
+  return 0;
 }
 
 static void
@@ -621,22 +596,113 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
               section->items->pdata[size + i] = NULL;
             }
 
-          g_ptr_array_set_size (section->items, size);
+          g_ptr_array_set_size (section->items, size + 1);
+          section->items->pdata[size] = unity_gtk_menu_item_new (GTK_MENU_ITEM (child), section);
 
-          g_menu_model_items_changed (G_MENU_MODEL (section), size, new_size, 0);
+          if (new_size)
+            g_menu_model_items_changed (G_MENU_MODEL (section), size, new_size, 0);
         }
 
       g_menu_model_items_changed (G_MENU_MODEL (menu), section_index + 1, 0, 1);
     }
   else if (section->items != NULL)
     {
-      GtkMenuItem *menu_item = GTK_MENU_ITEM (child);
-      UnityGtkMenuItem *item = unity_gtk_menu_item_new (menu_item, section);
+      UnityGtkMenuItem *item = unity_gtk_menu_item_new (GTK_MENU_ITEM (child), section);
       guint index = position - section->shell_offset;
 
       g_ptr_array_insert (section->items, item, index);
 
       g_menu_model_items_changed (G_MENU_MODEL (section), index, 0, 1);
+    }
+}
+
+static void
+unity_gtk_menu_remove_menu_item (UnityGtkMenu     *menu,
+                                 UnityGtkMenuItem *item)
+{
+  GPtrArray *sections;
+  UnityGtkMenuSection *section;
+  GtkMenuItem *menu_item;
+
+  g_return_if_fail (UNITY_GTK_IS_MENU (menu));
+  g_return_if_fail (item != NULL);
+
+  sections = menu->priv->sections;
+  section = item->parent_section;
+  menu_item = item->menu_item;
+
+  /* Not really sure how to handle this. */
+  g_assert (section != NULL);
+
+  if (sections != NULL)
+    {
+      guint section_index;
+      guint i;
+
+      for (section_index = 0; section_index < sections->len; section_index++)
+        if (g_ptr_array_index (sections, section_index) == section)
+          break;
+
+      /* The item's parent section should be in the menu. */
+      g_assert (section_index < sections->len);
+
+      /* Shift shell offsets down by 1. */
+      for (i = section_index + 1; i < sections->len; i++)
+        UNITY_GTK_MENU_SECTION (g_ptr_array_index (sections, i))->shell_offset--;
+
+      /* Merge sections if removing a separator. */
+      if (GTK_IS_SEPARATOR_MENU_ITEM (menu_item))
+        {
+          UnityGtkMenuSection *next_section;
+
+          /* There should be a section after a separator. */
+          g_assert (section_index + 1 < sections->len);
+
+          next_section = g_ptr_array_index (sections, section_index + 1);
+
+          if (section->items != NULL || next_section->items != NULL)
+            {
+              unity_gtk_menu_section_get_items (section);
+              unity_gtk_menu_section_get_items (next_section);
+            }
+
+          /* Both sections should have items or not, simultaneously. */
+          g_assert ((section->items == NULL) == (next_section->items == NULL));
+
+          if (section->items != NULL && next_section->items != NULL)
+            {
+              guint offset = section->items->len;
+
+              g_ptr_array_set_size (section->items, section->items->len + next_section->items->len);
+
+              for (i = 0; i < next_section->items->len; i++)
+                {
+                  section->items->pdata[offset + i] = g_ptr_array_index (next_section->items, i);
+                  next_section->items->pdata[i] = NULL;
+                }
+            }
+
+          g_ptr_array_remove_index (sections, section_index + 1);
+
+          g_menu_model_items_changed (G_MENU_MODEL (menu), section_index + 1, 1, 0);
+        }
+    }
+
+  if (section->items != NULL)
+    {
+      guint i;
+
+      for (i = 0; i < section->items->len; i++)
+        if (g_ptr_array_index (section->items, i) == item)
+          break;
+
+      /* The item should be in its section. */
+      g_assert (i < section->items->len);
+
+      g_ptr_array_remove_index (section->items, i);
+
+      if (!GTK_IS_SEPARATOR_MENU_ITEM (menu_item))
+        g_menu_model_items_changed (G_MENU_MODEL (section), i, 1, 0);
     }
 }
 
@@ -668,7 +734,13 @@ unity_gtk_menu_get_sections (UnityGtkMenu *menu)
                 iter = g_list_next (iter);
 
               if (iter != NULL)
-                iter = g_list_next (iter);
+                {
+                  iter = g_list_next (iter);
+
+                  /* We have a trailing separator. */
+                  if (iter == NULL)
+                    g_ptr_array_add (priv->sections, unity_gtk_menu_section_new (menu, i + 1));
+                }
             }
 
           priv->menu_shell_insert_handler_id = g_signal_connect (menu_shell, "insert", G_CALLBACK (unity_gtk_menu_handle_insert), menu);
