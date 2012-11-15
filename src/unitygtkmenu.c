@@ -623,11 +623,9 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
 
           g_ptr_array_set_size (section->items, size);
 
-          g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (section), size, new_size, 0);
           g_menu_model_items_changed (G_MENU_MODEL (section), size, new_size, 0);
         }
 
-      g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (menu), section_index + 1, 0, 1);
       g_menu_model_items_changed (G_MENU_MODEL (menu), section_index + 1, 0, 1);
     }
   else if (section->items != NULL)
@@ -638,7 +636,6 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
 
       g_ptr_array_insert (section->items, item, index);
 
-      g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (section), index, 0, 1);
       g_menu_model_items_changed (G_MENU_MODEL (section), index, 0, 1);
     }
 }
