@@ -694,7 +694,7 @@ unity_gtk_menu_remove_item (UnityGtkMenu     *menu,
               for (i = 0; i < next_section->items->len; i++)
                 {
                   UnityGtkMenuItem *next_section_item = g_ptr_array_index (next_section->items, i);
-                  unity_gtk_menu_item_set_parent_section (item, section);
+                  unity_gtk_menu_item_set_parent_section (next_section_item, section);
                   section->items->pdata[separator_index + i] = next_section_item;
                   next_section->items->pdata[i] = NULL;
                 }
