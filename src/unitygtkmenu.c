@@ -584,7 +584,6 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
           for (i = 0; i < new_size; i++)
             {
               UnityGtkMenuItem *item = g_ptr_array_index (section->items, size + i);
-
               item->parent_section = new_section;
               g_ptr_array_add (new_section->items, item);
               section->items->pdata[size + i] = NULL;
@@ -608,6 +607,9 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
 
       g_menu_model_items_changed (G_MENU_MODEL (section), index, 0, 1);
     }
+
+  if (!unity_gtk_menu_is_valid (menu))
+    unity_gtk_menu_print (menu, 0);
 }
 
 static void
@@ -676,7 +678,9 @@ unity_gtk_menu_remove_item (UnityGtkMenu     *menu,
 
               for (i = 0; i < next_section->items->len; i++)
                 {
-                  section->items->pdata[separator_index + i] = g_ptr_array_index (next_section->items, i);
+                  UnityGtkMenuItem *next_section_item = g_ptr_array_index (next_section->items, i);
+                  next_section_item->parent_section = section;
+                  section->items->pdata[separator_index + i] = next_section_item;
                   next_section->items->pdata[i] = NULL;
                 }
 
@@ -704,6 +708,9 @@ unity_gtk_menu_remove_item (UnityGtkMenu     *menu,
 
       g_menu_model_items_changed (G_MENU_MODEL (section), i, 1, 0);
     }
+
+  if (!unity_gtk_menu_is_valid (menu))
+    unity_gtk_menu_print (menu, 0);
 }
 
 static GPtrArray *
