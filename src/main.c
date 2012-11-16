@@ -20,19 +20,13 @@ typedef struct _WindowData WindowData;
 static WindowData *
 window_data_new (void)
 {
-  g_message ("%s ()", __func__);
-
   return g_slice_new0 (WindowData);
 }
 
 static void
 window_data_free (gpointer data)
 {
-  WindowData *window_data;
-
-  g_message ("%s (%p)", __func__, data);
-
-  window_data = data;
+  WindowData *window_data = data;
 
   if (window_data != NULL)
     {
@@ -89,8 +83,6 @@ hijacked_window_realize (GtkWidget *widget)
 {
   WindowData *window_data;
 
-  g_message ("%s (%p)", __func__, widget);
-
   (* pre_hijacked_window_realize) (widget);
 
   window_data = g_object_get_qdata (G_OBJECT (widget), window_data_quark ());
@@ -123,8 +115,6 @@ hijacked_window_realize (GtkWidget *widget)
 static void
 hijacked_window_unrealize (GtkWidget *widget)
 {
-  g_message ("%s (%p)", __func__, widget);
-
   (* pre_hijacked_window_unrealize) (widget);
 
   g_object_set_qdata (G_OBJECT (widget), window_data_quark (), NULL);
@@ -135,8 +125,6 @@ hijacked_menu_bar_get_preferred_width (GtkWidget *widget,
                                        gint      *minimum_width,
                                        gint      *natural_width)
 {
-  g_message ("%s (%p, %p, %p)", __func__, widget, minimum_width, natural_width);
-
   (* pre_hijacked_menu_bar_get_preferred_width) (widget, minimum_width, natural_width);
 
   *minimum_width = 0;
@@ -148,8 +136,6 @@ hijacked_menu_bar_get_preferred_height (GtkWidget *widget,
                                         gint      *minimum_height,
                                         gint      *natural_height)
 {
-  g_message ("%s (%p, %p, %p)", __func__, widget, minimum_height, natural_height);
-
   (* pre_hijacked_menu_bar_get_preferred_height) (widget, minimum_height, natural_height);
 
   *minimum_height = 0;
@@ -162,8 +148,6 @@ hijacked_menu_bar_get_preferred_width_for_height (GtkWidget *widget,
                                                   gint      *minimum_width,
                                                   gint      *natural_width)
 {
-  g_message ("%s (%p, %d, %p, %p)", __func__, widget, height, minimum_width, natural_width);
-
   (* pre_hijacked_menu_bar_get_preferred_width_for_height) (widget, height, minimum_width, natural_width);
 
   *minimum_width = 0;
@@ -176,8 +160,6 @@ hijacked_menu_bar_get_preferred_height_for_width (GtkWidget *widget,
                                                   gint      *minimum_height,
                                                   gint      *natural_height)
 {
-  g_message ("%s (%p, %d, %p, %p)", __func__, widget, width, minimum_height, natural_height);
-
   (* pre_hijacked_menu_bar_get_preferred_height_for_width) (widget, width, minimum_height, natural_height);
 
   *minimum_height = 0;
@@ -212,8 +194,6 @@ hijacked_menu_bar_realize (GtkWidget *widget)
   GtkWidget *window;
   WindowData *window_data;
 
-  g_message ("%s (%p)", __func__, widget);
-
   (* pre_hijacked_menu_bar_realize) (widget);
 
   window = gtk_widget_get_toplevel (widget);
@@ -243,8 +223,6 @@ hijacked_menu_bar_unrealize (GtkWidget *widget)
   WindowData *window_data;
 
   (* pre_hijacked_menu_bar_unrealize) (widget);
-
-  g_message ("%s (%p)", __func__, widget);
 
   window = gtk_widget_get_toplevel (widget);
   window_data = g_object_get_qdata (G_OBJECT (window), window_data_quark ());

@@ -159,12 +159,10 @@ unity_gtk_menu_item_free (gpointer data)
       UnityGtkMenuItem *item = data;
 
       unity_gtk_menu_item_set_menu_item (item, NULL);
+      unity_gtk_menu_item_set_parent_section (item, NULL);
 
       if (item->submenu != NULL)
         g_object_unref (item->submenu);
-
-      if (item->parent_section != NULL)
-        g_object_unref (item->parent_section);
 
       g_slice_free (UnityGtkMenuItem, item);
     }
