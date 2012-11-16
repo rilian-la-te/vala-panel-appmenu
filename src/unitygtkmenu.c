@@ -590,7 +590,7 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
 
       if (section->items != NULL)
         {
-          UnityGtkMenuItem *item;
+          UnityGtkMenuItem *item = NULL;
           guint size = position - section->shell_offset;
           guint new_size = section->items->len - size;
           guint has_separator;
@@ -609,7 +609,7 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
           g_ptr_array_set_size (section->items, size + 1);
           section->items->pdata[size] = unity_gtk_menu_item_new (GTK_MENU_ITEM (child), section);
 
-          has_separator = GTK_IS_SEPARATOR_MENU_ITEM (item->menu_item);
+          has_separator = item != NULL && GTK_IS_SEPARATOR_MENU_ITEM (item->menu_item);
 
           if (new_size > has_separator)
             g_menu_model_items_changed (G_MENU_MODEL (section), size, new_size - has_separator, 0);
