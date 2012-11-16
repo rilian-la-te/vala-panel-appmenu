@@ -1,0 +1,6 @@
+- module crashes when a separator is removed from the end of a section
+- empty menu items appear wherever a GtkTearoffMenuItem is added
+- gedit has tearoff menus
+- eog is missing menus
+- transmission has no menus
+- export an action group that activates the correct menu items
