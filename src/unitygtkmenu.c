@@ -1358,7 +1358,7 @@ unity_gtk_action_group_init (UnityGtkActionGroup *self)
 
   priv = self->priv = UNITY_GTK_ACTION_GROUP_GET_PRIVATE (self);
 
-  priv->items_by_name = g_hash_table_new (g_str_hash, g_str_equal);
+  priv->items_by_name = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref);
 }
 
 UnityGtkActionGroup *
