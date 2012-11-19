@@ -54,7 +54,8 @@ GType                 unity_gtk_menu_get_type         (void)                    
 UnityGtkMenu *        unity_gtk_menu_new              (GtkMenuShell        *shell) G_GNUC_INTERNAL;
 
 void                  unity_gtk_menu_set_action_group (UnityGtkMenu        *menu,
-                                                       UnityGtkActionGroup *group) G_GNUC_INTERNAL;
+                                                       UnityGtkActionGroup *group,
+                                                       const gchar         *prefix) G_GNUC_INTERNAL;
 
 gboolean              unity_gtk_menu_is_valid         (UnityGtkMenu        *menu)  G_GNUC_INTERNAL;
 

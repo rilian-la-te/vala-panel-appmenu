@@ -53,6 +53,7 @@ struct _UnityGtkMenuPrivate
 
 struct _UnityGtkActionGroupPrivate
 {
+  GHashTable *items_by_name;
 };
 
 static void unity_gtk_action_group_g_action_group_init (GActionGroupInterface *iface);
@@ -968,6 +969,13 @@ unity_gtk_menu_new (GtkMenuShell *menu_shell)
                        NULL);
 }
 
+void
+unity_gtk_menu_set_action_group (UnityGtkMenu        *menu,
+                                 UnityGtkActionGroup *group,
+                                 const gchar         *prefix)
+{
+}
+
 static gboolean
 unity_gtk_menu_item_is_valid (UnityGtkMenuItem *item)
 {
@@ -1242,9 +1250,58 @@ g_menu_model_print (GMenuModel *model,
   g_free (indent);
 }
 
+static void
+unity_gtk_action_group_dispose (GObject *object)
+{
+  UnityGtkActionGroup *group;
+  UnityGtkActionGroupPrivate *priv;
+
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (object));
+
+  group = UNITY_GTK_ACTION_GROUP (object);
+  priv = group->priv;
+
+  if (priv->items_by_name != NULL)
+    {
+      g_hash_table_unref (priv->items_by_name);
+      priv->items_by_name = NULL;
+    }
+
+  G_OBJECT_CLASS (unity_gtk_action_group_parent_class)->dispose (object);
+}
+
 static gchar **
 unity_gtk_action_group_list_actions (GActionGroup *action_group)
 {
+  UnityGtkActionGroup *group;
+  UnityGtkActionGroupPrivate *priv;
+  gchar **names;
+
+  g_return_val_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group), g_slice_alloc0 (sizeof (gchar *)));
+
+  group = UNITY_GTK_ACTION_GROUP (action_group);
+  priv = group->priv;
+
+  if (priv->items_by_name != NULL)
+    {
+      GHashTableIter iter;
+      gpointer name;
+      guint n = g_hash_table_size (priv->items_by_name);
+      guint i;
+
+      names = g_slice_alloc ((n + 1) * sizeof (gchar *));
+
+      g_hash_table_iter_init (&iter, priv->items_by_name);
+
+      for (i = 0; i < n && g_hash_table_iter_next (&iter, &name, NULL); i++)
+        names[i] = g_strdup (name);
+
+      names[i] = NULL;
+    }
+  else
+    names = g_slice_alloc0 (sizeof (gchar *));
+
+  return names;
 }
 
 static void
@@ -1252,6 +1309,7 @@ unity_gtk_action_group_change_action_state (GActionGroup *action_group,
                                             const gchar  *action_name,
                                             GVariant     *value)
 {
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group));
 }
 
 static void
@@ -1259,6 +1317,7 @@ unity_gtk_action_group_activate_action (GActionGroup *action_group,
                                         const gchar  *action_name,
                                         GVariant     *parameter)
 {
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group));
 }
 
 static gboolean
@@ -1270,6 +1329,17 @@ unity_gtk_action_group_query_action (GActionGroup        *action_group,
                                      GVariant           **state_hint,
                                      GVariant           **state)
 {
+  g_return_val_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group), FALSE);
+}
+
+static void
+unity_gtk_action_group_class_init (UnityGtkActionGroupClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->dispose = unity_gtk_action_group_dispose;
+
+  g_type_class_add_private (klass, sizeof (UnityGtkActionGroupPrivate));
 }
 
 static void
@@ -1282,13 +1352,17 @@ unity_gtk_action_group_g_action_group_init (GActionGroupInterface *iface)
 }
 
 static void
-unity_gtk_action_group_class_init (UnityGtkActionGroupClass *klass)
-{
-  g_type_class_add_private (klass, sizeof (UnityGtkActionGroupPrivate));
-}
-
-static void
 unity_gtk_action_group_init (UnityGtkActionGroup *self)
 {
-  self->priv = UNITY_GTK_ACTION_GROUP_GET_PRIVATE (self);
+  UnityGtkActionGroupPrivate *priv;
+
+  priv = self->priv = UNITY_GTK_ACTION_GROUP_GET_PRIVATE (self);
+
+  priv->items_by_name = g_hash_table_new (g_str_hash, g_str_equal);
+}
+
+UnityGtkActionGroup *
+unity_gtk_action_group_new (void)
+{
+  return g_object_new (UNITY_GTK_TYPE_ACTION_GROUP, NULL);
 }
