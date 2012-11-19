@@ -225,7 +225,7 @@ unity_gtk_menu_section_dispose (GObject *object)
 
   if (section->items != NULL)
     {
-      g_ptr_array_free (section->items, TRUE);
+      g_ptr_array_unref (section->items);
       section->items = NULL;
     }
 
@@ -325,7 +325,7 @@ unity_gtk_menu_section_set_property (GObject      *object,
         {
           if (self->items != NULL)
             {
-              g_ptr_array_free (self->items, TRUE);
+              g_ptr_array_unref (self->items);
               self->items = NULL;
             }
 
@@ -344,7 +344,7 @@ unity_gtk_menu_section_set_property (GObject      *object,
         {
           if (self->items != NULL)
             {
-              g_ptr_array_free (self->items, TRUE);
+              g_ptr_array_unref (self->items);
               self->items = NULL;
             }
 
@@ -537,7 +537,7 @@ unity_gtk_menu_dispose (GObject *object)
           priv->menu_shell_insert_handler_id = 0;
         }
 
-      g_ptr_array_free (priv->sections, TRUE);
+      g_ptr_array_unref (priv->sections);
       priv->sections = NULL;
     }
 
@@ -858,7 +858,7 @@ unity_gtk_menu_set_property (GObject      *object,
                   priv->menu_shell_insert_handler_id = 0;
                 }
 
-              g_ptr_array_free (priv->sections, TRUE);
+              g_ptr_array_unref (priv->sections);
               priv->sections = NULL;
             }
 
