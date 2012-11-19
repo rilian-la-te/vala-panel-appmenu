@@ -26,6 +26,7 @@ struct _UnityGtkMenuItem
   UnityGtkMenu        *submenu;
   guint                submenu_valid : 1;
   gulong               menu_item_notify_handler_id;
+  gchar               *action_name;
 };
 
 /* The last item may be a separator. */
@@ -179,11 +180,14 @@ unity_gtk_menu_item_free (gpointer data)
     {
       UnityGtkMenuItem *item = data;
 
-      unity_gtk_menu_item_set_menu_item (item, NULL);
-      unity_gtk_menu_item_set_parent_section (item, NULL);
+      if (item->action_name != NULL)
+        g_free (item->action_name);
 
       if (item->submenu != NULL)
         g_object_unref (item->submenu);
+
+      unity_gtk_menu_item_set_parent_section (item, NULL);
+      unity_gtk_menu_item_set_menu_item (item, NULL);
 
       g_slice_free (UnityGtkMenuItem, item);
     }
@@ -986,11 +990,169 @@ unity_gtk_menu_new (GtkMenuShell *menu_shell)
                        NULL);
 }
 
+static void
+unity_gtk_action_group_add_menu (UnityGtkActionGroup *group,
+                                 UnityGtkMenu        *menu,
+                                 const gchar         *prefix)
+{
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (group));
+  g_return_if_fail (UNITY_GTK_IS_MENU (menu));
+
+  if (prefix != NULL && prefix[0] == '\0')
+    prefix = NULL;
+
+  if (menu->priv->sections != NULL)
+    {
+      guint i;
+
+      for (i = 0; i < menu->priv->sections->len; i++)
+        {
+          UnityGtkMenuSection *section = g_ptr_array_index (menu->priv->sections, i);
+
+          if (section->items != NULL)
+            {
+              guint j;
+
+              for (j = 0; j < section->items->len; j++)
+                {
+                  UnityGtkMenuItem *item = g_ptr_array_index (section->items, j);
+                  const gchar *label = NULL;
+
+                  if (item->menu_item != NULL)
+                    {
+                      label = gtk_menu_item_get_label (item->menu_item);
+                      if (label != NULL && label[0] == '\0')
+                        label = NULL;
+                    }
+
+                  if (item->action_name != NULL)
+                    g_free (item->action_name);
+
+                  if (prefix != NULL)
+                    {
+                      if (label != NULL)
+                        item->action_name = g_strdup_printf ("%s.%u.%u.%s", prefix, i, j, label);
+                      else
+                        item->action_name = g_strdup_printf ("%s.%u.%u", prefix, i, j);
+                    }
+                  else if (label != NULL)
+                    item->action_name = g_strdup_printf ("%u.%u.%s", i, j, label);
+                  else
+                    item->action_name = g_strdup_printf ("%u.%u", i, j);
+
+                  g_hash_table_insert (group->priv->items_by_name, item->action_name, g_object_ref (item));
+
+                  if (item->submenu_valid && item->submenu != NULL)
+                    unity_gtk_action_group_add_menu (group, item->submenu, item->action_name);
+                }
+            }
+        }
+    }
+}
+
+static void
+unity_gtk_action_group_remove_menu (UnityGtkActionGroup *group,
+                                    UnityGtkMenu        *menu)
+{
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (group));
+  g_return_if_fail (UNITY_GTK_IS_MENU (menu));
+
+  if (menu->priv->sections != NULL)
+    {
+      guint i;
+
+      for (i = 0; i < menu->priv->sections->len; i++)
+        {
+          UnityGtkMenuSection *section = g_ptr_array_index (menu->priv->sections, i);
+
+          if (section->items != NULL)
+            {
+              guint j;
+
+              for (j = 0; j < section->items->len; j++)
+                {
+                  UnityGtkMenuItem *item = g_ptr_array_index (section->items, j);
+
+                  if (item->action_name != NULL)
+                    {
+                      g_hash_table_remove (group->priv->items_by_name, item->action_name);
+                      item->action_name = NULL;
+                    }
+
+                  if (item->submenu_valid && item->submenu != NULL)
+                    unity_gtk_action_group_remove_menu (group, item->submenu);
+                }
+            }
+        }
+    }
+}
+
+static void
+unity_gtk_menu_assign_action_group (UnityGtkMenu        *menu,
+                                    UnityGtkActionGroup *group)
+{
+  UnityGtkMenuPrivate *priv;
+
+  g_return_if_fail (UNITY_GTK_IS_MENU (menu));
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (group));
+
+  priv = menu->priv;
+
+  if (group != priv->action_group && priv->sections != NULL)
+    {
+      guint i;
+
+      if (priv->action_group != NULL)
+        {
+          g_object_unref (priv->action_group);
+          priv->action_group = NULL;
+        }
+
+      for (i = 0; i < priv->sections->len; i++)
+        {
+          UnityGtkMenuSection *section = g_ptr_array_index (priv->sections, i);
+
+          if (section->items != NULL)
+            {
+              guint j;
+
+              for (j = 0; j < section->items->len; j++)
+                {
+                  UnityGtkMenuItem *item = g_ptr_array_index (section->items, j);
+
+                  if (item->submenu_valid && item->submenu != NULL)
+                    unity_gtk_menu_assign_action_group (item->submenu, group);
+                }
+            }
+        }
+
+      if (group != NULL)
+        priv->action_group = g_object_ref (group);
+    }
+}
+
 void
 unity_gtk_menu_set_action_group (UnityGtkMenu        *menu,
                                  UnityGtkActionGroup *group,
                                  const gchar         *prefix)
 {
+  UnityGtkMenuPrivate *priv;
+
+  g_return_if_fail (UNITY_GTK_IS_MENU (menu));
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (group));
+
+  priv = menu->priv;
+
+  if (group != priv->action_group)
+    {
+      if (priv->action_group != NULL)
+        unity_gtk_action_group_remove_menu (priv->action_group, menu);
+
+      unity_gtk_menu_assign_action_group (menu, group);
+
+      if (group != NULL)
+        unity_gtk_action_group_add_menu (group, menu, prefix);
+    }
 }
 
 static gboolean
@@ -1294,7 +1456,7 @@ unity_gtk_action_group_list_actions (GActionGroup *action_group)
   UnityGtkActionGroupPrivate *priv;
   gchar **names;
 
-  g_return_val_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group), g_slice_alloc0 (sizeof (gchar *)));
+  g_return_val_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group), g_malloc0 (sizeof (gchar *)));
 
   group = UNITY_GTK_ACTION_GROUP (action_group);
   priv = group->priv;
@@ -1306,7 +1468,7 @@ unity_gtk_action_group_list_actions (GActionGroup *action_group)
       guint n = g_hash_table_size (priv->items_by_name);
       guint i;
 
-      names = g_slice_alloc ((n + 1) * sizeof (gchar *));
+      names = g_malloc ((n + 1) * sizeof (gchar *));
 
       g_hash_table_iter_init (&iter, priv->items_by_name);
 
@@ -1316,7 +1478,7 @@ unity_gtk_action_group_list_actions (GActionGroup *action_group)
       names[i] = NULL;
     }
   else
-    names = g_slice_alloc0 (sizeof (gchar *));
+    names = g_malloc0 (sizeof (gchar *));
 
   return names;
 }
