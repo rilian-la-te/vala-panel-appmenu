@@ -46,9 +46,10 @@ struct _UnityGtkMenuSectionClass
 
 struct _UnityGtkMenuPrivate
 {
-  GtkMenuShell *menu_shell;
-  GPtrArray    *sections;
-  gulong        menu_shell_insert_handler_id;
+  GtkMenuShell        *menu_shell;
+  GPtrArray           *sections;
+  gulong               menu_shell_insert_handler_id;
+  UnityGtkActionGroup *action_group;
 };
 
 struct _UnityGtkActionGroupPrivate
@@ -80,6 +81,7 @@ enum
   MENU_PROP_0,
   MENU_PROP_MENU_SHELL,
   MENU_PROP_SECTIONS,
+  MENU_PROP_ACTION_GROUP,
   MENU_N_PROPERTIES
 };
 
@@ -820,6 +822,10 @@ unity_gtk_menu_get_property (GObject    *object,
       g_value_set_pointer (value, unity_gtk_menu_get_sections (self));
       break;
 
+    case MENU_PROP_ACTION_GROUP:
+      g_value_set_object (value, priv->action_group);
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -865,6 +871,10 @@ unity_gtk_menu_set_property (GObject      *object,
           priv->menu_shell = menu_shell;
         }
 
+      break;
+
+    case MENU_PROP_ACTION_GROUP:
+      unity_gtk_menu_set_action_group (self, g_value_get_object (value), NULL);
       break;
 
     default:
@@ -949,6 +959,11 @@ unity_gtk_menu_class_init (UnityGtkMenuClass *klass)
                                                               "Sections",
                                                               "Sections",
                                                               G_PARAM_READABLE);
+  menu_properties[MENU_PROP_ACTION_GROUP] = g_param_spec_object ("action-group",
+                                                                 "Action group",
+                                                                 "Action group",
+                                                                 UNITY_GTK_TYPE_ACTION_GROUP,
+                                                                 G_PARAM_READWRITE);
 
   g_object_class_install_properties (object_class, MENU_N_PROPERTIES, menu_properties);
 
