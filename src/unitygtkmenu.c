@@ -529,6 +529,8 @@ unity_gtk_menu_dispose (GObject *object)
   menu = UNITY_GTK_MENU (object);
   priv = menu->priv;
 
+  unity_gtk_menu_set_action_group (menu, NULL, NULL);
+
   if (priv->sections != NULL)
     {
       if (priv->menu_shell_insert_handler_id)
