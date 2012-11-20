@@ -40,9 +40,10 @@ struct _UnityGtkMenuSectionClass
 
 struct _UnityGtkMenuPrivate
 {
-  GtkMenuShell *menu_shell;
-  GPtrArray    *sections;
-  gulong        menu_shell_insert_handler_id;
+  GtkMenuShell        *menu_shell;
+  GPtrArray           *sections;
+  UnityGtkActionGroup *action_group;
+  gulong               menu_shell_insert_handler_id;
 };
 
 struct _UnityGtkActionGroupPrivate
@@ -70,6 +71,7 @@ enum
   MENU_PROP_0,
   MENU_PROP_MENU_SHELL,
   MENU_PROP_SECTIONS,
+  MENU_PROP_ACTION_GROUP,
   MENU_N_PROPERTIES
 };
 
@@ -859,6 +861,10 @@ unity_gtk_menu_get_property (GObject    *object,
       g_value_set_pointer (value, unity_gtk_menu_get_sections (self));
       break;
 
+    case MENU_PROP_ACTION_GROUP:
+      g_value_set_object (value, priv->action_group);
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -904,6 +910,10 @@ unity_gtk_menu_set_property (GObject      *object,
           priv->menu_shell = menu_shell;
         }
 
+      break;
+
+    case MENU_PROP_ACTION_GROUP:
+      unity_gtk_action_group_add_menu (UNITY_GTK_ACTION_GROUP (g_value_get_object (value)), self);
       break;
 
     default:
@@ -988,6 +998,11 @@ unity_gtk_menu_class_init (UnityGtkMenuClass *klass)
                                                               "Sections",
                                                               "Sections",
                                                               G_PARAM_READABLE);
+  menu_properties[MENU_PROP_ACTION_GROUP] = g_param_spec_object ("action-group",
+                                                                 "Action group",
+                                                                 "Action group",
+                                                                 UNITY_GTK_TYPE_ACTION_GROUP,
+                                                                 G_PARAM_READWRITE);
 
   g_object_class_install_properties (object_class, MENU_N_PROPERTIES, menu_properties);
 
@@ -1303,4 +1318,83 @@ UnityGtkActionGroup *
 unity_gtk_action_group_new (void)
 {
   return g_object_new (UNITY_GTK_TYPE_ACTION_GROUP, NULL);
+}
+
+void
+unity_gtk_action_group_add_menu (UnityGtkActionGroup *group,
+                                 UnityGtkMenu        *menu)
+{
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (group));
+  g_return_if_fail (UNITY_GTK_IS_MENU (menu));
+
+  if (menu->priv->action_group != group && menu->priv->action_group != NULL)
+    unity_gtk_action_group_remove_menu (menu->priv->action_group, menu);
+
+  if (menu->priv->sections != NULL)
+    {
+      guint i;
+
+      for (i = 0; i < menu->priv->sections->len; i++)
+        {
+          UnityGtkMenuSection *section = g_ptr_array_index (menu->priv->sections, i);
+
+          if (section->items != NULL)
+            {
+              guint j;
+
+              for (j = 0; j < section->items->len; j++)
+                {
+                  UnityGtkMenuItem *item = g_ptr_array_index (section->items, j);
+
+                  if (menu->priv->action_group != group)
+                    {
+                      /* XXX: Add the item's action. */
+                    }
+
+                  if (item->submenu_valid && item->submenu != NULL)
+                    unity_gtk_action_group_add_menu (group, item->submenu);
+                }
+            }
+        }
+    }
+
+  if (menu->priv->action_group != group)
+    menu->priv->action_group = g_object_ref (group);
+}
+
+void
+unity_gtk_action_group_remove_menu (UnityGtkActionGroup *group,
+                                    UnityGtkMenu        *menu)
+{
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (group));
+  g_return_if_fail (UNITY_GTK_IS_MENU (menu));
+  g_return_if_fail (menu->priv->action_group == group);
+
+  g_object_unref (menu->priv->action_group);
+  menu->priv->action_group = NULL;
+
+  if (menu->priv->sections != NULL)
+    {
+      guint i;
+
+      for (i = 0; i < menu->priv->sections->len; i++)
+        {
+          UnityGtkMenuSection *section = g_ptr_array_index (menu->priv->sections, i);
+
+          if (section->items != NULL)
+            {
+              guint j;
+
+              for (j = 0; j < section->items->len; j++)
+                {
+                  UnityGtkMenuItem *item = g_ptr_array_index (section->items, j);
+
+                  /* XXX: Remove the item's action. */
+
+                  if (item->submenu_valid && item->submenu != NULL)
+                    unity_gtk_action_group_remove_menu (group, item->submenu);
+                }
+            }
+        }
+    }
 }

@@ -49,18 +49,24 @@ struct _UnityGtkActionGroupClass
   GObjectClass parent_class;
 };
 
-GType                 unity_gtk_menu_get_type    (void)                G_GNUC_INTERNAL;
+GType                 unity_gtk_menu_get_type            (void)                       G_GNUC_INTERNAL;
 
-UnityGtkMenu *        unity_gtk_menu_new         (GtkMenuShell *shell) G_GNUC_INTERNAL;
+UnityGtkMenu *        unity_gtk_menu_new                 (GtkMenuShell        *shell) G_GNUC_INTERNAL;
 
-gboolean              unity_gtk_menu_is_valid    (UnityGtkMenu *menu)  G_GNUC_INTERNAL;
+gboolean              unity_gtk_menu_is_valid            (UnityGtkMenu        *menu)  G_GNUC_INTERNAL;
 
-void                  unity_gtk_menu_print       (UnityGtkMenu *menu,
-                                                  guint         depth) G_GNUC_INTERNAL;
+void                  unity_gtk_menu_print               (UnityGtkMenu        *menu,
+                                                          guint                depth) G_GNUC_INTERNAL;
 
-void                  g_menu_model_print         (GMenuModel   *model,
-                                                  guint         depth) G_GNUC_INTERNAL;
+void                  g_menu_model_print                 (GMenuModel          *model,
+                                                          guint                depth) G_GNUC_INTERNAL;
 
-UnityGtkActionGroup * unity_gtk_action_group_new (void)                G_GNUC_INTERNAL;
+UnityGtkActionGroup * unity_gtk_action_group_new         (void)                       G_GNUC_INTERNAL;
+
+void                  unity_gtk_action_group_add_menu    (UnityGtkActionGroup *group,
+                                                          UnityGtkMenu        *menu)  G_GNUC_INTERNAL;
+
+void                  unity_gtk_action_group_remove_menu (UnityGtkActionGroup *group,
+                                                          UnityGtkMenu        *menu)  G_GNUC_INTERNAL;
 
 #endif /* __UNITY_GTK_MENU_H__ */
