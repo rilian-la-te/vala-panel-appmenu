@@ -70,13 +70,30 @@ static GParamSpec *menu_properties[MENU_N_PROPERTIES] = { NULL };
 static void unity_gtk_menu_remove_item (UnityGtkMenu     *menu,
                                         UnityGtkMenuItem *item);
 
+static gint
+g_ptr_array_find (GPtrArray *ptr_array,
+                  gpointer   data)
+{
+  guint i;
+
+  g_return_val_if_fail (ptr_array != NULL, -1);
+
+  for (i = 0; i < ptr_array->len; i++)
+    if (g_ptr_array_index (ptr_array, i) == data)
+      return i;
+
+  return -1;
+}
+
 static void
 unity_gtk_menu_item_handle_notify (GObject    *gobject,
                                    GParamSpec *pspec,
                                    gpointer    user_data)
 {
   static const gchar *parent_name;
+  static const gchar *submenu_name;
 
+  const gchar *pspec_name;
   UnityGtkMenuItem *item = user_data;
   GtkMenuItem *menu_item = item->menu_item;
 
@@ -84,15 +101,47 @@ unity_gtk_menu_item_handle_notify (GObject    *gobject,
 
   if (parent_name == NULL)
     parent_name = g_intern_static_string ("parent");
+  if (submenu_name == NULL)
+    submenu_name = g_intern_static_string ("submenu");
 
-  if (g_param_spec_get_name (pspec) == parent_name)
+  pspec_name = g_param_spec_get_name (pspec);
+
+  if (pspec_name == parent_name)
     {
+      /* XXX: Check if the parent changed. */
+
       if (gtk_widget_get_parent (GTK_WIDGET (menu_item)) == NULL)
         {
           g_assert (item->parent_section != NULL);
           g_assert (item->parent_section->parent_menu != NULL);
 
           unity_gtk_menu_remove_item (item->parent_section->parent_menu, item);
+        }
+    }
+  else if (pspec_name == submenu_name)
+    {
+      UnityGtkMenuSection *parent_section = item->parent_section;
+
+      g_assert (parent_section != NULL);
+
+      /* XXX: Check if the submenu changed. */
+
+      if (item->submenu_valid)
+        {
+          if (item->submenu != NULL)
+            {
+              g_object_unref (item->submenu);
+              item->submenu = NULL;
+            }
+
+          item->submenu_valid = FALSE;
+        }
+
+      if (parent_section->items != NULL)
+        {
+          gint i = g_ptr_array_find (parent_section->items, item);
+          g_assert (i >= 0);
+          g_menu_model_items_changed (G_MENU_MODEL (parent_section), i, 1, 1);
         }
     }
 }
