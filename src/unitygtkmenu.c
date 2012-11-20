@@ -1,19 +1,12 @@
 #include "unitygtkmenu.h"
 
-#define UNITY_GTK_TYPE_MENU_SECTION             (unity_gtk_menu_section_get_type ())
-#define UNITY_GTK_TYPE_ACTION_GROUP             (unity_gtk_action_group_get_type ())
-#define UNITY_GTK_MENU_SECTION(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), UNITY_GTK_TYPE_MENU_SECTION, UnityGtkMenuSection))
-#define UNITY_GTK_ACTION_GROUP(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), UNITY_GTK_TYPE_ACTION_GROUP, UnityGtkActionGroup))
-#define UNITY_GTK_IS_MENU_SECTION(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), UNITY_GTK_TYPE_MENU_SECTION))
-#define UNITY_GTK_IS_ACTION_GROUP(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), UNITY_GTK_TYPE_ACTION_GROUP))
-#define UNITY_GTK_MENU_SECTION_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), UNITY_GTK_TYPE_MENU_SECTION, UnityGtkMenuSectionClass))
-#define UNITY_GTK_ACTION_GROUP_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), UNITY_GTK_TYPE_ACTION_GROUP, UnityGtkActionGroupClass))
-#define UNITY_GTK_IS_MENU_SECTION_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), UNITY_GTK_TYPE_MENU_SECTION))
-#define UNITY_GTK_IS_ACTION_GROUP_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), UNITY_GTK_TYPE_ACTION_GROUP))
-#define UNITY_GTK_MENU_SECTION_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_MENU_SECTION, UnityGtkMenuSectionClass))
-#define UNITY_GTK_ACTION_GROUP_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_ACTION_GROUP, UnityGtkActionGroupClass))
-#define UNITY_GTK_MENU_GET_PRIVATE(obj)         (G_TYPE_INSTANCE_GET_PRIVATE ((obj), UNITY_GTK_TYPE_MENU, UnityGtkMenuPrivate))
-#define UNITY_GTK_ACTION_GROUP_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), UNITY_GTK_TYPE_ACTION_GROUP, UnityGtkActionGroupPrivate))
+#define UNITY_GTK_TYPE_MENU_SECTION            (unity_gtk_menu_section_get_type ())
+#define UNITY_GTK_MENU_SECTION(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), UNITY_GTK_TYPE_MENU_SECTION, UnityGtkMenuSection))
+#define UNITY_GTK_IS_MENU_SECTION(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), UNITY_GTK_TYPE_MENU_SECTION))
+#define UNITY_GTK_MENU_SECTION_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), UNITY_GTK_TYPE_MENU_SECTION, UnityGtkMenuSectionClass))
+#define UNITY_GTK_IS_MENU_SECTION_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), UNITY_GTK_TYPE_MENU_SECTION))
+#define UNITY_GTK_MENU_SECTION_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_MENU_SECTION, UnityGtkMenuSectionClass))
+#define UNITY_GTK_MENU_GET_PRIVATE(obj)        (G_TYPE_INSTANCE_GET_PRIVATE ((obj), UNITY_GTK_TYPE_MENU, UnityGtkMenuPrivate))
 
 typedef struct _UnityGtkMenuItem         UnityGtkMenuItem;
 typedef struct _UnityGtkMenuSection      UnityGtkMenuSection;
@@ -26,7 +19,6 @@ struct _UnityGtkMenuItem
   UnityGtkMenu        *submenu;
   guint                submenu_valid : 1;
   gulong               menu_item_notify_handler_id;
-  gchar               *action_name;
 };
 
 /* The last item may be a separator. */
@@ -47,26 +39,13 @@ struct _UnityGtkMenuSectionClass
 
 struct _UnityGtkMenuPrivate
 {
-  GtkMenuShell        *menu_shell;
-  GPtrArray           *sections;
-  gulong               menu_shell_insert_handler_id;
-  UnityGtkActionGroup *action_group;
+  GtkMenuShell *menu_shell;
+  GPtrArray    *sections;
+  gulong        menu_shell_insert_handler_id;
 };
-
-struct _UnityGtkActionGroupPrivate
-{
-  GHashTable *items_by_name;
-};
-
-static void unity_gtk_action_group_g_action_group_init (GActionGroupInterface *iface);
 
 G_DEFINE_TYPE (UnityGtkMenuSection, unity_gtk_menu_section, G_TYPE_MENU_MODEL);
 G_DEFINE_TYPE (UnityGtkMenu, unity_gtk_menu, G_TYPE_MENU_MODEL);
-G_DEFINE_TYPE_WITH_CODE (UnityGtkActionGroup,
-                         unity_gtk_action_group,
-                         G_TYPE_OBJECT,
-                         G_IMPLEMENT_INTERFACE (G_TYPE_ACTION_GROUP,
-                                                unity_gtk_action_group_g_action_group_init));
 
 enum
 {
@@ -82,7 +61,6 @@ enum
   MENU_PROP_0,
   MENU_PROP_MENU_SHELL,
   MENU_PROP_SECTIONS,
-  MENU_PROP_ACTION_GROUP,
   MENU_N_PROPERTIES
 };
 
@@ -180,14 +158,11 @@ unity_gtk_menu_item_free (gpointer data)
     {
       UnityGtkMenuItem *item = data;
 
-      if (item->action_name != NULL)
-        g_free (item->action_name);
+      unity_gtk_menu_item_set_menu_item (item, NULL);
+      unity_gtk_menu_item_set_parent_section (item, NULL);
 
       if (item->submenu != NULL)
         g_object_unref (item->submenu);
-
-      unity_gtk_menu_item_set_parent_section (item, NULL);
-      unity_gtk_menu_item_set_menu_item (item, NULL);
 
       g_slice_free (UnityGtkMenuItem, item);
     }
@@ -231,7 +206,7 @@ unity_gtk_menu_section_dispose (GObject *object)
 
   if (section->items != NULL)
     {
-      g_ptr_array_unref (section->items);
+      g_ptr_array_free (section->items, TRUE);
       section->items = NULL;
     }
 
@@ -331,7 +306,7 @@ unity_gtk_menu_section_set_property (GObject      *object,
         {
           if (self->items != NULL)
             {
-              g_ptr_array_unref (self->items);
+              g_ptr_array_free (self->items, TRUE);
               self->items = NULL;
             }
 
@@ -350,7 +325,7 @@ unity_gtk_menu_section_set_property (GObject      *object,
         {
           if (self->items != NULL)
             {
-              g_ptr_array_unref (self->items);
+              g_ptr_array_free (self->items, TRUE);
               self->items = NULL;
             }
 
@@ -533,8 +508,6 @@ unity_gtk_menu_dispose (GObject *object)
   menu = UNITY_GTK_MENU (object);
   priv = menu->priv;
 
-  unity_gtk_menu_set_action_group (menu, NULL, NULL);
-
   if (priv->sections != NULL)
     {
       if (priv->menu_shell_insert_handler_id)
@@ -545,7 +518,7 @@ unity_gtk_menu_dispose (GObject *object)
           priv->menu_shell_insert_handler_id = 0;
         }
 
-      g_ptr_array_unref (priv->sections);
+      g_ptr_array_free (priv->sections, TRUE);
       priv->sections = NULL;
     }
 
@@ -828,10 +801,6 @@ unity_gtk_menu_get_property (GObject    *object,
       g_value_set_pointer (value, unity_gtk_menu_get_sections (self));
       break;
 
-    case MENU_PROP_ACTION_GROUP:
-      g_value_set_object (value, priv->action_group);
-      break;
-
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -870,17 +839,13 @@ unity_gtk_menu_set_property (GObject      *object,
                   priv->menu_shell_insert_handler_id = 0;
                 }
 
-              g_ptr_array_unref (priv->sections);
+              g_ptr_array_free (priv->sections, TRUE);
               priv->sections = NULL;
             }
 
           priv->menu_shell = menu_shell;
         }
 
-      break;
-
-    case MENU_PROP_ACTION_GROUP:
-      unity_gtk_menu_set_action_group (self, g_value_get_object (value), NULL);
       break;
 
     default:
@@ -965,11 +930,6 @@ unity_gtk_menu_class_init (UnityGtkMenuClass *klass)
                                                               "Sections",
                                                               "Sections",
                                                               G_PARAM_READABLE);
-  menu_properties[MENU_PROP_ACTION_GROUP] = g_param_spec_object ("action-group",
-                                                                 "Action group",
-                                                                 "Action group",
-                                                                 UNITY_GTK_TYPE_ACTION_GROUP,
-                                                                 G_PARAM_READWRITE);
 
   g_object_class_install_properties (object_class, MENU_N_PROPERTIES, menu_properties);
 
@@ -988,171 +948,6 @@ unity_gtk_menu_new (GtkMenuShell *menu_shell)
   return g_object_new (UNITY_GTK_TYPE_MENU,
                        "menu-shell", menu_shell,
                        NULL);
-}
-
-static void
-unity_gtk_action_group_add_menu (UnityGtkActionGroup *group,
-                                 UnityGtkMenu        *menu,
-                                 const gchar         *prefix)
-{
-  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (group));
-  g_return_if_fail (UNITY_GTK_IS_MENU (menu));
-
-  if (prefix != NULL && prefix[0] == '\0')
-    prefix = NULL;
-
-  if (menu->priv->sections != NULL)
-    {
-      guint i;
-
-      for (i = 0; i < menu->priv->sections->len; i++)
-        {
-          UnityGtkMenuSection *section = g_ptr_array_index (menu->priv->sections, i);
-
-          if (section->items != NULL)
-            {
-              guint j;
-
-              for (j = 0; j < section->items->len; j++)
-                {
-                  UnityGtkMenuItem *item = g_ptr_array_index (section->items, j);
-                  const gchar *label = NULL;
-
-                  if (item->menu_item != NULL)
-                    {
-                      label = gtk_menu_item_get_label (item->menu_item);
-                      if (label != NULL && label[0] == '\0')
-                        label = NULL;
-                    }
-
-                  if (item->action_name != NULL)
-                    g_free (item->action_name);
-
-                  if (prefix != NULL)
-                    {
-                      if (label != NULL)
-                        item->action_name = g_strdup_printf ("%s.%u.%u.%s", prefix, i, j, label);
-                      else
-                        item->action_name = g_strdup_printf ("%s.%u.%u", prefix, i, j);
-                    }
-                  else if (label != NULL)
-                    item->action_name = g_strdup_printf ("%u.%u.%s", i, j, label);
-                  else
-                    item->action_name = g_strdup_printf ("%u.%u", i, j);
-
-                  g_hash_table_insert (group->priv->items_by_name, item->action_name, g_object_ref (item));
-
-                  if (item->submenu_valid && item->submenu != NULL)
-                    unity_gtk_action_group_add_menu (group, item->submenu, item->action_name);
-                }
-            }
-        }
-    }
-}
-
-static void
-unity_gtk_action_group_remove_menu (UnityGtkActionGroup *group,
-                                    UnityGtkMenu        *menu)
-{
-  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (group));
-  g_return_if_fail (UNITY_GTK_IS_MENU (menu));
-
-  if (menu->priv->sections != NULL)
-    {
-      guint i;
-
-      for (i = 0; i < menu->priv->sections->len; i++)
-        {
-          UnityGtkMenuSection *section = g_ptr_array_index (menu->priv->sections, i);
-
-          if (section->items != NULL)
-            {
-              guint j;
-
-              for (j = 0; j < section->items->len; j++)
-                {
-                  UnityGtkMenuItem *item = g_ptr_array_index (section->items, j);
-
-                  if (item->action_name != NULL)
-                    {
-                      g_hash_table_remove (group->priv->items_by_name, item->action_name);
-                      item->action_name = NULL;
-                    }
-
-                  if (item->submenu_valid && item->submenu != NULL)
-                    unity_gtk_action_group_remove_menu (group, item->submenu);
-                }
-            }
-        }
-    }
-}
-
-static void
-unity_gtk_menu_assign_action_group (UnityGtkMenu        *menu,
-                                    UnityGtkActionGroup *group)
-{
-  UnityGtkMenuPrivate *priv;
-
-  g_return_if_fail (UNITY_GTK_IS_MENU (menu));
-  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (group));
-
-  priv = menu->priv;
-
-  if (group != priv->action_group && priv->sections != NULL)
-    {
-      guint i;
-
-      if (priv->action_group != NULL)
-        {
-          g_object_unref (priv->action_group);
-          priv->action_group = NULL;
-        }
-
-      for (i = 0; i < priv->sections->len; i++)
-        {
-          UnityGtkMenuSection *section = g_ptr_array_index (priv->sections, i);
-
-          if (section->items != NULL)
-            {
-              guint j;
-
-              for (j = 0; j < section->items->len; j++)
-                {
-                  UnityGtkMenuItem *item = g_ptr_array_index (section->items, j);
-
-                  if (item->submenu_valid && item->submenu != NULL)
-                    unity_gtk_menu_assign_action_group (item->submenu, group);
-                }
-            }
-        }
-
-      if (group != NULL)
-        priv->action_group = g_object_ref (group);
-    }
-}
-
-void
-unity_gtk_menu_set_action_group (UnityGtkMenu        *menu,
-                                 UnityGtkActionGroup *group,
-                                 const gchar         *prefix)
-{
-  UnityGtkMenuPrivate *priv;
-
-  g_return_if_fail (UNITY_GTK_IS_MENU (menu));
-  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (group));
-
-  priv = menu->priv;
-
-  if (group != priv->action_group)
-    {
-      if (priv->action_group != NULL)
-        unity_gtk_action_group_remove_menu (priv->action_group, menu);
-
-      unity_gtk_menu_assign_action_group (menu, group);
-
-      if (group != NULL)
-        unity_gtk_action_group_add_menu (group, menu, prefix);
-    }
 }
 
 static gboolean
@@ -1427,121 +1222,4 @@ g_menu_model_print (GMenuModel *model,
     }
 
   g_free (indent);
-}
-
-static void
-unity_gtk_action_group_dispose (GObject *object)
-{
-  UnityGtkActionGroup *group;
-  UnityGtkActionGroupPrivate *priv;
-
-  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (object));
-
-  group = UNITY_GTK_ACTION_GROUP (object);
-  priv = group->priv;
-
-  if (priv->items_by_name != NULL)
-    {
-      g_hash_table_unref (priv->items_by_name);
-      priv->items_by_name = NULL;
-    }
-
-  G_OBJECT_CLASS (unity_gtk_action_group_parent_class)->dispose (object);
-}
-
-static gchar **
-unity_gtk_action_group_list_actions (GActionGroup *action_group)
-{
-  UnityGtkActionGroup *group;
-  UnityGtkActionGroupPrivate *priv;
-  gchar **names;
-
-  g_return_val_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group), g_malloc0 (sizeof (gchar *)));
-
-  group = UNITY_GTK_ACTION_GROUP (action_group);
-  priv = group->priv;
-
-  if (priv->items_by_name != NULL)
-    {
-      GHashTableIter iter;
-      gpointer name;
-      guint n = g_hash_table_size (priv->items_by_name);
-      guint i;
-
-      names = g_malloc ((n + 1) * sizeof (gchar *));
-
-      g_hash_table_iter_init (&iter, priv->items_by_name);
-
-      for (i = 0; i < n && g_hash_table_iter_next (&iter, &name, NULL); i++)
-        names[i] = g_strdup (name);
-
-      names[i] = NULL;
-    }
-  else
-    names = g_malloc0 (sizeof (gchar *));
-
-  return names;
-}
-
-static void
-unity_gtk_action_group_change_action_state (GActionGroup *action_group,
-                                            const gchar  *action_name,
-                                            GVariant     *value)
-{
-  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group));
-}
-
-static void
-unity_gtk_action_group_activate_action (GActionGroup *action_group,
-                                        const gchar  *action_name,
-                                        GVariant     *parameter)
-{
-  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group));
-}
-
-static gboolean
-unity_gtk_action_group_query_action (GActionGroup        *action_group,
-                                     const gchar         *action_name,
-                                     gboolean            *enabled,
-                                     const GVariantType **parameter_type,
-                                     const GVariantType **state_type,
-                                     GVariant           **state_hint,
-                                     GVariant           **state)
-{
-  g_return_val_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group), FALSE);
-}
-
-static void
-unity_gtk_action_group_class_init (UnityGtkActionGroupClass *klass)
-{
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-
-  object_class->dispose = unity_gtk_action_group_dispose;
-
-  g_type_class_add_private (klass, sizeof (UnityGtkActionGroupPrivate));
-}
-
-static void
-unity_gtk_action_group_g_action_group_init (GActionGroupInterface *iface)
-{
-  iface->list_actions = unity_gtk_action_group_list_actions;
-  iface->change_action_state = unity_gtk_action_group_change_action_state;
-  iface->activate_action = unity_gtk_action_group_activate_action;
-  iface->query_action = unity_gtk_action_group_query_action;
-}
-
-static void
-unity_gtk_action_group_init (UnityGtkActionGroup *self)
-{
-  UnityGtkActionGroupPrivate *priv;
-
-  priv = self->priv = UNITY_GTK_ACTION_GROUP_GET_PRIVATE (self);
-
-  priv->items_by_name = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref);
-}
-
-UnityGtkActionGroup *
-unity_gtk_action_group_new (void)
-{
-  return g_object_new (UNITY_GTK_TYPE_ACTION_GROUP, NULL);
 }
