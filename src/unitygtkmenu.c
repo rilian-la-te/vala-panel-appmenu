@@ -1,12 +1,13 @@
 #include "unitygtkmenu.h"
 
-#define UNITY_GTK_TYPE_MENU_SECTION            (unity_gtk_menu_section_get_type ())
-#define UNITY_GTK_MENU_SECTION(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), UNITY_GTK_TYPE_MENU_SECTION, UnityGtkMenuSection))
-#define UNITY_GTK_IS_MENU_SECTION(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), UNITY_GTK_TYPE_MENU_SECTION))
-#define UNITY_GTK_MENU_SECTION_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), UNITY_GTK_TYPE_MENU_SECTION, UnityGtkMenuSectionClass))
-#define UNITY_GTK_IS_MENU_SECTION_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), UNITY_GTK_TYPE_MENU_SECTION))
-#define UNITY_GTK_MENU_SECTION_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_MENU_SECTION, UnityGtkMenuSectionClass))
-#define UNITY_GTK_MENU_GET_PRIVATE(obj)        (G_TYPE_INSTANCE_GET_PRIVATE ((obj), UNITY_GTK_TYPE_MENU, UnityGtkMenuPrivate))
+#define UNITY_GTK_TYPE_MENU_SECTION             (unity_gtk_menu_section_get_type ())
+#define UNITY_GTK_MENU_SECTION(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), UNITY_GTK_TYPE_MENU_SECTION, UnityGtkMenuSection))
+#define UNITY_GTK_IS_MENU_SECTION(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), UNITY_GTK_TYPE_MENU_SECTION))
+#define UNITY_GTK_MENU_SECTION_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), UNITY_GTK_TYPE_MENU_SECTION, UnityGtkMenuSectionClass))
+#define UNITY_GTK_IS_MENU_SECTION_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), UNITY_GTK_TYPE_MENU_SECTION))
+#define UNITY_GTK_MENU_SECTION_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_MENU_SECTION, UnityGtkMenuSectionClass))
+#define UNITY_GTK_MENU_GET_PRIVATE(obj)         (G_TYPE_INSTANCE_GET_PRIVATE ((obj), UNITY_GTK_TYPE_MENU, UnityGtkMenuPrivate))
+#define UNITY_GTK_ACTION_GROUP_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), UNITY_GTK_TYPE_ACTION_GROUP, UnityGtkActionGroupPrivate))
 
 typedef struct _UnityGtkMenuItem         UnityGtkMenuItem;
 typedef struct _UnityGtkMenuSection      UnityGtkMenuSection;
@@ -44,8 +45,16 @@ struct _UnityGtkMenuPrivate
   gulong        menu_shell_insert_handler_id;
 };
 
+struct _UnityGtkActionGroupPrivate
+{
+};
+
+static void unity_gtk_action_group_g_action_group_init (GActionGroupInterface *iface);
+
 G_DEFINE_TYPE (UnityGtkMenuSection, unity_gtk_menu_section, G_TYPE_MENU_MODEL);
 G_DEFINE_TYPE (UnityGtkMenu, unity_gtk_menu, G_TYPE_MENU_MODEL);
+G_DEFINE_TYPE_WITH_CODE (UnityGtkActionGroup, unity_gtk_action_group, G_TYPE_OBJECT,
+                         G_IMPLEMENT_INTERFACE (G_TYPE_ACTION_GROUP, unity_gtk_action_group_g_action_group_init));
 
 enum
 {
@@ -1271,4 +1280,27 @@ g_menu_model_print (GMenuModel *model,
     }
 
   g_free (indent);
+}
+
+static void
+unity_gtk_action_group_class_init (UnityGtkActionGroupClass *klass)
+{
+  g_type_class_add_private (klass, sizeof (UnityGtkActionGroupPrivate));
+}
+
+static void
+unity_gtk_action_group_g_action_group_init (GActionGroupInterface *iface)
+{
+}
+
+static void
+unity_gtk_action_group_init (UnityGtkActionGroup *self)
+{
+  self->priv = UNITY_GTK_ACTION_GROUP_GET_PRIVATE (self);
+}
+
+UnityGtkActionGroup *
+unity_gtk_action_group_new (void)
+{
+  return g_object_new (UNITY_GTK_TYPE_ACTION_GROUP, NULL);
 }
