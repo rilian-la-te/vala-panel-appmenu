@@ -513,11 +513,16 @@ unity_gtk_menu_section_get_items (UnityGtkMenuSection *section)
 
   if (section->items == NULL && section->parent_menu != NULL && section->parent_menu->priv->menu_shell != NULL)
     {
-      GtkMenuShell *menu_shell = section->parent_menu->priv->menu_shell;
-      GList *start = g_list_nth_predicate (gtk_container_get_children (GTK_CONTAINER (menu_shell)), section->shell_offset, gtk_menu_item_is_valid);
-      GList *finish = start;
+      GtkMenuShell *menu_shell;
+      GList *start;
+      GList *finish;
       GList *iter;
       guint n;
+
+      menu_shell = section->parent_menu->priv->menu_shell;
+      start = gtk_container_get_children (GTK_CONTAINER (menu_shell));
+      start = g_list_nth_predicate (start, section->shell_offset, gtk_menu_item_is_valid);
+      finish = start;
 
       for (n = 0; finish != NULL && !GTK_IS_SEPARATOR_MENU_ITEM (finish->data); n++)
         finish = g_list_next_predicate (finish, gtk_menu_item_is_valid);
