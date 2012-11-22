@@ -974,7 +974,7 @@ unity_gtk_menu_remove_item (UnityGtkMenu     *menu,
               guint next_section_length = g_menu_model_get_n_items (G_MENU_MODEL (next_section));
 
               /* The separator should be at the end. */
-              g_assert (item == g_ptr_array_index (section->items, separator_index));
+              g_assert (g_ptr_array_index (section->items, separator_index) == item);
 
               g_object_unref (item);
               section->items->pdata[separator_index] = NULL;
@@ -1276,35 +1276,28 @@ unity_gtk_menu_item_is_valid (UnityGtkMenuItem *item)
 {
   guint i;
 
-  g_return_val_if_fail (item != NULL, FALSE);
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
   g_return_val_if_fail (UNITY_GTK_IS_MENU_SECTION (item->parent_section), FALSE);
   g_return_val_if_fail (item->menu_item == NULL || GTK_IS_MENU_ITEM (item->menu_item), FALSE);
   g_return_val_if_fail (!!item->menu_item_notify_handler_id == GTK_IS_MENU_ITEM (item->menu_item), FALSE);
   g_return_val_if_fail (!item->submenu_valid || item->submenu == NULL || UNITY_GTK_IS_MENU (item->submenu), FALSE);
-  g_return_val_if_fail (item->parent_section->items != NULL, FALSE);
-
-  /* A menu item must be contained in its parent section. */
-  for (i = 0; i < item->parent_section->items->len; i++)
-    if (g_ptr_array_index (item->parent_section->items, i) == item)
-      break;
-
-  g_return_val_if_fail (i < item->parent_section->items->len, FALSE);
-
-  /* Separators must appear at the end of their parent sections. */
+  g_return_val_if_fail (item->parent_section->items != NULL && g_ptr_array_find (item->parent_section->items, item) >= 0, FALSE);
   g_return_val_if_fail (!GTK_IS_SEPARATOR_MENU_ITEM (item->menu_item) || g_ptr_array_index (item->parent_section->items, item->parent_section->items->len - 1) == item, FALSE);
 
   /* The menu item should match what's in the shell. */
   if (item->menu_item != NULL)
     {
-      GList *iter;
-
+      g_return_val_if_fail (item->parent_section->items != NULL, FALSE);
       g_return_val_if_fail (UNITY_GTK_IS_MENU (item->parent_section->parent_menu), FALSE);
       g_return_val_if_fail (GTK_IS_MENU_SHELL (item->parent_section->parent_menu->priv->menu_shell), FALSE);
 
-      iter = g_list_nth (gtk_container_get_children (GTK_CONTAINER (item->parent_section->parent_menu->priv->menu_shell)), item->parent_section->shell_offset);
-
       if (item->parent_section->items->len > 0)
         {
+          GList *iter;
+
+          iter = gtk_container_get_children (GTK_CONTAINER (item->parent_section->parent_menu->priv->menu_shell));
+          iter = g_list_nth_predicate (iter, item->parent_section->shell_offset, gtk_menu_item_is_valid);
+
           for (i = 0; i < item->parent_section->items->len; i++)
             {
               if (g_ptr_array_index (item->parent_section->items, i) == item)
@@ -1315,7 +1308,7 @@ unity_gtk_menu_item_is_valid (UnityGtkMenuItem *item)
                   break;
                 }
 
-              iter = g_list_next (iter);
+              iter = g_list_next_predicate (iter, gtk_menu_item_is_valid);
             }
 
           g_return_val_if_fail (i < item->parent_section->items->len, FALSE);
@@ -1335,13 +1328,8 @@ unity_gtk_menu_section_is_valid (UnityGtkMenuSection *section)
 
   g_return_val_if_fail (UNITY_GTK_IS_MENU_SECTION (section), FALSE);
   g_return_val_if_fail (UNITY_GTK_IS_MENU (section->parent_menu), FALSE);
-
-  /* A section must be contained in its parent menu. */
-  for (i = 0; i < section->parent_menu->priv->sections->len; i++)
-    if (g_ptr_array_index (section->parent_menu->priv->sections, i) == section)
-      break;
-
-  g_return_val_if_fail (i < section->parent_menu->priv->sections->len, FALSE);
+  g_return_val_if_fail (section->parent_menu->priv->sections != NULL, FALSE);
+  g_return_val_if_fail (g_ptr_array_find (section->parent_menu->priv->sections, section) >= 0, FALSE);
 
   if (section->items != NULL)
     {
@@ -1349,7 +1337,7 @@ unity_gtk_menu_section_is_valid (UnityGtkMenuSection *section)
         {
           UnityGtkMenuItem *item = g_ptr_array_index (section->items, i);
 
-          g_return_val_if_fail (item != NULL, FALSE);
+          g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
 
           /* This section is the parent of all of its items. */
           g_return_val_if_fail (item->parent_section == section, FALSE);
@@ -1401,17 +1389,17 @@ unity_gtk_menu_is_valid (UnityGtkMenu *menu)
                   UnityGtkMenuItem *item;
                   GtkMenuItem *menu_item;
 
-                  /* The shell offsets should be correct. */
-                  g_return_val_if_fail (section->shell_offset + section->items->len == next_section->shell_offset, FALSE);
-
                   /* We should have at least one item. */
                   g_return_val_if_fail (section->items->len > 0, FALSE);
 
-                  item = g_ptr_array_index (section->items, section->items->len - 1);
-                  g_return_val_if_fail (item != NULL, FALSE);
-                  menu_item = item->menu_item;
+                  /* The shell offsets should be correct. */
+                  g_return_val_if_fail (section->shell_offset + section->items->len == next_section->shell_offset, FALSE);
 
                   /* The last item should be a separator. */
+                  item = g_ptr_array_index (section->items, section->items->len - 1);
+                  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
+                  menu_item = item->menu_item;
+
                   g_return_val_if_fail (menu_item == NULL || GTK_IS_SEPARATOR_MENU_ITEM (menu_item), FALSE);
                 }
               else if (section->items->len > 0)
