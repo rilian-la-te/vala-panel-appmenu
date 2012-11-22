@@ -1689,6 +1689,43 @@ unity_gtk_action_group_activate_action (GActionGroup *action_group,
                                         const gchar  *action_name,
                                         GVariant     *parameter)
 {
+  UnityGtkActionGroup *group;
+  UnityGtkActionGroupPrivate *priv;
+  UnityGtkAction *action;
+
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group));
+
+  group = UNITY_GTK_ACTION_GROUP (action_group);
+  priv = group->priv;
+
+  g_return_if_fail (priv->actions_by_name != NULL);
+
+  action = g_hash_table_lookup (priv->actions_by_name, action_name);
+
+  g_return_if_fail (action != NULL);
+
+  if (UNITY_GTK_IS_RADIO_ACTION (action))
+    {
+      UnityGtkRadioAction *radio_action = UNITY_GTK_RADIO_ACTION (action);
+      UnityGtkMenuItem *item;
+
+      g_return_if_fail (parameter != NULL);
+      g_return_if_fail (g_variant_is_of_type (parameter, G_VARIANT_TYPE_STRING));
+
+      item = g_hash_table_lookup (radio_action->items_by_state, g_variant_get_string (parameter, NULL));
+
+      g_return_if_fail (item != NULL);
+
+      if (item->menu_item != NULL)
+        gtk_menu_item_activate (item->menu_item);
+    }
+  else if (action->item != NULL)
+    {
+      g_return_if_fail (parameter == NULL);
+
+      if (action->item->menu_item != NULL)
+        gtk_menu_item_activate (action->item->menu_item);
+    }
 }
 
 static gboolean
