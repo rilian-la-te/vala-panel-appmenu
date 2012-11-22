@@ -1678,10 +1678,63 @@ unity_gtk_action_group_list_actions (GActionGroup *action_group)
 }
 
 static void
+unity_gtk_action_group_set_action_state (GActionGroup *action_group,
+                                         const gchar  *action_name,
+                                         GVariant     *value)
+{
+  UnityGtkActionGroup *group;
+  UnityGtkActionGroupPrivate *priv;
+  UnityGtkAction *action;
+
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group));
+
+  group = UNITY_GTK_ACTION_GROUP (action_group);
+  priv = group->priv;
+
+  g_return_if_fail (priv->actions_by_name != NULL);
+
+  action = g_hash_table_lookup (priv->actions_by_name, action_name);
+
+  g_return_if_fail (action != NULL);
+
+  if (UNITY_GTK_IS_RADIO_ACTION (action))
+    {
+      UnityGtkRadioAction *radio_action = UNITY_GTK_RADIO_ACTION (action);
+      UnityGtkMenuItem *item;
+
+      g_return_if_fail (value != NULL);
+      g_return_if_fail (g_variant_is_of_type (value, G_VARIANT_TYPE_STRING));
+
+      item = g_hash_table_lookup (radio_action->items_by_state, g_variant_get_string (value, NULL));
+
+      g_return_if_fail (item != NULL);
+
+      if (item->menu_item != NULL)
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item->menu_item), TRUE);
+    }
+  else if (action->item != NULL)
+    {
+      GtkMenuItem *menu_item = action->item->menu_item;
+
+      if (menu_item != NULL)
+        {
+          g_return_if_fail (GTK_IS_CHECK_MENU_ITEM (menu_item));
+          g_return_if_fail (value != NULL);
+          g_return_if_fail (g_variant_is_of_type (value, G_VARIANT_TYPE_BOOLEAN));
+
+          gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (menu_item), g_variant_get_boolean (value));
+        }
+    }
+}
+
+static void
 unity_gtk_action_group_change_action_state (GActionGroup *action_group,
                                             const gchar  *action_name,
                                             GVariant     *value)
 {
+  g_variant_ref_sink (value);
+  unity_gtk_action_group_set_action_state (action_group, action_name, value);
+  g_variant_unref (value);
 }
 
 static void
@@ -1792,7 +1845,7 @@ unity_gtk_action_group_query_action (GActionGroup        *action_group,
         {
           if (UNITY_GTK_IS_RADIO_ACTION (action))
             *state_type = G_VARIANT_TYPE_STRING;
-          else if (GTK_IS_CHECK_MENU_ITEM (action->item))
+          else if (action->item != NULL && GTK_IS_CHECK_MENU_ITEM (action->item->menu_item))
             *state_type = G_VARIANT_TYPE_BOOLEAN;
           else
             *state_type = NULL;
@@ -1819,7 +1872,7 @@ unity_gtk_action_group_query_action (GActionGroup        *action_group,
               else
                 *state_hint = NULL;
             }
-          else if (GTK_IS_CHECK_MENU_ITEM (action->item))
+          else if (action->item != NULL && GTK_IS_CHECK_MENU_ITEM (action->item->menu_item))
             {
               GVariantBuilder builder;
 
@@ -1864,9 +1917,9 @@ unity_gtk_action_group_query_action (GActionGroup        *action_group,
                     }
                 }
             }
-          else if (GTK_IS_CHECK_MENU_ITEM (action->item))
+          else if (action->item != NULL && GTK_IS_CHECK_MENU_ITEM (action->item->menu_item))
             {
-              GtkCheckMenuItem *menu_item = GTK_CHECK_MENU_ITEM (action->item);
+              GtkCheckMenuItem *menu_item = GTK_CHECK_MENU_ITEM (action->item->menu_item);
 
               *state = g_variant_ref_sink (g_variant_new_boolean (gtk_check_menu_item_get_active (menu_item)));
             }
