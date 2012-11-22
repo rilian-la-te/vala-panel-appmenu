@@ -13,12 +13,28 @@
 #define UNITY_GTK_IS_MENU_SECTION_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), UNITY_GTK_TYPE_MENU_SECTION))
 #define UNITY_GTK_MENU_SECTION_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_MENU_SECTION, UnityGtkMenuSectionClass))
 #define UNITY_GTK_MENU_GET_PRIVATE(obj)         (G_TYPE_INSTANCE_GET_PRIVATE ((obj), UNITY_GTK_TYPE_MENU, UnityGtkMenuPrivate))
+#define UNITY_GTK_TYPE_ACTION                   (unity_gtk_action_get_type ())
+#define UNITY_GTK_ACTION(obj)                   (G_TYPE_CHECK_INSTANCE_CAST ((obj), UNITY_GTK_TYPE_ACTION, UnityGtkAction))
+#define UNITY_GTK_IS_ACTION(obj)                (G_TYPE_CHECK_INSTANCE_TYPE ((obj), UNITY_GTK_TYPE_ACTION))
+#define UNITY_GTK_ACTION_CLASS(klass)           (G_TYPE_CHECK_CLASS_CAST ((klass), UNITY_GTK_TYPE_ACTION, UnityGtkActionClass))
+#define UNITY_GTK_IS_ACTION_CLASS(klass)        (G_TYPE_CHECK_CLASS_TYPE ((klass), UNITY_GTK_TYPE_ACTION))
+#define UNITY_GTK_ACTION_GET_CLASS(obj)         (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_ACTION, UnityGtkActionClass))
+#define UNITY_GTK_TYPE_RADIO_ACTION             (unity_gtk_radio_action_get_type ())
+#define UNITY_GTK_RADIO_ACTION(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), UNITY_GTK_TYPE_RADIO_ACTION, UnityGtkRadioAction))
+#define UNITY_GTK_IS_RADIO_ACTION(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), UNITY_GTK_TYPE_RADIO_ACTION))
+#define UNITY_GTK_RADIO_ACTION_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), UNITY_GTK_TYPE_RADIO_ACTION, UnityGtkRadioActionClass))
+#define UNITY_GTK_IS_RADIO_ACTION_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), UNITY_GTK_TYPE_RADIO_ACTION))
+#define UNITY_GTK_RADIO_ACTION_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_RADIO_ACTION, UnityGtkRadioActionClass))
 #define UNITY_GTK_ACTION_GROUP_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), UNITY_GTK_TYPE_ACTION_GROUP, UnityGtkActionGroupPrivate))
 
 typedef struct _UnityGtkMenuItem         UnityGtkMenuItem;
 typedef struct _UnityGtkMenuItemClass    UnityGtkMenuItemClass;
 typedef struct _UnityGtkMenuSection      UnityGtkMenuSection;
 typedef struct _UnityGtkMenuSectionClass UnityGtkMenuSectionClass;
+typedef struct _UnityGtkAction           UnityGtkAction;
+typedef struct _UnityGtkActionClass      UnityGtkActionClass;
+typedef struct _UnityGtkRadioAction      UnityGtkRadioAction;
+typedef struct _UnityGtkRadioActionClass UnityGtkRadioActionClass;
 
 struct _UnityGtkMenuItem
 {
@@ -61,8 +77,36 @@ struct _UnityGtkMenuPrivate
   gulong               menu_shell_insert_handler_id;
 };
 
+struct _UnityGtkAction
+{
+  GObject parent_instance;
+
+  /*< private >*/
+  gchar            *name;
+  UnityGtkMenuItem *item;
+};
+
+struct _UnityGtkActionClass
+{
+  GObjectClass parent_class;
+};
+
+struct _UnityGtkRadioAction
+{
+  UnityGtkAction parent_instance;
+
+  /*< private >*/
+  GHashTable *items_by_state;
+};
+
+struct _UnityGtkRadioActionClass
+{
+  UnityGtkActionClass parent_class;
+};
+
 struct _UnityGtkActionGroupPrivate
 {
+  GHashTable *actions_by_name;
 };
 
 static void unity_gtk_action_group_g_action_group_init (GActionGroupInterface *iface);
@@ -70,6 +114,8 @@ static void unity_gtk_action_group_g_action_group_init (GActionGroupInterface *i
 G_DEFINE_TYPE (UnityGtkMenuItem, unity_gtk_menu_item, G_TYPE_OBJECT);
 G_DEFINE_TYPE (UnityGtkMenuSection, unity_gtk_menu_section, G_TYPE_MENU_MODEL);
 G_DEFINE_TYPE (UnityGtkMenu, unity_gtk_menu, G_TYPE_MENU_MODEL);
+G_DEFINE_TYPE (UnityGtkAction, unity_gtk_action, G_TYPE_OBJECT);
+G_DEFINE_TYPE (UnityGtkRadioAction, unity_gtk_radio_action, UNITY_GTK_TYPE_ACTION);
 G_DEFINE_TYPE_WITH_CODE (UnityGtkActionGroup, unity_gtk_action_group, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (G_TYPE_ACTION_GROUP, unity_gtk_action_group_g_action_group_init));
 
@@ -366,6 +412,14 @@ unity_gtk_menu_item_get_submenu (UnityGtkMenuItem *item)
     }
 
   return item->submenu;
+}
+
+static gboolean
+unity_gtk_menu_item_is_enabled (UnityGtkMenuItem *item)
+{
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
+
+  return item->menu_item != NULL && gtk_widget_is_sensitive (GTK_WIDGET (item->menu_item));
 }
 
 static void
@@ -693,7 +747,7 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
 
   section = UNITY_GTK_MENU_SECTION (model);
   items = unity_gtk_menu_section_get_items (section);
-  hash_table = g_hash_table_new (g_str_hash, g_str_equal);
+  hash_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, (GDestroyNotify) g_variant_unref);
 
   if (items != NULL)
     {
@@ -708,7 +762,7 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
               const gchar *label = gtk_menu_item_get_label (menu_item);
 
               if (label != NULL)
-                g_hash_table_insert (hash_table, G_MENU_ATTRIBUTE_LABEL, g_variant_new_string (label));
+                g_hash_table_insert (hash_table, G_MENU_ATTRIBUTE_LABEL, g_variant_ref_sink (g_variant_new_string (label)));
             }
         }
       else
@@ -1196,7 +1250,7 @@ unity_gtk_menu_get_item_attributes (GMenuModel  *model,
   g_return_if_fail (0 <= item_index && item_index < g_menu_model_get_n_items (model));
   g_return_if_fail (attributes != NULL);
 
-  *attributes = g_hash_table_new (g_str_hash, g_str_equal);
+  *attributes = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, (GDestroyNotify) g_variant_unref);
 }
 
 static void
@@ -1510,7 +1564,10 @@ g_menu_model_print (GMenuModel *model,
       const gchar *label = NULL;
 
       if (variant != NULL)
-        label = g_variant_get_string (variant, NULL);
+        {
+          label = g_variant_get_string (variant, NULL);
+          g_variant_unref (variant);
+        }
 
       if (label != NULL)
         g_print ("%s %d: %s\n", indent, i, label);
@@ -1534,20 +1591,285 @@ g_menu_model_print (GMenuModel *model,
 }
 
 static void
+unity_gtk_action_dispose (GObject *object)
+{
+  G_OBJECT_CLASS (unity_gtk_action_parent_class)->dispose (object);
+}
+
+static void
+unity_gtk_action_class_init (UnityGtkActionClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->dispose = unity_gtk_action_dispose;
+}
+
+static void
+unity_gtk_action_init (UnityGtkAction *self)
+{
+}
+
+static void
+unity_gtk_radio_action_dispose (GObject *object)
+{
+  G_OBJECT_CLASS (unity_gtk_radio_action_parent_class)->dispose (object);
+}
+
+static void
+unity_gtk_radio_action_class_init (UnityGtkRadioActionClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->dispose = unity_gtk_radio_action_dispose;
+}
+
+static void
+unity_gtk_radio_action_init (UnityGtkRadioAction *self)
+{
+}
+
+static void
+unity_gtk_action_group_dispose (GObject *object)
+{
+  UnityGtkActionGroup *group;
+  UnityGtkActionGroupPrivate *priv;
+
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (object));
+
+  group = UNITY_GTK_ACTION_GROUP (object);
+  priv = group->priv;
+
+  if (priv->actions_by_name != NULL)
+    {
+      g_hash_table_unref (priv->actions_by_name);
+      priv->actions_by_name = NULL;
+    }
+
+  G_OBJECT_CLASS (unity_gtk_action_group_parent_class)->dispose (object);
+}
+
+static gchar **
+unity_gtk_action_group_list_actions (GActionGroup *action_group)
+{
+  gchar **names;
+  UnityGtkActionGroup *group;
+  UnityGtkActionGroupPrivate *priv;
+  GHashTableIter iter;
+  gpointer key;
+  guint n;
+  guint i;
+
+  g_return_val_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group), NULL);
+
+  group = UNITY_GTK_ACTION_GROUP (action_group);
+  priv = group->priv;
+
+  g_return_val_if_fail (priv->actions_by_name != NULL, NULL);
+
+  n = g_hash_table_size (priv->actions_by_name);
+  names = g_malloc_n (n + 1, sizeof (gchar *));
+  g_hash_table_iter_init (&iter, priv->actions_by_name);
+
+  for (i = 0; i < n && g_hash_table_iter_next (&iter, &key, NULL); i++)
+    names[i] = g_strdup (key);
+
+  names[i] = NULL;
+  return names;
+}
+
+static void
+unity_gtk_action_group_change_action_state (GActionGroup *action_group,
+                                            const gchar  *action_name,
+                                            GVariant     *value)
+{
+}
+
+static void
+unity_gtk_action_group_activate_action (GActionGroup *action_group,
+                                        const gchar  *action_name,
+                                        GVariant     *parameter)
+{
+}
+
+static gboolean
+unity_gtk_action_group_query_action (GActionGroup        *action_group,
+                                     const gchar         *action_name,
+                                     gboolean            *enabled,
+                                     const GVariantType **parameter_type,
+                                     const GVariantType **state_type,
+                                     GVariant           **state_hint,
+                                     GVariant           **state)
+{
+  UnityGtkActionGroup *group;
+  UnityGtkActionGroupPrivate *priv;
+  UnityGtkAction *action;
+
+  g_return_val_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group), FALSE);
+
+  group = UNITY_GTK_ACTION_GROUP (action_group);
+  priv = group->priv;
+
+  g_return_val_if_fail (priv->actions_by_name != NULL, FALSE);
+
+  action = g_hash_table_lookup (priv->actions_by_name, action_name);
+
+  if (action != NULL)
+    {
+      if (enabled != NULL)
+        {
+          if (UNITY_GTK_IS_RADIO_ACTION (action))
+            {
+              UnityGtkRadioAction *radio_action = UNITY_GTK_RADIO_ACTION (action);
+
+              *enabled = FALSE;
+
+              if (radio_action->items_by_state != NULL)
+                {
+                  GHashTableIter iter;
+                  gpointer value;
+
+                  g_hash_table_iter_init (&iter, radio_action->items_by_state);
+                  while (g_hash_table_iter_next (&iter, NULL, &value))
+                    {
+                      if (value != NULL && unity_gtk_menu_item_is_enabled (value))
+                        {
+                          *enabled = TRUE;
+                          break;
+                        }
+                    }
+                }
+            }
+          else
+            *enabled = action->item != NULL && unity_gtk_menu_item_is_enabled (action->item);
+        }
+
+      if (parameter_type != NULL)
+        {
+          if (UNITY_GTK_IS_RADIO_ACTION (action))
+            *parameter_type = G_VARIANT_TYPE_STRING;
+          else
+            *parameter_type = NULL;
+        }
+
+      if (state_type != NULL)
+        {
+          if (UNITY_GTK_IS_RADIO_ACTION (action))
+            *state_type = G_VARIANT_TYPE_STRING;
+          else if (GTK_IS_CHECK_MENU_ITEM (action->item))
+            *state_type = G_VARIANT_TYPE_BOOLEAN;
+          else
+            *state_type = NULL;
+        }
+
+      if (state_hint != NULL)
+        {
+          if (UNITY_GTK_IS_RADIO_ACTION (action))
+            {
+              UnityGtkRadioAction *radio_action = UNITY_GTK_RADIO_ACTION (action);
+
+              if (radio_action->items_by_state != NULL)
+                {
+                  GVariantBuilder builder;
+                  GHashTableIter iter;
+                  gpointer key;
+
+                  g_variant_builder_init (&builder, G_VARIANT_TYPE_ARRAY);
+                  g_hash_table_iter_init (&iter, radio_action->items_by_state);
+                  while (g_hash_table_iter_next (&iter, &key, NULL))
+                    g_variant_builder_add (&builder, "s", key);
+                  *state_hint = g_variant_ref_sink (g_variant_builder_end (&builder));
+                }
+              else
+                *state_hint = NULL;
+            }
+          else if (GTK_IS_CHECK_MENU_ITEM (action->item))
+            {
+              GVariantBuilder builder;
+
+              g_variant_builder_init (&builder, G_VARIANT_TYPE_TUPLE);
+              g_variant_builder_add (&builder, "b", FALSE);
+              g_variant_builder_add (&builder, "b", TRUE);
+              *state_hint = g_variant_ref_sink (g_variant_builder_end (&builder));
+            }
+          else
+            *state_hint = NULL;
+        }
+
+      if (state != NULL)
+        {
+          if (UNITY_GTK_IS_RADIO_ACTION (action))
+            {
+              UnityGtkRadioAction *radio_action = UNITY_GTK_RADIO_ACTION (action);
+
+              *state = NULL;
+
+              if (radio_action->items_by_state != NULL)
+                {
+                  GHashTableIter iter;
+                  gpointer key;
+                  gpointer value;
+
+                  g_hash_table_iter_init (&iter, radio_action->items_by_state);
+                  while (g_hash_table_iter_next (&iter, &key, &value))
+                    {
+                      UnityGtkMenuItem *item = value;
+
+                      if (item != NULL && GTK_IS_CHECK_MENU_ITEM (item->menu_item))
+                        {
+                          GtkCheckMenuItem *menu_item = GTK_CHECK_MENU_ITEM (item->menu_item);
+
+                          if (gtk_check_menu_item_get_active (menu_item))
+                            {
+                              *state = g_variant_ref_sink (g_variant_new_string (key));
+                              break;
+                            }
+                        }
+                    }
+                }
+            }
+          else if (GTK_IS_CHECK_MENU_ITEM (action->item))
+            {
+              GtkCheckMenuItem *menu_item = GTK_CHECK_MENU_ITEM (action->item);
+
+              *state = g_variant_ref_sink (g_variant_new_boolean (gtk_check_menu_item_get_active (menu_item)));
+            }
+          else
+            *state = NULL;
+        }
+
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+static void
 unity_gtk_action_group_class_init (UnityGtkActionGroupClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->dispose = unity_gtk_action_group_dispose;
+
   g_type_class_add_private (klass, sizeof (UnityGtkActionGroupPrivate));
 }
 
 static void
 unity_gtk_action_group_g_action_group_init (GActionGroupInterface *iface)
 {
+  iface->list_actions = unity_gtk_action_group_list_actions;
+  iface->change_action_state = unity_gtk_action_group_change_action_state;
+  iface->activate_action = unity_gtk_action_group_activate_action;
+  iface->query_action = unity_gtk_action_group_query_action;
 }
 
 static void
 unity_gtk_action_group_init (UnityGtkActionGroup *self)
 {
-  self->priv = UNITY_GTK_ACTION_GROUP_GET_PRIVATE (self);
+  UnityGtkActionGroupPrivate *priv;
+
+  priv = self->priv = UNITY_GTK_ACTION_GROUP_GET_PRIVATE (self);
+
+  priv->actions_by_name = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref);
 }
 
 UnityGtkActionGroup *
