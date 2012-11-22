@@ -871,8 +871,7 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
                 {
                   item = g_ptr_array_index (section->items, size + i);
                   unity_gtk_menu_item_set_parent_section (item, new_section);
-                  g_ptr_array_add (new_section->items, item);
-                  section->items->pdata[size + i] = NULL;
+                  g_ptr_array_add (new_section->items, g_object_ref (item));
                 }
 
               g_ptr_array_set_size (section->items, size + 1);
@@ -985,8 +984,7 @@ unity_gtk_menu_remove_item (UnityGtkMenu     *menu,
                 {
                   UnityGtkMenuItem *next_section_item = g_ptr_array_index (next_section->items, i);
                   unity_gtk_menu_item_set_parent_section (next_section_item, section);
-                  section->items->pdata[separator_index + i] = next_section_item;
-                  next_section->items->pdata[i] = NULL;
+                  section->items->pdata[separator_index + i] = g_object_ref (next_section_item);
                 }
 
               if (next_section_length > 0)
