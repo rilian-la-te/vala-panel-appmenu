@@ -1,4 +1,5 @@
 #include "unitygtkmenu.h"
+
 #include <string.h>
 
 #define UNITY_GTK_TYPE_MENU_ITEM                (unity_gtk_menu_item_get_type ())
@@ -415,9 +416,18 @@ unity_gtk_menu_item_get_submenu (UnityGtkMenuItem *item)
 
   if (!item->submenu_valid)
     {
+      UnityGtkActionGroup *action_group = NULL;
+
+      if (item->parent_section != NULL && item->parent_section->parent_menu != NULL)
+        action_group = item->parent_section->parent_menu->priv->action_group;
+
       if (item->submenu != NULL)
         {
           g_warn_if_reached ();
+
+          if (action_group != NULL)
+            unity_gtk_action_group_remove_menu (action_group, item->submenu);
+
           g_object_unref (item->submenu);
           item->submenu = NULL;
         }
@@ -427,7 +437,12 @@ unity_gtk_menu_item_get_submenu (UnityGtkMenuItem *item)
           GtkWidget *submenu = gtk_menu_item_get_submenu (item->menu_item);
 
           if (submenu != NULL)
-            item->submenu = unity_gtk_menu_new (GTK_MENU_SHELL (submenu));
+            {
+              item->submenu = unity_gtk_menu_new (GTK_MENU_SHELL (submenu));
+
+              if (action_group != NULL)
+                unity_gtk_action_group_add_menu (action_group, item->submenu);
+            }
         }
 
       item->submenu_valid = TRUE;
@@ -2224,6 +2239,8 @@ unity_gtk_action_group_add_item (UnityGtkActionGroup *group,
       g_hash_table_insert (group->priv->actions_by_name, action->name, action);
       g_action_group_action_added (G_ACTION_GROUP (group), action->name);
     }
+
+  unity_gtk_action_group_print (group);
 }
 
 void
