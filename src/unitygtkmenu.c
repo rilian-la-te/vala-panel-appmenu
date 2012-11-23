@@ -146,9 +146,18 @@ enum
   MENU_N_PROPERTIES
 };
 
+enum
+{
+  ACTION_PROP_0,
+  ACTION_PROP_NAME,
+  ACTION_PROP_ITEM,
+  ACTION_N_PROPERTIES
+};
+
 static GParamSpec *menu_item_properties[MENU_ITEM_N_PROPERTIES] = { NULL };
 static GParamSpec *menu_section_properties[MENU_SECTION_N_PROPERTIES] = { NULL };
 static GParamSpec *menu_properties[MENU_N_PROPERTIES] = { NULL };
+static GParamSpec *action_properties[ACTION_N_PROPERTIES] = { NULL };
 
 static void unity_gtk_menu_remove_item (UnityGtkMenu     *menu,
                                         UnityGtkMenuItem *item);
@@ -1591,9 +1600,106 @@ g_menu_model_print (GMenuModel *model,
 }
 
 static void
+unity_gtk_action_set_name (UnityGtkAction *action,
+                           const gchar    *name)
+{
+  g_return_if_fail (UNITY_GTK_IS_ACTION (action));
+
+  if (g_strcmp0 (name, action->name))
+    {
+      g_free (action->name);
+      action->name = g_strdup (name);
+    }
+}
+
+static void
+unity_gtk_action_set_item (UnityGtkAction   *action,
+                           UnityGtkMenuItem *item)
+{
+  g_return_if_fail (UNITY_GTK_IS_ACTION (action));
+
+  if (item != action->item)
+    {
+      if (action->item != NULL)
+        {
+          g_object_unref (action->item);
+          action->item = NULL;
+        }
+
+      if (item != NULL)
+        action->item = g_object_ref (item);
+    }
+}
+
+static void
 unity_gtk_action_dispose (GObject *object)
 {
+  UnityGtkAction *action;
+
+  g_return_if_fail (UNITY_GTK_IS_ACTION (object));
+
+  action = UNITY_GTK_ACTION (object);
+
+  unity_gtk_action_set_item (action, NULL);
+  unity_gtk_action_set_name (action, NULL);
+
   G_OBJECT_CLASS (unity_gtk_action_parent_class)->dispose (object);
+}
+
+static void
+unity_gtk_action_get_property (GObject    *object,
+                               guint       property_id,
+                               GValue     *value,
+                               GParamSpec *pspec)
+{
+  UnityGtkAction *self;
+
+  g_return_if_fail (UNITY_GTK_IS_ACTION (object));
+
+  self = UNITY_GTK_ACTION (object);
+
+  switch (property_id)
+    {
+    case ACTION_PROP_NAME:
+      g_value_set_string (value, self->name);
+      break;
+
+    case ACTION_PROP_ITEM:
+      g_value_set_object (value, self->item);
+      break;
+
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
+    }
+}
+
+static void
+unity_gtk_action_set_property (GObject      *object,
+                               guint         property_id,
+                               const GValue *value,
+                               GParamSpec   *pspec)
+{
+  UnityGtkAction *self;
+
+  g_return_if_fail (UNITY_GTK_IS_ACTION (object));
+
+  self = UNITY_GTK_ACTION (object);
+
+  switch (property_id)
+    {
+    case ACTION_PROP_NAME:
+      unity_gtk_action_set_name (self, g_value_get_string (value));
+      break;
+
+    case ACTION_PROP_ITEM:
+      unity_gtk_action_set_item (self, g_value_get_object (value));
+      break;
+
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
+    }
 }
 
 static void
@@ -1602,6 +1708,21 @@ unity_gtk_action_class_init (UnityGtkActionClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = unity_gtk_action_dispose;
+  object_class->get_property = unity_gtk_action_get_property;
+  object_class->set_property = unity_gtk_action_set_property;
+
+  action_properties[ACTION_PROP_NAME] = g_param_spec_string ("name",
+                                                             "Name",
+                                                             "Name",
+                                                             NULL,
+                                                             G_PARAM_READWRITE);
+  action_properties[ACTION_PROP_ITEM] = g_param_spec_object ("item",
+                                                             "Item",
+                                                             "Item",
+                                                             UNITY_GTK_TYPE_MENU_ITEM,
+                                                             G_PARAM_READWRITE);
+
+  g_object_class_install_properties (object_class, ACTION_N_PROPERTIES, action_properties);
 }
 
 static void
@@ -1609,9 +1730,31 @@ unity_gtk_action_init (UnityGtkAction *self)
 {
 }
 
+static UnityGtkAction *
+unity_gtk_action_new (const gchar      *name,
+                      UnityGtkMenuItem *item)
+{
+  return g_object_new (UNITY_GTK_TYPE_ACTION,
+                       "name", name,
+                       "item", item,
+                       NULL);
+}
+
 static void
 unity_gtk_radio_action_dispose (GObject *object)
 {
+  UnityGtkRadioAction *radio_action;
+
+  g_return_if_fail (UNITY_GTK_IS_RADIO_ACTION (object));
+
+  radio_action = UNITY_GTK_RADIO_ACTION (object);
+
+  if (radio_action->items_by_state != NULL)
+    {
+      g_hash_table_unref (radio_action->items_by_state);
+      radio_action->items_by_state = NULL;
+    }
+
   G_OBJECT_CLASS (unity_gtk_radio_action_parent_class)->dispose (object);
 }
 
@@ -1626,6 +1769,14 @@ unity_gtk_radio_action_class_init (UnityGtkRadioActionClass *klass)
 static void
 unity_gtk_radio_action_init (UnityGtkRadioAction *self)
 {
+}
+
+static UnityGtkRadioAction *
+unity_gtk_radio_action_new (const gchar *name)
+{
+  return g_object_new (UNITY_GTK_TYPE_RADIO_ACTION,
+                       "name", name,
+                       NULL);
 }
 
 static void
@@ -1968,6 +2119,13 @@ unity_gtk_action_group_new (void)
   return g_object_new (UNITY_GTK_TYPE_ACTION_GROUP, NULL);
 }
 
+static void
+unity_gtk_action_group_add_item (UnityGtkActionGroup *group,
+                                 const gchar         *name,
+                                 UnityGtkMenuItem    *item)
+{
+}
+
 void
 unity_gtk_action_group_add_menu (UnityGtkActionGroup *group,
                                  UnityGtkMenu        *menu)
@@ -1996,7 +2154,9 @@ unity_gtk_action_group_add_menu (UnityGtkActionGroup *group,
 
                   if (menu->priv->action_group != group)
                     {
-                      /* XXX: Add the item's action. */
+                      gchar *name = g_strdup_printf ("%p", item);
+                      unity_gtk_action_group_add_item (group, name, item);
+                      g_free (name);
                     }
 
                   if (item->submenu_valid && item->submenu != NULL)
@@ -2008,6 +2168,12 @@ unity_gtk_action_group_add_menu (UnityGtkActionGroup *group,
 
   if (menu->priv->action_group != group)
     menu->priv->action_group = g_object_ref (group);
+}
+
+static void
+unity_gtk_action_group_remove_item (UnityGtkActionGroup *group,
+                                    UnityGtkMenuItem    *item)
+{
 }
 
 void
@@ -2037,7 +2203,7 @@ unity_gtk_action_group_remove_menu (UnityGtkActionGroup *group,
                 {
                   UnityGtkMenuItem *item = g_ptr_array_index (section->items, j);
 
-                  /* XXX: Remove the item's action. */
+                  unity_gtk_action_group_remove_item (group, item);
 
                   if (item->submenu_valid && item->submenu != NULL)
                     unity_gtk_action_group_remove_menu (group, item->submenu);
