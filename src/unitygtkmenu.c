@@ -845,7 +845,10 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
               const gchar *label = gtk_menu_item_get_label (menu_item);
 
               if (label != NULL)
-                g_hash_table_insert (hash_table, G_MENU_ATTRIBUTE_LABEL, g_variant_ref_sink (g_variant_new_string (label)));
+                {
+                  g_hash_table_insert (hash_table, G_MENU_ATTRIBUTE_LABEL, g_variant_ref_sink (g_variant_new_string (label)));
+                  g_hash_table_insert (hash_table, G_MENU_ATTRIBUTE_ACTION, g_variant_ref_sink (g_variant_new_string (g_strdup_printf ("%p", item))));
+                }
             }
         }
       else
@@ -2239,8 +2242,6 @@ unity_gtk_action_group_add_item (UnityGtkActionGroup *group,
       g_hash_table_insert (group->priv->actions_by_name, action->name, action);
       g_action_group_action_added (G_ACTION_GROUP (group), action->name);
     }
-
-  unity_gtk_action_group_print (group);
 }
 
 void

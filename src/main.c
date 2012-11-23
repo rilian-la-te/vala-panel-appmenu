@@ -231,6 +231,7 @@ hijacked_menu_bar_realize (GtkWidget *widget)
           window_data->menus = g_slist_append (window_data->menus, menu);
 
           unity_gtk_menu_print (menu, 0);
+          unity_gtk_action_group_print (window_data->action_group);
         }
     }
 }
