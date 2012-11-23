@@ -112,6 +112,7 @@ hijacked_window_realize (GtkWidget *widget)
       window_data->action_group_export_id = g_dbus_connection_export_action_group (session, object_path, G_ACTION_GROUP (window_data->action_group), NULL);
 
       window = GDK_X11_WINDOW (gtk_widget_get_window (widget));
+      gdk_x11_window_set_utf8_property (window, "_GTK_WINDOW_OBJECT_PATH", object_path);
       gdk_x11_window_set_utf8_property (window, "_GTK_MENUBAR_OBJECT_PATH", object_path);
       gdk_x11_window_set_utf8_property (window, "_GTK_UNIQUE_BUS_NAME", g_dbus_connection_get_unique_name (session));
 

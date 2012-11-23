@@ -700,7 +700,7 @@ unity_gtk_menu_section_get_items (UnityGtkMenuSection *section)
 
           if (action_group != NULL)
             {
-              gchar *name = g_strdup_printf ("%p", item);
+              gchar *name = g_strdup_printf ("win.%p", item);
               unity_gtk_action_group_add_item (action_group, name, item);
               g_free (name);
             }
@@ -847,7 +847,7 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
               if (label != NULL)
                 {
                   g_hash_table_insert (hash_table, G_MENU_ATTRIBUTE_LABEL, g_variant_ref_sink (g_variant_new_string (label)));
-                  g_hash_table_insert (hash_table, G_MENU_ATTRIBUTE_ACTION, g_variant_ref_sink (g_variant_new_string (g_strdup_printf ("%p", item))));
+                  g_hash_table_insert (hash_table, G_MENU_ATTRIBUTE_ACTION, g_variant_ref_sink (g_variant_new_string (g_strdup_printf ("win.%p", item))));
                 }
             }
         }
@@ -1036,7 +1036,7 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
 
           if (priv->action_group != NULL)
             {
-              gchar *name = g_strdup_printf ("%p", item);
+              gchar *name = g_strdup_printf ("win.%p", item);
               unity_gtk_action_group_add_item (priv->action_group, name, item);
               g_free (name);
             }
@@ -2078,6 +2078,9 @@ unity_gtk_action_group_query_action (GActionGroup        *action_group,
             }
           else
             *enabled = action->item != NULL && unity_gtk_menu_item_is_enabled (action->item);
+
+          /* XXX */
+          *enabled = TRUE;
         }
 
       if (parameter_type != NULL)
@@ -2241,6 +2244,8 @@ unity_gtk_action_group_add_item (UnityGtkActionGroup *group,
       unity_gtk_menu_item_set_action (item, action);
       g_hash_table_insert (group->priv->actions_by_name, action->name, action);
       g_action_group_action_added (G_ACTION_GROUP (group), action->name);
+      /* XXX */
+      g_action_group_action_enabled_changed (G_ACTION_GROUP (group), action->name, TRUE);
     }
 }
 
@@ -2272,7 +2277,7 @@ unity_gtk_action_group_add_menu (UnityGtkActionGroup *group,
 
                   if (menu->priv->action_group != group)
                     {
-                      gchar *name = g_strdup_printf ("%p", item);
+                      gchar *name = g_strdup_printf ("win.%p", item);
                       unity_gtk_action_group_add_item (group, name, item);
                       g_free (name);
                     }
