@@ -1,4 +1,5 @@
 #include "unitygtkmenu.h"
+#include <string.h>
 
 #define UNITY_GTK_TYPE_MENU_ITEM                (unity_gtk_menu_item_get_type ())
 #define UNITY_GTK_MENU_ITEM(obj)                (G_TYPE_CHECK_INSTANCE_CAST ((obj), UNITY_GTK_TYPE_MENU_ITEM, UnityGtkMenuItem))
@@ -163,6 +164,13 @@ static GParamSpec *action_properties[ACTION_N_PROPERTIES] = { NULL };
 
 static void unity_gtk_menu_remove_item (UnityGtkMenu     *menu,
                                         UnityGtkMenuItem *item);
+
+static void unity_gtk_action_group_add_item (UnityGtkActionGroup *group,
+                                             const gchar         *name,
+                                             UnityGtkMenuItem    *item);
+
+static void unity_gtk_action_group_remove_item (UnityGtkActionGroup *group,
+                                                UnityGtkMenuItem    *item);
 
 static gint
 g_ptr_array_find (GPtrArray *ptr_array,
@@ -339,6 +347,9 @@ unity_gtk_menu_item_handle_notify (GObject    *object,
             {
               if (item->submenu != NULL)
                 {
+                  if (item->submenu->priv->action_group != NULL)
+                    unity_gtk_action_group_remove_menu (item->submenu->priv->action_group, item->submenu);
+
                   g_object_unref (item->submenu);
                   item->submenu = NULL;
                 }
@@ -641,12 +652,14 @@ unity_gtk_menu_section_get_items (UnityGtkMenuSection *section)
 
   if (section->items == NULL && section->parent_menu != NULL && section->parent_menu->priv->menu_shell != NULL)
     {
+      UnityGtkActionGroup *action_group;
       GtkMenuShell *menu_shell;
       GList *start;
       GList *finish;
       GList *iter;
       guint n;
 
+      action_group = section->parent_menu->priv->action_group;
       menu_shell = section->parent_menu->priv->menu_shell;
       start = gtk_container_get_children (GTK_CONTAINER (menu_shell));
       start = g_list_nth_predicate (start, section->shell_offset, gtk_menu_item_is_valid);
@@ -665,7 +678,18 @@ unity_gtk_menu_section_get_items (UnityGtkMenuSection *section)
       section->items = g_ptr_array_new_full (n, g_object_unref);
 
       for (iter = start; iter != finish; iter = g_list_next_predicate (iter, gtk_menu_item_is_valid))
-        g_ptr_array_add (section->items, unity_gtk_menu_item_new (iter->data, section));
+        {
+          UnityGtkMenuItem *item = unity_gtk_menu_item_new (iter->data, section);
+
+          g_ptr_array_add (section->items, item);
+
+          if (action_group != NULL)
+            {
+              gchar *name = g_strdup_printf ("%p", item);
+              unity_gtk_action_group_add_item (action_group, name, item);
+              g_free (name);
+            }
+        }
     }
 
   return section->items;
@@ -991,6 +1015,13 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
           g_ptr_array_insert (section->items, item, i);
 
           g_menu_model_items_changed (G_MENU_MODEL (section), i, 0, 1);
+
+          if (priv->action_group != NULL)
+            {
+              gchar *name = g_strdup_printf ("%p", item);
+              unity_gtk_action_group_add_item (priv->action_group, name, item);
+              g_free (name);
+            }
         }
 
       if (!unity_gtk_menu_is_valid (menu))
@@ -1002,6 +1033,7 @@ static void
 unity_gtk_menu_remove_item (UnityGtkMenu     *menu,
                             UnityGtkMenuItem *item)
 {
+  UnityGtkMenuPrivate *priv;
   GPtrArray *sections;
   UnityGtkMenuSection *section;
   GtkMenuItem *menu_item;
@@ -1009,7 +1041,8 @@ unity_gtk_menu_remove_item (UnityGtkMenu     *menu,
   g_return_if_fail (UNITY_GTK_IS_MENU (menu));
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
 
-  sections = menu->priv->sections;
+  priv = menu->priv;
+  sections = priv->sections;
   section = item->parent_section;
   menu_item = item->menu_item;
 
@@ -1105,6 +1138,9 @@ unity_gtk_menu_remove_item (UnityGtkMenu     *menu,
       g_ptr_array_remove_index (section->items, item_index);
 
       g_menu_model_items_changed (G_MENU_MODEL (section), item_index, 1, 0);
+
+      if (priv->action_group != NULL)
+        unity_gtk_action_group_remove_item (priv->action_group, item);
     }
 
   if (!unity_gtk_menu_is_valid (menu))
@@ -2166,15 +2202,19 @@ unity_gtk_action_group_add_item (UnityGtkActionGroup *group,
                                  const gchar         *name,
                                  UnityGtkMenuItem    *item)
 {
+  GtkMenuItem *menu_item;
+
   g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (group));
   g_return_if_fail (name != NULL);
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
 
-  if (GTK_IS_RADIO_MENU_ITEM (item->menu_item))
+  menu_item = item->menu_item;
+
+  if (GTK_IS_RADIO_MENU_ITEM (menu_item))
     {
       /* XXX */
     }
-  else if (item->menu_item != NULL)
+  else if (menu_item != NULL && !GTK_IS_SEPARATOR_MENU_ITEM (menu_item))
     {
       UnityGtkAction *action;
 
@@ -2182,6 +2222,7 @@ unity_gtk_action_group_add_item (UnityGtkActionGroup *group,
       action = unity_gtk_action_new (name, item);
       unity_gtk_menu_item_set_action (item, action);
       g_hash_table_insert (group->priv->actions_by_name, action->name, action);
+      g_action_group_action_added (G_ACTION_GROUP (group), action->name);
     }
 }
 
@@ -2257,6 +2298,7 @@ unity_gtk_action_group_remove_item (UnityGtkActionGroup *group,
         {
           g_return_if_fail (group->priv->actions_by_name != NULL);
           g_hash_table_remove (group->priv->actions_by_name, item->action->name);
+          g_action_group_action_removed (G_ACTION_GROUP (group), item->action->name);
           unity_gtk_menu_item_set_action (item, NULL);
         }
     }
@@ -2265,6 +2307,7 @@ unity_gtk_action_group_remove_item (UnityGtkActionGroup *group,
       g_return_if_fail (UNITY_GTK_IS_ACTION (item->action));
       g_return_if_fail (group->priv->actions_by_name != NULL);
       g_hash_table_remove (group->priv->actions_by_name, item->action->name);
+      g_action_group_action_removed (G_ACTION_GROUP (group), item->action->name);
       unity_gtk_menu_item_set_action (item, NULL);
     }
 }
@@ -2323,7 +2366,36 @@ unity_gtk_action_group_print (UnityGtkActionGroup *group)
 
       if (UNITY_GTK_IS_RADIO_ACTION (value))
         {
-          /* XXX */
+          UnityGtkRadioAction *action = value;
+          GHashTableIter iter;
+          gchar *indent = NULL;
+
+          g_return_if_fail (action->items_by_state != NULL);
+
+          g_hash_table_iter_init (&iter, action->items_by_state);
+          while (g_hash_table_iter_next (&iter, &key, &value))
+            {
+              const gchar *prefix = indent == NULL ? name : indent;
+              GtkMenuItem *menu_item = value;
+              const gchar *state = key;
+
+              if (menu_item != NULL)
+                {
+                  const gchar *label = gtk_menu_item_get_label (menu_item);
+
+                  if (label != NULL && label[0] == '\0')
+                    g_print ("%s -> %s -> (%s *) %p \"%s\"\n", prefix, state, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (menu_item)), menu_item, label);
+                  else
+                    g_print ("%s -> %s -> (%s *) %p\n", prefix, state, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (menu_item)), menu_item);
+                }
+              else
+                g_print ("%s -> %s -> %p\n", prefix, state, menu_item);
+
+              if (indent == NULL)
+                indent = g_strnfill (strlen (name), ' ');
+            }
+
+          g_free (indent);
         }
       else
         {
@@ -2347,7 +2419,7 @@ unity_gtk_action_group_print (UnityGtkActionGroup *group)
                 g_print ("%s -> (%s *) %p\n", name, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (menu_item)), menu_item);
             }
           else
-            g_print ("%s -> %p\n", name, NULL);
+            g_print ("%s -> %p\n", name, menu_item);
         }
     }
 }
