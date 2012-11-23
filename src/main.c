@@ -3,16 +3,18 @@
 
 #include "unitygtkmenu.h"
 
-#define WINDOW_OBJECT_PATH "/com/canonical/Unity/Gtk/Window"
+#define WINDOW_OBJECT_PATH "/com/canonical/unity/gtk/window"
 
 G_DEFINE_QUARK (window_data, window_data);
 
 struct _WindowData
 {
-  guint   window_id;
-  guint   export_id;
-  GMenu  *menu;
-  GSList *menu_shells;
+  guint                window_id;
+  GMenu               *menu_model;
+  GSList              *menus;
+  UnityGtkActionGroup *action_group;
+  guint                menu_model_export_id;
+  guint                action_group_export_id;
 };
 
 typedef struct _WindowData WindowData;
@@ -30,17 +32,21 @@ window_data_free (gpointer data)
 
   if (window_data != NULL)
     {
-      if (window_data->export_id)
-        {
-          GDBusConnection *session;
+      GDBusConnection *session;
 
-          session = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
+      session = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
 
-          g_dbus_connection_unexport_menu_model (session, window_data->export_id);
-        }
+      if (window_data->action_group_export_id)
+        g_dbus_connection_unexport_action_group (session, window_data->action_group_export_id);
 
-      if (window_data->menu != NULL)
-        g_object_unref (window_data->menu);
+      if (window_data->menu_model_export_id)
+        g_dbus_connection_unexport_menu_model (session, window_data->menu_model_export_id);
+
+      if (window_data->action_group != NULL)
+        g_object_unref (window_data->action_group);
+
+      if (window_data->menu_model != NULL)
+        g_object_unref (window_data->menu_model);
 
       g_slice_free (WindowData, data);
     }
@@ -92,23 +98,26 @@ hijacked_window_realize (GtkWidget *widget)
       static guint window_id;
 
       GDBusConnection *session;
-      gchar object_path[80];
       GdkX11Window *window;
+      gchar *object_path;
 
       window_data = window_data_new ();
-      window_data->menu = g_menu_new ();
       window_data->window_id = window_id++;
+      window_data->menu_model = g_menu_new ();
+      window_data->action_group = unity_gtk_action_group_new ();
 
       session = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
-      sprintf (object_path, WINDOW_OBJECT_PATH "/%d", window_data->window_id);
-      window_data->export_id = g_dbus_connection_export_menu_model (session, object_path, G_MENU_MODEL (window_data->menu), NULL);
+      object_path = g_strdup_printf (WINDOW_OBJECT_PATH "/%d", window_data->window_id);
+      window_data->menu_model_export_id = g_dbus_connection_export_menu_model (session, object_path, G_MENU_MODEL (window_data->menu_model), NULL);
+      window_data->action_group_export_id = g_dbus_connection_export_action_group (session, object_path, G_ACTION_GROUP (window_data->action_group), NULL);
 
       window = GDK_X11_WINDOW (gtk_widget_get_window (widget));
-
       gdk_x11_window_set_utf8_property (window, "_GTK_MENUBAR_OBJECT_PATH", object_path);
       gdk_x11_window_set_utf8_property (window, "_GTK_UNIQUE_BUS_NAME", g_dbus_connection_get_unique_name (session));
 
       g_object_set_qdata_full (G_OBJECT (widget), window_data_quark (), window_data, window_data_free);
+
+      g_free (object_path);
     }
 }
 
@@ -173,12 +182,14 @@ hijacked_menu_bar_size_allocate (GtkWidget     *widget,
   GtkAllocation zero = { 0, 0, 0, 0 };
   GdkWindow *window;
 
-  /* We manually assign an empty allocation to the menu bar to
+  /*
+   * We manually assign an empty allocation to the menu bar to
    * prevent the container from attempting to draw it at all.
    */
   (* pre_hijacked_widget_size_allocate) (widget, &zero);
 
-  /* Then we move the GdkWindow belonging to the menu bar outside of
+  /*
+   * Then we move the GdkWindow belonging to the menu bar outside of
    * the clipping rectangle of the parent window so that we can't
    * see it.
    */
@@ -193,23 +204,31 @@ hijacked_menu_bar_realize (GtkWidget *widget)
 {
   GtkWidget *window;
   WindowData *window_data;
+  GtkMenuShell *menu_shell;
 
   (* pre_hijacked_menu_bar_realize) (widget);
 
   window = gtk_widget_get_toplevel (widget);
   window_data = g_object_get_qdata (G_OBJECT (window), window_data_quark ());
+  menu_shell = GTK_MENU_SHELL (widget);
 
   if (window_data != NULL)
     {
-      GSList *iter = g_slist_find (window_data->menu_shells, widget);
+      GSList *iter;
+
+      for (iter = window_data->menus; iter != NULL; iter = g_slist_next (iter))
+        if (unity_gtk_menu_get_menu_shell (iter->data) == menu_shell)
+          break;
 
       if (iter == NULL)
         {
-          UnityGtkMenu *menu = unity_gtk_menu_new (GTK_MENU_SHELL (widget));
+          UnityGtkMenu *menu = unity_gtk_menu_new (menu_shell);
 
-          g_menu_append_section (window_data->menu, NULL, G_MENU_MODEL (menu));
+          unity_gtk_action_group_add_menu (window_data->action_group, menu);
 
-          window_data->menu_shells = g_slist_append (window_data->menu_shells, widget);
+          g_menu_append_section (window_data->menu_model, NULL, G_MENU_MODEL (menu));
+
+          window_data->menus = g_slist_append (window_data->menus, menu);
 
           unity_gtk_menu_print (menu, 0);
         }
@@ -221,21 +240,36 @@ hijacked_menu_bar_unrealize (GtkWidget *widget)
 {
   GtkWidget *window;
   WindowData *window_data;
+  GtkMenuShell *menu_shell;
 
   (* pre_hijacked_menu_bar_unrealize) (widget);
 
   window = gtk_widget_get_toplevel (widget);
   window_data = g_object_get_qdata (G_OBJECT (window), window_data_quark ());
+  menu_shell = GTK_MENU_SHELL (widget);
 
   if (window_data != NULL)
     {
-      gint i = g_slist_index (window_data->menu_shells, widget);
+      GSList *iter;
+      guint i;
 
-      if (i >= 0)
+      iter = window_data->menus;
+
+      for (i = 0; iter != NULL; i++)
         {
-          window_data->menu_shells = g_slist_remove (window_data->menu_shells, widget);
+          if (unity_gtk_menu_get_menu_shell (iter->data) == menu_shell)
+            break;
 
-          g_menu_remove (window_data->menu, i);
+          iter = g_slist_next (iter);
+        }
+
+      if (iter != NULL)
+        {
+          unity_gtk_action_group_remove_menu (window_data->action_group, iter->data);
+
+          window_data->menus = g_slist_delete_link (window_data->menus, iter);
+
+          g_menu_remove (window_data->menu_model, i);
         }
     }
 }
