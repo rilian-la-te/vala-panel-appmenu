@@ -283,6 +283,16 @@ gtk_menu_item_is_valid (gpointer data)
   return GTK_IS_MENU_ITEM (data) && !GTK_IS_TEAROFF_MENU_ITEM (data);
 }
 
+static UnityGtkActionGroup *
+unity_gtk_menu_item_get_action_group (UnityGtkMenuItem *item)
+{
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), NULL);
+  g_return_val_if_fail (item->parent_section != NULL, NULL);
+  g_return_val_if_fail (item->parent_section->parent_menu != NULL, NULL);
+
+  return item->parent_section->parent_menu->priv->action_group;
+}
+
 static void
 unity_gtk_menu_item_handle_notify (GObject    *object,
                                    GParamSpec *pspec,
@@ -348,8 +358,10 @@ unity_gtk_menu_item_handle_notify (GObject    *object,
             {
               if (item->submenu != NULL)
                 {
-                  if (item->submenu->priv->action_group != NULL)
-                    unity_gtk_action_group_remove_menu (item->submenu->priv->action_group, item->submenu);
+                  UnityGtkActionGroup *action_group = unity_gtk_menu_item_get_action_group (item);
+
+                  if (action_group != NULL)
+                    unity_gtk_action_group_remove_menu (action_group, item->submenu);
 
                   g_object_unref (item->submenu);
                   item->submenu = NULL;
