@@ -301,6 +301,7 @@ unity_gtk_menu_item_handle_notify (GObject    *object,
   static const gchar *parent_name;
   static const gchar *submenu_name;
   static const gchar *sensitive_name;
+  static const gchar *active_name;
 
   UnityGtkMenuItem *item;
   GtkMenuItem *menu_item;
@@ -322,6 +323,8 @@ unity_gtk_menu_item_handle_notify (GObject    *object,
     submenu_name = g_intern_static_string ("submenu");
   if (sensitive_name == NULL)
     sensitive_name = g_intern_static_string ("sensitive");
+  if (active_name == NULL)
+    active_name = g_intern_static_string ("active");
 
   if (pspec_name == parent_name)
     {
@@ -391,6 +394,50 @@ unity_gtk_menu_item_handle_notify (GObject    *object,
         {
           gboolean enabled = gtk_widget_is_sensitive (GTK_WIDGET (menu_item));
           g_action_group_action_enabled_changed (G_ACTION_GROUP (action_group), item->action->name, enabled);
+        }
+    }
+  else if (pspec_name == active_name)
+    {
+      UnityGtkActionGroup *action_group = unity_gtk_menu_item_get_action_group (item);
+
+      g_return_if_fail ((action_group == NULL) == (item->action == NULL));
+
+      if (action_group != NULL && item->action != NULL)
+        {
+          GtkCheckMenuItem *check_menu_item;
+          GVariant *state = NULL;
+
+          g_return_if_fail (GTK_IS_CHECK_MENU_ITEM (menu_item));
+          check_menu_item = GTK_CHECK_MENU_ITEM (menu_item);
+
+          if (UNITY_GTK_IS_RADIO_ACTION (item->action))
+            {
+              UnityGtkRadioAction *radio_action = UNITY_GTK_RADIO_ACTION (item->action);
+
+              g_return_if_fail (radio_action->items_by_state != NULL);
+
+              if (gtk_check_menu_item_get_active (check_menu_item))
+                {
+                  GHashTableIter iter;
+                  gpointer key;
+                  gpointer value;
+
+                  g_hash_table_iter_init (&iter, radio_action->items_by_state);
+                  while (g_hash_table_iter_next (&iter, &key, &value))
+                    {
+                      if (value == item)
+                        {
+                          state = g_variant_new_string (key);
+                          break;
+                        }
+                    }
+                }
+            }
+          else
+            state = g_variant_new_boolean (gtk_check_menu_item_get_active (check_menu_item));
+
+          if (state != NULL)
+            g_action_group_action_state_changed (G_ACTION_GROUP (action_group), item->action->name, state);
         }
     }
 }
