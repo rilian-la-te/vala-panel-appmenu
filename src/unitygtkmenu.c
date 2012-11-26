@@ -362,18 +362,23 @@ unity_gtk_menu_item_handle_notify (GObject    *object,
         {
           if (item->submenu_valid)
             {
-              if (item->submenu != NULL)
-                {
-                  UnityGtkActionGroup *action_group = unity_gtk_menu_item_get_action_group (item);
-
-                  if (action_group != NULL)
-                    unity_gtk_action_group_remove_menu (action_group, item->submenu);
-
-                  g_object_unref (item->submenu);
-                  item->submenu = NULL;
-                }
+              UnityGtkMenu *old_submenu = item->submenu;
 
               item->submenu_valid = FALSE;
+
+              if (old_submenu != NULL)
+                {
+                  UnityGtkActionGroup *action_group;
+
+                  item->submenu = NULL;
+
+                  action_group = unity_gtk_menu_item_get_action_group (item);
+
+                  if (action_group != NULL)
+                    unity_gtk_action_group_remove_menu (action_group, old_submenu);
+
+                  g_object_unref (old_submenu);
+                }
             }
 
           if (parent_section != NULL && parent_section->items != NULL)
@@ -468,14 +473,18 @@ static void
 unity_gtk_menu_item_set_parent_section (UnityGtkMenuItem    *item,
                                         UnityGtkMenuSection *parent_section)
 {
+  UnityGtkMenuSection *old_parent_section;
+
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
 
-  if (parent_section != item->parent_section)
+  old_parent_section = item->parent_section;
+
+  if (parent_section != old_parent_section)
     {
-      if (item->parent_section != NULL)
+      if (old_parent_section != NULL)
         {
-          g_object_unref (item->parent_section);
           item->parent_section = NULL;
+          g_object_unref (old_parent_section);
         }
 
       if (parent_section != NULL)
@@ -490,17 +499,20 @@ unity_gtk_menu_item_get_submenu (UnityGtkMenuItem *item)
 
   if (!item->submenu_valid)
     {
+      UnityGtkMenu *old_submenu = item->submenu;
       UnityGtkActionGroup *action_group = unity_gtk_menu_item_get_action_group (item);
 
-      if (item->submenu != NULL)
+      if (old_submenu != NULL)
         {
+          /* There shouldn't be a submenu. */
           g_warn_if_reached ();
 
-          if (action_group != NULL)
-            unity_gtk_action_group_remove_menu (action_group, item->submenu);
-
-          g_object_unref (item->submenu);
           item->submenu = NULL;
+
+          if (action_group != NULL)
+            unity_gtk_action_group_remove_menu (action_group, old_submenu);
+
+          g_object_unref (old_submenu);
         }
 
       if (item->menu_item != NULL)
@@ -526,14 +538,18 @@ static void
 unity_gtk_menu_item_set_action (UnityGtkMenuItem *item,
                                 UnityGtkAction   *action)
 {
+  UnityGtkAction *old_action;
+
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
 
-  if (action != item->action)
+  old_action = item->action;
+
+  if (action != old_action)
     {
-      if (item->action != NULL)
+      if (old_action != NULL)
         {
-          g_object_unref (item->action);
           item->action = NULL;
+          g_object_unref (old_action);
         }
 
       if (action != NULL)
@@ -553,6 +569,7 @@ static void
 unity_gtk_menu_item_dispose (GObject *object)
 {
   UnityGtkMenuItem *item;
+  UnityGtkMenu *old_submenu;
 
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (object));
 
@@ -560,12 +577,15 @@ unity_gtk_menu_item_dispose (GObject *object)
 
   unity_gtk_menu_item_set_action (item, NULL);
 
-  if (item->submenu != NULL)
+  old_submenu = item->submenu;
+
+  if (old_submenu != NULL)
     {
       g_warn_if_fail (item->submenu_valid);
-      g_object_unref (item->submenu);
+
       item->submenu_valid = FALSE;
       item->submenu = NULL;
+      g_object_unref (old_submenu);
     }
 
   unity_gtk_menu_item_set_parent_section (item, NULL);
@@ -692,20 +712,26 @@ static void
 unity_gtk_menu_section_set_parent_menu (UnityGtkMenuSection *section,
                                         UnityGtkMenu        *parent_menu)
 {
+  UnityGtkMenu *old_parent_menu;
+
   g_return_if_fail (UNITY_GTK_IS_MENU_SECTION (section));
 
-  if (parent_menu != section->parent_menu)
+  old_parent_menu = section->parent_menu;
+
+  if (parent_menu != old_parent_menu)
     {
-      if (section->items != NULL)
+      GPtrArray *old_items = section->items;
+
+      if (old_items != NULL)
         {
-          g_ptr_array_unref (section->items);
           section->items = NULL;
+          g_ptr_array_unref (old_items);
         }
 
-      if (section->parent_menu != NULL)
+      if (old_parent_menu != NULL)
         {
-          g_object_unref (section->parent_menu);
           section->parent_menu = NULL;
+          g_object_unref (old_parent_menu);
         }
 
       if (parent_menu != NULL)
@@ -1785,14 +1811,18 @@ static void
 unity_gtk_action_set_item (UnityGtkAction   *action,
                            UnityGtkMenuItem *item)
 {
+  UnityGtkMenuItem *old_item;
+
   g_return_if_fail (UNITY_GTK_IS_ACTION (action));
 
-  if (item != action->item)
+  old_item = action->item;
+
+  if (item != old_item)
     {
-      if (action->item != NULL)
+      if (old_item != NULL)
         {
-          g_object_unref (action->item);
           action->item = NULL;
+          g_object_unref (old_item);
         }
 
       if (item != NULL)
@@ -2411,8 +2441,8 @@ unity_gtk_action_group_remove_menu (UnityGtkActionGroup *group,
   g_return_if_fail (UNITY_GTK_IS_MENU (menu));
   g_return_if_fail (menu->priv->action_group == group);
 
-  g_object_unref (menu->priv->action_group);
   menu->priv->action_group = NULL;
+  g_object_unref (group);
 
   if (menu->priv->sections != NULL)
     {
