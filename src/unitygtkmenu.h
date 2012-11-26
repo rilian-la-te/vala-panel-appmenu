@@ -63,6 +63,9 @@ void                  unity_gtk_menu_print               (UnityGtkMenu        *m
 void                  g_menu_model_print                 (GMenuModel          *model,
                                                           guint                depth) G_GNUC_INTERNAL;
 
+void                  gtk_menu_shell_print               (GtkMenuShell        *shell,
+                                                          guint                depth) G_GNUC_INTERNAL;
+
 GType                 unity_gtk_action_group_get_type    (void)                       G_GNUC_INTERNAL;
 
 UnityGtkActionGroup * unity_gtk_action_group_new         (void)                       G_GNUC_INTERNAL;

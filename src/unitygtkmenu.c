@@ -1794,6 +1794,44 @@ g_menu_model_print (GMenuModel *model,
   g_free (indent);
 }
 
+void
+gtk_menu_shell_print (GtkMenuShell *shell,
+                      guint         depth)
+{
+  gchar *indent;
+  GList *iter;
+
+  g_return_if_fail (GTK_IS_MENU_SHELL (shell));
+
+  indent = g_strnfill (depth, ' ');
+  iter = gtk_container_get_children (GTK_CONTAINER (shell));
+
+  while (iter != NULL)
+    {
+      GtkMenuItem *menu_item = iter->data;
+
+      if (menu_item != NULL)
+        {
+          const gchar *label = gtk_menu_item_get_label (menu_item);
+          GtkWidget *submenu = gtk_menu_item_get_submenu (menu_item);
+
+          if (label != NULL && label[0] != '\0')
+            g_print ("%s(%s *) %p \"%s\"\n", indent, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (menu_item)), menu_item, label);
+          else
+            g_print ("%s(%s *) %p\n", indent, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (menu_item)), menu_item);
+
+          if (submenu != NULL)
+            gtk_menu_shell_print (GTK_MENU_SHELL (submenu), depth + 1);
+        }
+      else
+        g_print ("%s%p\n", indent, menu_item);
+
+      iter = g_list_next (iter);
+    }
+
+  g_free (indent);
+}
+
 static void
 unity_gtk_action_set_name (UnityGtkAction *action,
                            const gchar    *name)
