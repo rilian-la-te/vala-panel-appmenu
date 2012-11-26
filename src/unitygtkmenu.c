@@ -2460,7 +2460,8 @@ unity_gtk_action_group_remove_menu (UnityGtkActionGroup *group,
                 {
                   UnityGtkMenuItem *item = g_ptr_array_index (section->items, j);
 
-                  unity_gtk_action_group_remove_item (group, item);
+                  if (item->action != NULL)
+                    unity_gtk_action_group_remove_item (group, item);
 
                   if (item->submenu_valid && item->submenu != NULL)
                     unity_gtk_action_group_remove_menu (group, item->submenu);
