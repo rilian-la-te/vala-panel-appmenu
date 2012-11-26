@@ -300,6 +300,7 @@ unity_gtk_menu_item_handle_notify (GObject    *object,
 {
   static const gchar *parent_name;
   static const gchar *submenu_name;
+  static const gchar *sensitive_name;
 
   UnityGtkMenuItem *item;
   GtkMenuItem *menu_item;
@@ -319,6 +320,8 @@ unity_gtk_menu_item_handle_notify (GObject    *object,
     parent_name = g_intern_static_string ("parent");
   if (submenu_name == NULL)
     submenu_name = g_intern_static_string ("submenu");
+  if (sensitive_name == NULL)
+    sensitive_name = g_intern_static_string ("sensitive");
 
   if (pspec_name == parent_name)
     {
@@ -378,6 +381,18 @@ unity_gtk_menu_item_handle_notify (GObject    *object,
             }
         }
     }
+  else if (pspec_name == sensitive_name)
+    {
+      UnityGtkActionGroup *action_group = unity_gtk_menu_item_get_action_group (item);
+
+      g_return_if_fail ((action_group == NULL) == (item->action == NULL));
+
+      if (action_group != NULL && item->action != NULL)
+        {
+          gboolean enabled = gtk_widget_is_sensitive (GTK_WIDGET (menu_item));
+          g_action_group_action_enabled_changed (G_ACTION_GROUP (action_group), item->action->name, enabled);
+        }
+    }
 }
 
 static void
@@ -428,10 +443,7 @@ unity_gtk_menu_item_get_submenu (UnityGtkMenuItem *item)
 
   if (!item->submenu_valid)
     {
-      UnityGtkActionGroup *action_group = NULL;
-
-      if (item->parent_section != NULL && item->parent_section->parent_menu != NULL)
-        action_group = item->parent_section->parent_menu->priv->action_group;
+      UnityGtkActionGroup *action_group = unity_gtk_menu_item_get_action_group (item);
 
       if (item->submenu != NULL)
         {
@@ -858,8 +870,10 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
 
               if (label != NULL)
                 {
+                  gchar *name = g_strdup_printf ("win.%p", item);
                   g_hash_table_insert (hash_table, G_MENU_ATTRIBUTE_LABEL, g_variant_ref_sink (g_variant_new_string (label)));
-                  g_hash_table_insert (hash_table, G_MENU_ATTRIBUTE_ACTION, g_variant_ref_sink (g_variant_new_string (g_strdup_printf ("win.%p", item))));
+                  g_hash_table_insert (hash_table, G_MENU_ATTRIBUTE_ACTION, g_variant_ref_sink (g_variant_new_string (name)));
+                  g_free (name);
                 }
             }
         }
@@ -1044,14 +1058,14 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
 
           g_ptr_array_insert (section->items, item, i);
 
-          g_menu_model_items_changed (G_MENU_MODEL (section), i, 0, 1);
-
           if (priv->action_group != NULL)
             {
               gchar *name = g_strdup_printf ("%p", item);
               unity_gtk_action_group_add_item (priv->action_group, name, item);
               g_free (name);
             }
+
+          g_menu_model_items_changed (G_MENU_MODEL (section), i, 0, 1);
         }
 
       if (!unity_gtk_menu_is_valid (menu))
@@ -1945,8 +1959,6 @@ unity_gtk_action_group_set_action_state (GActionGroup *action_group,
   UnityGtkActionGroupPrivate *priv;
   UnityGtkAction *action;
 
-  g_message ("%s %s", __func__, action_name);
-
   g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group));
 
   group = UNITY_GTK_ACTION_GROUP (action_group);
@@ -1993,8 +2005,6 @@ unity_gtk_action_group_change_action_state (GActionGroup *action_group,
                                             const gchar  *action_name,
                                             GVariant     *value)
 {
-  g_message ("%s %s", __func__, action_name);
-
   g_variant_ref_sink (value);
   unity_gtk_action_group_set_action_state (action_group, action_name, value);
   g_variant_unref (value);
@@ -2008,8 +2018,6 @@ unity_gtk_action_group_activate_action (GActionGroup *action_group,
   UnityGtkActionGroup *group;
   UnityGtkActionGroupPrivate *priv;
   UnityGtkAction *action;
-
-  g_message ("%s %s", __func__, action_name);
 
   g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group));
 
@@ -2059,8 +2067,6 @@ unity_gtk_action_group_query_action (GActionGroup        *action_group,
   UnityGtkActionGroupPrivate *priv;
   UnityGtkAction *action;
 
-  g_message ("%s %s", __func__, action_name);
-
   g_return_val_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group), FALSE);
 
   group = UNITY_GTK_ACTION_GROUP (action_group);
@@ -2098,9 +2104,6 @@ unity_gtk_action_group_query_action (GActionGroup        *action_group,
             }
           else
             *enabled = action->item != NULL && unity_gtk_menu_item_is_enabled (action->item);
-
-          /* XXX */
-          *enabled = TRUE;
         }
 
       if (parameter_type != NULL)
@@ -2264,8 +2267,6 @@ unity_gtk_action_group_add_item (UnityGtkActionGroup *group,
       unity_gtk_menu_item_set_action (item, action);
       g_hash_table_insert (group->priv->actions_by_name, action->name, action);
       g_action_group_action_added (G_ACTION_GROUP (group), action->name);
-      /* XXX */
-      g_action_group_action_enabled_changed (G_ACTION_GROUP (group), action->name, TRUE);
     }
 }
 
