@@ -712,7 +712,7 @@ unity_gtk_menu_section_get_items (UnityGtkMenuSection *section)
 
           if (action_group != NULL)
             {
-              gchar *name = g_strdup_printf ("win.%p", item);
+              gchar *name = g_strdup_printf ("%p", item);
               unity_gtk_action_group_add_item (action_group, name, item);
               g_free (name);
             }
@@ -1048,7 +1048,7 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
 
           if (priv->action_group != NULL)
             {
-              gchar *name = g_strdup_printf ("win.%p", item);
+              gchar *name = g_strdup_printf ("%p", item);
               unity_gtk_action_group_add_item (priv->action_group, name, item);
               g_free (name);
             }
@@ -1945,6 +1945,8 @@ unity_gtk_action_group_set_action_state (GActionGroup *action_group,
   UnityGtkActionGroupPrivate *priv;
   UnityGtkAction *action;
 
+  g_message ("%s %s", __func__, action_name);
+
   g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group));
 
   group = UNITY_GTK_ACTION_GROUP (action_group);
@@ -1991,6 +1993,8 @@ unity_gtk_action_group_change_action_state (GActionGroup *action_group,
                                             const gchar  *action_name,
                                             GVariant     *value)
 {
+  g_message ("%s %s", __func__, action_name);
+
   g_variant_ref_sink (value);
   unity_gtk_action_group_set_action_state (action_group, action_name, value);
   g_variant_unref (value);
@@ -2004,6 +2008,8 @@ unity_gtk_action_group_activate_action (GActionGroup *action_group,
   UnityGtkActionGroup *group;
   UnityGtkActionGroupPrivate *priv;
   UnityGtkAction *action;
+
+  g_message ("%s %s", __func__, action_name);
 
   g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group));
 
@@ -2052,6 +2058,8 @@ unity_gtk_action_group_query_action (GActionGroup        *action_group,
   UnityGtkActionGroup *group;
   UnityGtkActionGroupPrivate *priv;
   UnityGtkAction *action;
+
+  g_message ("%s %s", __func__, action_name);
 
   g_return_val_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group), FALSE);
 
@@ -2289,7 +2297,7 @@ unity_gtk_action_group_add_menu (UnityGtkActionGroup *group,
 
                   if (menu->priv->action_group != group)
                     {
-                      gchar *name = g_strdup_printf ("win.%p", item);
+                      gchar *name = g_strdup_printf ("%p", item);
                       unity_gtk_action_group_add_item (group, name, item);
                       g_free (name);
                     }
