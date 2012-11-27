@@ -110,6 +110,7 @@ struct _UnityGtkRadioActionClass
 struct _UnityGtkActionGroupPrivate
 {
   GHashTable *actions_by_name;
+  GHashTable *names_by_radio_menu_item;
 };
 
 static void unity_gtk_action_group_g_action_group_init (GActionGroupInterface *iface);
@@ -747,10 +748,12 @@ unity_gtk_menu_section_set_shell_offset (UnityGtkMenuSection *section,
 
   if (shell_offset != section->shell_offset)
     {
-      if (section->items != NULL)
+      GPtrArray *old_items = section->items;
+
+      if (old_items != NULL)
         {
-          g_ptr_array_unref (section->items);
           section->items = NULL;
+          g_ptr_array_unref (old_items);
         }
 
       section->shell_offset = shell_offset;
@@ -1283,8 +1286,12 @@ unity_gtk_menu_set_menu_shell (UnityGtkMenu *menu,
 
   if (menu_shell != priv->menu_shell)
     {
-      if (priv->sections != NULL)
+      GPtrArray *old_sections = priv->sections;
+
+      if (old_sections != NULL)
         {
+          priv->sections = NULL;
+
           if (priv->menu_shell_insert_handler_id)
             {
               g_assert (priv->menu_shell != NULL);
@@ -1292,8 +1299,7 @@ unity_gtk_menu_set_menu_shell (UnityGtkMenu *menu,
               priv->menu_shell_insert_handler_id = 0;
             }
 
-          g_ptr_array_unref (priv->sections);
-          priv->sections = NULL;
+          g_ptr_array_unref (old_sections);
         }
 
       priv->menu_shell = menu_shell;
@@ -1980,15 +1986,17 @@ static void
 unity_gtk_radio_action_dispose (GObject *object)
 {
   UnityGtkRadioAction *radio_action;
+  GHashTable *old_items_by_state;
 
   g_return_if_fail (UNITY_GTK_IS_RADIO_ACTION (object));
 
   radio_action = UNITY_GTK_RADIO_ACTION (object);
+  old_items_by_state = radio_action->items_by_state;
 
-  if (radio_action->items_by_state != NULL)
+  if (old_items_by_state != NULL)
     {
-      g_hash_table_unref (radio_action->items_by_state);
       radio_action->items_by_state = NULL;
+      g_hash_table_unref (old_items_by_state);
     }
 
   G_OBJECT_CLASS (unity_gtk_radio_action_parent_class)->dispose (object);
@@ -2020,16 +2028,26 @@ unity_gtk_action_group_dispose (GObject *object)
 {
   UnityGtkActionGroup *group;
   UnityGtkActionGroupPrivate *priv;
+  GHashTable *old_actions_by_name;
+  GHashTable *old_names_by_radio_menu_item;
 
   g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (object));
 
   group = UNITY_GTK_ACTION_GROUP (object);
   priv = group->priv;
+  old_actions_by_name = priv->actions_by_name;
+  old_names_by_radio_menu_item = priv->names_by_radio_menu_item;
 
-  if (priv->actions_by_name != NULL)
+  if (old_names_by_radio_menu_item != NULL)
     {
-      g_hash_table_unref (priv->actions_by_name);
+      priv->names_by_radio_menu_item = NULL;
+      g_hash_table_unref (old_names_by_radio_menu_item);
+    }
+
+  if (old_actions_by_name != NULL)
+    {
       priv->actions_by_name = NULL;
+      g_hash_table_unref (old_actions_by_name);
     }
 
   G_OBJECT_CLASS (unity_gtk_action_group_parent_class)->dispose (object);
@@ -2347,6 +2365,7 @@ unity_gtk_action_group_init (UnityGtkActionGroup *self)
   priv = self->priv = UNITY_GTK_ACTION_GROUP_GET_PRIVATE (self);
 
   priv->actions_by_name = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref);
+  priv->names_by_radio_menu_item = g_hash_table_new (g_direct_hash, g_direct_equal);
 }
 
 UnityGtkActionGroup *
