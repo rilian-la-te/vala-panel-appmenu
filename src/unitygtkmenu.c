@@ -1224,8 +1224,7 @@ unity_gtk_menu_remove_item (UnityGtkMenu     *menu,
               /* The separator should be at the end. */
               g_assert (g_ptr_array_index (section->items, separator_index) == item);
 
-              g_object_unref (item);
-              section->items->pdata[separator_index] = NULL;
+              g_ptr_array_remove_index (section->items, separator_index);
               g_ptr_array_set_size (section->items, separator_index + next_section->items->len);
 
               for (i = 0; i < next_section->items->len; i++)
