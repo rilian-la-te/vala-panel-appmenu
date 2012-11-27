@@ -2013,6 +2013,7 @@ unity_gtk_radio_action_class_init (UnityGtkRadioActionClass *klass)
 static void
 unity_gtk_radio_action_init (UnityGtkRadioAction *self)
 {
+  self->items_by_state = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
 }
 
 static UnityGtkRadioAction *
@@ -2365,7 +2366,7 @@ unity_gtk_action_group_init (UnityGtkActionGroup *self)
   priv = self->priv = UNITY_GTK_ACTION_GROUP_GET_PRIVATE (self);
 
   priv->actions_by_name = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref);
-  priv->names_by_radio_menu_item = g_hash_table_new (g_direct_hash, g_direct_equal);
+  priv->names_by_radio_menu_item = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_free);
 }
 
 UnityGtkActionGroup *
@@ -2389,7 +2390,49 @@ unity_gtk_action_group_add_item (UnityGtkActionGroup *group,
 
   if (GTK_IS_RADIO_MENU_ITEM (menu_item))
     {
-      /* XXX */
+      UnityGtkRadioAction *radio_action;
+      gchar *action_name;
+      gchar *state_name;
+
+      g_return_if_fail (group->priv->actions_by_name != NULL);
+      g_return_if_fail (group->priv->names_by_radio_menu_item != NULL);
+
+      action_name = g_hash_table_lookup (group->priv->names_by_radio_menu_item, menu_item);
+
+      if (action_name == NULL)
+        {
+          GSList *iter = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menu_item));
+
+          while (iter != NULL && action_name == NULL)
+            {
+              action_name = g_hash_table_lookup (group->priv->names_by_radio_menu_item, iter->data);
+              iter = g_slist_next (iter);
+            }
+
+          if (action_name == NULL)
+            action_name = g_strdup_printf ("%p", item);
+          else
+            action_name = g_strdup (action_name);
+
+          g_hash_table_insert (group->priv->names_by_radio_menu_item, menu_item, action_name);
+        }
+
+      radio_action = g_hash_table_lookup (group->priv->actions_by_name, action_name);
+      state_name = g_strdup_printf ("%p", item);
+
+      if (radio_action == NULL)
+        {
+          radio_action = unity_gtk_radio_action_new (action_name);
+          unity_gtk_menu_item_set_action (item, UNITY_GTK_ACTION (radio_action));
+          g_hash_table_insert (radio_action->items_by_state, state_name, g_object_ref (item));
+          g_hash_table_insert (group->priv->actions_by_name, action_name, radio_action);
+          g_action_group_action_added (G_ACTION_GROUP (group), action_name);
+        }
+      else
+        {
+          unity_gtk_menu_item_set_action (item, UNITY_GTK_ACTION (radio_action));
+          g_hash_table_insert (radio_action->items_by_state, state_name, g_object_ref (item));
+        }
     }
   else if (menu_item != NULL && !GTK_IS_SEPARATOR_MENU_ITEM (menu_item))
     {
