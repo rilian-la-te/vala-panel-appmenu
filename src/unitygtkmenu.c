@@ -1069,7 +1069,7 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
       menu_items = gtk_container_get_children (GTK_CONTAINER (menu_shell));
 
       if (position < 0)
-        position = g_list_length_predicate (menu_items, gtk_menu_item_is_valid);
+        position = g_list_length_predicate (menu_items, gtk_menu_item_is_valid) - 1;
       else
         position = g_list_count_predicate (menu_items, position, gtk_menu_item_is_valid);
 
