@@ -2470,8 +2470,48 @@ unity_gtk_action_group_get_state_name (UnityGtkActionGroup *group,
     }
 
   if (state_name != NULL)
-    /* XXX: Consider what happens if the state name is already used. */
-    return g_strnormalize (state_name);
+    {
+      gchar *normalized_state_name = g_strnormalize (state_name);
+      UnityGtkRadioAction *radio_action;
+      GSList *iter;
+
+      g_return_val_if_fail (group->priv->actions_by_name != NULL, normalized_state_name);
+      g_return_val_if_fail (group->priv->names_by_radio_menu_item != NULL, normalized_state_name);
+
+      iter = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (item->menu_item));
+      radio_action = NULL;
+
+      while (iter != NULL && radio_action == NULL)
+        {
+          const gchar *action_name = g_hash_table_lookup (group->priv->names_by_radio_menu_item, iter->data);
+
+          if (action_name != NULL)
+            radio_action = g_hash_table_lookup (group->priv->actions_by_name, action_name);
+
+          iter = g_slist_next (iter);
+        }
+
+      g_return_val_if_fail (radio_action->items_by_state != NULL, normalized_state_name);
+
+      if (g_hash_table_contains (radio_action->items_by_state, normalized_state_name))
+        {
+          guint i = 0;
+          gchar *next_normalized_state_name = NULL;
+
+          do
+            {
+              g_free (next_normalized_state_name);
+              next_normalized_state_name = g_strdup_printf ("%s_%d", normalized_state_name, i++);
+            }
+          while (g_hash_table_contains (radio_action->items_by_state, next_normalized_state_name));
+
+          g_free (normalized_state_name);
+
+          return next_normalized_state_name;
+        }
+
+      return normalized_state_name;
+    }
 
   return NULL;
 }
