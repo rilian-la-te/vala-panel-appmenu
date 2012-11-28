@@ -173,6 +173,25 @@ static void unity_gtk_action_group_add_item (UnityGtkActionGroup *group,
 static void unity_gtk_action_group_remove_item (UnityGtkActionGroup *group,
                                                 UnityGtkMenuItem    *item);
 
+static gchar *
+g_strnormalize (const gchar *str)
+{
+  gchar *s = g_strdup (str);
+  gchar *i;
+  const gchar *j;
+
+  for (j = i = s; *j != '\0'; j++)
+    {
+      if (g_ascii_isalnum (*j))
+        *i++ = *j;
+      else
+        *i++ = '_';
+    }
+
+  *i = '\0';
+  return s;
+}
+
 static gint
 g_ptr_array_find (GPtrArray *ptr_array,
                   gpointer   data)
@@ -1771,7 +1790,7 @@ g_menu_model_print (GMenuModel *model,
         }
 
       if (label != NULL)
-        g_print ("%s %d: %s\n", indent, i, label);
+        g_print ("%s %d: \"%s\"\n", indent, i, label);
       else
         g_print ("%s %d\n", indent, i);
 
@@ -2371,14 +2390,90 @@ static gchar *
 unity_gtk_action_group_get_action_name (UnityGtkActionGroup *group,
                                         UnityGtkMenuItem    *item)
 {
-  return g_strdup_printf ("%p", item);
+  GtkMenuItem *menu_item;
+  GtkAction *action;
+  const gchar *action_name;
+
+  g_return_val_if_fail (UNITY_GTK_IS_ACTION_GROUP (group), NULL);
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), NULL);
+
+  menu_item = item->menu_item;
+
+  if (GTK_IS_RADIO_MENU_ITEM (menu_item))
+    {
+      GtkRadioMenuItem *radio_menu_item = GTK_RADIO_MENU_ITEM (menu_item);
+      GSList *iter = gtk_radio_menu_item_get_group (radio_menu_item);
+
+      iter = g_slist_last (iter);
+      if (iter != NULL)
+        menu_item = iter->data;
+    }
+
+  action = gtk_activatable_get_related_action (GTK_ACTIVATABLE (menu_item));
+  action_name = action != NULL ? gtk_action_get_name (action) : NULL;
+
+  if (action_name == NULL)
+    {
+      action_name = gtk_menu_item_get_label (menu_item);
+      if (action_name != NULL && action_name[0] == '\0')
+        action_name = NULL;
+    }
+
+  if (action_name != NULL)
+    {
+      gchar *normalized_action_name = g_strnormalize (action_name);
+
+      g_return_val_if_fail (group->priv->actions_by_name != NULL, normalized_action_name);
+
+      if (g_hash_table_contains (group->priv->actions_by_name, normalized_action_name))
+        {
+          guint i = 0;
+          gchar *next_normalized_action_name = NULL;
+
+          do
+            {
+              g_free (next_normalized_action_name);
+              next_normalized_action_name = g_strdup_printf ("%s_%d", normalized_action_name, i++);
+            }
+          while (g_hash_table_contains (group->priv->actions_by_name, next_normalized_action_name));
+
+          g_free (normalized_action_name);
+
+          return next_normalized_action_name;
+        }
+
+      return normalized_action_name;
+    }
+
+  return NULL;
 }
 
 static gchar *
 unity_gtk_action_group_get_state_name (UnityGtkActionGroup *group,
                                        UnityGtkMenuItem    *item)
 {
-  return g_strdup_printf ("%p", item);
+  GtkAction *action;
+  const gchar *state_name;
+
+  g_return_val_if_fail (UNITY_GTK_IS_ACTION_GROUP (group), NULL);
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), NULL);
+  g_return_val_if_fail (GTK_IS_RADIO_MENU_ITEM (item->menu_item), NULL);
+
+  action = gtk_activatable_get_related_action (GTK_ACTIVATABLE (item->menu_item));
+  state_name = action != NULL ? gtk_action_get_name (action) : NULL;
+
+  if (state_name == NULL)
+    {
+      state_name = gtk_menu_item_get_label (item->menu_item);
+      if (state_name != NULL && state_name[0] == '\0')
+        state_name = NULL;
+    }
+
+  if (state_name != NULL)
+    /* XXX: Consider what happens if the state name is already used. */
+    return g_strnormalize (state_name);
+
+  return NULL;
 }
 
 static void
@@ -2588,7 +2683,7 @@ unity_gtk_action_group_print (UnityGtkActionGroup *group)
   g_hash_table_iter_init (&iter, group->priv->actions_by_name);
   while (g_hash_table_iter_next (&iter, &key, &value))
     {
-      const gchar *name = key;
+      const gchar *action_name = key;
 
       if (UNITY_GTK_IS_RADIO_ACTION (value))
         {
@@ -2601,7 +2696,7 @@ unity_gtk_action_group_print (UnityGtkActionGroup *group)
           g_hash_table_iter_init (&iter, action->items_by_state);
           while (g_hash_table_iter_next (&iter, &key, &value))
             {
-              const gchar *prefix = indent == NULL ? name : indent;
+              const gchar *prefix = indent == NULL ? action_name : indent;
               GtkMenuItem *menu_item = value;
               const gchar *state = key;
 
@@ -2609,7 +2704,7 @@ unity_gtk_action_group_print (UnityGtkActionGroup *group)
                 {
                   const gchar *label = gtk_menu_item_get_label (menu_item);
 
-                  if (label != NULL && label[0] == '\0')
+                  if (label != NULL && label[0] != '\0')
                     g_print ("%s -> %s -> (%s *) %p \"%s\"\n", prefix, state, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (menu_item)), menu_item, label);
                   else
                     g_print ("%s -> %s -> (%s *) %p\n", prefix, state, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (menu_item)), menu_item);
@@ -2618,7 +2713,7 @@ unity_gtk_action_group_print (UnityGtkActionGroup *group)
                 g_print ("%s -> %s -> %p\n", prefix, state, menu_item);
 
               if (indent == NULL)
-                indent = g_strnfill (strlen (name), ' ');
+                indent = g_strnfill (strlen (action_name), ' ');
             }
 
           g_free (indent);
@@ -2640,12 +2735,12 @@ unity_gtk_action_group_print (UnityGtkActionGroup *group)
           if (menu_item != NULL)
             {
               if (label != NULL)
-                g_print ("%s -> (%s *) %p \"%s\"\n", name, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (menu_item)), menu_item, label);
+                g_print ("%s -> (%s *) %p \"%s\"\n", action_name, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (menu_item)), menu_item, label);
               else
-                g_print ("%s -> (%s *) %p\n", name, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (menu_item)), menu_item);
+                g_print ("%s -> (%s *) %p\n", action_name, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (menu_item)), menu_item);
             }
           else
-            g_print ("%s -> %p\n", name, menu_item);
+            g_print ("%s -> %p\n", action_name, menu_item);
         }
     }
 }
