@@ -2367,6 +2367,20 @@ unity_gtk_action_group_new (void)
   return g_object_new (UNITY_GTK_TYPE_ACTION_GROUP, NULL);
 }
 
+static gchar *
+unity_gtk_action_group_get_action_name (UnityGtkActionGroup *group,
+                                        UnityGtkMenuItem    *item)
+{
+  return g_strdup_printf ("%p", item);
+}
+
+static gchar *
+unity_gtk_action_group_get_state_name (UnityGtkActionGroup *group,
+                                       UnityGtkMenuItem    *item)
+{
+  return g_strdup_printf ("%p", item);
+}
+
 static void
 unity_gtk_action_group_add_item (UnityGtkActionGroup *group,
                                  UnityGtkMenuItem    *item)
@@ -2400,7 +2414,7 @@ unity_gtk_action_group_add_item (UnityGtkActionGroup *group,
             }
 
           if (action_name == NULL)
-            action_name = g_strdup_printf ("%p", item);
+            action_name = unity_gtk_action_group_get_action_name (group, item);
           else
             action_name = g_strdup (action_name);
 
@@ -2408,7 +2422,7 @@ unity_gtk_action_group_add_item (UnityGtkActionGroup *group,
         }
 
       radio_action = g_hash_table_lookup (group->priv->actions_by_name, action_name);
-      state_name = g_strdup_printf ("%p", item);
+      state_name = unity_gtk_action_group_get_state_name (group, item);
 
       if (radio_action == NULL)
         {
@@ -2423,6 +2437,8 @@ unity_gtk_action_group_add_item (UnityGtkActionGroup *group,
           unity_gtk_menu_item_set_action (item, UNITY_GTK_ACTION (radio_action));
           g_hash_table_insert (radio_action->items_by_state, state_name, g_object_ref (item));
         }
+
+      g_free (state_name);
     }
   else if (menu_item != NULL && !GTK_IS_SEPARATOR_MENU_ITEM (menu_item))
     {
@@ -2430,7 +2446,7 @@ unity_gtk_action_group_add_item (UnityGtkActionGroup *group,
       UnityGtkAction *action;
 
       g_return_if_fail (group->priv->actions_by_name != NULL);
-      action_name = g_strdup_printf ("%p", item);
+      action_name = unity_gtk_action_group_get_action_name (group, item);
       action = unity_gtk_action_new (action_name, item);
       g_free (action_name);
       unity_gtk_menu_item_set_action (item, action);
