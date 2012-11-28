@@ -168,7 +168,6 @@ static void unity_gtk_menu_remove_item (UnityGtkMenu     *menu,
                                         UnityGtkMenuItem *item);
 
 static void unity_gtk_action_group_add_item (UnityGtkActionGroup *group,
-                                             const gchar         *name,
                                              UnityGtkMenuItem    *item);
 
 static void unity_gtk_action_group_remove_item (UnityGtkActionGroup *group,
@@ -799,11 +798,7 @@ unity_gtk_menu_section_get_items (UnityGtkMenuSection *section)
           g_ptr_array_add (section->items, item);
 
           if (action_group != NULL)
-            {
-              gchar *name = g_strdup_printf ("%p", item);
-              unity_gtk_action_group_add_item (action_group, name, item);
-              g_free (name);
-            }
+            unity_gtk_action_group_add_item (action_group, item);
         }
     }
 
@@ -943,14 +938,15 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
           if (menu_item != NULL)
             {
               const gchar *label = gtk_menu_item_get_label (menu_item);
+              if (label != NULL && label[0] != '\0')
+                g_hash_table_insert (hash_table, G_MENU_ATTRIBUTE_LABEL, g_variant_ref_sink (g_variant_new_string (label)));
+            }
 
-              if (label != NULL)
-                {
-                  gchar *name = g_strdup_printf ("win.%p", item);
-                  g_hash_table_insert (hash_table, G_MENU_ATTRIBUTE_LABEL, g_variant_ref_sink (g_variant_new_string (label)));
-                  g_hash_table_insert (hash_table, G_MENU_ATTRIBUTE_ACTION, g_variant_ref_sink (g_variant_new_string (name)));
-                  g_free (name);
-                }
+          if (item->action != NULL && item->action->name != NULL)
+            {
+              gchar *action_name = g_strdup_printf ("win.%s", item->action->name);
+              g_hash_table_insert (hash_table, G_MENU_ATTRIBUTE_ACTION, g_variant_ref_sink (g_variant_new_string (action_name)));
+              g_free (action_name);
             }
         }
       else
@@ -1135,11 +1131,7 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
           g_ptr_array_insert (section->items, item, i);
 
           if (priv->action_group != NULL)
-            {
-              gchar *name = g_strdup_printf ("%p", item);
-              unity_gtk_action_group_add_item (priv->action_group, name, item);
-              g_free (name);
-            }
+            unity_gtk_action_group_add_item (priv->action_group, item);
 
           g_menu_model_items_changed (G_MENU_MODEL (section), i, 0, 1);
         }
@@ -2377,13 +2369,11 @@ unity_gtk_action_group_new (void)
 
 static void
 unity_gtk_action_group_add_item (UnityGtkActionGroup *group,
-                                 const gchar         *name,
                                  UnityGtkMenuItem    *item)
 {
   GtkMenuItem *menu_item;
 
   g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (group));
-  g_return_if_fail (name != NULL);
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
 
   menu_item = item->menu_item;
@@ -2436,10 +2426,13 @@ unity_gtk_action_group_add_item (UnityGtkActionGroup *group,
     }
   else if (menu_item != NULL && !GTK_IS_SEPARATOR_MENU_ITEM (menu_item))
     {
+      gchar *action_name;
       UnityGtkAction *action;
 
       g_return_if_fail (group->priv->actions_by_name != NULL);
-      action = unity_gtk_action_new (name, item);
+      action_name = g_strdup_printf ("%p", item);
+      action = unity_gtk_action_new (action_name, item);
+      g_free (action_name);
       unity_gtk_menu_item_set_action (item, action);
       g_hash_table_insert (group->priv->actions_by_name, action->name, action);
       g_action_group_action_added (G_ACTION_GROUP (group), action->name);
@@ -2473,11 +2466,7 @@ unity_gtk_action_group_add_menu (UnityGtkActionGroup *group,
                   UnityGtkMenuItem *item = g_ptr_array_index (section->items, j);
 
                   if (menu->priv->action_group != group)
-                    {
-                      gchar *name = g_strdup_printf ("%p", item);
-                      unity_gtk_action_group_add_item (group, name, item);
-                      g_free (name);
-                    }
+                    unity_gtk_action_group_add_item (group, item);
 
                   if (item->submenu_valid && item->submenu != NULL)
                     unity_gtk_action_group_add_menu (group, item->submenu);
