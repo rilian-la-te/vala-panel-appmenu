@@ -1210,6 +1210,9 @@ unity_gtk_menu_handle_insert (GtkMenuShell *menu_shell,
 
           g_ptr_array_insert (section->items, item, i);
 
+          if (unity_gtk_menu_item_is_visible (item))
+            g_sequence_insert_sorted (section->visible_indices, GUINT_TO_POINTER (i), g_uintcmp, NULL);
+
           if (priv->action_group != NULL)
             unity_gtk_action_group_add_item (priv->action_group, item);
 
@@ -1325,6 +1328,9 @@ unity_gtk_menu_remove_item (UnityGtkMenu     *menu,
 
       /* The item should be in its section. */
       g_assert (item_index >= 0);
+
+      if (unity_gtk_menu_item_is_visible (item))
+        g_sequence_remove (g_sequence_lookup (section->visible_indices, GINT_TO_POINTER (item_index), g_uintcmp, NULL));
 
       g_ptr_array_remove_index (section->items, item_index);
 
