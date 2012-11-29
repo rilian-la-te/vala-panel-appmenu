@@ -65,6 +65,7 @@ struct _UnityGtkMenuSection
   UnityGtkMenu *parent_menu;
   guint         shell_offset;
   GPtrArray    *items;
+  GSequence    *visible_indices;
 };
 
 struct _UnityGtkMenuSectionClass
@@ -172,6 +173,14 @@ static void unity_gtk_action_group_add_item (UnityGtkActionGroup *group,
 
 static void unity_gtk_action_group_remove_item (UnityGtkActionGroup *group,
                                                 UnityGtkMenuItem    *item);
+
+static gint
+g_uintcmp (gconstpointer a,
+           gconstpointer b,
+           gpointer      user_data)
+{
+  return GPOINTER_TO_UINT (a) - GPOINTER_TO_UINT (b);
+}
 
 static gchar *
 g_strnormalize (const gchar *str)
@@ -577,6 +586,14 @@ unity_gtk_menu_item_set_action (UnityGtkMenuItem *item,
 }
 
 static gboolean
+unity_gtk_menu_item_is_visible (UnityGtkMenuItem *item)
+{
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
+
+  return item->menu_item != NULL && gtk_widget_get_visible (GTK_WIDGET (item->menu_item));
+}
+
+static gboolean
 unity_gtk_menu_item_is_enabled (UnityGtkMenuItem *item)
 {
   g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
@@ -739,7 +756,14 @@ unity_gtk_menu_section_set_parent_menu (UnityGtkMenuSection *section,
 
   if (parent_menu != old_parent_menu)
     {
+      GSequence *old_visible_indices = section->visible_indices;
       GPtrArray *old_items = section->items;
+
+      if (old_visible_indices != NULL)
+        {
+          section->visible_indices = NULL;
+          g_sequence_free (old_visible_indices);
+        }
 
       if (old_items != NULL)
         {
@@ -766,7 +790,14 @@ unity_gtk_menu_section_set_shell_offset (UnityGtkMenuSection *section,
 
   if (shell_offset != section->shell_offset)
     {
+      GSequence *old_visible_indices = section->visible_indices;
       GPtrArray *old_items = section->items;
+
+      if (old_visible_indices != NULL)
+        {
+          section->visible_indices = NULL;
+          g_sequence_free (old_visible_indices);
+        }
 
       if (old_items != NULL)
         {
@@ -785,13 +816,16 @@ unity_gtk_menu_section_get_items (UnityGtkMenuSection *section)
 
   if (section->items == NULL && section->parent_menu != NULL && section->parent_menu->priv->menu_shell != NULL)
     {
+      GSequence *old_visible_indices;
       UnityGtkActionGroup *action_group;
       GtkMenuShell *menu_shell;
       GList *start;
       GList *finish;
       GList *iter;
       guint n;
+      guint i;
 
+      old_visible_indices = section->visible_indices;
       action_group = section->parent_menu->priv->action_group;
       menu_shell = section->parent_menu->priv->menu_shell;
       start = gtk_container_get_children (GTK_CONTAINER (menu_shell));
@@ -808,7 +842,16 @@ unity_gtk_menu_section_get_items (UnityGtkMenuSection *section)
           n++;
         }
 
+      if (old_visible_indices != NULL)
+        {
+          g_warn_if_reached ();
+          section->visible_indices = NULL;
+          g_sequence_free (old_visible_indices);
+        }
+
       section->items = g_ptr_array_new_full (n, g_object_unref);
+      section->visible_indices = g_sequence_new (NULL);
+      i = 0;
 
       for (iter = start; iter != finish; iter = g_list_next_predicate (iter, gtk_menu_item_is_valid))
         {
@@ -816,8 +859,13 @@ unity_gtk_menu_section_get_items (UnityGtkMenuSection *section)
 
           g_ptr_array_add (section->items, item);
 
+          if (unity_gtk_menu_item_is_visible (item))
+            g_sequence_insert_sorted (section->visible_indices, GUINT_TO_POINTER (i), g_uintcmp, NULL);
+
           if (action_group != NULL)
             unity_gtk_action_group_add_item (action_group, item);
+
+          i++;
         }
     }
 
@@ -910,20 +958,27 @@ unity_gtk_menu_section_is_mutable (GMenuModel *model)
 static gint
 unity_gtk_menu_section_get_n_items (GMenuModel *model)
 {
+  UnityGtkMenuSection *section;
   GPtrArray *items;
+  GSequence *visible_indices;
+  gint visible_indices_length;
 
   g_return_val_if_fail (UNITY_GTK_IS_MENU_SECTION (model), 0);
 
-  items = unity_gtk_menu_section_get_items (UNITY_GTK_MENU_SECTION (model));
+  section = UNITY_GTK_MENU_SECTION (model);
+  items = unity_gtk_menu_section_get_items (section);
+  visible_indices = section->visible_indices;
+  visible_indices_length = g_sequence_get_length (visible_indices);
 
-  if (items->len > 0)
+  if (visible_indices_length > 0)
     {
-      UnityGtkMenuItem *item = g_ptr_array_index (items, items->len - 1);
+      GSequenceIter *iter = g_sequence_get_iter_at_pos (visible_indices, visible_indices_length - 1);
+      UnityGtkMenuItem *item = g_ptr_array_index (items, GPOINTER_TO_UINT (g_sequence_get (iter)));
 
-      if (item != NULL && GTK_IS_SEPARATOR_MENU_ITEM (item->menu_item))
-        return items->len - 1;
+      if (GTK_IS_SEPARATOR_MENU_ITEM (item->menu_item))
+        return visible_indices_length - 1;
       else
-        return items->len;
+        return visible_indices_length;
     }
 
   return 0;
@@ -936,6 +991,7 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
 {
   UnityGtkMenuSection *section;
   GPtrArray *items;
+  GSequence *visible_indices;
   GHashTable *hash_table;
 
   g_return_if_fail (UNITY_GTK_IS_MENU_SECTION (model));
@@ -944,11 +1000,13 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
 
   section = UNITY_GTK_MENU_SECTION (model);
   items = unity_gtk_menu_section_get_items (section);
+  visible_indices = section->visible_indices;
   hash_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, (GDestroyNotify) g_variant_unref);
 
   if (items != NULL)
     {
-      UnityGtkMenuItem *item = g_ptr_array_index (items, item_index);
+      GSequenceIter *iter = g_sequence_get_iter_at_pos (visible_indices, item_index);
+      UnityGtkMenuItem *item = g_ptr_array_index (items, GPOINTER_TO_UINT (g_sequence_get (iter)));
 
       if (item != NULL)
         {
@@ -983,6 +1041,7 @@ unity_gtk_menu_section_get_item_links (GMenuModel  *model,
 {
   UnityGtkMenuSection *section;
   GPtrArray *items;
+  GSequence *visible_indices;
   GHashTable *hash_table;
 
   g_return_if_fail (UNITY_GTK_IS_MENU_SECTION (model));
@@ -991,11 +1050,13 @@ unity_gtk_menu_section_get_item_links (GMenuModel  *model,
 
   section = UNITY_GTK_MENU_SECTION (model);
   items = unity_gtk_menu_section_get_items (section);
+  visible_indices = section->visible_indices;
   hash_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref);
 
   if (items != NULL)
     {
-      UnityGtkMenuItem *item = g_ptr_array_index (items, item_index);
+      GSequenceIter *iter = g_sequence_get_iter_at_pos (visible_indices, item_index);
+      UnityGtkMenuItem *item = g_ptr_array_index (items, GPOINTER_TO_UINT (g_sequence_get (iter)));
 
       if (item != NULL)
         {
