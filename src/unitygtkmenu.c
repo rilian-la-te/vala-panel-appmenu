@@ -2494,6 +2494,9 @@ unity_gtk_action_group_get_state_name (UnityGtkActionGroup *group,
           iter = g_slist_next (iter);
         }
 
+      if (radio_action == NULL)
+        return normalized_state_name;
+
       g_return_val_if_fail (radio_action->items_by_state != NULL, normalized_state_name);
 
       if (g_hash_table_contains (radio_action->items_by_state, normalized_state_name))
