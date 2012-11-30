@@ -16,7 +16,10 @@ hello_CFLAGS = `pkg-config --cflags gtk+-3.0`
 hello_LDFLAGS = `pkg-config --libs gtk+-3.0`
 
 unity_gtk_menu_tester_SOURCES = \
-	unitygtkmenutester.c
+	unitygtkmenutester.c		\
+	unity-gtk-menu-shell.c		\
+	unity-gtk-menu-section.c	\
+	unity-gtk-menu-item.c
 
 unity_gtk_menu_tester_CFLAGS = `pkg-config --cflags gtk+-3.0`
 unity_gtk_menu_tester_LDFLAGS = `pkg-config --libs gtk+-3.0`
