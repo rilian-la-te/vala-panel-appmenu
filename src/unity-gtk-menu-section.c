@@ -12,7 +12,7 @@ enum
 
 static GParamSpec *menu_section_properties[MENU_SECTION_N_PROPERTIES] = { NULL };
 
-static GSequenceIter *
+GSequenceIter *
 unity_gtk_menu_section_get_begin_iter (UnityGtkMenuSection *section)
 {
   UnityGtkMenuShell *parent_shell;
@@ -37,8 +37,8 @@ unity_gtk_menu_section_get_begin_iter (UnityGtkMenuSection *section)
 
   if (separator_iter != NULL)
     {
-      gpointer separator_index = g_sequence_get (separator_iter);
-      visible_iter = g_sequence_lookup (visible_indices, separator_index, g_uintcmp, NULL);
+      guint separator_index = g_sequence_get_uint (separator_iter);
+      visible_iter = g_sequence_lookup_uint (visible_indices, separator_index);
       visible_iter = g_sequence_iter_next (visible_iter);
     }
   else
@@ -71,8 +71,8 @@ unity_gtk_menu_section_get_end_iter (UnityGtkMenuSection *section)
 
   if (separator_iter != NULL)
     {
-      gpointer separator_index = g_sequence_get (separator_iter);
-      visible_iter = g_sequence_lookup (visible_indices, separator_index, g_uintcmp, NULL);
+      guint separator_index = g_sequence_get_uint (separator_iter);
+      visible_iter = g_sequence_lookup_uint (visible_indices, separator_index);
     }
   else
     visible_iter = g_sequence_get_end_iter (visible_indices);
@@ -229,7 +229,7 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
   g_return_if_fail (parent_shell != NULL);
 
   iter = unity_gtk_menu_section_get_iter (section, item_index);
-  index = GPOINTER_TO_UINT (g_sequence_get (iter));
+  index = g_sequence_get_uint (iter);
   item = unity_gtk_menu_shell_get_item (parent_shell, index);
   label = unity_gtk_menu_item_get_label (item);
 
@@ -260,7 +260,7 @@ unity_gtk_menu_section_get_item_links (GMenuModel  *model,
   g_return_if_fail (parent_shell != NULL);
 
   iter = unity_gtk_menu_section_get_iter (section, item_index);
-  index = GPOINTER_TO_UINT (g_sequence_get (iter));
+  index = g_sequence_get_uint (iter);
   item = unity_gtk_menu_shell_get_item (parent_shell, index);
   child_shell = unity_gtk_menu_item_get_child_shell (item);
 

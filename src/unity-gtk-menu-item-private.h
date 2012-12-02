@@ -43,6 +43,8 @@ gboolean            unity_gtk_menu_item_is_visible      (UnityGtkMenuItem  *item
 
 gboolean            unity_gtk_menu_item_is_separator    (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 
+guint               unity_gtk_menu_item_get_item_index  (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
+
 const gchar *       unity_gtk_menu_item_get_label       (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 
 UnityGtkMenuShell * unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;

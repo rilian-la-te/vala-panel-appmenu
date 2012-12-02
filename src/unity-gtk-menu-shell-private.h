@@ -33,6 +33,11 @@ struct _UnityGtkMenuShellClass
   GMenuModelClass parent_class;
 };
 
+guint               g_sequence_get_uint                        (GSequenceIter     *iter)       G_GNUC_INTERNAL;
+
+GSequenceIter *     g_sequence_lookup_uint                     (GSequence         *seq,
+                                                                uint               i)          G_GNUC_INTERNAL;
+
 GType               unity_gtk_menu_shell_get_type              (void)                          G_GNUC_INTERNAL;
 
 UnityGtkMenuShell * unity_gtk_menu_shell_new                   (GtkMenuShell      *menu_shell) G_GNUC_INTERNAL;
@@ -49,9 +54,5 @@ GSequence *         unity_gtk_menu_shell_get_separator_indices (UnityGtkMenuShel
 void                unity_gtk_menu_shell_handle_item_notify    (UnityGtkMenuShell *shell,
                                                                 UnityGtkMenuItem  *item,
                                                                 GParamSpec        *pspec)      G_GNUC_INTERNAL;
-
-gint                g_uintcmp                                  (gconstpointer      a,
-                                                                gconstpointer      b,
-                                                                gpointer           user_data)  G_GNUC_INTERNAL;
 
 #endif /* __UNITY_GTK_MENU_SHELL_H__ */

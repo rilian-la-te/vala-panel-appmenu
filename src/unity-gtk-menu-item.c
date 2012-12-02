@@ -122,7 +122,7 @@ unity_gtk_menu_item_get_property (GObject    *object,
       break;
 
     case MENU_ITEM_PROP_ITEM_INDEX:
-      g_value_set_uint (value, self->item_index);
+      g_value_set_uint (value, unity_gtk_menu_item_get_item_index (self));
       break;
 
     default:
@@ -228,6 +228,14 @@ unity_gtk_menu_item_is_separator (UnityGtkMenuItem *item)
   g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
 
   return GTK_IS_SEPARATOR_MENU_ITEM (item->menu_item);
+}
+
+guint
+unity_gtk_menu_item_get_item_index (UnityGtkMenuItem *item)
+{
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), 0);
+
+  return item->item_index;
 }
 
 const gchar *

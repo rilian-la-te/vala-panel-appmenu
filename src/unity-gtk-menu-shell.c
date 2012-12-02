@@ -16,6 +16,50 @@ enum
 
 static GParamSpec *menu_shell_properties[MENU_SHELL_N_PROPERTIES] = { NULL };
 
+static gint
+g_uintcmp (gconstpointer a,
+           gconstpointer b,
+           gpointer      user_data)
+{
+  return GPOINTER_TO_INT (a) - GPOINTER_TO_INT (b);
+}
+
+guint
+g_sequence_get_uint (GSequenceIter *iter)
+{
+  return GPOINTER_TO_UINT (g_sequence_get (iter));
+}
+
+static GSequenceIter *
+g_sequence_insert_sorted_uint (GSequence *seq,
+                               guint      i)
+{
+  return g_sequence_insert_sorted (seq, GUINT_TO_POINTER (i), g_uintcmp, NULL);
+}
+
+GSequenceIter *
+g_sequence_lookup_uint (GSequence *seq,
+                        guint      i)
+{
+  return g_sequence_lookup (seq, GUINT_TO_POINTER (i), g_uintcmp, NULL);
+}
+
+static GSequenceIter *
+g_sequence_search_uint (GSequence *seq,
+                        guint      i)
+{
+  return g_sequence_search (seq, GUINT_TO_POINTER (i), g_uintcmp, NULL);
+}
+
+static GSequenceIter *
+g_sequence_search_inf_uint (GSequence *seq,
+                            guint      i)
+{
+  GSequenceIter *iter = g_sequence_iter_prev (g_sequence_search_uint (seq, i));
+
+  return !g_sequence_iter_is_end (iter) && g_sequence_get_uint (iter) <= i ? iter : NULL;
+}
+
 static void
 unity_gtk_menu_shell_handle_insert (GtkMenuShell *menu_shell,
                                     GtkWidget    *child,
@@ -406,6 +450,49 @@ unity_gtk_menu_shell_handle_item_notify (UnityGtkMenuShell *shell,
     }
   else if (pspec_name == visible_name)
     {
+      GSequence *visible_indices = unity_gtk_menu_shell_get_visible_indices (shell);
+      guint item_index = unity_gtk_menu_item_get_item_index (item);
+      GSequenceIter *visible_iter = g_sequence_lookup_uint (visible_indices, item_index);
+      gboolean was_visible = visible_iter != NULL;
+      gboolean is_visible = unity_gtk_menu_item_is_visible (item);
+
+      if (!was_visible && is_visible)
+        {
+          GSequence *separator_indices = unity_gtk_menu_shell_get_separator_indices (shell);
+          GSequenceIter *separator_iter = g_sequence_search_inf_uint (separator_indices, item_index);
+          guint section_index = separator_iter == NULL ? 0 : g_sequence_iter_get_position (separator_iter) + 1;
+          GPtrArray *sections = unity_gtk_menu_shell_get_sections (shell);
+          UnityGtkMenuSection *section = g_ptr_array_index (sections, section_index);
+          GSequenceIter *insert_iter = g_sequence_insert_sorted_uint (visible_indices, item_index);
+          GSequenceIter *section_iter = unity_gtk_menu_section_get_begin_iter (section);
+          guint position = g_sequence_iter_get_position (insert_iter) - g_sequence_iter_get_position (section_iter);
+
+          if (unity_gtk_menu_item_is_separator (item))
+            {
+              UnityGtkMenuSection *new_section;
+              guint removed;
+
+              g_sequence_insert_sorted_uint (separator_indices, item_index);
+              g_ptr_array_add (sections, unity_gtk_menu_section_new (shell, sections->len));
+
+              new_section = g_ptr_array_index (sections, section_index + 1);
+              removed = g_menu_model_get_n_items (G_MENU_MODEL (new_section));
+
+              g_menu_model_items_changed (G_MENU_MODEL (section), position, removed, 0);
+              g_menu_model_items_changed (G_MENU_MODEL (shell), section_index + 1, 0, 1);
+            }
+          else
+            g_menu_model_items_changed (G_MENU_MODEL (section), position, 0, 1);
+        }
+      else if (was_visible && !is_visible)
+        {
+          if (unity_gtk_menu_item_is_separator (item))
+            {
+            }
+          else
+            {
+            }
+        }
     }
   else if (pspec_name == sensitive_name)
     {
@@ -413,12 +500,4 @@ unity_gtk_menu_shell_handle_item_notify (UnityGtkMenuShell *shell,
   else if (pspec_name == active_name)
     {
     }
-}
-
-gint
-g_uintcmp (gconstpointer a,
-           gconstpointer b,
-           gpointer      user_data)
-{
-  return GPOINTER_TO_INT (a) - GPOINTER_TO_INT (b);
 }
