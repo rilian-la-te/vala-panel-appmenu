@@ -5,8 +5,12 @@ AM_CFLAGS = $(gtk_CFLAGS) -Wall
 AM_LDFLAGS = -shared -module -avoid-version
 
 libunity_gtk_module_la_SOURCES = \
-	unitygtkmenu.h		\
-	unitygtkmenu.c		\
+	unity-gtk-menu-shell-private.h		\
+	unity-gtk-menu-shell.c			\
+	unity-gtk-menu-section-private.h	\
+	unity-gtk-menu-section.c		\
+	unity-gtk-menu-item-private.h		\
+	unity-gtk-menu-item.c			\
 	main.c
 
 hello_SOURCES = \
@@ -16,10 +20,7 @@ hello_CFLAGS = `pkg-config --cflags gtk+-3.0`
 hello_LDFLAGS = `pkg-config --libs gtk+-3.0`
 
 unity_gtk_menu_tester_SOURCES = \
-	unitygtkmenutester.c		\
-	unity-gtk-menu-shell.c		\
-	unity-gtk-menu-section.c	\
-	unity-gtk-menu-item.c
+	unitygtkmenutester.c
 
 unity_gtk_menu_tester_CFLAGS = `pkg-config --cflags gtk+-3.0`
 unity_gtk_menu_tester_LDFLAGS = `pkg-config --libs gtk+-3.0`

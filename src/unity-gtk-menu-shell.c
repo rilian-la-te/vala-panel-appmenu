@@ -34,6 +34,7 @@ unity_gtk_menu_shell_set_menu_shell (UnityGtkMenuShell *shell,
     {
       GPtrArray *items = shell->items;
       GPtrArray *sections = shell->sections;
+      GSequence *visible_indices = shell->visible_indices;
       GSequence *separator_indices = shell->separator_indices;
 
       if (shell->menu_shell_insert_handler_id)
@@ -47,6 +48,12 @@ unity_gtk_menu_shell_set_menu_shell (UnityGtkMenuShell *shell,
         {
           shell->separator_indices = NULL;
           g_sequence_free (separator_indices);
+        }
+
+      if (visible_indices != NULL)
+        {
+          shell->visible_indices = NULL;
+          g_sequence_free (visible_indices);
         }
 
       if (sections != NULL)
@@ -76,15 +83,16 @@ unity_gtk_menu_shell_get_items (UnityGtkMenuShell *shell)
   if (shell->items == NULL)
     {
       GList *iter;
+      guint i;
 
       g_return_val_if_fail (shell->menu_shell != NULL, NULL);
 
       shell->items = g_ptr_array_new_with_free_func (g_object_unref);
       iter = gtk_container_get_children (GTK_CONTAINER (shell->menu_shell));
 
-      while (iter != NULL)
+      for (i = 0; iter != NULL; i++)
         {
-          g_ptr_array_add (shell->items, unity_gtk_menu_item_new (iter->data, shell));
+          g_ptr_array_add (shell->items, unity_gtk_menu_item_new (iter->data, shell, i));
           iter = g_list_next (iter);
         }
     }
@@ -234,6 +242,7 @@ unity_gtk_menu_shell_get_item_links (GMenuModel  *model,
   shell = UNITY_GTK_MENU_SHELL (model);
   sections = unity_gtk_menu_shell_get_sections (shell);
   section = g_ptr_array_index (sections, item_index);
+
   *links = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref);
   g_hash_table_insert (*links, G_MENU_LINK_SECTION, g_object_ref (section));
 }
@@ -287,6 +296,14 @@ unity_gtk_menu_shell_new (GtkMenuShell *menu_shell)
   return g_object_new (UNITY_GTK_TYPE_MENU_SHELL,
                        "menu-shell", menu_shell,
                        NULL);
+}
+
+GtkMenuShell *
+unity_gtk_menu_shell_get_menu_shell (UnityGtkMenuShell *shell)
+{
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_SHELL (shell), NULL);
+
+  return shell->menu_shell;
 }
 
 UnityGtkMenuItem *
@@ -350,6 +367,52 @@ unity_gtk_menu_shell_get_separator_indices (UnityGtkMenuShell *shell)
     }
 
   return shell->separator_indices;
+}
+
+void
+unity_gtk_menu_shell_handle_item_notify (UnityGtkMenuShell *shell,
+                                         UnityGtkMenuItem  *item,
+                                         GParamSpec        *pspec)
+{
+  static const gchar *parent_name;
+  static const gchar *submenu_name;
+  static const gchar *visible_name;
+  static const gchar *sensitive_name;
+  static const gchar *active_name;
+
+  const gchar *pspec_name;
+
+  g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+
+  if (parent_name == NULL)
+    parent_name = g_intern_static_string ("parent");
+  if (submenu_name == NULL)
+    submenu_name = g_intern_static_string ("submenu");
+  if (visible_name == NULL)
+    visible_name = g_intern_static_string ("visible");
+  if (sensitive_name == NULL)
+    sensitive_name = g_intern_static_string ("sensitive");
+  if (active_name == NULL)
+    active_name = g_intern_static_string ("active");
+
+  pspec_name = g_param_spec_get_name (pspec);
+
+  if (pspec_name == parent_name)
+    {
+    }
+  else if (pspec_name == submenu_name)
+    {
+    }
+  else if (pspec_name == visible_name)
+    {
+    }
+  else if (pspec_name == sensitive_name)
+    {
+    }
+  else if (pspec_name == active_name)
+    {
+    }
 }
 
 gint

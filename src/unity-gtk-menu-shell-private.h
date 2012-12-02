@@ -33,19 +33,25 @@ struct _UnityGtkMenuShellClass
   GMenuModelClass parent_class;
 };
 
-GType               unity_gtk_menu_shell_get_type              (void)                         G_GNUC_INTERNAL;
+GType               unity_gtk_menu_shell_get_type              (void)                          G_GNUC_INTERNAL;
 
-UnityGtkMenuShell * unity_gtk_menu_shell_new                   (GtkMenuShell *menu_shell)     G_GNUC_INTERNAL;
+UnityGtkMenuShell * unity_gtk_menu_shell_new                   (GtkMenuShell      *menu_shell) G_GNUC_INTERNAL;
+
+GtkMenuShell *      unity_gtk_menu_shell_get_menu_shell        (UnityGtkMenuShell *shell)      G_GNUC_INTERNAL;
 
 UnityGtkMenuItem *  unity_gtk_menu_shell_get_item              (UnityGtkMenuShell *shell,
-                                                                guint              index)     G_GNUC_INTERNAL;
+                                                                guint              index)      G_GNUC_INTERNAL;
 
-GSequence *         unity_gtk_menu_shell_get_visible_indices   (UnityGtkMenuShell *shell)     G_GNUC_INTERNAL;
+GSequence *         unity_gtk_menu_shell_get_visible_indices   (UnityGtkMenuShell *shell)      G_GNUC_INTERNAL;
 
-GSequence *         unity_gtk_menu_shell_get_separator_indices (UnityGtkMenuShell *shell)     G_GNUC_INTERNAL;
+GSequence *         unity_gtk_menu_shell_get_separator_indices (UnityGtkMenuShell *shell)      G_GNUC_INTERNAL;
+
+void                unity_gtk_menu_shell_handle_item_notify    (UnityGtkMenuShell *shell,
+                                                                UnityGtkMenuItem  *item,
+                                                                GParamSpec        *pspec)      G_GNUC_INTERNAL;
 
 gint                g_uintcmp                                  (gconstpointer      a,
                                                                 gconstpointer      b,
-                                                                gpointer           user_data) G_GNUC_INTERNAL;
+                                                                gpointer           user_data)  G_GNUC_INTERNAL;
 
 #endif /* __UNITY_GTK_MENU_SHELL_H__ */

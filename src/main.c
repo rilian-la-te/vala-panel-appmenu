@@ -1,7 +1,7 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
 
-#include "unitygtkmenu.h"
+#include "unity-gtk-menu-shell-private.h"
 
 #define WINDOW_OBJECT_PATH "/com/canonical/unity/gtk/window"
 
@@ -12,9 +12,9 @@ struct _WindowData
   guint                window_id;
   GMenu               *menu_model;
   GSList              *menus;
-  UnityGtkActionGroup *action_group;
+  /* UnityGtkActionGroup *action_group; */
   guint                menu_model_export_id;
-  guint                action_group_export_id;
+  /* guint                action_group_export_id; */
 };
 
 typedef struct _WindowData WindowData;
@@ -36,14 +36,18 @@ window_data_free (gpointer data)
 
       session = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
 
+      /*
       if (window_data->action_group_export_id)
         g_dbus_connection_unexport_action_group (session, window_data->action_group_export_id);
+        */
 
       if (window_data->menu_model_export_id)
         g_dbus_connection_unexport_menu_model (session, window_data->menu_model_export_id);
 
+      /*
       if (window_data->action_group != NULL)
         g_object_unref (window_data->action_group);
+        */
 
       if (window_data->menu_model != NULL)
         g_object_unref (window_data->menu_model);
@@ -104,12 +108,12 @@ hijacked_window_realize (GtkWidget *widget)
       window_data = window_data_new ();
       window_data->window_id = window_id++;
       window_data->menu_model = g_menu_new ();
-      window_data->action_group = unity_gtk_action_group_new ();
+      /* window_data->action_group = unity_gtk_action_group_new (); */
 
       session = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
       object_path = g_strdup_printf (WINDOW_OBJECT_PATH "/%d", window_data->window_id);
       window_data->menu_model_export_id = g_dbus_connection_export_menu_model (session, object_path, G_MENU_MODEL (window_data->menu_model), NULL);
-      window_data->action_group_export_id = g_dbus_connection_export_action_group (session, object_path, G_ACTION_GROUP (window_data->action_group), NULL);
+      /* window_data->action_group_export_id = g_dbus_connection_export_action_group (session, object_path, G_ACTION_GROUP (window_data->action_group), NULL); */
 
       window = GDK_X11_WINDOW (gtk_widget_get_window (widget));
       gdk_x11_window_set_utf8_property (window, "_GTK_WINDOW_OBJECT_PATH", object_path);
@@ -218,18 +222,18 @@ hijacked_menu_bar_realize (GtkWidget *widget)
       GSList *iter;
 
       for (iter = window_data->menus; iter != NULL; iter = g_slist_next (iter))
-        if (unity_gtk_menu_get_menu_shell (iter->data) == menu_shell)
+        if (unity_gtk_menu_shell_get_menu_shell (iter->data) == menu_shell)
           break;
 
       if (iter == NULL)
         {
-          UnityGtkMenu *menu = unity_gtk_menu_new (menu_shell);
+          UnityGtkMenuShell *shell = unity_gtk_menu_shell_new (menu_shell);
 
-          unity_gtk_action_group_add_menu (window_data->action_group, menu);
+          /* unity_gtk_action_group_add_menu (window_data->action_group, shell); */
 
-          g_menu_append_section (window_data->menu_model, NULL, G_MENU_MODEL (menu));
+          g_menu_append_section (window_data->menu_model, NULL, G_MENU_MODEL (shell));
 
-          window_data->menus = g_slist_append (window_data->menus, menu);
+          window_data->menus = g_slist_append (window_data->menus, shell);
         }
     }
 }
@@ -256,7 +260,7 @@ hijacked_menu_bar_unrealize (GtkWidget *widget)
 
       for (i = 0; iter != NULL; i++)
         {
-          if (unity_gtk_menu_get_menu_shell (iter->data) == menu_shell)
+          if (unity_gtk_menu_shell_get_menu_shell (iter->data) == menu_shell)
             break;
 
           iter = g_slist_next (iter);
@@ -264,7 +268,7 @@ hijacked_menu_bar_unrealize (GtkWidget *widget)
 
       if (iter != NULL)
         {
-          unity_gtk_action_group_remove_menu (window_data->action_group, iter->data);
+          /* unity_gtk_action_group_remove_menu (window_data->action_group, iter->data); */
 
           window_data->menus = g_slist_delete_link (window_data->menus, iter);
 

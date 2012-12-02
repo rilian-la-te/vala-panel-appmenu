@@ -25,6 +25,7 @@ struct _UnityGtkMenuItem
   UnityGtkMenuShell *parent_shell;
   UnityGtkMenuShell *child_shell;
   guchar             child_shell_valid : 1;
+  guint              item_index;
 };
 
 struct _UnityGtkMenuItemClass
@@ -35,7 +36,8 @@ struct _UnityGtkMenuItemClass
 GType               unity_gtk_menu_item_get_type        (void)                            G_GNUC_INTERNAL;
 
 UnityGtkMenuItem *  unity_gtk_menu_item_new             (GtkMenuItem       *menu_item,
-                                                         UnityGtkMenuShell *parent_shell) G_GNUC_INTERNAL;
+                                                         UnityGtkMenuShell *parent_shell,
+                                                         guint              item_index)   G_GNUC_INTERNAL;
 
 gboolean            unity_gtk_menu_item_is_visible      (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 
