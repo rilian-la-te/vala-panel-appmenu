@@ -135,7 +135,7 @@ unity_gtk_menu_shell_show_item (UnityGtkMenuShell *shell,
                       g_ptr_array_add (sections, unity_gtk_menu_section_new (shell, sections->len));
                       new_section = g_ptr_array_index (sections, section_index + 1);
                       removed = g_menu_model_get_n_items (G_MENU_MODEL (new_section));
-                      g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (section), position, removed, 0);
+                      g_message ("g_menu_model_items_changed (%d, %d, %d, %d)", section->section_index, position, removed, 0);
                       g_menu_model_items_changed (G_MENU_MODEL (section), position, removed, 0);
                       g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (shell), section_index + 1, 0, 1);
                       g_menu_model_items_changed (G_MENU_MODEL (shell), section_index + 1, 0, 1);
@@ -149,7 +149,7 @@ unity_gtk_menu_shell_show_item (UnityGtkMenuShell *shell,
                       GSequenceIter *section_iter = unity_gtk_menu_section_get_begin_iter (section);
                       guint position = g_sequence_iter_get_position (insert_iter) - g_sequence_iter_get_position (section_iter);
 
-                      g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (section), position, 0, 1);
+                      g_message ("g_menu_model_items_changed (%d, %d, %d, %d)", section->section_index, position, 0, 1);
                       g_menu_model_items_changed (G_MENU_MODEL (section), position, 0, 1);
                     }
                 }
@@ -158,8 +158,6 @@ unity_gtk_menu_shell_show_item (UnityGtkMenuShell *shell,
             g_warn_if_reached ();
         }
     }
-
-  unity_gtk_menu_shell_print (shell, 0);
 }
 
 static void
@@ -207,7 +205,7 @@ unity_gtk_menu_shell_hide_item (UnityGtkMenuShell *shell,
 
                       g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (shell), section_index + 1, 1, 0);
                       g_menu_model_items_changed (G_MENU_MODEL (shell), section_index + 1, 1, 0);
-                      g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (section), position, 0, added);
+                      g_message ("g_menu_model_items_changed (%d, %d, %d, %d)", section->section_index, position, 0, added);
                       g_menu_model_items_changed (G_MENU_MODEL (section), position, 0, added);
                     }
                   else
@@ -245,7 +243,7 @@ unity_gtk_menu_shell_hide_item (UnityGtkMenuShell *shell,
                       guint position = g_sequence_iter_get_position (visible_iter) - g_sequence_iter_get_position (section_iter);
 
                       g_sequence_remove (visible_iter);
-                      g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (section), position, 1, 0);
+                      g_message ("g_menu_model_items_changed (%d, %d, %d, %d)", section->section_index, position, 1, 0);
                       g_menu_model_items_changed (G_MENU_MODEL (section), position, 1, 0);
                     }
                 }
