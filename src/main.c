@@ -1,7 +1,7 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
 
-#include "unity-gtk-menu-shell-private.h"
+#include "unity-gtk-menu-shell.h"
 
 #define WINDOW_OBJECT_PATH "/com/canonical/unity/gtk/window"
 

@@ -6,7 +6,7 @@
 typedef struct _UnityGtkMenuItem      UnityGtkMenuItem;
 typedef struct _UnityGtkMenuItemClass UnityGtkMenuItemClass;
 
-#include "unity-gtk-menu-shell-private.h"
+#include "unity-gtk-menu-shell.h"
 
 #define UNITY_GTK_TYPE_MENU_ITEM            (unity_gtk_menu_item_get_type ())
 #define UNITY_GTK_MENU_ITEM(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), UNITY_GTK_TYPE_MENU_ITEM, UnityGtkMenuItem))
