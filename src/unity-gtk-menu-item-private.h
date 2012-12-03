@@ -39,6 +39,11 @@ UnityGtkMenuItem *  unity_gtk_menu_item_new             (GtkMenuItem       *menu
                                                          UnityGtkMenuShell *parent_shell,
                                                          guint              item_index)   G_GNUC_INTERNAL;
 
+GtkMenuItem *       unity_gtk_menu_item_get_menu_item   (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
+
+void                unity_gtk_menu_item_set_menu_item   (UnityGtkMenuItem  *item,
+                                                         GtkMenuItem       *menu_item)    G_GNUC_INTERNAL;
+
 UnityGtkMenuShell * unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 
 guint               unity_gtk_menu_item_get_item_index  (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;

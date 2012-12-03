@@ -92,7 +92,12 @@ static void
 unity_gtk_menu_shell_handle_item_visible (UnityGtkMenuShell *shell,
                                           UnityGtkMenuItem  *item)
 {
-  GSequence *visible_indices = shell->visible_indices;
+  GSequence *visible_indices;
+
+  g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+
+  visible_indices = shell->visible_indices;
 
   if (visible_indices != NULL)
     {
@@ -196,6 +201,81 @@ unity_gtk_menu_shell_handle_item_visible (UnityGtkMenuShell *shell,
             g_sequence_remove (visible_iter);
         }
     }
+}
+
+static void
+unity_gtk_menu_shell_handle_item_sensitive (UnityGtkMenuShell *shell,
+                                            UnityGtkMenuItem  *item)
+{
+}
+
+static void
+unity_gtk_menu_shell_handle_item_active (UnityGtkMenuShell *shell,
+                                         UnityGtkMenuItem  *item)
+{
+}
+
+static void
+unity_gtk_menu_shell_handle_item_parent (UnityGtkMenuShell *shell,
+                                         UnityGtkMenuItem  *item)
+{
+  GtkMenuItem *menu_item;
+  GtkWidget *parent;
+
+  g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+
+  menu_item = unity_gtk_menu_item_get_menu_item (item);
+  parent = gtk_widget_get_parent (GTK_WIDGET (menu_item));
+
+  if (parent == NULL)
+    {
+      GPtrArray *items = shell->items;
+
+      unity_gtk_menu_item_set_menu_item (item, NULL);
+      unity_gtk_menu_shell_handle_item_visible (shell, item);
+
+      if (items != NULL)
+        {
+          GSequence *visible_indices = shell->visible_indices;
+          GSequence *separator_indices = shell->separator_indices;
+          guint item_index = unity_gtk_menu_item_get_item_index (item);
+          guint i;
+
+          g_ptr_array_remove_index (items, item_index);
+
+          for (i = item_index; i < items->len; i++)
+            unity_gtk_menu_item_set_item_index (g_ptr_array_index (items, i), i);
+
+          if (visible_indices != NULL)
+            {
+              GSequenceIter *iter = g_sequence_search_uint (visible_indices, item_index);
+
+              while (iter != NULL && !g_sequence_iter_is_end (iter))
+                {
+                  g_sequence_set_uint (iter, g_sequence_get_uint (iter) - 1);
+                  iter = g_sequence_iter_next (iter);
+                }
+            }
+
+          if (separator_indices != NULL)
+            {
+              GSequenceIter *iter = g_sequence_search_uint (separator_indices, item_index);
+
+              while (iter != NULL && !g_sequence_iter_is_end (iter))
+                {
+                  g_sequence_set_uint (iter, g_sequence_get_uint (iter) - 1);
+                  iter = g_sequence_iter_next (iter);
+                }
+            }
+        }
+    }
+}
+
+static void
+unity_gtk_menu_shell_handle_item_submenu (UnityGtkMenuShell *shell,
+                                          UnityGtkMenuItem  *item)
+{
 }
 
 static void
@@ -611,44 +691,38 @@ unity_gtk_menu_shell_handle_item_notify (UnityGtkMenuShell *shell,
                                          UnityGtkMenuItem  *item,
                                          GParamSpec        *pspec)
 {
-  static const gchar *parent_name;
-  static const gchar *submenu_name;
   static const gchar *visible_name;
   static const gchar *sensitive_name;
   static const gchar *active_name;
+  static const gchar *parent_name;
+  static const gchar *submenu_name;
 
   const gchar *pspec_name;
 
   g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
 
-  if (parent_name == NULL)
-    parent_name = g_intern_static_string ("parent");
-  if (submenu_name == NULL)
-    submenu_name = g_intern_static_string ("submenu");
   if (visible_name == NULL)
     visible_name = g_intern_static_string ("visible");
   if (sensitive_name == NULL)
     sensitive_name = g_intern_static_string ("sensitive");
   if (active_name == NULL)
     active_name = g_intern_static_string ("active");
+  if (parent_name == NULL)
+    parent_name = g_intern_static_string ("parent");
+  if (submenu_name == NULL)
+    submenu_name = g_intern_static_string ("submenu");
 
   pspec_name = g_param_spec_get_name (pspec);
 
-  if (pspec_name == parent_name)
-    {
-    }
-  else if (pspec_name == submenu_name)
-    {
-    }
-  else if (pspec_name == visible_name)
-    {
-      unity_gtk_menu_shell_handle_item_visible (shell, item);
-    }
+  if (pspec_name == visible_name)
+    unity_gtk_menu_shell_handle_item_visible (shell, item);
   else if (pspec_name == sensitive_name)
-    {
-    }
+    unity_gtk_menu_shell_handle_item_sensitive (shell, item);
   else if (pspec_name == active_name)
-    {
-    }
+    unity_gtk_menu_shell_handle_item_active (shell, item);
+  else if (pspec_name == parent_name)
+    unity_gtk_menu_shell_handle_item_parent (shell, item);
+  else if (pspec_name == submenu_name)
+    unity_gtk_menu_shell_handle_item_submenu (shell, item);
 }

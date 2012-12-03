@@ -36,28 +36,6 @@ unity_gtk_menu_item_handle_item_notify (GObject    *object,
 }
 
 static void
-unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
-                                   GtkMenuItem      *menu_item)
-{
-  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
-
-  if (menu_item != item->menu_item)
-    {
-      if (item->menu_item_notify_handler_id)
-        {
-          g_assert (item->menu_item != NULL);
-          g_signal_handler_disconnect (item->menu_item, item->menu_item_notify_handler_id);
-          item->menu_item_notify_handler_id = 0;
-        }
-
-      item->menu_item = menu_item;
-
-      if (menu_item != NULL)
-        item->menu_item_notify_handler_id = g_signal_connect (menu_item, "notify", G_CALLBACK (unity_gtk_menu_item_handle_item_notify), item);
-    }
-}
-
-static void
 unity_gtk_menu_item_set_parent_shell (UnityGtkMenuItem  *item,
                                       UnityGtkMenuShell *parent_shell)
 {
@@ -110,7 +88,7 @@ unity_gtk_menu_item_get_property (GObject    *object,
   switch (property_id)
     {
     case MENU_ITEM_PROP_MENU_ITEM:
-      g_value_set_pointer (value, self->menu_item);
+      g_value_set_pointer (value, unity_gtk_menu_item_get_menu_item (self));
       break;
 
     case MENU_ITEM_PROP_PARENT_SHELL:
@@ -212,6 +190,46 @@ unity_gtk_menu_item_new (GtkMenuItem       *menu_item,
                        "parent-shell", parent_shell,
                        "item-index", item_index,
                        NULL);
+}
+
+GtkMenuItem *
+unity_gtk_menu_item_get_menu_item (UnityGtkMenuItem *item)
+{
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), NULL);
+
+  return item->menu_item;
+}
+
+void
+unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
+                                   GtkMenuItem      *menu_item)
+{
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+
+  if (menu_item != item->menu_item)
+    {
+      UnityGtkMenuShell *child_shell = item->child_shell;
+
+      if (item->menu_item_notify_handler_id)
+        {
+          g_assert (item->menu_item != NULL);
+          g_signal_handler_disconnect (item->menu_item, item->menu_item_notify_handler_id);
+          item->menu_item_notify_handler_id = 0;
+        }
+
+      if (child_shell != NULL)
+        {
+          g_assert (item->child_shell_valid);
+          item->child_shell = NULL;
+          g_object_unref (child_shell);
+        }
+
+      item->child_shell_valid = FALSE;
+      item->menu_item = menu_item;
+
+      if (menu_item != NULL)
+        item->menu_item_notify_handler_id = g_signal_connect (menu_item, "notify", G_CALLBACK (unity_gtk_menu_item_handle_item_notify), item);
+    }
 }
 
 UnityGtkMenuShell *
