@@ -129,12 +129,14 @@ unity_gtk_menu_shell_show_item (UnityGtkMenuShell *shell,
                       UnityGtkMenuSection *section = g_ptr_array_index (sections, section_index);
                       GSequenceIter *section_iter = unity_gtk_menu_section_get_begin_iter (section);
                       guint position = g_sequence_iter_get_position (insert_iter) - g_sequence_iter_get_position (section_iter);
-                      UnityGtkMenuSection *new_section;
-                      guint removed;
+                      UnityGtkMenuSection *new_section = unity_gtk_menu_section_new (shell, section_index + 1);
+                      guint removed = g_menu_model_get_n_items (G_MENU_MODEL (new_section));
+                      guint i;
 
-                      g_ptr_array_add (sections, unity_gtk_menu_section_new (shell, sections->len));
-                      new_section = g_ptr_array_index (sections, section_index + 1);
-                      removed = g_menu_model_get_n_items (G_MENU_MODEL (new_section));
+                      g_ptr_array_insert (sections, new_section, section_index + 1);
+
+                      for (i = section_index + 2; i < sections->len; i++)
+                        unity_gtk_menu_section_set_section_index (g_ptr_array_index (sections, i), i);
 
                       if (removed)
                         g_menu_model_items_changed (G_MENU_MODEL (section), position, removed, 0);
@@ -194,8 +196,13 @@ unity_gtk_menu_shell_hide_item (UnityGtkMenuShell *shell,
                       UnityGtkMenuSection *next_section = g_ptr_array_index (sections, section_index + 1);
                       guint position = g_menu_model_get_n_items (G_MENU_MODEL (section));
                       guint added = g_menu_model_get_n_items (G_MENU_MODEL (next_section));
+                      guint i;
 
-                      g_ptr_array_remove_index (sections, sections->len - 1);
+                      g_ptr_array_remove_index (sections, section_index + 1);
+
+                      for (i = section_index + 1; i < sections->len; i++)
+                        unity_gtk_menu_section_set_section_index (g_ptr_array_index (sections, i), i);
+
                       g_sequence_remove (separator_iter);
 
                       if (visible_iter != NULL)
