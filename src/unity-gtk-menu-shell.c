@@ -101,50 +101,61 @@ unity_gtk_menu_shell_show_item (UnityGtkMenuShell *shell,
 
   if (visible_indices != NULL)
     {
-      guint item_index = unity_gtk_menu_item_get_item_index (item);
-      GSequenceIter *insert_iter = g_sequence_insert_sorted_uint (visible_indices, item_index);
       GSequence *separator_indices = shell->separator_indices;
+      guint item_index = unity_gtk_menu_item_get_item_index (item);
+      GSequenceIter *insert_iter = g_sequence_lookup_uint (visible_indices, item_index);
+      gboolean already_visible = insert_iter != NULL;
+
+      if (!already_visible)
+        insert_iter = g_sequence_insert_sorted_uint (visible_indices, item_index);
+      else
+        g_warn_if_reached ();
 
       if (separator_indices != NULL)
         {
+          GPtrArray *sections = shell->sections;
           GSequenceIter *separator_iter = g_sequence_search_inf_uint (separator_indices, item_index);
           guint section_index = separator_iter == NULL ? 0 : g_sequence_iter_get_position (separator_iter) + 1;
-          GPtrArray *sections = shell->sections;
+          gboolean separator_already_visible = separator_iter != NULL && g_sequence_get_uint (separator_iter) == item_index;
 
-          if (unity_gtk_menu_item_is_separator (item))
+          if (!separator_already_visible)
             {
-              g_sequence_insert_sorted_uint (separator_indices, item_index);
-
-              if (sections != NULL)
+              if (unity_gtk_menu_item_is_separator (item))
                 {
-                  UnityGtkMenuSection *section = g_ptr_array_index (sections, section_index);
-                  GSequenceIter *section_iter = unity_gtk_menu_section_get_begin_iter (section);
-                  guint position = g_sequence_iter_get_position (insert_iter) - g_sequence_iter_get_position (section_iter);
-                  UnityGtkMenuSection *new_section;
-                  guint removed;
+                  g_sequence_insert_sorted_uint (separator_indices, item_index);
 
-                  g_ptr_array_add (sections, unity_gtk_menu_section_new (shell, sections->len));
-                  new_section = g_ptr_array_index (sections, section_index + 1);
-                  removed = g_menu_model_get_n_items (G_MENU_MODEL (new_section));
-                  unity_gtk_menu_section_print (section, 0);
-                  g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (section), position, removed, 0);
-                  g_menu_model_items_changed (G_MENU_MODEL (section), position, removed, 0);
-                  g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (shell), section_index + 1, 0, 1);
-                  g_menu_model_items_changed (G_MENU_MODEL (shell), section_index + 1, 0, 1);
+                  if (sections != NULL)
+                    {
+                      UnityGtkMenuSection *section = g_ptr_array_index (sections, section_index);
+                      GSequenceIter *section_iter = unity_gtk_menu_section_get_begin_iter (section);
+                      guint position = g_sequence_iter_get_position (insert_iter) - g_sequence_iter_get_position (section_iter);
+                      UnityGtkMenuSection *new_section;
+                      guint removed;
+
+                      g_ptr_array_add (sections, unity_gtk_menu_section_new (shell, sections->len));
+                      new_section = g_ptr_array_index (sections, section_index + 1);
+                      removed = g_menu_model_get_n_items (G_MENU_MODEL (new_section));
+                      g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (section), position, removed, 0);
+                      g_menu_model_items_changed (G_MENU_MODEL (section), position, removed, 0);
+                      g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (shell), section_index + 1, 0, 1);
+                      g_menu_model_items_changed (G_MENU_MODEL (shell), section_index + 1, 0, 1);
+                    }
+                }
+              else
+                {
+                  if (sections != NULL)
+                    {
+                      UnityGtkMenuSection *section = g_ptr_array_index (sections, section_index);
+                      GSequenceIter *section_iter = unity_gtk_menu_section_get_begin_iter (section);
+                      guint position = g_sequence_iter_get_position (insert_iter) - g_sequence_iter_get_position (section_iter);
+
+                      g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (section), position, 0, 1);
+                      g_menu_model_items_changed (G_MENU_MODEL (section), position, 0, 1);
+                    }
                 }
             }
           else
-            {
-              if (sections != NULL)
-                {
-                  UnityGtkMenuSection *section = g_ptr_array_index (sections, section_index);
-                  GSequenceIter *section_iter = unity_gtk_menu_section_get_begin_iter (section);
-                  guint position = g_sequence_iter_get_position (insert_iter) - g_sequence_iter_get_position (section_iter);
-
-                  g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (section), position, 0, 1);
-                  g_menu_model_items_changed (G_MENU_MODEL (section), position, 0, 1);
-                }
-            }
+            g_warn_if_reached ();
         }
     }
 
@@ -164,59 +175,91 @@ unity_gtk_menu_shell_hide_item (UnityGtkMenuShell *shell,
 
   if (visible_indices != NULL)
     {
+      GSequence *separator_indices = shell->separator_indices;
       guint item_index = unity_gtk_menu_item_get_item_index (item);
       GSequenceIter *visible_iter = g_sequence_lookup_uint (visible_indices, item_index);
-      GSequence *separator_indices = shell->separator_indices;
 
       if (separator_indices != NULL)
         {
           if (unity_gtk_menu_item_is_separator (item))
             {
               GSequenceIter *separator_iter = g_sequence_lookup_uint (separator_indices, item_index);
-              guint section_index = g_sequence_iter_get_position (separator_iter);
-              GPtrArray *sections = shell->sections;
 
-              if (shell->sections != NULL)
+              if (separator_iter != NULL)
                 {
-                  UnityGtkMenuSection *section = g_ptr_array_index (sections, section_index);
-                  UnityGtkMenuSection *next_section = g_ptr_array_index (sections, section_index + 1);
-                  guint position = g_menu_model_get_n_items (G_MENU_MODEL (section));
-                  guint added = g_menu_model_get_n_items (G_MENU_MODEL (next_section));
+                  GPtrArray *sections = shell->sections;
+                  guint section_index = g_sequence_iter_get_position (separator_iter);
 
-                  g_ptr_array_remove_index (sections, sections->len - 1);
-                  g_sequence_remove (separator_iter);
-                  g_sequence_remove (visible_iter);
-                  g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (shell), section_index + 1, 1, 0);
-                  g_menu_model_items_changed (G_MENU_MODEL (shell), section_index + 1, 1, 0);
-                  g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (section), position, 0, added);
-                  g_menu_model_items_changed (G_MENU_MODEL (section), position, 0, added);
+                  if (shell->sections != NULL)
+                    {
+                      UnityGtkMenuSection *section = g_ptr_array_index (sections, section_index);
+                      UnityGtkMenuSection *next_section = g_ptr_array_index (sections, section_index + 1);
+                      guint position = g_menu_model_get_n_items (G_MENU_MODEL (section));
+                      guint added = g_menu_model_get_n_items (G_MENU_MODEL (next_section));
+
+                      g_ptr_array_remove_index (sections, sections->len - 1);
+                      g_sequence_remove (separator_iter);
+
+                      if (visible_iter != NULL)
+                        g_sequence_remove (visible_iter);
+                      else
+                        g_warn_if_reached ();
+
+                      g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (shell), section_index + 1, 1, 0);
+                      g_menu_model_items_changed (G_MENU_MODEL (shell), section_index + 1, 1, 0);
+                      g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (section), position, 0, added);
+                      g_menu_model_items_changed (G_MENU_MODEL (section), position, 0, added);
+                    }
+                  else
+                    {
+                      g_sequence_remove (separator_iter);
+
+                      if (visible_iter != NULL)
+                        g_sequence_remove (visible_iter);
+                      else
+                        g_warn_if_reached ();
+                    }
                 }
               else
                 {
-                  g_sequence_remove (separator_iter);
-                  g_sequence_remove (visible_iter);
+                  g_warn_if_reached ();
+
+                  if (visible_iter != NULL)
+                    g_sequence_remove (visible_iter);
+                  else
+                    g_warn_if_reached ();
                 }
             }
           else
             {
-              GSequenceIter *separator_iter = g_sequence_search_inf_uint (separator_indices, item_index);
-              guint section_index = separator_iter == NULL ? 0 : g_sequence_iter_get_position (separator_iter) + 1;
-              GPtrArray *sections = shell->sections;
-
-              if (shell->sections != NULL)
+              if (visible_iter != NULL)
                 {
-                  UnityGtkMenuSection *section = g_ptr_array_index (sections, section_index);
-                  GSequenceIter *section_iter = unity_gtk_menu_section_get_begin_iter (section);
-                  guint position = g_sequence_iter_get_position (visible_iter) - g_sequence_iter_get_position (section_iter);
+                  GPtrArray *sections = shell->sections;
+                  GSequenceIter *separator_iter = g_sequence_search_inf_uint (separator_indices, item_index);
+                  guint section_index = separator_iter == NULL ? 0 : g_sequence_iter_get_position (separator_iter) + 1;
 
-                  g_sequence_remove (visible_iter);
-                  g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (section), position, 1, 0);
-                  g_menu_model_items_changed (G_MENU_MODEL (section), position, 1, 0);
+                  if (shell->sections != NULL)
+                    {
+                      UnityGtkMenuSection *section = g_ptr_array_index (sections, section_index);
+                      GSequenceIter *section_iter = unity_gtk_menu_section_get_begin_iter (section);
+                      guint position = g_sequence_iter_get_position (visible_iter) - g_sequence_iter_get_position (section_iter);
+
+                      g_sequence_remove (visible_iter);
+                      g_message ("g_menu_model_items_changed (%p, %d, %d, %d)", G_MENU_MODEL (section), position, 1, 0);
+                      g_menu_model_items_changed (G_MENU_MODEL (section), position, 1, 0);
+                    }
                 }
+              else
+                g_warn_if_reached ();
             }
         }
       else
-        g_sequence_remove (visible_iter);
+        {
+          if (visible_iter != NULL)
+            g_sequence_remove (visible_iter);
+          else
+            g_warn_if_reached ();
+        }
     }
 }
 
