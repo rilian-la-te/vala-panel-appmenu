@@ -57,4 +57,7 @@ gboolean            unity_gtk_menu_item_is_visible      (UnityGtkMenuItem  *item
 
 gboolean            unity_gtk_menu_item_is_separator    (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 
+void                unity_gtk_menu_item_print           (UnityGtkMenuItem  *item,
+                                                         guint              depth)        G_GNUC_INTERNAL;
+
 #endif /* __UNITY_GTK_MENU_ITEM_H__ */

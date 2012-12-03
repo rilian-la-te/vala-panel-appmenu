@@ -308,3 +308,41 @@ unity_gtk_menu_item_is_separator (UnityGtkMenuItem *item)
 
   return GTK_IS_SEPARATOR_MENU_ITEM (item->menu_item);
 }
+
+void
+unity_gtk_menu_item_print (UnityGtkMenuItem *item,
+                           guint             depth)
+{
+  gchar *indent;
+  const gchar *label;
+
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+
+  indent = g_strnfill (4 * depth, ' ');
+  label = unity_gtk_menu_item_get_label (item);
+
+  g_print ("%s(UnityGtkMenuItem *) %p\n", indent, item);
+
+  if (label != NULL)
+    g_print ("%s  label = %s\n", indent, label);
+
+  if (item->menu_item != NULL)
+    g_print ("%s  menu_item = %p\n", indent, item->menu_item);
+
+  if (item->menu_item_notify_handler_id)
+    g_print ("%s  menu_item_notify_handler_id = %lu\n", indent, item->menu_item_notify_handler_id);
+
+  if (item->parent_shell != NULL)
+    g_print ("%s  parent_shell = %p\n", indent, item->parent_shell);
+
+  if (item->child_shell != NULL)
+    {
+      g_print ("%s  child_shell =\n", indent);
+
+      unity_gtk_menu_shell_print (item->child_shell, depth + 1);
+    }
+
+  g_print ("%s  item_index = %u\n", indent, item->item_index);
+
+  g_free (indent);
+}
