@@ -15,9 +15,9 @@ enum
 static GParamSpec *menu_item_properties[MENU_ITEM_N_PROPERTIES] = { NULL };
 
 static void
-unity_gtk_menu_item_handle_notify (GObject    *object,
-                                   GParamSpec *pspec,
-                                   gpointer    user_data)
+unity_gtk_menu_item_handle_item_notify (GObject    *object,
+                                        GParamSpec *pspec,
+                                        gpointer    user_data)
 {
   UnityGtkMenuItem *item;
   UnityGtkMenuShell *parent_shell;
@@ -53,7 +53,7 @@ unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
       item->menu_item = menu_item;
 
       if (menu_item != NULL)
-        item->menu_item_notify_handler_id = g_signal_connect (menu_item, "notify", G_CALLBACK (unity_gtk_menu_item_handle_notify), item);
+        item->menu_item_notify_handler_id = g_signal_connect (menu_item, "notify", G_CALLBACK (unity_gtk_menu_item_handle_item_notify), item);
     }
 }
 

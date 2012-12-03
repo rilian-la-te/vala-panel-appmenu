@@ -199,10 +199,10 @@ unity_gtk_menu_shell_handle_item_visible (UnityGtkMenuShell *shell,
 }
 
 static void
-unity_gtk_menu_shell_handle_insert (GtkMenuShell *menu_shell,
-                                    GtkWidget    *child,
-                                    gint          position,
-                                    gpointer      user_data)
+unity_gtk_menu_shell_handle_shell_insert (GtkMenuShell *menu_shell,
+                                          GtkWidget    *child,
+                                          gint          position,
+                                          gpointer      user_data)
 {
   UnityGtkMenuShell *shell;
   GPtrArray *items;
@@ -306,7 +306,7 @@ unity_gtk_menu_shell_set_menu_shell (UnityGtkMenuShell *shell,
       shell->menu_shell = menu_shell;
 
       if (menu_shell != NULL)
-        shell->menu_shell_insert_handler_id = g_signal_connect (menu_shell, "insert", G_CALLBACK (unity_gtk_menu_shell_handle_insert), shell);
+        shell->menu_shell_insert_handler_id = g_signal_connect (menu_shell, "insert", G_CALLBACK (unity_gtk_menu_shell_handle_shell_insert), shell);
     }
 }
 
