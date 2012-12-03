@@ -27,7 +27,7 @@ g_uintcmp (gconstpointer a,
 static void
 g_ptr_array_insert (GPtrArray *ptr_array,
                     gpointer   data,
-                    guint      i)
+                    gint       i)
 {
   guint j;
 
