@@ -1,7 +1,7 @@
 #ifndef __UNITY_GTK_MENU_SECTION_H__
 #define __UNITY_GTK_MENU_SECTION_H__
 
-#include <glib-object.h>
+#include <gio/gio.h>
 
 typedef struct _UnityGtkMenuSection      UnityGtkMenuSection;
 typedef struct _UnityGtkMenuSectionClass UnityGtkMenuSectionClass;

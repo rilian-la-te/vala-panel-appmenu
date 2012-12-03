@@ -1,7 +1,9 @@
 #include "unity-gtk-menu-shell.h"
 #include "unity-gtk-menu-section.h"
 
-G_DEFINE_TYPE (UnityGtkMenuShell, unity_gtk_menu_shell, G_TYPE_MENU_MODEL);
+G_DEFINE_TYPE (UnityGtkMenuShell,
+               unity_gtk_menu_shell,
+               G_TYPE_MENU_MODEL);
 
 enum
 {

@@ -5,13 +5,17 @@ AM_CFLAGS = $(gtk_CFLAGS) -Wall
 AM_LDFLAGS = -shared -module -avoid-version
 
 libunity_gtk_module_la_SOURCES = \
+	main.c				\
 	unity-gtk-menu-shell.h		\
-	unity-gtk-menu-shell.c			\
+	unity-gtk-menu-shell.c		\
 	unity-gtk-menu-section.h	\
-	unity-gtk-menu-section.c		\
+	unity-gtk-menu-section.c	\
 	unity-gtk-menu-item.h		\
-	unity-gtk-menu-item.c			\
-	main.c
+	unity-gtk-menu-item.c		\
+	unity-gtk-action-group.h	\
+	unity-gtk-action-group.c	\
+	unity-gtk-action.h		\
+	unity-gtk-action.c
 
 hello_SOURCES = \
 	hello.c

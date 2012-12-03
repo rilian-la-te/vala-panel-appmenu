@@ -1,6 +1,8 @@
 #include "unity-gtk-menu-item.h"
 
-G_DEFINE_TYPE (UnityGtkMenuItem, unity_gtk_menu_item, G_TYPE_OBJECT);
+G_DEFINE_TYPE (UnityGtkMenuItem,
+               unity_gtk_menu_item,
+               G_TYPE_OBJECT);
 
 enum
 {
