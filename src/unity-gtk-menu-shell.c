@@ -88,6 +88,51 @@ g_ptr_array_insert (GPtrArray *ptr_array,
   ptr_array->pdata[j] = data;
 }
 
+static GPtrArray *
+unity_gtk_menu_shell_get_items (UnityGtkMenuShell *shell)
+{
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_SHELL (shell), NULL);
+
+  if (shell->items == NULL)
+    {
+      GList *iter;
+      guint i;
+
+      g_return_val_if_fail (shell->menu_shell != NULL, NULL);
+
+      shell->items = g_ptr_array_new_with_free_func (g_object_unref);
+      iter = gtk_container_get_children (GTK_CONTAINER (shell->menu_shell));
+
+      for (i = 0; iter != NULL; i++)
+        {
+          g_ptr_array_add (shell->items, unity_gtk_menu_item_new (iter->data, shell, i));
+          iter = g_list_next (iter);
+        }
+    }
+
+  return shell->items;
+}
+
+static GPtrArray *
+unity_gtk_menu_shell_get_sections (UnityGtkMenuShell *shell)
+{
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_SHELL (shell), NULL);
+
+  if (shell->sections == NULL)
+    {
+      GSequence *separator_indices = unity_gtk_menu_shell_get_separator_indices (shell);
+      guint n = g_sequence_get_length (separator_indices);
+      guint i;
+
+      shell->sections = g_ptr_array_new_full (n + 1, g_object_unref);
+
+      for (i = 0; i <= n; i++)
+        g_ptr_array_add (shell->sections, unity_gtk_menu_section_new (shell, i));
+    }
+
+  return shell->sections;
+}
+
 static void
 unity_gtk_menu_shell_show_item (UnityGtkMenuShell *shell,
                                 UnityGtkMenuItem  *item)
@@ -96,6 +141,7 @@ unity_gtk_menu_shell_show_item (UnityGtkMenuShell *shell,
 
   g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+  g_warn_if_fail (item->parent_shell == shell);
 
   visible_indices = shell->visible_indices;
 
@@ -170,6 +216,7 @@ unity_gtk_menu_shell_hide_item (UnityGtkMenuShell *shell,
 
   g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+  g_warn_if_fail (item->parent_shell == shell);
 
   visible_indices = shell->visible_indices;
 
@@ -275,6 +322,7 @@ unity_gtk_menu_shell_handle_item_visible (UnityGtkMenuShell *shell,
 
   g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+  g_warn_if_fail (item->parent_shell == shell);
 
   visible_indices = shell->visible_indices;
 
@@ -312,6 +360,7 @@ unity_gtk_menu_shell_handle_item_parent (UnityGtkMenuShell *shell,
 
   g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+  g_warn_if_fail (item->parent_shell == shell);
 
   menu_item = item->menu_item;
   parent = gtk_widget_get_parent (GTK_WIDGET (menu_item));
@@ -364,6 +413,39 @@ static void
 unity_gtk_menu_shell_handle_item_submenu (UnityGtkMenuShell *shell,
                                           UnityGtkMenuItem  *item)
 {
+  g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+  g_warn_if_fail (item->parent_shell == shell);
+
+  if (item->child_shell_valid)
+    {
+      GtkMenuShell *old_submenu = item->child_shell != NULL ? item->child_shell->menu_shell : NULL;
+      GtkMenuShell *new_submenu = item->menu_item != NULL ? GTK_MENU_SHELL (gtk_menu_item_get_submenu (item->menu_item)) : NULL;
+
+      if (new_submenu != old_submenu)
+        {
+          UnityGtkMenuShell *child_shell = item->child_shell;
+          GSequence *visible_indices = unity_gtk_menu_shell_get_visible_indices (shell);
+          GSequence *separator_indices = unity_gtk_menu_shell_get_separator_indices (shell);
+          GSequenceIter *separator_iter = g_sequence_search_inf_uint (separator_indices, item->item_index);
+          guint section_index = separator_iter == NULL ? 0 : g_sequence_iter_get_position (separator_iter) + 1;
+          GPtrArray *sections = unity_gtk_menu_shell_get_sections (shell);
+          UnityGtkMenuSection *section = g_ptr_array_index (sections, section_index);
+          GSequenceIter *section_iter = unity_gtk_menu_section_get_begin_iter (section);
+          GSequenceIter *visible_iter = g_sequence_lookup_uint (visible_indices, item->item_index);
+          guint position = g_sequence_iter_get_position (visible_iter) - g_sequence_iter_get_position (section_iter);
+
+          if (child_shell != NULL)
+            {
+              item->child_shell = NULL;
+              g_object_unref (child_shell);
+            }
+
+          item->child_shell_valid = FALSE;
+
+          g_menu_model_items_changed (G_MENU_MODEL (section), position, 1, 1);
+        }
+    }
 }
 
 static void
@@ -477,51 +559,6 @@ unity_gtk_menu_shell_set_menu_shell (UnityGtkMenuShell *shell,
       if (menu_shell != NULL)
         shell->menu_shell_insert_handler_id = g_signal_connect (menu_shell, "insert", G_CALLBACK (unity_gtk_menu_shell_handle_shell_insert), shell);
     }
-}
-
-static GPtrArray *
-unity_gtk_menu_shell_get_items (UnityGtkMenuShell *shell)
-{
-  g_return_val_if_fail (UNITY_GTK_IS_MENU_SHELL (shell), NULL);
-
-  if (shell->items == NULL)
-    {
-      GList *iter;
-      guint i;
-
-      g_return_val_if_fail (shell->menu_shell != NULL, NULL);
-
-      shell->items = g_ptr_array_new_with_free_func (g_object_unref);
-      iter = gtk_container_get_children (GTK_CONTAINER (shell->menu_shell));
-
-      for (i = 0; iter != NULL; i++)
-        {
-          g_ptr_array_add (shell->items, unity_gtk_menu_item_new (iter->data, shell, i));
-          iter = g_list_next (iter);
-        }
-    }
-
-  return shell->items;
-}
-
-static GPtrArray *
-unity_gtk_menu_shell_get_sections (UnityGtkMenuShell *shell)
-{
-  g_return_val_if_fail (UNITY_GTK_IS_MENU_SHELL (shell), NULL);
-
-  if (shell->sections == NULL)
-    {
-      GSequence *separator_indices = unity_gtk_menu_shell_get_separator_indices (shell);
-      guint n = g_sequence_get_length (separator_indices);
-      guint i;
-
-      shell->sections = g_ptr_array_new_full (n + 1, g_object_unref);
-
-      for (i = 0; i <= n; i++)
-        g_ptr_array_add (shell->sections, unity_gtk_menu_section_new (shell, i));
-    }
-
-  return shell->sections;
 }
 
 static void
