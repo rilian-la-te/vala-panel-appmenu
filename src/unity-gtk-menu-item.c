@@ -36,6 +36,38 @@ unity_gtk_menu_item_handle_item_notify (GObject    *object,
 }
 
 static void
+unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
+                                   GtkMenuItem      *menu_item)
+{
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+
+  if (menu_item != item->menu_item)
+    {
+      UnityGtkMenuShell *child_shell = item->child_shell;
+
+      if (item->menu_item_notify_handler_id)
+        {
+          g_assert (item->menu_item != NULL);
+          g_signal_handler_disconnect (item->menu_item, item->menu_item_notify_handler_id);
+          item->menu_item_notify_handler_id = 0;
+        }
+
+      if (child_shell != NULL)
+        {
+          g_assert (item->child_shell_valid);
+          item->child_shell = NULL;
+          g_object_unref (child_shell);
+        }
+
+      item->child_shell_valid = FALSE;
+      item->menu_item = menu_item;
+
+      if (menu_item != NULL)
+        item->menu_item_notify_handler_id = g_signal_connect (menu_item, "notify", G_CALLBACK (unity_gtk_menu_item_handle_item_notify), item);
+    }
+}
+
+static void
 unity_gtk_menu_item_set_parent_shell (UnityGtkMenuItem  *item,
                                       UnityGtkMenuShell *parent_shell)
 {
@@ -88,7 +120,7 @@ unity_gtk_menu_item_get_property (GObject    *object,
   switch (property_id)
     {
     case MENU_ITEM_PROP_MENU_ITEM:
-      g_value_set_pointer (value, unity_gtk_menu_item_get_menu_item (self));
+      g_value_set_pointer (value, self->menu_item);
       break;
 
     case MENU_ITEM_PROP_PARENT_SHELL:
@@ -100,7 +132,7 @@ unity_gtk_menu_item_get_property (GObject    *object,
       break;
 
     case MENU_ITEM_PROP_ITEM_INDEX:
-      g_value_set_uint (value, unity_gtk_menu_item_get_item_index (self));
+      g_value_set_uint (value, self->item_index);
       break;
 
     default:
@@ -132,7 +164,7 @@ unity_gtk_menu_item_set_property (GObject      *object,
       break;
 
     case MENU_ITEM_PROP_ITEM_INDEX:
-      unity_gtk_menu_item_set_item_index (self, g_value_get_uint (value));
+      self->item_index = g_value_get_uint (value);
       break;
 
     default:
@@ -192,46 +224,6 @@ unity_gtk_menu_item_new (GtkMenuItem       *menu_item,
                        NULL);
 }
 
-GtkMenuItem *
-unity_gtk_menu_item_get_menu_item (UnityGtkMenuItem *item)
-{
-  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), NULL);
-
-  return item->menu_item;
-}
-
-void
-unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
-                                   GtkMenuItem      *menu_item)
-{
-  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
-
-  if (menu_item != item->menu_item)
-    {
-      UnityGtkMenuShell *child_shell = item->child_shell;
-
-      if (item->menu_item_notify_handler_id)
-        {
-          g_assert (item->menu_item != NULL);
-          g_signal_handler_disconnect (item->menu_item, item->menu_item_notify_handler_id);
-          item->menu_item_notify_handler_id = 0;
-        }
-
-      if (child_shell != NULL)
-        {
-          g_assert (item->child_shell_valid);
-          item->child_shell = NULL;
-          g_object_unref (child_shell);
-        }
-
-      item->child_shell_valid = FALSE;
-      item->menu_item = menu_item;
-
-      if (menu_item != NULL)
-        item->menu_item_notify_handler_id = g_signal_connect (menu_item, "notify", G_CALLBACK (unity_gtk_menu_item_handle_item_notify), item);
-    }
-}
-
 UnityGtkMenuShell *
 unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem *item)
 {
@@ -263,23 +255,6 @@ unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem *item)
   return item->child_shell;
 }
 
-guint
-unity_gtk_menu_item_get_item_index (UnityGtkMenuItem *item)
-{
-  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), 0);
-
-  return item->item_index;
-}
-
-void
-unity_gtk_menu_item_set_item_index (UnityGtkMenuItem *item,
-                                    guint             item_index)
-{
-  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
-
-  item->item_index = item_index;
-}
-
 const gchar *
 unity_gtk_menu_item_get_label (UnityGtkMenuItem *item)
 {
@@ -307,42 +282,4 @@ unity_gtk_menu_item_is_separator (UnityGtkMenuItem *item)
   g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
 
   return GTK_IS_SEPARATOR_MENU_ITEM (item->menu_item);
-}
-
-void
-unity_gtk_menu_item_print (UnityGtkMenuItem *item,
-                           guint             depth)
-{
-  gchar *indent;
-  const gchar *label;
-
-  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
-
-  indent = g_strnfill (4 * depth, ' ');
-  label = unity_gtk_menu_item_get_label (item);
-
-  g_print ("%s(UnityGtkMenuItem *) %p\n", indent, item);
-
-  if (label != NULL)
-    g_print ("%s  label = %s\n", indent, label);
-
-  if (item->menu_item != NULL)
-    g_print ("%s  menu_item = %p\n", indent, item->menu_item);
-
-  if (item->menu_item_notify_handler_id)
-    g_print ("%s  menu_item_notify_handler_id = %lu\n", indent, item->menu_item_notify_handler_id);
-
-  if (item->parent_shell != NULL)
-    g_print ("%s  parent_shell = %p\n", indent, item->parent_shell);
-
-  if (item->child_shell != NULL)
-    {
-      g_print ("%s  child_shell =\n", indent);
-
-      unity_gtk_menu_shell_print (item->child_shell, depth + 1);
-    }
-
-  g_print ("%s  item_index = %u\n", indent, item->item_index);
-
-  g_free (indent);
 }

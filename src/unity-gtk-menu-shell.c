@@ -24,28 +24,7 @@ g_uintcmp (gconstpointer a,
   return GPOINTER_TO_INT (a) - GPOINTER_TO_INT (b);
 }
 
-static void
-g_ptr_array_insert (GPtrArray *ptr_array,
-                    gpointer   data,
-                    gint       i)
-{
-  guint j;
-
-  g_return_if_fail (ptr_array != NULL);
-  g_warn_if_fail (-1 <= i && i <= ptr_array->len);
-
-  if (i < 0 || i > ptr_array->len)
-    i = ptr_array->len;
-
-  g_ptr_array_add (ptr_array, NULL);
-
-  for (j = ptr_array->len - 1; j > i; j--)
-    ptr_array->pdata[j] = g_ptr_array_index (ptr_array, j - 1);
-
-  ptr_array->pdata[j] = data;
-}
-
-guint
+static guint
 g_sequence_get_uint (GSequenceIter *iter)
 {
   return GPOINTER_TO_UINT (g_sequence_get (iter));
@@ -65,7 +44,7 @@ g_sequence_insert_sorted_uint (GSequence *sequence,
   return g_sequence_insert_sorted (sequence, GUINT_TO_POINTER (i), g_uintcmp, NULL);
 }
 
-GSequenceIter *
+static GSequenceIter *
 g_sequence_lookup_uint (GSequence *sequence,
                         guint      i)
 {
@@ -89,6 +68,27 @@ g_sequence_search_inf_uint (GSequence *sequence,
 }
 
 static void
+g_ptr_array_insert (GPtrArray *ptr_array,
+                    gpointer   data,
+                    gint       i)
+{
+  guint j;
+
+  g_return_if_fail (ptr_array != NULL);
+  g_warn_if_fail (-1 <= i && i <= ptr_array->len);
+
+  if (i < 0 || i > ptr_array->len)
+    i = ptr_array->len;
+
+  g_ptr_array_add (ptr_array, NULL);
+
+  for (j = ptr_array->len - 1; j > i; j--)
+    ptr_array->pdata[j] = g_ptr_array_index (ptr_array, j - 1);
+
+  ptr_array->pdata[j] = data;
+}
+
+static void
 unity_gtk_menu_shell_show_item (UnityGtkMenuShell *shell,
                                 UnityGtkMenuItem  *item)
 {
@@ -102,7 +102,7 @@ unity_gtk_menu_shell_show_item (UnityGtkMenuShell *shell,
   if (visible_indices != NULL)
     {
       GSequence *separator_indices = shell->separator_indices;
-      guint item_index = unity_gtk_menu_item_get_item_index (item);
+      guint item_index = item->item_index;
       GSequenceIter *insert_iter = g_sequence_lookup_uint (visible_indices, item_index);
       gboolean already_visible = insert_iter != NULL;
 
@@ -136,7 +136,7 @@ unity_gtk_menu_shell_show_item (UnityGtkMenuShell *shell,
                       g_ptr_array_insert (sections, new_section, section_index + 1);
 
                       for (i = section_index + 2; i < sections->len; i++)
-                        unity_gtk_menu_section_set_section_index (g_ptr_array_index (sections, i), i);
+                        UNITY_GTK_MENU_SECTION (g_ptr_array_index (sections, i))->section_index = i;
 
                       if (removed)
                         g_menu_model_items_changed (G_MENU_MODEL (section), position, removed, 0);
@@ -176,7 +176,7 @@ unity_gtk_menu_shell_hide_item (UnityGtkMenuShell *shell,
   if (visible_indices != NULL)
     {
       GSequence *separator_indices = shell->separator_indices;
-      guint item_index = unity_gtk_menu_item_get_item_index (item);
+      guint item_index = item->item_index;
       GSequenceIter *visible_iter = g_sequence_lookup_uint (visible_indices, item_index);
 
       if (separator_indices != NULL)
@@ -201,7 +201,7 @@ unity_gtk_menu_shell_hide_item (UnityGtkMenuShell *shell,
                       g_ptr_array_remove_index (sections, section_index + 1);
 
                       for (i = section_index + 1; i < sections->len; i++)
-                        unity_gtk_menu_section_set_section_index (g_ptr_array_index (sections, i), i);
+                        UNITY_GTK_MENU_SECTION (g_ptr_array_index (sections, i))->section_index = i;
 
                       g_sequence_remove (separator_iter);
 
@@ -280,8 +280,7 @@ unity_gtk_menu_shell_handle_item_visible (UnityGtkMenuShell *shell,
 
   if (visible_indices != NULL)
     {
-      guint item_index = unity_gtk_menu_item_get_item_index (item);
-      GSequenceIter *visible_iter = g_sequence_lookup_uint (visible_indices, item_index);
+      GSequenceIter *visible_iter = g_sequence_lookup_uint (visible_indices, item->item_index);
       gboolean was_visible = visible_iter != NULL;
       gboolean is_visible = unity_gtk_menu_item_is_visible (item);
 
@@ -314,7 +313,7 @@ unity_gtk_menu_shell_handle_item_parent (UnityGtkMenuShell *shell,
   g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
 
-  menu_item = unity_gtk_menu_item_get_menu_item (item);
+  menu_item = item->menu_item;
   parent = gtk_widget_get_parent (GTK_WIDGET (menu_item));
 
   if (parent == NULL)
@@ -328,13 +327,13 @@ unity_gtk_menu_shell_handle_item_parent (UnityGtkMenuShell *shell,
         {
           GSequence *visible_indices = shell->visible_indices;
           GSequence *separator_indices = shell->separator_indices;
-          guint item_index = unity_gtk_menu_item_get_item_index (item);
+          guint item_index = item->item_index;
           guint i;
 
           g_ptr_array_remove_index (items, item_index);
 
           for (i = item_index; i < items->len; i++)
-            unity_gtk_menu_item_set_item_index (g_ptr_array_index (items, i), i);
+            UNITY_GTK_MENU_ITEM (g_ptr_array_index (items, i))->item_index = i;
 
           if (visible_indices != NULL)
             {
@@ -397,7 +396,7 @@ unity_gtk_menu_shell_handle_shell_insert (GtkMenuShell *menu_shell,
       g_ptr_array_insert (items, item, position);
 
       for (i = position + 1; i < items->len; i++)
-        unity_gtk_menu_item_set_item_index (g_ptr_array_index (items, i), i);
+        UNITY_GTK_MENU_ITEM (g_ptr_array_index (items, i))->item_index = i;
 
       visible_indices = shell->visible_indices;
       separator_indices = shell->separator_indices;
@@ -703,14 +702,6 @@ unity_gtk_menu_shell_new (GtkMenuShell *menu_shell)
                        NULL);
 }
 
-GtkMenuShell *
-unity_gtk_menu_shell_get_menu_shell (UnityGtkMenuShell *shell)
-{
-  g_return_val_if_fail (UNITY_GTK_IS_MENU_SHELL (shell), NULL);
-
-  return shell->menu_shell;
-}
-
 UnityGtkMenuItem *
 unity_gtk_menu_shell_get_item (UnityGtkMenuShell *shell,
                                guint              index)
@@ -815,75 +806,4 @@ unity_gtk_menu_shell_handle_item_notify (UnityGtkMenuShell *shell,
     unity_gtk_menu_shell_handle_item_parent (shell, item);
   else if (pspec_name == submenu_name)
     unity_gtk_menu_shell_handle_item_submenu (shell, item);
-}
-
-void
-unity_gtk_menu_shell_print (UnityGtkMenuShell *shell,
-                            guint              depth)
-{
-  gchar *indent;
-
-  g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
-
-  indent = g_strnfill (4 * depth, ' ');
-
-  g_print ("%s(UnityGtkMenuShell *) %p\n", indent, shell);
-
-  if (shell->menu_shell != NULL)
-    g_print ("%s  menu_shell = %p\n", indent, shell->menu_shell);
-
-  if (shell->menu_shell_insert_handler_id)
-    g_print ("%s  menu_shell_insert_handler_id = %lu\n", indent, shell->menu_shell_insert_handler_id);
-
-  if (shell->items != NULL)
-    {
-      guint i;
-
-      g_print ("%s  items =\n", indent);
-
-      for (i = 0; i < shell->items->len; i++)
-        unity_gtk_menu_item_print (g_ptr_array_index (shell->items, i), depth + 1);
-    }
-
-  if (shell->sections != NULL)
-    {
-      guint i;
-
-      g_print ("%s  sections =\n", indent);
-
-      for (i = 0; i < shell->sections->len; i++)
-        unity_gtk_menu_section_print (g_ptr_array_index (shell->sections, i), depth + 1);
-    }
-
-  if (shell->visible_indices != NULL)
-    {
-      GSequenceIter *iter = g_sequence_get_begin_iter (shell->visible_indices);
-
-      g_print ("%s  visible_indices =", indent);
-
-      while (!g_sequence_iter_is_end (iter))
-        {
-          g_print (" %u", g_sequence_get_uint (iter));
-          iter = g_sequence_iter_next (iter);
-        }
-
-      g_print ("\n");
-    }
-
-  if (shell->separator_indices != NULL)
-    {
-      GSequenceIter *iter = g_sequence_get_begin_iter (shell->separator_indices);
-
-      g_print ("%s  separator_indices =", indent);
-
-      while (!g_sequence_iter_is_end (iter))
-        {
-          g_print (" %u", g_sequence_get_uint (iter));
-          iter = g_sequence_iter_next (iter);
-        }
-
-      g_print ("\n");
-    }
-
-  g_free (indent);
 }

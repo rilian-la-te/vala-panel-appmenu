@@ -222,7 +222,7 @@ hijacked_menu_bar_realize (GtkWidget *widget)
       GSList *iter;
 
       for (iter = window_data->menus; iter != NULL; iter = g_slist_next (iter))
-        if (unity_gtk_menu_shell_get_menu_shell (iter->data) == menu_shell)
+        if (UNITY_GTK_MENU_SHELL (iter->data)->menu_shell == menu_shell)
           break;
 
       if (iter == NULL)
@@ -260,7 +260,7 @@ hijacked_menu_bar_unrealize (GtkWidget *widget)
 
       for (i = 0; iter != NULL; i++)
         {
-          if (unity_gtk_menu_shell_get_menu_shell (iter->data) == menu_shell)
+          if (UNITY_GTK_MENU_SHELL (iter->data)->menu_shell == menu_shell)
             break;
 
           iter = g_slist_next (iter);

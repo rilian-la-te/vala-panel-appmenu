@@ -12,6 +12,14 @@ enum
 
 static GParamSpec *menu_section_properties[MENU_SECTION_N_PROPERTIES] = { NULL };
 
+static gint
+g_uintcmp (gconstpointer a,
+           gconstpointer b,
+           gpointer      user_data)
+{
+  return GPOINTER_TO_INT (a) - GPOINTER_TO_INT (b);
+}
+
 static void
 unity_gtk_menu_section_set_parent_shell (UnityGtkMenuSection *section,
                                          UnityGtkMenuShell   *parent_shell)
@@ -68,7 +76,7 @@ unity_gtk_menu_section_get_property (GObject    *object,
       break;
 
     case MENU_SECTION_PROP_SECTION_INDEX:
-      g_value_set_uint (value, unity_gtk_menu_section_get_section_index (self));
+      g_value_set_uint (value, self->section_index);
       break;
 
     default:
@@ -96,7 +104,7 @@ unity_gtk_menu_section_set_property (GObject      *object,
       break;
 
     case MENU_SECTION_PROP_SECTION_INDEX:
-      unity_gtk_menu_section_set_section_index (self, g_value_get_uint (value));
+      self->section_index = g_value_get_uint (value);
       break;
 
     default:
@@ -152,7 +160,7 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
   g_return_if_fail (parent_shell != NULL);
 
   iter = unity_gtk_menu_section_get_iter (section, item_index);
-  index = g_sequence_get_uint (iter);
+  index = GPOINTER_TO_UINT (g_sequence_get (iter));
   item = unity_gtk_menu_shell_get_item (parent_shell, index);
   label = unity_gtk_menu_item_get_label (item);
 
@@ -183,7 +191,7 @@ unity_gtk_menu_section_get_item_links (GMenuModel  *model,
   g_return_if_fail (parent_shell != NULL);
 
   iter = unity_gtk_menu_section_get_iter (section, item_index);
-  index = g_sequence_get_uint (iter);
+  index = GPOINTER_TO_UINT (g_sequence_get (iter));
   item = unity_gtk_menu_shell_get_item (parent_shell, index);
   child_shell = unity_gtk_menu_item_get_child_shell (item);
 
@@ -238,23 +246,6 @@ unity_gtk_menu_section_new (UnityGtkMenuShell *parent_shell,
                        NULL);
 }
 
-guint
-unity_gtk_menu_section_get_section_index (UnityGtkMenuSection *section)
-{
-  g_return_val_if_fail (UNITY_GTK_IS_MENU_SECTION (section), 0);
-
-  return section->section_index;
-}
-
-void
-unity_gtk_menu_section_set_section_index (UnityGtkMenuSection *section,
-                                          guint                section_index)
-{
-  g_return_if_fail (UNITY_GTK_IS_MENU_SECTION (section));
-
-  section->section_index = section_index;
-}
-
 GSequenceIter *
 unity_gtk_menu_section_get_begin_iter (UnityGtkMenuSection *section)
 {
@@ -273,7 +264,7 @@ unity_gtk_menu_section_get_begin_iter (UnityGtkMenuSection *section)
 
   separator_indices = unity_gtk_menu_shell_get_separator_indices (parent_shell);
   visible_indices = unity_gtk_menu_shell_get_visible_indices (parent_shell);
-  section_index = unity_gtk_menu_section_get_section_index (section);
+  section_index = section->section_index;
 
   if (section_index > 0)
     separator_iter = g_sequence_get_iter_at_pos (separator_indices, section_index - 1);
@@ -282,8 +273,8 @@ unity_gtk_menu_section_get_begin_iter (UnityGtkMenuSection *section)
 
   if (separator_iter != NULL)
     {
-      guint separator_index = g_sequence_get_uint (separator_iter);
-      visible_iter = g_sequence_lookup_uint (visible_indices, separator_index);
+      gpointer separator_index = g_sequence_get (separator_iter);
+      visible_iter = g_sequence_lookup (visible_indices, separator_index, g_uintcmp, NULL);
       visible_iter = g_sequence_iter_next (visible_iter);
     }
   else
@@ -300,7 +291,6 @@ unity_gtk_menu_section_get_end_iter (UnityGtkMenuSection *section)
   GSequence *visible_indices;
   GSequenceIter *separator_iter;
   GSequenceIter *visible_iter;
-  guint section_index;
 
   g_return_val_if_fail (UNITY_GTK_IS_MENU_SECTION (section), NULL);
 
@@ -310,17 +300,13 @@ unity_gtk_menu_section_get_end_iter (UnityGtkMenuSection *section)
 
   separator_indices = unity_gtk_menu_shell_get_separator_indices (parent_shell);
   visible_indices = unity_gtk_menu_shell_get_visible_indices (parent_shell);
-  section_index = unity_gtk_menu_section_get_section_index (section);
-  separator_iter = g_sequence_get_iter_at_pos (separator_indices, section_index);
+  separator_iter = g_sequence_get_iter_at_pos (separator_indices, section->section_index);
 
   if (g_sequence_iter_is_end (separator_iter))
     separator_iter = NULL;
 
   if (separator_iter != NULL)
-    {
-      guint separator_index = g_sequence_get_uint (separator_iter);
-      visible_iter = g_sequence_lookup_uint (visible_indices, separator_index);
-    }
+    visible_iter = g_sequence_lookup (visible_indices, g_sequence_get (separator_iter), g_uintcmp, NULL);
   else
     visible_iter = g_sequence_get_end_iter (visible_indices);
 
@@ -334,31 +320,4 @@ unity_gtk_menu_section_get_iter (UnityGtkMenuSection *section,
   g_return_val_if_fail (UNITY_GTK_IS_MENU_SECTION (section), NULL);
 
   return g_sequence_iter_move (unity_gtk_menu_section_get_begin_iter (section), index);
-}
-
-void
-unity_gtk_menu_section_print (UnityGtkMenuSection *section,
-                              guint                depth)
-{
-  GSequenceIter *begin;
-  GSequenceIter *end;
-  gchar *indent;
-
-  g_return_if_fail (UNITY_GTK_IS_MENU_SECTION (section));
-
-  indent = g_strnfill (4 * depth, ' ');
-  begin = unity_gtk_menu_section_get_begin_iter (section);
-  end = unity_gtk_menu_section_get_end_iter (section);
-
-  g_print ("%s(UnityGtkMenuSection *) %p\n", indent, section);
-  g_print ("%s  parent_shell = %p\n", indent, section->parent_shell);
-  g_print ("%s  section_index = %u\n", indent, section->section_index);
-
-  if (begin != NULL)
-    g_print ("%s  begin_iter = %d\n", indent, g_sequence_iter_get_position (begin));
-
-  if (end != NULL)
-    g_print ("%s  end_iter = %d\n", indent, g_sequence_iter_get_position (end));
-
-  g_free (indent);
 }

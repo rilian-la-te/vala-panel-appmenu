@@ -29,24 +29,16 @@ struct _UnityGtkMenuSectionClass
   GMenuModelClass parent_class;
 };
 
-GType                 unity_gtk_menu_section_get_type          (void)                               G_GNUC_INTERNAL;
+GType                 unity_gtk_menu_section_get_type       (void)                               G_GNUC_INTERNAL;
 
-UnityGtkMenuSection * unity_gtk_menu_section_new               (UnityGtkMenuShell   *parent_shell,
-                                                                guint                section_index) G_GNUC_INTERNAL;
+UnityGtkMenuSection * unity_gtk_menu_section_new            (UnityGtkMenuShell   *parent_shell,
+                                                             guint                section_index) G_GNUC_INTERNAL;
 
-guint                 unity_gtk_menu_section_get_section_index (UnityGtkMenuSection *section)       G_GNUC_INTERNAL;
+GSequenceIter *       unity_gtk_menu_section_get_begin_iter (UnityGtkMenuSection *section)       G_GNUC_INTERNAL;
 
-void                  unity_gtk_menu_section_set_section_index (UnityGtkMenuSection *section,
-                                                                guint                section_index) G_GNUC_INTERNAL;
+GSequenceIter *       unity_gtk_menu_section_get_end_iter   (UnityGtkMenuSection *section)       G_GNUC_INTERNAL;
 
-GSequenceIter *       unity_gtk_menu_section_get_begin_iter    (UnityGtkMenuSection *section)       G_GNUC_INTERNAL;
-
-GSequenceIter *       unity_gtk_menu_section_get_end_iter      (UnityGtkMenuSection *section)       G_GNUC_INTERNAL;
-
-GSequenceIter *       unity_gtk_menu_section_get_iter          (UnityGtkMenuSection *section,
-                                                                guint                index)         G_GNUC_INTERNAL;
-
-void                  unity_gtk_menu_section_print          (UnityGtkMenuSection *section,
-                                                             guint                depth)         G_GNUC_INTERNAL;
+GSequenceIter *       unity_gtk_menu_section_get_iter       (UnityGtkMenuSection *section,
+                                                             guint                index)         G_GNUC_INTERNAL;
 
 #endif /* __UNITY_GTK_MENU_SECTION_H__ */
