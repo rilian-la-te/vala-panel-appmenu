@@ -154,7 +154,7 @@ unity_gtk_menu_item_set_property (GObject      *object,
       break;
 
     case MENU_ITEM_PROP_ITEM_INDEX:
-      self->item_index = g_value_get_uint (value);
+      unity_gtk_menu_item_set_item_index (self, g_value_get_uint (value));
       break;
 
     default:
@@ -214,43 +214,6 @@ unity_gtk_menu_item_new (GtkMenuItem       *menu_item,
                        NULL);
 }
 
-gboolean
-unity_gtk_menu_item_is_visible (UnityGtkMenuItem *item)
-{
-  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
-
-  return item->menu_item != NULL && !GTK_IS_TEAROFF_MENU_ITEM (item->menu_item) && gtk_widget_get_visible (GTK_WIDGET (item->menu_item));
-}
-
-gboolean
-unity_gtk_menu_item_is_separator (UnityGtkMenuItem *item)
-{
-  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
-
-  return GTK_IS_SEPARATOR_MENU_ITEM (item->menu_item);
-}
-
-guint
-unity_gtk_menu_item_get_item_index (UnityGtkMenuItem *item)
-{
-  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), 0);
-
-  return item->item_index;
-}
-
-const gchar *
-unity_gtk_menu_item_get_label (UnityGtkMenuItem *item)
-{
-  const gchar *label;
-
-  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), NULL);
-  g_return_val_if_fail (item->menu_item != NULL, NULL);
-
-  label = gtk_menu_item_get_label (item->menu_item);
-
-  return label != NULL && label[0] != '\0' ? label : NULL;
-}
-
 UnityGtkMenuShell *
 unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem *item)
 {
@@ -280,4 +243,50 @@ unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem *item)
     }
 
   return item->child_shell;
+}
+
+guint
+unity_gtk_menu_item_get_item_index (UnityGtkMenuItem *item)
+{
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), 0);
+
+  return item->item_index;
+}
+
+void
+unity_gtk_menu_item_set_item_index (UnityGtkMenuItem *item,
+                                    guint             item_index)
+{
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+
+  item->item_index = item_index;
+}
+
+const gchar *
+unity_gtk_menu_item_get_label (UnityGtkMenuItem *item)
+{
+  const gchar *label;
+
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), NULL);
+  g_return_val_if_fail (item->menu_item != NULL, NULL);
+
+  label = gtk_menu_item_get_label (item->menu_item);
+
+  return label != NULL && label[0] != '\0' ? label : NULL;
+}
+
+gboolean
+unity_gtk_menu_item_is_visible (UnityGtkMenuItem *item)
+{
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
+
+  return item->menu_item != NULL && !GTK_IS_TEAROFF_MENU_ITEM (item->menu_item) && gtk_widget_get_visible (GTK_WIDGET (item->menu_item));
+}
+
+gboolean
+unity_gtk_menu_item_is_separator (UnityGtkMenuItem *item)
+{
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
+
+  return GTK_IS_SEPARATOR_MENU_ITEM (item->menu_item);
 }

@@ -39,14 +39,17 @@ UnityGtkMenuItem *  unity_gtk_menu_item_new             (GtkMenuItem       *menu
                                                          UnityGtkMenuShell *parent_shell,
                                                          guint              item_index)   G_GNUC_INTERNAL;
 
-gboolean            unity_gtk_menu_item_is_visible      (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
-
-gboolean            unity_gtk_menu_item_is_separator    (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
+UnityGtkMenuShell * unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 
 guint               unity_gtk_menu_item_get_item_index  (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 
+void                unity_gtk_menu_item_set_item_index  (UnityGtkMenuItem  *item,
+                                                         guint              item_index)   G_GNUC_INTERNAL;
+
 const gchar *       unity_gtk_menu_item_get_label       (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 
-UnityGtkMenuShell * unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
+gboolean            unity_gtk_menu_item_is_visible      (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
+
+gboolean            unity_gtk_menu_item_is_separator    (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 
 #endif /* __UNITY_GTK_MENU_ITEM_H__ */
