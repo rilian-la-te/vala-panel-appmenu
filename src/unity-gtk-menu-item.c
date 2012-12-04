@@ -285,19 +285,8 @@ unity_gtk_menu_item_set_action (UnityGtkMenuItem *item,
 
   if (old_action != NULL)
     {
-      UnityGtkMenuShell *parent_shell = item->parent_shell;
-
-      if (parent_shell != NULL && parent_shell->action_group != NULL)
-        {
-          unity_gtk_action_group_disconnect_item (parent_shell->action_group, item);
-          old_action = item->action;
-        }
-
-      if (old_action != NULL)
-        {
-          item->action = NULL;
-          g_object_unref (old_action);
-        }
+      item->action = NULL;
+      g_object_unref (old_action);
     }
 
   if (action != NULL)

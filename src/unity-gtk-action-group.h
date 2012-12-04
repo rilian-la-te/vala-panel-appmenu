@@ -20,6 +20,7 @@ struct _UnityGtkActionGroup
 
   /*< private >*/
   GHashTable *actions_by_name;
+  GHashTable *names_by_radio_menu_item;
 };
 
 struct _UnityGtkActionGroupClass

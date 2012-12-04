@@ -29,11 +29,17 @@ struct _UnityGtkActionClass
   GObjectClass parent_class;
 };
 
-GType            unity_gtk_action_get_type  (void)                   G_GNUC_INTERNAL;
+GType            unity_gtk_action_get_type  (void)                     G_GNUC_INTERNAL;
 
 UnityGtkAction * unity_gtk_action_new       (const gchar      *name,
-                                             UnityGtkMenuItem *item) G_GNUC_INTERNAL;
+                                             UnityGtkMenuItem *item)   G_GNUC_INTERNAL;
 
-UnityGtkAction * unity_gtk_action_new_radio (const gchar      *name) G_GNUC_INTERNAL;
+UnityGtkAction * unity_gtk_action_new_radio (const gchar      *name)   G_GNUC_INTERNAL;
+
+void             unity_gtk_action_set_name  (UnityGtkAction   *action,
+                                             const gchar      *name)   G_GNUC_INTERNAL;
+
+void             unity_gtk_action_set_item  (UnityGtkAction   *action,
+                                             UnityGtkMenuItem *item)   G_GNUC_INTERNAL;
 
 #endif /* __UNITY_GTK_ACTION_H__ */

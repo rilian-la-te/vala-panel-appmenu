@@ -15,39 +15,6 @@ enum
 static GParamSpec *action_properties[ACTION_N_PROPERTIES] = { NULL };
 
 static void
-unity_gtk_action_set_name (UnityGtkAction *action,
-                           const gchar    *name)
-{
-  g_return_if_fail (UNITY_GTK_IS_ACTION (action));
-
-  g_free (action->name);
-  action->name = g_strdup (name);
-}
-
-static void
-unity_gtk_action_set_item (UnityGtkAction   *action,
-                           UnityGtkMenuItem *item)
-{
-  UnityGtkMenuItem *old_item;
-
-  g_return_if_fail (UNITY_GTK_IS_ACTION (action));
-
-  old_item = action->item;
-
-  if (item != old_item)
-    {
-      if (old_item != NULL)
-        {
-          action->item = NULL;
-          g_object_unref (old_item);
-        }
-
-      if (item != NULL)
-        action->item = g_object_ref (item);
-    }
-}
-
-static void
 unity_gtk_action_dispose (GObject *object)
 {
   UnityGtkAction *action;
@@ -174,4 +141,37 @@ unity_gtk_action_new_radio (const gchar *name)
   action->items_by_name = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref);
 
   return action;
+}
+
+void
+unity_gtk_action_set_name (UnityGtkAction *action,
+                           const gchar    *name)
+{
+  g_return_if_fail (UNITY_GTK_IS_ACTION (action));
+
+  g_free (action->name);
+  action->name = g_strdup (name);
+}
+
+void
+unity_gtk_action_set_item (UnityGtkAction   *action,
+                           UnityGtkMenuItem *item)
+{
+  UnityGtkMenuItem *old_item;
+
+  g_return_if_fail (UNITY_GTK_IS_ACTION (action));
+
+  old_item = action->item;
+
+  if (item != old_item)
+    {
+      if (old_item != NULL)
+        {
+          action->item = NULL;
+          g_object_unref (old_item);
+        }
+
+      if (item != NULL)
+        action->item = g_object_ref (item);
+    }
 }
