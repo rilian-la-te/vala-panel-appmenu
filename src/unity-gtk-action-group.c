@@ -50,8 +50,8 @@ unity_gtk_action_group_list_actions (GActionGroup *action_group)
 
   n = g_hash_table_size (actions_by_name);
   names = g_malloc_n (n + 1, sizeof (gchar *));
-  g_hash_table_iter_init (&iter, actions_by_name);
 
+  g_hash_table_iter_init (&iter, actions_by_name);
   for (i = 0; i < n && g_hash_table_iter_next (&iter, &key, NULL); i++)
     names[i] = g_strdup (key);
 
@@ -61,10 +61,56 @@ unity_gtk_action_group_list_actions (GActionGroup *action_group)
 }
 
 static void
+unity_gtk_action_group_really_change_action_state (GActionGroup *action_group,
+                                                   const gchar  *action_name,
+                                                   GVariant     *value)
+{
+  UnityGtkActionGroup *group;
+  GHashTable *actions_by_name;
+  UnityGtkAction *action;
+
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group));
+
+  group = UNITY_GTK_ACTION_GROUP (action_group);
+  actions_by_name = group->actions_by_name;
+
+  g_return_if_fail (actions_by_name != NULL);
+
+  action = g_hash_table_lookup (actions_by_name, action_name);
+
+  g_return_if_fail (action != NULL);
+
+  if (action->items_by_name != NULL)
+    {
+      const gchar *name;
+      UnityGtkMenuItem *item;
+
+      g_return_if_fail (value != NULL && g_variant_is_of_type (value, G_VARIANT_TYPE_STRING));
+
+      name = g_variant_get_string (value, NULL);
+      item = g_hash_table_lookup (action->items_by_name, name);
+
+      if (item != NULL && unity_gtk_menu_item_is_check (item))
+        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item->menu_item), TRUE);
+    }
+  else if (action->item != NULL && unity_gtk_menu_item_is_check (action->item))
+    {
+      g_return_if_fail (value != NULL && g_variant_is_of_type (value, G_VARIANT_TYPE_BOOLEAN));
+
+      gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (action->item->menu_item), g_variant_get_boolean (value));
+    }
+  else
+    g_warn_if_fail (value == NULL);
+}
+
+static void
 unity_gtk_action_group_change_action_state (GActionGroup *action_group,
                                             const gchar  *action_name,
                                             GVariant     *value)
 {
+  g_variant_ref_sink (value);
+  unity_gtk_action_group_really_change_action_state (action_group, action_name, value);
+  g_variant_unref (value);
 }
 
 static void
@@ -72,6 +118,41 @@ unity_gtk_action_group_activate_action (GActionGroup *action_group,
                                         const gchar  *action_name,
                                         GVariant     *parameter)
 {
+  UnityGtkActionGroup *group;
+  GHashTable *actions_by_name;
+  UnityGtkAction *action;
+
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group));
+
+  group = UNITY_GTK_ACTION_GROUP (action_group);
+  actions_by_name = group->actions_by_name;
+
+  g_return_if_fail (actions_by_name != NULL);
+
+  action = g_hash_table_lookup (actions_by_name, action_name);
+
+  g_return_if_fail (action != NULL);
+
+  if (action->items_by_name != NULL)
+    {
+      const gchar *name;
+      UnityGtkMenuItem *item;
+
+      g_return_if_fail (parameter != NULL && g_variant_is_of_type (parameter, G_VARIANT_TYPE_STRING));
+
+      name = g_variant_get_string (parameter, NULL);
+      item = g_hash_table_lookup (action->items_by_name, name);
+
+      if (item != NULL && item->menu_item != NULL)
+        gtk_menu_item_activate (item->menu_item);
+    }
+  else if (action->item != NULL)
+    {
+      g_warn_if_fail (parameter == NULL);
+
+      if (action->item->menu_item != NULL)
+        gtk_menu_item_activate (action->item->menu_item);
+    }
 }
 
 static gboolean
