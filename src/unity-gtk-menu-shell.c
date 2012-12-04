@@ -572,6 +572,9 @@ unity_gtk_menu_shell_dispose (GObject *object)
 
   shell = UNITY_GTK_MENU_SHELL (object);
 
+  if (shell->action_group != NULL)
+    unity_gtk_action_group_disconnect_shell (shell->action_group, shell);
+
   unity_gtk_menu_shell_set_menu_shell (shell, NULL);
 
   G_OBJECT_CLASS (unity_gtk_menu_shell_parent_class)->dispose (object);

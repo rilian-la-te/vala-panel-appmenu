@@ -31,6 +31,12 @@ GType                 unity_gtk_action_group_get_type         (void)            
 
 UnityGtkActionGroup * unity_gtk_action_group_new              (void)                       G_GNUC_INTERNAL;
 
+void                  unity_gtk_action_group_connect_item     (UnityGtkActionGroup *group,
+                                                               UnityGtkMenuItem    *item)  G_GNUC_INTERNAL;
+
+void                  unity_gtk_action_group_disconnect_item  (UnityGtkActionGroup *group,
+                                                               UnityGtkMenuItem    *item)  G_GNUC_INTERNAL;
+
 void                  unity_gtk_action_group_connect_shell    (UnityGtkActionGroup *group,
                                                                UnityGtkMenuShell   *shell) G_GNUC_INTERNAL;
 

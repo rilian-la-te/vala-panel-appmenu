@@ -6,6 +6,7 @@ typedef struct _UnityGtkMenuShellClass UnityGtkMenuShellClass;
 
 #include <gtk/gtk.h>
 #include "unity-gtk-menu-item.h"
+#include "unity-gtk-action-group.h"
 
 #define UNITY_GTK_TYPE_MENU_SHELL            (unity_gtk_menu_shell_get_type ())
 #define UNITY_GTK_MENU_SHELL(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), UNITY_GTK_TYPE_MENU_SHELL, UnityGtkMenuShell))
@@ -19,12 +20,13 @@ struct _UnityGtkMenuShell
   GMenuModel parent_instance;
 
   /*< private >*/
-  GtkMenuShell *menu_shell;
-  gulong        menu_shell_insert_handler_id;
-  GPtrArray    *items;
-  GPtrArray    *sections;
-  GSequence    *visible_indices;
-  GSequence    *separator_indices;
+  GtkMenuShell        *menu_shell;
+  gulong               menu_shell_insert_handler_id;
+  GPtrArray           *items;
+  GPtrArray           *sections;
+  GSequence           *visible_indices;
+  GSequence           *separator_indices;
+  UnityGtkActionGroup *action_group;
 };
 
 struct _UnityGtkMenuShellClass

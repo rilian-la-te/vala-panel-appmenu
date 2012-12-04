@@ -6,6 +6,7 @@ typedef struct _UnityGtkMenuItemClass UnityGtkMenuItemClass;
 
 #include <gtk/gtk.h>
 #include "unity-gtk-menu-shell.h"
+#include "unity-gtk-action.h"
 
 #define UNITY_GTK_TYPE_MENU_ITEM            (unity_gtk_menu_item_get_type ())
 #define UNITY_GTK_MENU_ITEM(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), UNITY_GTK_TYPE_MENU_ITEM, UnityGtkMenuItem))
@@ -25,6 +26,7 @@ struct _UnityGtkMenuItem
   UnityGtkMenuShell *child_shell;
   guchar             child_shell_valid : 1;
   guint              item_index;
+  UnityGtkAction    *action;
 };
 
 struct _UnityGtkMenuItemClass
@@ -39,6 +41,9 @@ UnityGtkMenuItem *  unity_gtk_menu_item_new             (GtkMenuItem       *menu
                                                          guint              item_index)   G_GNUC_INTERNAL;
 
 UnityGtkMenuShell * unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
+
+void                unity_gtk_menu_item_set_action      (UnityGtkMenuItem  *item,
+                                                         UnityGtkAction    *action)       G_GNUC_INTERNAL;
 
 const gchar *       unity_gtk_menu_item_get_label       (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 

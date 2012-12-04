@@ -1,4 +1,5 @@
 #include "unity-gtk-menu-item.h"
+#include "unity-gtk-action-group.h"
 
 G_DEFINE_TYPE (UnityGtkMenuItem,
                unity_gtk_menu_item,
@@ -11,6 +12,7 @@ enum
   MENU_ITEM_PROP_PARENT_SHELL,
   MENU_ITEM_PROP_CHILD_SHELL,
   MENU_ITEM_PROP_ITEM_INDEX,
+  MENU_ITEM_PROP_ACTION,
   MENU_ITEM_N_PROPERTIES
 };
 
@@ -101,6 +103,7 @@ unity_gtk_menu_item_dispose (GObject *object)
 
   item = UNITY_GTK_MENU_ITEM (object);
 
+  unity_gtk_menu_item_set_action (item, NULL);
   unity_gtk_menu_item_set_parent_shell (item, NULL);
   unity_gtk_menu_item_set_menu_item (item, NULL);
 
@@ -137,6 +140,10 @@ unity_gtk_menu_item_get_property (GObject    *object,
       g_value_set_uint (value, self->item_index);
       break;
 
+    case MENU_ITEM_PROP_ACTION:
+      g_value_set_object (value, self->action);
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
       break;
@@ -167,6 +174,10 @@ unity_gtk_menu_item_set_property (GObject      *object,
 
     case MENU_ITEM_PROP_ITEM_INDEX:
       self->item_index = g_value_get_uint (value);
+      break;
+
+    case MENU_ITEM_PROP_ACTION:
+      unity_gtk_menu_item_set_action (self, g_value_get_object (value));
       break;
 
     default:
@@ -205,6 +216,11 @@ unity_gtk_menu_item_class_init (UnityGtkMenuItemClass *klass)
                                                                        G_MAXUINT,
                                                                        0,
                                                                        G_PARAM_READWRITE);
+  menu_item_properties[MENU_ITEM_PROP_ACTION] = g_param_spec_object ("action",
+                                                                     "Action",
+                                                                     "Action",
+                                                                     UNITY_GTK_TYPE_ACTION,
+                                                                     G_PARAM_READWRITE);
 
   g_object_class_install_properties (object_class, MENU_ITEM_N_PROPERTIES, menu_item_properties);
 }
@@ -255,6 +271,37 @@ unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem *item)
     }
 
   return item->child_shell;
+}
+
+void
+unity_gtk_menu_item_set_action (UnityGtkMenuItem *item,
+                                UnityGtkAction   *action)
+{
+  UnityGtkAction *old_action;
+
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+
+  old_action = item->action;
+
+  if (old_action != NULL)
+    {
+      UnityGtkMenuShell *parent_shell = item->parent_shell;
+
+      if (parent_shell != NULL && parent_shell->action_group != NULL)
+        {
+          unity_gtk_action_group_disconnect_item (parent_shell->action_group, item);
+          old_action = item->action;
+        }
+
+      if (old_action != NULL)
+        {
+          item->action = NULL;
+          g_object_unref (old_action);
+        }
+    }
+
+  if (action != NULL)
+    item->action = g_object_ref (action);
 }
 
 const gchar *
