@@ -275,7 +275,23 @@ unity_gtk_menu_item_is_visible (UnityGtkMenuItem *item)
 {
   g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
 
-  return item->menu_item != NULL && !GTK_IS_TEAROFF_MENU_ITEM (item->menu_item) && gtk_widget_get_visible (GTK_WIDGET (item->menu_item));
+  return item->menu_item != NULL && gtk_widget_get_visible (GTK_WIDGET (item->menu_item)) && !GTK_IS_TEAROFF_MENU_ITEM (item->menu_item);
+}
+
+gboolean
+unity_gtk_menu_item_is_sensitive (UnityGtkMenuItem *item)
+{
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
+
+  return item->menu_item != NULL && gtk_widget_is_sensitive (GTK_WIDGET (item->menu_item));
+}
+
+gboolean
+unity_gtk_menu_item_is_active (UnityGtkMenuItem *item)
+{
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
+
+  return GTK_IS_CHECK_MENU_ITEM (item->menu_item) && gtk_check_menu_item_get_active (GTK_CHECK_MENU_ITEM (item->menu_item));
 }
 
 gboolean
@@ -284,4 +300,20 @@ unity_gtk_menu_item_is_separator (UnityGtkMenuItem *item)
   g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
 
   return GTK_IS_SEPARATOR_MENU_ITEM (item->menu_item);
+}
+
+gboolean
+unity_gtk_menu_item_is_check (UnityGtkMenuItem *item)
+{
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
+
+  return GTK_IS_CHECK_MENU_ITEM (item->menu_item);
+}
+
+gboolean
+unity_gtk_menu_item_is_radio (UnityGtkMenuItem *item)
+{
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
+
+  return GTK_IS_RADIO_MENU_ITEM (item->menu_item);
 }

@@ -45,6 +45,14 @@ const gchar *       unity_gtk_menu_item_get_label       (UnityGtkMenuItem  *item
 
 gboolean            unity_gtk_menu_item_is_visible      (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 
+gboolean            unity_gtk_menu_item_is_sensitive    (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
+
+gboolean            unity_gtk_menu_item_is_active       (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
+
 gboolean            unity_gtk_menu_item_is_separator    (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
+
+gboolean            unity_gtk_menu_item_is_check        (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
+
+gboolean            unity_gtk_menu_item_is_radio        (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 
 #endif /* __UNITY_GTK_MENU_ITEM_H__ */

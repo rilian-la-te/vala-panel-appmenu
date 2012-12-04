@@ -22,7 +22,7 @@ struct _UnityGtkAction
   /*< private >*/
   gchar            *name;
   UnityGtkMenuItem *item;
-  GList            *items;
+  GHashTable       *items_by_name;
 };
 
 struct _UnityGtkActionClass

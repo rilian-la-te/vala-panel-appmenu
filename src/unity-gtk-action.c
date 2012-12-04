@@ -9,7 +9,6 @@ enum
   ACTION_PROP_0,
   ACTION_PROP_NAME,
   ACTION_PROP_ITEM,
-  ACTION_PROP_ITEMS,
   ACTION_N_PROPERTIES
 };
 
@@ -52,10 +51,18 @@ static void
 unity_gtk_action_dispose (GObject *object)
 {
   UnityGtkAction *action;
+  GHashTable *items_by_name;
 
   g_return_if_fail (UNITY_GTK_IS_ACTION (object));
 
   action = UNITY_GTK_ACTION (object);
+  items_by_name = action->items_by_name;
+
+  if (items_by_name != NULL)
+    {
+      action->items_by_name = NULL;
+      g_hash_table_unref (items_by_name);
+    }
 
   unity_gtk_action_set_item (action, NULL);
   unity_gtk_action_set_name (action, NULL);
@@ -83,10 +90,6 @@ unity_gtk_action_get_property (GObject    *object,
 
     case ACTION_PROP_ITEM:
       g_value_set_object (value, self->item);
-      break;
-
-    case ACTION_PROP_ITEMS:
-      g_value_set_pointer (value, self->items);
       break;
 
     default:
@@ -142,10 +145,6 @@ unity_gtk_action_class_init (UnityGtkActionClass *klass)
                                                              "Item",
                                                              UNITY_GTK_TYPE_MENU_ITEM,
                                                              G_PARAM_READWRITE);
-  action_properties[ACTION_PROP_ITEMS] = g_param_spec_pointer ("items",
-                                                               "Items",
-                                                               "Items",
-                                                               G_PARAM_READABLE);
 
   g_object_class_install_properties (object_class, ACTION_N_PROPERTIES, action_properties);
 }
