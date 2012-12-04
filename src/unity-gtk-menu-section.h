@@ -1,11 +1,10 @@
 #ifndef __UNITY_GTK_MENU_SECTION_H__
 #define __UNITY_GTK_MENU_SECTION_H__
 
-#include <gio/gio.h>
-
 typedef struct _UnityGtkMenuSection      UnityGtkMenuSection;
 typedef struct _UnityGtkMenuSectionClass UnityGtkMenuSectionClass;
 
+#include <gio/gio.h>
 #include "unity-gtk-menu-shell.h"
 
 #define UNITY_GTK_TYPE_MENU_SECTION            (unity_gtk_menu_section_get_type ())

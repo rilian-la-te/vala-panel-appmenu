@@ -1,10 +1,11 @@
 #ifndef __UNITY_GTK_ACTION_GROUP_H__
 #define __UNITY_GTK_ACTION_GROUP_H__
 
-#include <glib-object.h>
-
 typedef struct _UnityGtkActionGroup      UnityGtkActionGroup;
 typedef struct _UnityGtkActionGroupClass UnityGtkActionGroupClass;
+
+#include <glib-object.h>
+#include "unity-gtk-menu-shell.h"
 
 #define UNITY_GTK_TYPE_ACTION_GROUP            (unity_gtk_action_group_get_type ())
 #define UNITY_GTK_ACTION_GROUP(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), UNITY_GTK_TYPE_ACTION_GROUP, UnityGtkActionGroup))
@@ -26,6 +27,14 @@ struct _UnityGtkActionGroupClass
   GObjectClass parent_class;
 };
 
-GType unity_gtk_action_group_get_type (void) G_GNUC_INTERNAL;
+GType                 unity_gtk_action_group_get_type         (void)                       G_GNUC_INTERNAL;
+
+UnityGtkActionGroup * unity_gtk_action_group_new              (void)                       G_GNUC_INTERNAL;
+
+void                  unity_gtk_action_group_connect_shell    (UnityGtkActionGroup *group,
+                                                               UnityGtkMenuShell   *shell) G_GNUC_INTERNAL;
+
+void                  unity_gtk_action_group_disconnect_shell (UnityGtkActionGroup *group,
+                                                               UnityGtkMenuShell   *shell) G_GNUC_INTERNAL;
 
 #endif /* __UNITY_GTK_ACTION_GROUP_H__ */

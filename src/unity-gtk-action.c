@@ -153,3 +153,25 @@ static void
 unity_gtk_action_init (UnityGtkAction *self)
 {
 }
+
+UnityGtkAction *
+unity_gtk_action_new (const gchar      *name,
+                      UnityGtkMenuItem *item)
+{
+  return g_object_new (UNITY_GTK_TYPE_ACTION,
+                       "name", name,
+                       "item", item,
+                       NULL);
+}
+
+UnityGtkAction *
+unity_gtk_action_new_radio (const gchar *name)
+{
+  UnityGtkAction *action = g_object_new (UNITY_GTK_TYPE_ACTION,
+                                         "name", name,
+                                         NULL);
+
+  action->items_by_name = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref);
+
+  return action;
+}

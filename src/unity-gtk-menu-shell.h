@@ -1,11 +1,10 @@
 #ifndef __UNITY_GTK_MENU_SHELL_H__
 #define __UNITY_GTK_MENU_SHELL_H__
 
-#include <gtk/gtk.h>
-
 typedef struct _UnityGtkMenuShell      UnityGtkMenuShell;
 typedef struct _UnityGtkMenuShellClass UnityGtkMenuShellClass;
 
+#include <gtk/gtk.h>
 #include "unity-gtk-menu-item.h"
 
 #define UNITY_GTK_TYPE_MENU_SHELL            (unity_gtk_menu_shell_get_type ())

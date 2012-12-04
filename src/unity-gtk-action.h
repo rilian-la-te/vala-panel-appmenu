@@ -1,11 +1,10 @@
 #ifndef __UNITY_GTK_ACTION_H__
 #define __UNITY_GTK_ACTION_H__
 
-#include <glib-object.h>
-
 typedef struct _UnityGtkAction      UnityGtkAction;
 typedef struct _UnityGtkActionClass UnityGtkActionClass;
 
+#include <glib-object.h>
 #include "unity-gtk-menu-item.h"
 
 #define UNITY_GTK_TYPE_ACTION            (unity_gtk_action_get_type ())
@@ -30,6 +29,11 @@ struct _UnityGtkActionClass
   GObjectClass parent_class;
 };
 
-GType unity_gtk_action_get_type (void) G_GNUC_INTERNAL;
+GType            unity_gtk_action_get_type  (void)                   G_GNUC_INTERNAL;
+
+UnityGtkAction * unity_gtk_action_new       (const gchar      *name,
+                                             UnityGtkMenuItem *item) G_GNUC_INTERNAL;
+
+UnityGtkAction * unity_gtk_action_new_radio (const gchar      *name) G_GNUC_INTERNAL;
 
 #endif /* __UNITY_GTK_ACTION_H__ */

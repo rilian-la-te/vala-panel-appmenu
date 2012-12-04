@@ -292,3 +292,22 @@ unity_gtk_action_group_init (UnityGtkActionGroup *self)
 {
   self->actions_by_name = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref);
 }
+
+UnityGtkActionGroup *
+unity_gtk_action_group_new (void)
+{
+  return g_object_new (UNITY_GTK_TYPE_ACTION_GROUP,
+                       NULL);
+}
+
+void
+unity_gtk_action_group_connect_shell (UnityGtkActionGroup *group,
+                                      UnityGtkMenuShell   *shell)
+{
+}
+
+void
+unity_gtk_action_group_disconnect_shell (UnityGtkActionGroup *group,
+                                         UnityGtkMenuShell   *shell)
+{
+}
