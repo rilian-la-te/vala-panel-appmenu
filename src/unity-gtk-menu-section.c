@@ -174,7 +174,11 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
     g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_LABEL, g_variant_ref_sink (g_variant_new_string (label)));
 
   if (action != NULL)
-    g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_ACTION, g_variant_ref_sink (g_variant_new_string (action)));
+    {
+      gchar *name = g_strdup_printf ("win.%s", action);
+      g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_ACTION, g_variant_ref_sink (g_variant_new_string (name)));
+      g_free (name);
+    }
 }
 
 static void
