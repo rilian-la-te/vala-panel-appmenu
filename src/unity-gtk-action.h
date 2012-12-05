@@ -42,4 +42,7 @@ void             unity_gtk_action_set_name  (UnityGtkAction   *action,
 void             unity_gtk_action_set_item  (UnityGtkAction   *action,
                                              UnityGtkMenuItem *item)   G_GNUC_INTERNAL;
 
+void             unity_gtk_action_print     (UnityGtkAction   *action,
+                                             guint             indent) G_GNUC_INTERNAL;
+
 #endif /* __UNITY_GTK_ACTION_H__ */

@@ -364,3 +364,9 @@ unity_gtk_menu_item_is_radio (UnityGtkMenuItem *item)
 
   return GTK_IS_RADIO_MENU_ITEM (item->menu_item);
 }
+
+void
+unity_gtk_menu_item_print (UnityGtkMenuItem *item,
+                           guint             indent)
+{
+}

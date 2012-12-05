@@ -730,3 +730,48 @@ unity_gtk_action_group_disconnect_shell (UnityGtkActionGroup *group,
       g_object_unref (group);
     }
 }
+
+void
+unity_gtk_action_group_print (UnityGtkActionGroup *group,
+                              guint                indent)
+{
+  gchar *space;
+
+  g_return_if_fail (group == NULL || UNITY_GTK_IS_ACTION_GROUP (group));
+
+  space = g_strnfill (indent, ' ');
+
+  if (group != NULL)
+    {
+      g_print ("%s(%s *) %p\n", space, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (group)), group);
+
+      if (group->actions_by_name != NULL)
+        {
+          GHashTableIter iter;
+          gpointer key;
+          gpointer value;
+
+          g_hash_table_iter_init (&iter, group->actions_by_name);
+          while (g_hash_table_iter_next (&iter, &key, &value))
+            {
+              g_print ("%s\"%s\" ->\n", space, (const gchar *) key);
+              unity_gtk_action_print (value, indent + 2);
+            }
+        }
+
+      if (group->names_by_radio_menu_item != NULL)
+        {
+          GHashTableIter iter;
+          gpointer key;
+          gpointer value;
+
+          g_hash_table_iter_init (&iter, group->names_by_radio_menu_item);
+          while (g_hash_table_iter_next (&iter, &key, &value))
+            g_print ("%s(%s *) %p -> %s\n", space, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (key)), key, (const gchar *) value);
+        }
+    }
+  else
+    g_print ("%sNULL\n", space);
+
+  g_free (space);
+}

@@ -175,3 +175,43 @@ unity_gtk_action_set_item (UnityGtkAction   *action,
         action->item = g_object_ref (item);
     }
 }
+
+void
+unity_gtk_action_print (UnityGtkAction *action,
+                        guint           indent)
+{
+  gchar *space;
+
+  g_return_if_fail (action == NULL || UNITY_GTK_IS_ACTION (action));
+
+  space = g_strnfill (indent, ' ');
+
+  if (action != NULL)
+    {
+      g_print ("%s(%s *) %p\n", space, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (action)), action);
+
+      if (action->name != NULL)
+        g_print ("%s  \"%s\"\n", space, action->name);
+
+      if (action->item != NULL)
+        unity_gtk_menu_item_print (action->item, indent + 2);
+
+      if (action->items_by_name != NULL)
+        {
+          GHashTableIter iter;
+          gpointer key;
+          gpointer value;
+
+          g_hash_table_iter_init (&iter, action->items_by_name);
+          while (g_hash_table_iter_next (&iter, &key, &value))
+            {
+              g_print ("%s  \"%s\" ->\n", space, (const gchar *) key);
+              unity_gtk_menu_item_print (value, indent + 4);
+            }
+        }
+    }
+  else
+    g_print ("%sNULL\n", space);
+
+  g_free (space);
+}
