@@ -207,6 +207,19 @@ unity_gtk_menu_shell_show_item (UnityGtkMenuShell *shell,
           else
             g_warn_if_reached ();
         }
+
+      if (shell->action_group != NULL)
+        {
+          unity_gtk_action_group_connect_item (shell->action_group, item);
+
+          if (item->child_shell != NULL)
+            {
+              if (item->child_shell_valid)
+                unity_gtk_action_group_connect_shell (shell->action_group, item->child_shell);
+              else
+                g_warn_if_reached ();
+            }
+        }
     }
 }
 
@@ -227,6 +240,19 @@ unity_gtk_menu_shell_hide_item (UnityGtkMenuShell *shell,
       GSequence *separator_indices = shell->separator_indices;
       guint item_index = item->item_index;
       GSequenceIter *visible_iter = g_sequence_lookup_uint (visible_indices, item_index);
+
+      if (shell->action_group != NULL)
+        {
+          if (item->child_shell != NULL)
+            {
+              if (item->child_shell_valid)
+                unity_gtk_action_group_disconnect_shell (shell->action_group, item->child_shell);
+              else
+                g_warn_if_reached ();
+            }
+
+          unity_gtk_action_group_disconnect_item (shell->action_group, item);
+        }
 
       if (separator_indices != NULL)
         {
@@ -345,12 +371,69 @@ static void
 unity_gtk_menu_shell_handle_item_sensitive (UnityGtkMenuShell *shell,
                                             UnityGtkMenuItem  *item)
 {
+  GActionGroup *action_group;
+  UnityGtkAction *action;
+
+  g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+  g_warn_if_fail (item->parent_shell == shell);
+
+  action_group = G_ACTION_GROUP (shell->action_group);
+  action = item->action;
+
+  if (action_group != NULL && action != NULL)
+    {
+      gboolean enabled = unity_gtk_menu_item_is_sensitive (item);
+
+      g_action_group_action_enabled_changed (action_group, action->name, enabled);
+    }
 }
 
 static void
 unity_gtk_menu_shell_handle_item_active (UnityGtkMenuShell *shell,
                                          UnityGtkMenuItem  *item)
 {
+  GActionGroup *action_group;
+  UnityGtkAction *action;
+
+  g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+  g_warn_if_fail (item->parent_shell == shell);
+
+  action_group = G_ACTION_GROUP (shell->action_group);
+  action = item->action;
+
+  if (action_group != NULL && action != NULL)
+    {
+      if (action->items_by_name != NULL)
+        {
+          const gchar *name = NULL;
+          GHashTableIter iter;
+          gpointer key;
+          gpointer value;
+
+          g_hash_table_iter_init (&iter, action->items_by_name);
+          while (name == NULL && g_hash_table_iter_next (&iter, &key, &value))
+            if (unity_gtk_menu_item_is_active (value))
+              name = key;
+
+          if (name != NULL)
+            {
+              GVariant *state = g_variant_new_string (name);
+
+              g_action_group_action_state_changed (action_group, action->name, state);
+            }
+          else
+            g_action_group_action_state_changed (action_group, action->name, NULL);
+        }
+      else if (unity_gtk_menu_item_is_check (item))
+        {
+          gboolean active = unity_gtk_menu_item_is_active (item);
+          GVariant *state = g_variant_new_boolean (active);
+
+          g_action_group_action_state_changed (action_group, action->name, state);
+        }
+    }
 }
 
 static void

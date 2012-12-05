@@ -51,14 +51,14 @@ unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
 
       if (item->menu_item_notify_handler_id)
         {
-          g_assert (item->menu_item != NULL);
+          g_warn_if_fail (item->menu_item != NULL);
           g_signal_handler_disconnect (item->menu_item, item->menu_item_notify_handler_id);
           item->menu_item_notify_handler_id = 0;
         }
 
       if (child_shell != NULL)
         {
-          g_assert (item->child_shell_valid);
+          g_warn_if_fail (item->child_shell_valid);
           item->child_shell = NULL;
           g_object_unref (child_shell);
         }
@@ -268,6 +268,14 @@ unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem *item)
         }
 
       item->child_shell_valid = TRUE;
+
+      if (unity_gtk_menu_item_is_visible (item) && item->child_shell != NULL)
+        {
+          UnityGtkMenuShell *parent_shell = item->parent_shell;
+
+          if (parent_shell != NULL && parent_shell->action_group != NULL)
+            unity_gtk_action_group_connect_shell (parent_shell->action_group, item->child_shell);
+        }
     }
 
   return item->child_shell;

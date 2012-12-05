@@ -500,6 +500,7 @@ unity_gtk_action_group_connect_item (UnityGtkActionGroup *group,
 
   if (item->parent_shell != NULL && item->parent_shell->action_group != group)
     {
+      UnityGtkAction *new_action = NULL;
       UnityGtkAction *action;
 
       if (item->action != NULL)
@@ -551,10 +552,7 @@ unity_gtk_action_group_connect_item (UnityGtkActionGroup *group,
           action = g_hash_table_lookup (group->actions_by_name, action_name);
 
           if (action == NULL)
-            {
-              action = unity_gtk_action_new_radio (action_name);
-              g_hash_table_insert (group->actions_by_name, (gpointer) action_name, action);
-            }
+            action = new_action = unity_gtk_action_new_radio (action_name);
 
           state_name = unity_gtk_action_group_get_state_name (group, item);
           g_hash_table_insert (action->items_by_name, state_name, item);
@@ -562,16 +560,21 @@ unity_gtk_action_group_connect_item (UnityGtkActionGroup *group,
       else
         {
           gchar *name = unity_gtk_action_group_get_action_name (group, item);
-
-          action = unity_gtk_action_new (name, item);
-
+          action = new_action = unity_gtk_action_new (name, item);
           g_free (name);
-
-          if (group->actions_by_name != NULL)
-            g_hash_table_insert (group->actions_by_name, action->name, action);
         }
 
       unity_gtk_menu_item_set_action (item, action);
+
+      if (new_action != NULL)
+        {
+          if (group->actions_by_name != NULL)
+            g_hash_table_insert (group->actions_by_name, new_action->name, new_action);
+          else
+            g_warn_if_reached ();
+
+          g_action_group_action_added (G_ACTION_GROUP (group), new_action->name);
+        }
     }
 }
 
@@ -623,6 +626,8 @@ unity_gtk_action_group_disconnect_item (UnityGtkActionGroup *group,
                 g_hash_table_remove (group->actions_by_name, action->name);
               else
                 g_warn_if_reached ();
+
+              g_action_group_action_removed (G_ACTION_GROUP (group), action->name);
             }
         }
       else
@@ -636,6 +641,8 @@ unity_gtk_action_group_disconnect_item (UnityGtkActionGroup *group,
         g_warn_if_reached ();
 
       unity_gtk_action_set_item (action, NULL);
+
+      g_action_group_action_removed (G_ACTION_GROUP (group), action->name);
     }
 
   unity_gtk_menu_item_set_action (item, NULL);
