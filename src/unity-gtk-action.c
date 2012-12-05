@@ -138,7 +138,7 @@ unity_gtk_action_new_radio (const gchar *name)
                                          "name", name,
                                          NULL);
 
-  action->items_by_name = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref);
+  action->items_by_name = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
 
   return action;
 }

@@ -70,7 +70,7 @@ unity_gtk_action_group_list_actions (GActionGroup *action_group)
 
 static void
 unity_gtk_action_group_really_change_action_state (GActionGroup *action_group,
-                                                   const gchar  *action_name,
+                                                   const gchar  *name,
                                                    GVariant     *value)
 {
   UnityGtkActionGroup *group;
@@ -84,7 +84,7 @@ unity_gtk_action_group_really_change_action_state (GActionGroup *action_group,
 
   g_return_if_fail (actions_by_name != NULL);
 
-  action = g_hash_table_lookup (actions_by_name, action_name);
+  action = g_hash_table_lookup (actions_by_name, name);
 
   g_return_if_fail (action != NULL);
 
@@ -113,17 +113,17 @@ unity_gtk_action_group_really_change_action_state (GActionGroup *action_group,
 
 static void
 unity_gtk_action_group_change_action_state (GActionGroup *action_group,
-                                            const gchar  *action_name,
+                                            const gchar  *name,
                                             GVariant     *value)
 {
   g_variant_ref_sink (value);
-  unity_gtk_action_group_really_change_action_state (action_group, action_name, value);
+  unity_gtk_action_group_really_change_action_state (action_group, name, value);
   g_variant_unref (value);
 }
 
 static void
 unity_gtk_action_group_activate_action (GActionGroup *action_group,
-                                        const gchar  *action_name,
+                                        const gchar  *name,
                                         GVariant     *parameter)
 {
   UnityGtkActionGroup *group;
@@ -137,7 +137,7 @@ unity_gtk_action_group_activate_action (GActionGroup *action_group,
 
   g_return_if_fail (actions_by_name != NULL);
 
-  action = g_hash_table_lookup (actions_by_name, action_name);
+  action = g_hash_table_lookup (actions_by_name, name);
 
   g_return_if_fail (action != NULL);
 
@@ -165,7 +165,7 @@ unity_gtk_action_group_activate_action (GActionGroup *action_group,
 
 static gboolean
 unity_gtk_action_group_query_action (GActionGroup        *action_group,
-                                     const gchar         *action_name,
+                                     const gchar         *name,
                                      gboolean            *enabled,
                                      const GVariantType **parameter_type,
                                      const GVariantType **state_type,
@@ -183,7 +183,7 @@ unity_gtk_action_group_query_action (GActionGroup        *action_group,
 
   g_return_val_if_fail (actions_by_name != NULL, FALSE);
 
-  action = g_hash_table_lookup (actions_by_name, action_name);
+  action = g_hash_table_lookup (actions_by_name, name);
 
   if (action != NULL)
     {
@@ -309,12 +309,270 @@ unity_gtk_action_group_new (void)
                        NULL);
 }
 
+static gchar *
+g_strdup_normalize (const gchar *str)
+{
+  gchar *string = g_strdup (str);
+  guint i = 0;
+  guint j;
+
+  for (j = 0; str[j] != '\0'; j++)
+    {
+      if (g_ascii_isalnum (str[j]))
+        string[i++] = str[j];
+      else
+        string[i++] = '-';
+    }
+
+  string[i] = '\0';
+
+  return string;
+}
+
+static gchar *
+unity_gtk_action_group_get_action_name (UnityGtkActionGroup *group,
+                                        UnityGtkMenuItem    *item)
+{
+  GtkMenuItem *menu_item;
+  GtkAction *action;
+  const gchar *name;
+  gchar *normalized_name;
+  GHashTable *actions_by_name;
+
+  g_return_val_if_fail (UNITY_GTK_IS_ACTION_GROUP (group), NULL);
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), NULL);
+
+  menu_item = item->menu_item;
+
+  g_return_val_if_fail (menu_item != NULL, NULL);
+
+  if (GTK_IS_RADIO_MENU_ITEM (menu_item))
+    {
+      GtkRadioMenuItem *radio_menu_item = GTK_RADIO_MENU_ITEM (menu_item);
+      GSList *iter = g_slist_last (gtk_radio_menu_item_get_group (radio_menu_item));
+
+      if (iter != NULL)
+        menu_item = iter->data;
+    }
+
+  name = NULL;
+  action = gtk_activatable_get_related_action (GTK_ACTIVATABLE (menu_item));
+
+  if (action != NULL)
+    name = gtk_action_get_name (action);
+
+  if (name == NULL || name[0] == '\0')
+    name = gtk_menu_item_get_label (menu_item);
+
+  g_return_val_if_fail (name != NULL && name[0] != '\0', NULL);
+
+  normalized_name = g_strdup_normalize (name);
+  actions_by_name = group->actions_by_name;
+
+  if (actions_by_name != NULL && g_hash_table_contains (actions_by_name, normalized_name))
+    {
+      gchar *next_normalized_name = NULL;
+      guint i = 0;
+
+      do
+        {
+          g_free (next_normalized_name);
+          next_normalized_name = g_strdup_printf ("%s-%u", normalized_name, i++);
+        }
+      while (g_hash_table_contains (actions_by_name, next_normalized_name));
+
+      g_free (normalized_name);
+      normalized_name = next_normalized_name;
+    }
+
+  return normalized_name;
+}
+
+static gchar *
+unity_gtk_action_group_get_state_name (UnityGtkActionGroup *group,
+                                       UnityGtkMenuItem    *item)
+{
+  gchar *name = NULL;
+
+  g_return_val_if_fail (UNITY_GTK_IS_ACTION_GROUP (group), NULL);
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), NULL);
+
+  if (unity_gtk_menu_item_is_radio (item))
+    {
+      const gchar *label = unity_gtk_menu_item_get_label (item);
+
+      if (label != NULL && label[0] != '\0')
+        {
+          gchar *normalized_label = g_strdup_normalize (label);
+          UnityGtkAction *action = item->action;
+
+          if (action != NULL)
+            {
+              if (action->items_by_name != NULL)
+                {
+                  if (g_hash_table_contains (action->items_by_name, normalized_label))
+                    {
+                      guint i = 0;
+
+                      do
+                        {
+                          g_free (name);
+                          name = g_strdup_printf ("%s-%u", normalized_label, i++);
+                        }
+                      while (g_hash_table_contains (action->items_by_name, name));
+
+                      g_free (normalized_label);
+                    }
+                  else
+                    name = normalized_label;
+                }
+              else
+                {
+                  g_warn_if_reached ();
+                  name = normalized_label;
+                }
+            }
+          else
+            name = normalized_label;
+        }
+      else
+        {
+          GtkActivatable *activatable = GTK_ACTIVATABLE (item->menu_item);
+          GtkAction *action = gtk_activatable_get_related_action (activatable);
+
+          if (action != NULL)
+            {
+              GtkRadioAction *radio_action = GTK_RADIO_ACTION (action);
+              const gchar *action_name = gtk_action_get_name (action);
+              gchar *normalized_action_name = NULL;
+              gint value;
+
+              g_object_get (radio_action, "value", &value, NULL);
+
+              if (action_name != NULL && action_name[0] != '\0')
+                normalized_action_name = g_strdup_normalize (action_name);
+
+              if (normalized_action_name != NULL)
+                {
+                  if (normalized_action_name[0] != '\0')
+                    name = g_strdup_printf ("%s-%d", normalized_action_name, value);
+                  else
+                    name = g_strdup_printf ("%d", value);
+
+                  g_free (normalized_action_name);
+                }
+              else
+                name = g_strdup_printf ("%d", value);
+
+              if (item->action != NULL)
+                {
+                  GHashTable *items_by_name = item->action->items_by_name;
+
+                  if (items_by_name != NULL && g_hash_table_contains (items_by_name, name))
+                    {
+                      gchar *next_name = NULL;
+                      guint i = 0;
+
+                      do
+                        {
+                          g_free (next_name);
+                          next_name = g_strdup_printf ("%s-%u", name, i++);
+                        }
+                      while (g_hash_table_contains (items_by_name, next_name));
+
+                      g_free (name);
+                      name = next_name;
+                    }
+                }
+            }
+        }
+    }
+
+  return name;
+}
+
 void
 unity_gtk_action_group_connect_item (UnityGtkActionGroup *group,
                                      UnityGtkMenuItem    *item)
 {
   g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (group));
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+
+  if (item->parent_shell != NULL && item->parent_shell->action_group != group)
+    {
+      UnityGtkAction *action;
+
+      if (item->action != NULL)
+        {
+          if (item->parent_shell->action_group != NULL)
+            unity_gtk_action_group_disconnect_item (item->parent_shell->action_group, item);
+          else
+            unity_gtk_menu_item_set_action (item, NULL);
+        }
+
+      if (unity_gtk_menu_item_is_radio (item))
+        {
+          GtkRadioMenuItem *radio_menu_item = GTK_RADIO_MENU_ITEM (item->menu_item);
+          const gchar *action_name;
+          gchar *state_name;
+
+          g_return_if_fail (group->actions_by_name != NULL);
+          g_return_if_fail (group->names_by_radio_menu_item != NULL);
+
+          action_name = g_hash_table_lookup (group->names_by_radio_menu_item, radio_menu_item);
+
+          if (action_name == NULL)
+            {
+              GtkRadioMenuItem *last_radio_menu_item = NULL;
+              GSList *iter = gtk_radio_menu_item_get_group (radio_menu_item);
+
+              while (action_name == NULL && iter != NULL)
+                {
+                  last_radio_menu_item = iter->data;
+                  action_name = g_hash_table_lookup (group->names_by_radio_menu_item, last_radio_menu_item);
+                  iter = g_slist_next (iter);
+                }
+
+              if (action_name == NULL)
+                {
+                  gchar *new_action_name = unity_gtk_action_group_get_action_name (group, item);
+
+                  g_hash_table_insert (group->names_by_radio_menu_item, radio_menu_item, new_action_name);
+
+                  if (last_radio_menu_item != NULL)
+                    g_hash_table_insert (group->names_by_radio_menu_item, last_radio_menu_item, g_strdup (new_action_name));
+
+                  action_name = new_action_name;
+                }
+              else
+                g_hash_table_insert (group->names_by_radio_menu_item, radio_menu_item, g_strdup (action_name));
+            }
+
+          action = g_hash_table_lookup (group->actions_by_name, action_name);
+
+          if (action == NULL)
+            {
+              action = unity_gtk_action_new_radio (action_name);
+              g_hash_table_insert (group->actions_by_name, (gpointer) action_name, action);
+            }
+
+          state_name = unity_gtk_action_group_get_state_name (group, item);
+          g_hash_table_insert (action->items_by_name, state_name, item);
+        }
+      else
+        {
+          gchar *name = unity_gtk_action_group_get_action_name (group, item);
+
+          action = unity_gtk_action_new (name, item);
+
+          g_free (name);
+
+          if (group->actions_by_name != NULL)
+            g_hash_table_insert (group->actions_by_name, action->name, action);
+        }
+
+      unity_gtk_menu_item_set_action (item, action);
+    }
 }
 
 void
@@ -332,7 +590,7 @@ unity_gtk_action_group_disconnect_item (UnityGtkActionGroup *group,
 
   if (action->items_by_name != NULL)
     {
-      const gchar *state = NULL;
+      const gchar *name = NULL;
 
       if (group->names_by_radio_menu_item == NULL)
         {
@@ -343,28 +601,26 @@ unity_gtk_action_group_disconnect_item (UnityGtkActionGroup *group,
           g_warn_if_reached ();
 
           g_hash_table_iter_init (&iter, action->items_by_name);
-          while (state == NULL && g_hash_table_iter_next (&iter, &key, &value))
+          while (name == NULL && g_hash_table_iter_next (&iter, &key, &value))
             if (value == item)
-              state = key;
+              name = key;
         }
       else
-        state = g_hash_table_lookup (group->names_by_radio_menu_item, item->menu_item);
+        name = g_hash_table_lookup (group->names_by_radio_menu_item, item->menu_item);
 
-      if (state != NULL)
+      if (name != NULL)
         {
-          g_hash_table_remove (action->items_by_name, state);
+          g_hash_table_remove (action->items_by_name, name);
 
           if (group->names_by_radio_menu_item != NULL)
             g_hash_table_remove (group->names_by_radio_menu_item, item->menu_item);
+          else
+            g_warn_if_reached ();
 
           if (g_hash_table_size (action->items_by_name) == 0)
             {
               if (group->actions_by_name != NULL)
-                {
-                  g_hash_table_remove (group->actions_by_name, action->name);
-
-                  unity_gtk_action_set_item (action, NULL);
-                }
+                g_hash_table_remove (group->actions_by_name, action->name);
               else
                 g_warn_if_reached ();
             }
@@ -375,13 +631,11 @@ unity_gtk_action_group_disconnect_item (UnityGtkActionGroup *group,
   else
     {
       if (group->actions_by_name != NULL)
-        {
-          g_hash_table_remove (group->actions_by_name, action->name);
-
-          unity_gtk_action_set_item (action, NULL);
-        }
+        g_hash_table_remove (group->actions_by_name, action->name);
       else
         g_warn_if_reached ();
+
+      unity_gtk_action_set_item (action, NULL);
     }
 
   unity_gtk_menu_item_set_action (item, NULL);

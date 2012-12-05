@@ -283,14 +283,17 @@ unity_gtk_menu_item_set_action (UnityGtkMenuItem *item,
 
   old_action = item->action;
 
-  if (old_action != NULL)
+  if (action != old_action)
     {
-      item->action = NULL;
-      g_object_unref (old_action);
-    }
+      if (old_action != NULL)
+        {
+          item->action = NULL;
+          g_object_unref (old_action);
+        }
 
-  if (action != NULL)
-    item->action = g_object_ref (action);
+      if (action != NULL)
+        item->action = g_object_ref (action);
+    }
 }
 
 const gchar *
