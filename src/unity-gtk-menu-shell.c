@@ -608,6 +608,9 @@ unity_gtk_menu_shell_set_menu_shell (UnityGtkMenuShell *shell,
       GSequence *visible_indices = shell->visible_indices;
       GSequence *separator_indices = shell->separator_indices;
 
+      if (shell->action_group != NULL)
+        unity_gtk_action_group_disconnect_shell (shell->action_group, shell);
+
       if (shell->menu_shell_insert_handler_id)
         {
           g_assert (shell->menu_shell != NULL);
@@ -654,9 +657,6 @@ unity_gtk_menu_shell_dispose (GObject *object)
   g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (object));
 
   shell = UNITY_GTK_MENU_SHELL (object);
-
-  if (shell->action_group != NULL)
-    unity_gtk_action_group_disconnect_shell (shell->action_group, shell);
 
   unity_gtk_menu_shell_set_menu_shell (shell, NULL);
 
@@ -850,7 +850,11 @@ unity_gtk_menu_shell_get_visible_indices (UnityGtkMenuShell *shell)
   if (shell->visible_indices == NULL)
     {
       GPtrArray *items = unity_gtk_menu_shell_get_items (shell);
+      UnityGtkActionGroup *group = shell->action_group;
       guint i;
+
+      if (group != NULL)
+        unity_gtk_action_group_disconnect_shell (group, shell);
 
       shell->visible_indices = g_sequence_new (NULL);
 
@@ -861,6 +865,9 @@ unity_gtk_menu_shell_get_visible_indices (UnityGtkMenuShell *shell)
           if (unity_gtk_menu_item_is_visible (item))
             g_sequence_append (shell->visible_indices, GUINT_TO_POINTER (i));
         }
+
+      if (group != NULL)
+        unity_gtk_action_group_connect_shell (group, shell);
     }
 
   return shell->visible_indices;
