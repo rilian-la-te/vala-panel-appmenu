@@ -501,7 +501,7 @@ unity_gtk_action_group_connect_item (UnityGtkActionGroup *group,
   if (item->parent_shell != NULL && item->parent_shell->action_group != group)
     {
       UnityGtkAction *new_action = NULL;
-      UnityGtkAction *action;
+      UnityGtkAction *action = NULL;
 
       if (item->action != NULL)
         {
@@ -557,7 +557,7 @@ unity_gtk_action_group_connect_item (UnityGtkActionGroup *group,
           state_name = unity_gtk_action_group_get_state_name (group, item);
           g_hash_table_insert (action->items_by_name, state_name, item);
         }
-      else
+      else if (!unity_gtk_menu_item_is_separator (item))
         {
           gchar *name = unity_gtk_action_group_get_action_name (group, item);
           action = new_action = unity_gtk_action_new (name, item);
@@ -586,6 +586,7 @@ unity_gtk_action_group_disconnect_item (UnityGtkActionGroup *group,
 
   g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (group));
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+  g_warn_if_fail (item->parent_shell != NULL && item->parent_shell->action_group == group);
 
   action = item->action;
 
@@ -640,8 +641,6 @@ unity_gtk_action_group_disconnect_item (UnityGtkActionGroup *group,
       else
         g_warn_if_reached ();
 
-      unity_gtk_action_set_item (action, NULL);
-
       g_action_group_action_removed (G_ACTION_GROUP (group), action->name);
     }
 
@@ -652,82 +651,85 @@ void
 unity_gtk_action_group_connect_shell (UnityGtkActionGroup *group,
                                       UnityGtkMenuShell   *shell)
 {
+  GSequence *visible_indices;
+
   g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (group));
   g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
 
-  if (shell->action_group != group)
+  visible_indices = shell->visible_indices;
+
+  if (shell->action_group != NULL && shell->action_group != group)
+    unity_gtk_action_group_disconnect_shell (shell->action_group, shell);
+
+  if (visible_indices != NULL)
     {
-      GSequence *visible_indices = shell->visible_indices;
+      GSequenceIter *iter = g_sequence_get_begin_iter (visible_indices);
 
-      if (shell->action_group != NULL)
-        unity_gtk_action_group_disconnect_shell (shell->action_group, shell);
-
-      shell->action_group = g_object_ref (group);
-
-      if (visible_indices != NULL)
+      while (!g_sequence_iter_is_end (iter))
         {
-          GSequenceIter *iter = g_sequence_get_begin_iter (visible_indices);
+          guint i = GPOINTER_TO_UINT (g_sequence_get (iter));
+          UnityGtkMenuItem *item = g_ptr_array_index (shell->items, i);
 
-          while (!g_sequence_iter_is_end (iter))
+          unity_gtk_action_group_connect_item (group, item);
+
+          if (item->child_shell != NULL)
             {
-              guint i = GPOINTER_TO_UINT (g_sequence_get (iter));
-              UnityGtkMenuItem *item = g_ptr_array_index (shell->items, i);
-
-              unity_gtk_action_group_connect_item (group, item);
-
-              if (item->child_shell != NULL)
-                {
-                  if (item->child_shell_valid)
-                    unity_gtk_action_group_connect_shell (group, item->child_shell);
-                  else
-                    g_warn_if_reached ();
-                }
-
-              iter = g_sequence_iter_next (iter);
+              if (item->child_shell_valid)
+                unity_gtk_action_group_connect_shell (group, item->child_shell);
+              else
+                g_warn_if_reached ();
             }
+
+          iter = g_sequence_iter_next (iter);
         }
     }
+
+  if (shell->action_group == NULL)
+    shell->action_group = g_object_ref (group);
 }
 
 void
 unity_gtk_action_group_disconnect_shell (UnityGtkActionGroup *group,
                                          UnityGtkMenuShell   *shell)
 {
+  UnityGtkActionGroup *action_group;
+  GSequence *visible_indices;
+
   g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (group));
   g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
-  g_warn_if_fail (shell->action_group == NULL || shell->action_group == group);
+  g_warn_if_fail (shell->action_group == group);
 
-  group = shell->action_group;
-  shell->action_group = NULL;
+  visible_indices = shell->visible_indices;
 
-  if (group != NULL)
+  if (visible_indices != NULL)
     {
-      GSequence *visible_indices = shell->visible_indices;
+      GSequenceIter *iter = g_sequence_get_begin_iter (visible_indices);
 
-      if (visible_indices != NULL)
+      while (!g_sequence_iter_is_end (iter))
         {
-          GSequenceIter *iter = g_sequence_get_begin_iter (visible_indices);
+          guint i = GPOINTER_TO_UINT (g_sequence_get (iter));
+          UnityGtkMenuItem *item = g_ptr_array_index (shell->items, i);
 
-          while (!g_sequence_iter_is_end (iter))
+          unity_gtk_action_group_disconnect_item (group, item);
+
+          if (item->child_shell != NULL)
             {
-              guint i = GPOINTER_TO_UINT (g_sequence_get (iter));
-              UnityGtkMenuItem *item = g_ptr_array_index (shell->items, i);
-
-              unity_gtk_action_group_disconnect_item (group, item);
-
-              if (item->child_shell != NULL)
-                {
-                  if (item->child_shell_valid)
-                    unity_gtk_action_group_disconnect_shell (group, item->child_shell);
-                  else
-                    g_warn_if_reached ();
-                }
-
-              iter = g_sequence_iter_next (iter);
+              if (item->child_shell_valid)
+                unity_gtk_action_group_disconnect_shell (group, item->child_shell);
+              else
+                g_warn_if_reached ();
             }
-        }
 
-      g_object_unref (group);
+          iter = g_sequence_iter_next (iter);
+        }
+    }
+
+  action_group = shell->action_group;
+
+  if (action_group != NULL)
+    {
+      shell->action_group = NULL;
+      g_object_unref (action_group);
     }
 }
 
