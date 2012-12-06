@@ -159,6 +159,19 @@ unity_gtk_menu_shell_show_item (UnityGtkMenuShell *shell,
       else
         g_warn_if_reached ();
 
+      if (shell->action_group != NULL)
+        {
+          unity_gtk_action_group_connect_item (shell->action_group, item);
+
+          if (item->child_shell != NULL)
+            {
+              if (item->child_shell_valid)
+                unity_gtk_action_group_connect_shell (shell->action_group, item->child_shell);
+              else
+                g_warn_if_reached ();
+            }
+        }
+
       if (separator_indices != NULL)
         {
           GPtrArray *sections = shell->sections;
@@ -206,19 +219,6 @@ unity_gtk_menu_shell_show_item (UnityGtkMenuShell *shell,
             }
           else
             g_warn_if_reached ();
-        }
-
-      if (shell->action_group != NULL)
-        {
-          unity_gtk_action_group_connect_item (shell->action_group, item);
-
-          if (item->child_shell != NULL)
-            {
-              if (item->child_shell_valid)
-                unity_gtk_action_group_connect_shell (shell->action_group, item->child_shell);
-              else
-                g_warn_if_reached ();
-            }
         }
     }
 }
