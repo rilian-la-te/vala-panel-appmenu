@@ -590,58 +590,59 @@ unity_gtk_action_group_disconnect_item (UnityGtkActionGroup *group,
 
   action = item->action;
 
-  g_return_if_fail (action != NULL);
-
-  if (action->items_by_name != NULL)
+  if (action != NULL)
     {
-      const gchar *name = NULL;
-
-      if (group->names_by_radio_menu_item == NULL)
+      if (action->items_by_name != NULL)
         {
-          GHashTableIter iter;
-          gpointer key;
-          gpointer value;
+          const gchar *name = NULL;
 
-          g_warn_if_reached ();
-
-          g_hash_table_iter_init (&iter, action->items_by_name);
-          while (name == NULL && g_hash_table_iter_next (&iter, &key, &value))
-            if (value == item)
-              name = key;
-        }
-      else
-        name = g_hash_table_lookup (group->names_by_radio_menu_item, item->menu_item);
-
-      if (name != NULL)
-        {
-          g_hash_table_remove (action->items_by_name, name);
-
-          if (group->names_by_radio_menu_item != NULL)
-            g_hash_table_remove (group->names_by_radio_menu_item, item->menu_item);
-          else
-            g_warn_if_reached ();
-
-          if (g_hash_table_size (action->items_by_name) == 0)
+          if (group->names_by_radio_menu_item == NULL)
             {
-              if (group->actions_by_name != NULL)
-                g_hash_table_remove (group->actions_by_name, action->name);
+              GHashTableIter iter;
+              gpointer key;
+              gpointer value;
+
+              g_warn_if_reached ();
+
+              g_hash_table_iter_init (&iter, action->items_by_name);
+              while (name == NULL && g_hash_table_iter_next (&iter, &key, &value))
+                if (value == item)
+                  name = key;
+            }
+          else
+            name = g_hash_table_lookup (group->names_by_radio_menu_item, item->menu_item);
+
+          if (name != NULL)
+            {
+              g_hash_table_remove (action->items_by_name, name);
+
+              if (group->names_by_radio_menu_item != NULL)
+                g_hash_table_remove (group->names_by_radio_menu_item, item->menu_item);
               else
                 g_warn_if_reached ();
 
-              g_action_group_action_removed (G_ACTION_GROUP (group), action->name);
+              if (g_hash_table_size (action->items_by_name) == 0)
+                {
+                  if (group->actions_by_name != NULL)
+                    g_hash_table_remove (group->actions_by_name, action->name);
+                  else
+                    g_warn_if_reached ();
+
+                  g_action_group_action_removed (G_ACTION_GROUP (group), action->name);
+                }
             }
+          else
+            g_warn_if_reached ();
         }
       else
-        g_warn_if_reached ();
-    }
-  else
-    {
-      if (group->actions_by_name != NULL)
-        g_hash_table_remove (group->actions_by_name, action->name);
-      else
-        g_warn_if_reached ();
+        {
+          if (group->actions_by_name != NULL)
+            g_hash_table_remove (group->actions_by_name, action->name);
+          else
+            g_warn_if_reached ();
 
-      g_action_group_action_removed (G_ACTION_GROUP (group), action->name);
+          g_action_group_action_removed (G_ACTION_GROUP (group), action->name);
+        }
     }
 
   unity_gtk_menu_item_set_action (item, NULL);
