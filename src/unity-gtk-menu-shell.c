@@ -939,3 +939,77 @@ unity_gtk_menu_shell_handle_item_notify (UnityGtkMenuShell *shell,
   else if (pspec_name == submenu_name)
     unity_gtk_menu_shell_handle_item_submenu (shell, item);
 }
+
+void
+unity_gtk_menu_shell_print (UnityGtkMenuShell *shell,
+                            guint              indent)
+{
+  gchar *space;
+
+  g_return_if_fail (shell == NULL || UNITY_GTK_IS_MENU_SHELL (shell));
+
+  space = g_strnfill (indent, ' ');
+
+  if (shell != NULL)
+    {
+      g_print ("%s(%s *) %p\n", space, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (shell)), shell);
+
+      if (shell->menu_shell != NULL)
+        g_print ("%s  %lu (%s *) %p\n", space, shell->menu_shell_insert_handler_id, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (shell->menu_shell)), shell->menu_shell);
+      else if (shell->menu_shell_insert_handler_id)
+        g_print ("%s  %lu\n", space, shell->menu_shell_insert_handler_id);
+
+      if (shell->items != NULL)
+        {
+          guint i;
+
+          for (i = 0; i < shell->items->len; i++)
+            unity_gtk_menu_item_print (g_ptr_array_index (shell->items, i), indent + 2);
+        }
+
+      if (shell->sections != NULL)
+        {
+          guint i;
+
+          for (i = 0; i < shell->sections->len; i++)
+            unity_gtk_menu_section_print (g_ptr_array_index (shell->sections, i), indent + 2);
+        }
+
+      if (shell->visible_indices != NULL)
+        {
+          GSequenceIter *iter = g_sequence_get_begin_iter (shell->visible_indices);
+
+          g_print ("%s ", space);
+
+          while (iter != NULL)
+            {
+              g_print (" %u", g_sequence_get_uint (iter));
+              iter = g_sequence_iter_next (iter);
+            }
+
+          g_print ("\n");
+        }
+
+      if (shell->separator_indices != NULL)
+        {
+          GSequenceIter *iter = g_sequence_get_begin_iter (shell->separator_indices);
+
+          g_print ("%s ", space);
+
+          while (iter != NULL)
+            {
+              g_print (" %u", g_sequence_get_uint (iter));
+              iter = g_sequence_iter_next (iter);
+            }
+
+          g_print ("\n");
+        }
+
+      if (shell->action_group != NULL)
+        g_print ("%s  (%s *) %p\n", space, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (shell->action_group)), shell->action_group);
+    }
+  else
+    g_print ("%sNULL\n", space);
+
+  g_free (space);
+}

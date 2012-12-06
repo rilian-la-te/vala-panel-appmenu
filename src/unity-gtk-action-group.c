@@ -754,8 +754,8 @@ unity_gtk_action_group_print (UnityGtkActionGroup *group,
           g_hash_table_iter_init (&iter, group->actions_by_name);
           while (g_hash_table_iter_next (&iter, &key, &value))
             {
-              g_print ("%s\"%s\" ->\n", space, (const gchar *) key);
-              unity_gtk_action_print (value, indent + 2);
+              g_print ("%s  \"%s\" ->\n", space, (const gchar *) key);
+              unity_gtk_action_print (value, indent + 4);
             }
         }
 
@@ -767,7 +767,7 @@ unity_gtk_action_group_print (UnityGtkActionGroup *group,
 
           g_hash_table_iter_init (&iter, group->names_by_radio_menu_item);
           while (g_hash_table_iter_next (&iter, &key, &value))
-            g_print ("%s(%s *) %p -> %s\n", space, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (key)), key, (const gchar *) value);
+            g_print ("%s  (%s *) %p -> \"%s\"\n", space, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (key)), key, (const gchar *) value);
         }
     }
   else

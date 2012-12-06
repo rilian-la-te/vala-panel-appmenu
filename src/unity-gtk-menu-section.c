@@ -332,3 +332,26 @@ unity_gtk_menu_section_get_iter (UnityGtkMenuSection *section,
 
   return g_sequence_iter_move (unity_gtk_menu_section_get_begin_iter (section), index);
 }
+
+void
+unity_gtk_menu_section_print (UnityGtkMenuSection *section,
+                              guint                indent)
+{
+  gchar *space;
+
+  g_return_if_fail (section == NULL || UNITY_GTK_IS_MENU_SECTION (section));
+
+  space = g_strnfill (indent, ' ');
+
+  if (section != NULL)
+    {
+      g_print ("%s%u (%s *) %p\n", space, section->section_index, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (section)), section);
+
+      if (section->parent_shell != NULL)
+        g_print ("%s  (%s *) %p\n", space, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (section->parent_shell)), section->parent_shell);
+    }
+  else
+    g_print ("%sNULL\n", space);
+
+  g_free (space);
+}

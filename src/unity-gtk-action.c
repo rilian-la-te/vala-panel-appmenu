@@ -194,7 +194,7 @@ unity_gtk_action_print (UnityGtkAction *action,
         g_print ("%s  \"%s\"\n", space, action->name);
 
       if (action->item != NULL)
-        unity_gtk_menu_item_print (action->item, indent + 2);
+        g_print ("%s  (%s *) %p\n", space, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (action->item)), action->item);
 
       if (action->items_by_name != NULL)
         {
@@ -204,10 +204,7 @@ unity_gtk_action_print (UnityGtkAction *action,
 
           g_hash_table_iter_init (&iter, action->items_by_name);
           while (g_hash_table_iter_next (&iter, &key, &value))
-            {
-              g_print ("%s  \"%s\" ->\n", space, (const gchar *) key);
-              unity_gtk_menu_item_print (value, indent + 4);
-            }
+            g_print ("%s  \"%s\" -> (%s *) %p\n", space, (const gchar *) key, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (value)), value);
         }
     }
   else

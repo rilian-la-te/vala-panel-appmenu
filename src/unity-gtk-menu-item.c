@@ -369,4 +369,37 @@ void
 unity_gtk_menu_item_print (UnityGtkMenuItem *item,
                            guint             indent)
 {
+  gchar *space;
+
+  g_return_if_fail (item == NULL || UNITY_GTK_IS_MENU_ITEM (item));
+
+  space = g_strnfill (indent, ' ');
+
+  if (item != NULL)
+    {
+      g_print ("%s%u (%s *) %p\n", space, item->item_index, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (item)), item);
+
+      if (item->menu_item != NULL)
+        g_print ("%s  %lu (%s *) %p\n", space, item->menu_item_notify_handler_id, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (item->menu_item)), item->menu_item);
+      else if (item->menu_item_notify_handler_id)
+        g_print ("%s  %lu\n", space, item->menu_item_notify_handler_id);
+
+      if (item->parent_shell != NULL)
+        g_print ("%s  (%s *) %p\n", space, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (item->parent_shell)), item->parent_shell);
+
+      if (item->child_shell_valid || item->child_shell != NULL)
+        {
+          if (!item->child_shell_valid)
+            g_print ("%s  invalid\n", space);
+
+          unity_gtk_menu_shell_print (item->child_shell, indent + 2);
+        }
+
+      if (item->action != NULL)
+        unity_gtk_action_print (item->action, indent + 2);
+    }
+  else
+    g_print ("%sNULL\n", space);
+
+  g_free (space);
 }

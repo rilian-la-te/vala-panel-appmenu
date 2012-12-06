@@ -40,4 +40,7 @@ GSequenceIter *       unity_gtk_menu_section_get_end_iter   (UnityGtkMenuSection
 GSequenceIter *       unity_gtk_menu_section_get_iter       (UnityGtkMenuSection *section,
                                                              guint                index)         G_GNUC_INTERNAL;
 
+void                  unity_gtk_menu_section_print          (UnityGtkMenuSection *section,
+                                                             guint                indent)        G_GNUC_INTERNAL;
+
 #endif /* __UNITY_GTK_MENU_SECTION_H__ */
