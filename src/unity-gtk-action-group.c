@@ -90,16 +90,40 @@ unity_gtk_action_group_really_change_action_state (GActionGroup *action_group,
 
   if (action->items_by_name != NULL)
     {
-      const gchar *name;
-      UnityGtkMenuItem *item;
+      if (value != NULL)
+        {
+          const gchar *name;
+          UnityGtkMenuItem *item;
 
-      g_return_if_fail (value != NULL && g_variant_is_of_type (value, G_VARIANT_TYPE_STRING));
+          g_return_if_fail (g_variant_is_of_type (value, G_VARIANT_TYPE_STRING));
 
-      name = g_variant_get_string (value, NULL);
-      item = g_hash_table_lookup (action->items_by_name, name);
+          name = g_variant_get_string (value, NULL);
+          item = g_hash_table_lookup (action->items_by_name, name);
 
-      if (item != NULL && unity_gtk_menu_item_is_check (item))
-        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item->menu_item), TRUE);
+          if (item == NULL || !unity_gtk_menu_item_is_check (item))
+            {
+              g_warn_if_reached ();
+
+              value = NULL;
+            }
+          else
+            gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item->menu_item), TRUE);
+        }
+
+      if (value == NULL)
+        {
+          GHashTableIter iter;
+          gpointer value;
+
+          g_hash_table_iter_init (&iter, action->items_by_name);
+          while (g_hash_table_iter_next (&iter, NULL, &value))
+            {
+              UnityGtkMenuItem *item = value;
+
+              if (unity_gtk_menu_item_is_check (item))
+                gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item->menu_item), FALSE);
+            }
+        }
     }
   else if (action->item != NULL && unity_gtk_menu_item_is_check (action->item))
     {
