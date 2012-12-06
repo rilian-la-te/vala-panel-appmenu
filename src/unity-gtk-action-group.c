@@ -230,7 +230,7 @@ unity_gtk_action_group_query_action (GActionGroup        *action_group,
 
       if (parameter_type != NULL)
         {
-          if (action->items_by_name != NULL)
+          if (action->items_by_name != NULL || (action->item != NULL && unity_gtk_menu_item_get_draw_as_radio (action->item)))
             *parameter_type = G_VARIANT_TYPE_STRING;
           else
             *parameter_type = NULL;
@@ -238,7 +238,7 @@ unity_gtk_action_group_query_action (GActionGroup        *action_group,
 
       if (state_type != NULL)
         {
-          if (action->items_by_name != NULL)
+          if (action->items_by_name != NULL || (action->item != NULL && unity_gtk_menu_item_get_draw_as_radio (action->item)))
             *state_type = G_VARIANT_TYPE_STRING;
           else if (action->item != NULL && unity_gtk_menu_item_is_check (action->item))
             *state_type = G_VARIANT_TYPE_BOOLEAN;
@@ -266,12 +266,19 @@ unity_gtk_action_group_query_action (GActionGroup        *action_group,
             {
               GVariantBuilder builder;
 
-              g_variant_builder_init (&builder, G_VARIANT_TYPE_TUPLE);
-
-              g_variant_builder_add (&builder, "b", FALSE);
-              g_variant_builder_add (&builder, "b", TRUE);
-
-              *state_hint = g_variant_ref_sink (g_variant_builder_end (&builder));
+              if (unity_gtk_menu_item_get_draw_as_radio (action->item))
+                {
+                  g_variant_builder_init (&builder, G_VARIANT_TYPE_ARRAY);
+                  g_variant_builder_add (&builder, "s", action->name);
+                  *state_hint = g_variant_ref_sink (g_variant_builder_end (&builder));
+                }
+              else
+                {
+                  g_variant_builder_init (&builder, G_VARIANT_TYPE_TUPLE);
+                  g_variant_builder_add (&builder, "b", FALSE);
+                  g_variant_builder_add (&builder, "b", TRUE);
+                  *state_hint = g_variant_ref_sink (g_variant_builder_end (&builder));
+                }
             }
           else
             *state_hint = NULL;
@@ -293,7 +300,17 @@ unity_gtk_action_group_query_action (GActionGroup        *action_group,
                   *state = g_variant_ref_sink (g_variant_new_string (key));
             }
           else if (action->item != NULL && unity_gtk_menu_item_is_check (action->item))
-            *state = g_variant_ref_sink (g_variant_new_boolean (unity_gtk_menu_item_is_active (action->item)));
+            {
+              if (unity_gtk_menu_item_get_draw_as_radio (action->item))
+                {
+                  if (unity_gtk_menu_item_is_active (action->item))
+                    *state = g_variant_ref_sink (g_variant_new_string (action->name));
+                  else
+                    *state = NULL;
+                }
+              else
+                *state = g_variant_ref_sink (g_variant_new_boolean (unity_gtk_menu_item_is_active (action->item)));
+            }
           else
             *state = NULL;
         }

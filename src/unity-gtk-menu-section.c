@@ -152,7 +152,7 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
   GSequenceIter *iter;
   guint index;
   const gchar *label;
-  const gchar *action;
+  UnityGtkAction *action;
 
   g_return_if_fail (UNITY_GTK_IS_MENU_SECTION (model));
   g_return_if_fail (attributes != NULL);
@@ -166,17 +166,48 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
   index = GPOINTER_TO_UINT (g_sequence_get (iter));
   item = unity_gtk_menu_shell_get_item (parent_shell, index);
   label = unity_gtk_menu_item_get_label (item);
-  action = item->action != NULL ? item->action->name : NULL;
+  action = item->action;
 
   *attributes = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, (GDestroyNotify) g_variant_unref);
 
   if (label != NULL)
     g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_LABEL, g_variant_ref_sink (g_variant_new_string (label)));
 
-  if (action != NULL)
+  if (action != NULL && action->name != NULL)
     {
-      gchar *name = g_strdup_printf ("win.%s", action);
-      g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_ACTION, g_variant_ref_sink (g_variant_new_string (name)));
+      gchar *name = g_strdup_printf ("win.%s", action->name);
+      GVariant *variant = g_variant_ref_sink (g_variant_new_string (name));
+
+      g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_ACTION, variant);
+
+      if (action->items_by_name != NULL)
+        {
+          const gchar *target = NULL;
+          UnityGtkActionGroup *group = parent_shell->action_group;
+
+          if (group != NULL && group->names_by_radio_menu_item != NULL)
+            target = g_hash_table_lookup (group->names_by_radio_menu_item, item->menu_item);
+
+          if (target == NULL)
+            {
+              GHashTableIter iter;
+              gpointer key;
+              gpointer value;
+
+              g_warn_if_reached ();
+
+              g_hash_table_iter_init (&iter, action->items_by_name);
+              while (target == NULL && g_hash_table_iter_next (&iter, &key, &value))
+                if (value == item)
+                  target = key;
+            }
+
+          if (target != NULL)
+            g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_TARGET, g_variant_ref_sink (g_variant_new_string (target)));
+        }
+      else if (unity_gtk_menu_item_get_draw_as_radio (item))
+        g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_TARGET, g_variant_ref_sink (g_variant_new_string (action->name)));
+
       g_free (name);
     }
 }
