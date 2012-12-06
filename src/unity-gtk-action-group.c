@@ -180,7 +180,10 @@ unity_gtk_action_group_activate_action (GActionGroup *action_group,
     }
   else if (action->item != NULL)
     {
-      g_warn_if_fail (parameter == NULL);
+      if (unity_gtk_menu_item_get_draw_as_radio (action->item))
+        g_warn_if_fail (g_variant_is_of_type (parameter, G_VARIANT_TYPE_STRING));
+      else
+        g_warn_if_fail (parameter == NULL);
 
       if (action->item->menu_item != NULL)
         gtk_menu_item_activate (action->item->menu_item);
@@ -270,6 +273,7 @@ unity_gtk_action_group_query_action (GActionGroup        *action_group,
                 {
                   g_variant_builder_init (&builder, G_VARIANT_TYPE_ARRAY);
                   g_variant_builder_add (&builder, "s", action->name);
+                  g_variant_builder_add (&builder, "s", "");
                   *state_hint = g_variant_ref_sink (g_variant_builder_end (&builder));
                 }
               else
@@ -306,7 +310,7 @@ unity_gtk_action_group_query_action (GActionGroup        *action_group,
                   if (unity_gtk_menu_item_is_active (action->item))
                     *state = g_variant_ref_sink (g_variant_new_string (action->name));
                   else
-                    *state = NULL;
+                    *state = g_variant_ref_sink (g_variant_new_string (""));
                 }
               else
                 *state = g_variant_ref_sink (g_variant_new_boolean (unity_gtk_menu_item_is_active (action->item)));
