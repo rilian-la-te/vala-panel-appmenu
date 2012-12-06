@@ -850,11 +850,7 @@ unity_gtk_menu_shell_get_visible_indices (UnityGtkMenuShell *shell)
   if (shell->visible_indices == NULL)
     {
       GPtrArray *items = unity_gtk_menu_shell_get_items (shell);
-      UnityGtkActionGroup *group = shell->action_group;
       guint i;
-
-      if (group != NULL)
-        unity_gtk_action_group_disconnect_shell (group, shell);
 
       shell->visible_indices = g_sequence_new (NULL);
 
@@ -866,8 +862,8 @@ unity_gtk_menu_shell_get_visible_indices (UnityGtkMenuShell *shell)
             g_sequence_append (shell->visible_indices, GUINT_TO_POINTER (i));
         }
 
-      if (group != NULL)
-        unity_gtk_action_group_connect_shell (group, shell);
+      if (shell->action_group != NULL)
+        unity_gtk_action_group_connect_shell (shell->action_group, shell);
     }
 
   return shell->visible_indices;

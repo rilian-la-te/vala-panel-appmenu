@@ -498,7 +498,7 @@ unity_gtk_action_group_connect_item (UnityGtkActionGroup *group,
   g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (group));
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
 
-  if (item->parent_shell != NULL && item->parent_shell->action_group != group)
+  if (item->parent_shell != NULL && (item->parent_shell->action_group != group || item->action == NULL))
     {
       UnityGtkAction *new_action = NULL;
       UnityGtkAction *action = NULL;
