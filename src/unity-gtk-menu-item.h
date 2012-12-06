@@ -34,32 +34,34 @@ struct _UnityGtkMenuItemClass
   GObjectClass parent_class;
 };
 
-GType               unity_gtk_menu_item_get_type        (void)                            G_GNUC_INTERNAL;
+GType               unity_gtk_menu_item_get_type          (void)                            G_GNUC_INTERNAL;
 
-UnityGtkMenuItem *  unity_gtk_menu_item_new             (GtkMenuItem       *menu_item,
-                                                         UnityGtkMenuShell *parent_shell,
-                                                         guint              item_index)   G_GNUC_INTERNAL;
+UnityGtkMenuItem *  unity_gtk_menu_item_new               (GtkMenuItem       *menu_item,
+                                                           UnityGtkMenuShell *parent_shell,
+                                                           guint              item_index)   G_GNUC_INTERNAL;
 
-UnityGtkMenuShell * unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
+UnityGtkMenuShell * unity_gtk_menu_item_get_child_shell   (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 
-void                unity_gtk_menu_item_set_action      (UnityGtkMenuItem  *item,
-                                                         UnityGtkAction    *action)       G_GNUC_INTERNAL;
+void                unity_gtk_menu_item_set_action        (UnityGtkMenuItem  *item,
+                                                           UnityGtkAction    *action)       G_GNUC_INTERNAL;
 
-const gchar *       unity_gtk_menu_item_get_label       (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
+const gchar *       unity_gtk_menu_item_get_label         (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 
-gboolean            unity_gtk_menu_item_is_visible      (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
+gboolean            unity_gtk_menu_item_is_visible        (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 
-gboolean            unity_gtk_menu_item_is_sensitive    (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
+gboolean            unity_gtk_menu_item_is_sensitive      (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 
-gboolean            unity_gtk_menu_item_is_active       (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
+gboolean            unity_gtk_menu_item_is_active         (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 
-gboolean            unity_gtk_menu_item_is_separator    (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
+gboolean            unity_gtk_menu_item_is_separator      (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 
-gboolean            unity_gtk_menu_item_is_check        (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
+gboolean            unity_gtk_menu_item_is_check          (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 
-gboolean            unity_gtk_menu_item_is_radio        (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
+gboolean            unity_gtk_menu_item_is_radio          (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 
-void                unity_gtk_menu_item_print           (UnityGtkMenuItem  *item,
-                                                         guint              indent)       G_GNUC_INTERNAL;
+gboolean            unity_gtk_menu_item_get_draw_as_radio (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
+
+void                unity_gtk_menu_item_print             (UnityGtkMenuItem  *item,
+                                                           guint              indent)       G_GNUC_INTERNAL;
 
 #endif /* __UNITY_GTK_MENU_ITEM_H__ */

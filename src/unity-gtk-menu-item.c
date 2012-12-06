@@ -365,6 +365,14 @@ unity_gtk_menu_item_is_radio (UnityGtkMenuItem *item)
   return GTK_IS_RADIO_MENU_ITEM (item->menu_item);
 }
 
+gboolean
+unity_gtk_menu_item_get_draw_as_radio (UnityGtkMenuItem *item)
+{
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
+
+  return GTK_IS_CHECK_MENU_ITEM (item->menu_item) && gtk_check_menu_item_get_draw_as_radio (GTK_CHECK_MENU_ITEM (item->menu_item));
+}
+
 void
 unity_gtk_menu_item_print (UnityGtkMenuItem *item,
                            guint             indent)
