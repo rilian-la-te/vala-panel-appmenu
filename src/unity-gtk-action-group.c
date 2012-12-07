@@ -585,7 +585,7 @@ unity_gtk_action_group_connect_item (UnityGtkActionGroup *group,
 
                   g_hash_table_insert (group->names_by_radio_menu_item, radio_menu_item, new_action_name);
 
-                  if (last_radio_menu_item != NULL)
+                  if (last_radio_menu_item != NULL && last_radio_menu_item != radio_menu_item)
                     g_hash_table_insert (group->names_by_radio_menu_item, last_radio_menu_item, g_strdup (new_action_name));
 
                   action_name = new_action_name;

@@ -112,6 +112,18 @@ main (int    argc,
   gtk_container_add (GTK_CONTAINER (submenu), item);
   item = gtk_menu_item_new_with_label ("Save");
   gtk_container_add (GTK_CONTAINER (submenu), item);
+  item = gtk_separator_menu_item_new ();
+  gtk_container_add (GTK_CONTAINER (submenu), item);
+  item = gtk_radio_menu_item_new_with_label (NULL, "Item 1");
+  gtk_container_add (GTK_CONTAINER (submenu), item);
+  item = gtk_radio_menu_item_new_with_label_from_widget (GTK_RADIO_MENU_ITEM (item), "Item 2");
+  gtk_container_add (GTK_CONTAINER (submenu), item);
+  item = gtk_radio_menu_item_new_with_label_from_widget (GTK_RADIO_MENU_ITEM (item), "Item 3");
+  gtk_container_add (GTK_CONTAINER (submenu), item);
+  item = gtk_radio_menu_item_new_with_label_from_widget (GTK_RADIO_MENU_ITEM (item), "Item 4");
+  gtk_container_add (GTK_CONTAINER (submenu), item);
+  item = gtk_separator_menu_item_new ();
+  gtk_container_add (GTK_CONTAINER (submenu), item);
   item = gtk_menu_item_new_with_label ("Quit");
   gtk_container_add (GTK_CONTAINER (submenu), item);
 
