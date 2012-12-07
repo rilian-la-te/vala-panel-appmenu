@@ -177,6 +177,8 @@ unity_gtk_action_group_activate_action (GActionGroup *action_group,
 
       if (item != NULL && item->menu_item != NULL)
         gtk_menu_item_activate (item->menu_item);
+
+      g_action_group_action_state_changed (G_ACTION_GROUP (group), action->name, parameter);
     }
   else if (action->item != NULL)
     {
@@ -273,7 +275,6 @@ unity_gtk_action_group_query_action (GActionGroup        *action_group,
                 {
                   g_variant_builder_init (&builder, G_VARIANT_TYPE_ARRAY);
                   g_variant_builder_add (&builder, "s", action->name);
-                  g_variant_builder_add (&builder, "s", "");
                   *state_hint = g_variant_ref_sink (g_variant_builder_end (&builder));
                 }
               else
