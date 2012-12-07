@@ -10,4 +10,5 @@ black
 client
 config.log
 hello
+test-radio
 unity-gtk-menu-tester
