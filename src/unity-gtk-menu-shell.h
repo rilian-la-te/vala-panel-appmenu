@@ -4,16 +4,16 @@
 typedef struct _UnityGtkMenuShell      UnityGtkMenuShell;
 typedef struct _UnityGtkMenuShellClass UnityGtkMenuShellClass;
 
-#include <gtk/gtk.h>
-#include "unity-gtk-menu-item.h"
-#include "unity-gtk-action-group.h"
-
 #define UNITY_GTK_TYPE_MENU_SHELL            (unity_gtk_menu_shell_get_type ())
 #define UNITY_GTK_MENU_SHELL(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), UNITY_GTK_TYPE_MENU_SHELL, UnityGtkMenuShell))
 #define UNITY_GTK_IS_MENU_SHELL(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), UNITY_GTK_TYPE_MENU_SHELL))
 #define UNITY_GTK_MENU_SHELL_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), UNITY_GTK_TYPE_MENU_SHELL, UnityGtkMenuShellClass))
 #define UNITY_GTK_IS_MENU_SHELL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), UNITY_GTK_TYPE_MENU_SHELL))
 #define UNITY_GTK_MENU_SHELL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_MENU_SHELL, UnityGtkMenuShellClass))
+
+#include <gtk/gtk.h>
+#include "unity-gtk-menu-item.h"
+#include "unity-gtk-action-group.h"
 
 struct _UnityGtkMenuShell
 {
@@ -33,6 +33,14 @@ struct _UnityGtkMenuShellClass
 {
   GMenuModelClass parent_class;
 };
+
+gpointer            g_object_new_debug                         (GType        object_type,
+                                                                const gchar *first_property_name,
+                                                                ...);
+
+gpointer            g_object_ref_debug                         (gpointer     object);
+
+void                g_object_unref_debug                       (gpointer     object);
 
 GType               unity_gtk_menu_shell_get_type              (void)                          G_GNUC_INTERNAL;
 

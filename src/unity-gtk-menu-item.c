@@ -60,7 +60,7 @@ unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
         {
           g_warn_if_fail (item->child_shell_valid);
           item->child_shell = NULL;
-          g_object_unref (child_shell);
+          g_object_unref_debug (child_shell);
         }
 
       item->child_shell_valid = FALSE;
@@ -86,11 +86,11 @@ unity_gtk_menu_item_set_parent_shell (UnityGtkMenuItem  *item,
       if (old_parent_shell != NULL)
         {
           item->parent_shell = NULL;
-          g_object_unref (old_parent_shell);
+          g_object_unref_debug (old_parent_shell);
         }
 
       if (parent_shell != NULL)
-        item->parent_shell = g_object_ref (parent_shell);
+        item->parent_shell = g_object_ref_debug (parent_shell);
     }
 }
 
@@ -235,7 +235,7 @@ unity_gtk_menu_item_new (GtkMenuItem       *menu_item,
                          UnityGtkMenuShell *parent_shell,
                          guint              item_index)
 {
-  return g_object_new (UNITY_GTK_TYPE_MENU_ITEM,
+  return g_object_new_debug (UNITY_GTK_TYPE_MENU_ITEM,
                        "menu-item", menu_item,
                        "parent-shell", parent_shell,
                        "item-index", item_index,
@@ -256,7 +256,7 @@ unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem *item)
         {
           g_warn_if_reached ();
           item->child_shell = NULL;
-          g_object_unref (child_shell);
+          g_object_unref_debug (child_shell);
         }
 
       if (menu_item != NULL)
@@ -296,11 +296,11 @@ unity_gtk_menu_item_set_action (UnityGtkMenuItem *item,
       if (old_action != NULL)
         {
           item->action = NULL;
-          g_object_unref (old_action);
+          g_object_unref_debug (old_action);
         }
 
       if (action != NULL)
-        item->action = g_object_ref (action);
+        item->action = g_object_ref_debug (action);
     }
 }
 

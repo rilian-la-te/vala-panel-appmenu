@@ -18,6 +18,72 @@ enum
 
 static GParamSpec *menu_shell_properties[MENU_SHELL_N_PROPERTIES] = { NULL };
 
+static void
+g_object_break (void)
+{
+}
+
+gpointer
+g_object_new_debug (GType        object_type,
+                    const gchar *first_property_name,
+                    ...)
+{
+  GObject *object;
+  va_list var_args;
+
+  g_return_val_if_fail (G_TYPE_IS_OBJECT (object_type), NULL);
+
+  /* short circuit for calls supplying no properties */
+  if (!first_property_name)
+    {
+      object = g_object_newv (object_type, 0, NULL);
+
+      if (UNITY_GTK_IS_MENU_ITEM (object))
+        {
+          g_message ("%s %p %s", __func__, object, unity_gtk_menu_item_get_label (UNITY_GTK_MENU_ITEM (object)));
+          g_object_break ();
+        }
+
+      return object;
+    }
+
+  va_start (var_args, first_property_name);
+  object = g_object_new_valist (object_type, first_property_name, var_args);
+  va_end (var_args);
+
+  if (UNITY_GTK_IS_MENU_ITEM (object))
+    {
+      g_message ("%s %p %s", __func__, object, unity_gtk_menu_item_get_label (UNITY_GTK_MENU_ITEM (object)));
+      g_object_break ();
+    }
+
+  return object;
+}
+
+gpointer
+g_object_ref_debug (gpointer object)
+{
+  if (UNITY_GTK_IS_MENU_ITEM (object))
+    {
+      g_message ("%s %p %s", __func__, object, unity_gtk_menu_item_get_label (object));
+      g_object_break ();
+    }
+
+  return g_object_ref (object);
+}
+
+void
+g_object_unref_debug (gpointer object)
+{
+  if (UNITY_GTK_IS_MENU_ITEM (object))
+    {
+      g_message ("%s %p %s", __func__, object, unity_gtk_menu_item_get_label (object));
+      g_object_break ();
+    }
+
+  return g_object_unref (object);
+}
+
 static gint
 g_uintcmp (gconstpointer a,
            gconstpointer b,
@@ -102,7 +168,7 @@ unity_gtk_menu_shell_get_items (UnityGtkMenuShell *shell)
 
       g_return_val_if_fail (shell->menu_shell != NULL, NULL);
 
-      shell->items = g_ptr_array_new_with_free_func (g_object_unref);
+      shell->items = g_ptr_array_new_with_free_func (g_object_unref_debug);
       iter = gtk_container_get_children (GTK_CONTAINER (shell->menu_shell));
 
       for (i = 0; iter != NULL; i++)
@@ -126,7 +192,7 @@ unity_gtk_menu_shell_get_sections (UnityGtkMenuShell *shell)
       guint n = g_sequence_get_length (separator_indices);
       guint i;
 
-      shell->sections = g_ptr_array_new_full (n + 1, g_object_unref);
+      shell->sections = g_ptr_array_new_full (n + 1, g_object_unref_debug);
 
       for (i = 0; i <= n; i++)
         g_ptr_array_add (shell->sections, unity_gtk_menu_section_new (shell, i));
@@ -523,7 +589,7 @@ unity_gtk_menu_shell_handle_item_submenu (UnityGtkMenuShell *shell,
           if (child_shell != NULL)
             {
               item->child_shell = NULL;
-              g_object_unref (child_shell);
+              g_object_unref_debug (child_shell);
             }
 
           item->child_shell_valid = FALSE;
@@ -772,8 +838,8 @@ unity_gtk_menu_shell_get_item_links (GMenuModel  *model,
   sections = unity_gtk_menu_shell_get_sections (shell);
   section = g_ptr_array_index (sections, item_index);
 
-  *links = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref);
-  g_hash_table_insert (*links, G_MENU_LINK_SECTION, g_object_ref (section));
+  *links = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref_debug);
+  g_hash_table_insert (*links, G_MENU_LINK_SECTION, g_object_ref_debug (section));
 }
 
 static void
@@ -822,7 +888,7 @@ unity_gtk_menu_shell_init (UnityGtkMenuShell *self)
 UnityGtkMenuShell *
 unity_gtk_menu_shell_new (GtkMenuShell *menu_shell)
 {
-  return g_object_new (UNITY_GTK_TYPE_MENU_SHELL,
+  return g_object_new_debug (UNITY_GTK_TYPE_MENU_SHELL,
                        "menu-shell", menu_shell,
                        NULL);
 }

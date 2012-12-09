@@ -4,16 +4,16 @@
 typedef struct _UnityGtkMenuItem      UnityGtkMenuItem;
 typedef struct _UnityGtkMenuItemClass UnityGtkMenuItemClass;
 
-#include <gtk/gtk.h>
-#include "unity-gtk-menu-shell.h"
-#include "unity-gtk-action.h"
-
 #define UNITY_GTK_TYPE_MENU_ITEM            (unity_gtk_menu_item_get_type ())
 #define UNITY_GTK_MENU_ITEM(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), UNITY_GTK_TYPE_MENU_ITEM, UnityGtkMenuItem))
 #define UNITY_GTK_IS_MENU_ITEM(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), UNITY_GTK_TYPE_MENU_ITEM))
 #define UNITY_GTK_MENU_ITEM_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), UNITY_GTK_TYPE_MENU_ITEM, UnityGtkMenuItemClass))
 #define UNITY_GTK_IS_MENU_ITEM_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), UNITY_GTK_TYPE_MENU_ITEM))
 #define UNITY_GTK_MENU_ITEM_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_MENU_ITEM, UnityGtkMenuItemClass))
+
+#include <gtk/gtk.h>
+#include "unity-gtk-menu-shell.h"
+#include "unity-gtk-action.h"
 
 struct _UnityGtkMenuItem
 {
