@@ -60,6 +60,7 @@ unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
         {
           g_warn_if_fail (item->child_shell_valid);
           item->child_shell = NULL;
+          g_object_run_dispose (G_OBJECT (child_shell));
           g_object_unref_debug (child_shell);
         }
 
@@ -256,6 +257,7 @@ unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem *item)
         {
           g_warn_if_reached ();
           item->child_shell = NULL;
+          g_object_run_dispose (G_OBJECT (child_shell));
           g_object_unref_debug (child_shell);
         }
 

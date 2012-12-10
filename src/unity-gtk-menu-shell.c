@@ -38,9 +38,9 @@ g_object_new_debug (GType        object_type,
     {
       object = g_object_newv (object_type, 0, NULL);
 
-      if (UNITY_GTK_IS_MENU_ITEM (object))
+      if (UNITY_GTK_IS_ACTION (object))
         {
-          g_message ("%s %p %s", __func__, object, unity_gtk_menu_item_get_label (UNITY_GTK_MENU_ITEM (object)));
+          g_message ("%s %p", __func__, object);
           g_object_break ();
         }
 
@@ -51,9 +51,9 @@ g_object_new_debug (GType        object_type,
   object = g_object_new_valist (object_type, first_property_name, var_args);
   va_end (var_args);
 
-  if (UNITY_GTK_IS_MENU_ITEM (object))
+  if (UNITY_GTK_IS_ACTION (object))
     {
-      g_message ("%s %p %s", __func__, object, unity_gtk_menu_item_get_label (UNITY_GTK_MENU_ITEM (object)));
+      g_message ("%s %p", __func__, object);
       g_object_break ();
     }
 
@@ -63,9 +63,9 @@ g_object_new_debug (GType        object_type,
 gpointer
 g_object_ref_debug (gpointer object)
 {
-  if (UNITY_GTK_IS_MENU_ITEM (object))
+  if (UNITY_GTK_IS_ACTION (object))
     {
-      g_message ("%s %p %s", __func__, object, unity_gtk_menu_item_get_label (object));
+      g_message ("%s %p", __func__, object);
       g_object_break ();
     }
 
@@ -75,13 +75,21 @@ g_object_ref_debug (gpointer object)
 void
 g_object_unref_debug (gpointer object)
 {
-  if (UNITY_GTK_IS_MENU_ITEM (object))
+  if (UNITY_GTK_IS_ACTION (object))
     {
-      g_message ("%s %p %s", __func__, object, unity_gtk_menu_item_get_label (object));
+      g_message ("%s %p", __func__, object);
       g_object_break ();
     }
 
   return g_object_unref (object);
+}
+
+static void
+g_object_run_dispose_unref (gpointer data)
+{
+  g_return_if_fail (G_IS_OBJECT (data));
+  g_object_run_dispose (data);
+  g_object_unref_debug (data);
 }
 
 static gint
@@ -168,7 +176,7 @@ unity_gtk_menu_shell_get_items (UnityGtkMenuShell *shell)
 
       g_return_val_if_fail (shell->menu_shell != NULL, NULL);
 
-      shell->items = g_ptr_array_new_with_free_func (g_object_unref_debug);
+      shell->items = g_ptr_array_new_with_free_func (g_object_run_dispose_unref);
       iter = gtk_container_get_children (GTK_CONTAINER (shell->menu_shell));
 
       for (i = 0; iter != NULL; i++)
@@ -192,7 +200,7 @@ unity_gtk_menu_shell_get_sections (UnityGtkMenuShell *shell)
       guint n = g_sequence_get_length (separator_indices);
       guint i;
 
-      shell->sections = g_ptr_array_new_full (n + 1, g_object_unref_debug);
+      shell->sections = g_ptr_array_new_full (n + 1, g_object_run_dispose_unref);
 
       for (i = 0; i <= n; i++)
         g_ptr_array_add (shell->sections, unity_gtk_menu_section_new (shell, i));
