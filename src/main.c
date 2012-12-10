@@ -44,7 +44,7 @@ window_data_free (gpointer data)
         g_dbus_connection_unexport_menu_model (session, window_data->menu_model_export_id);
 
       if (window_data->action_group != NULL)
-        g_object_unref_debug (window_data->action_group);
+        g_object_unref (window_data->action_group);
 
       if (window_data->menu_model != NULL)
         g_object_unref (window_data->menu_model);
@@ -269,7 +269,7 @@ hijacked_menu_bar_unrealize (GtkWidget *widget)
 
           unity_gtk_action_group_disconnect_shell (window_data->action_group, iter->data);
           g_object_run_dispose (iter->data);
-          g_object_unref_debug (iter->data);
+          g_object_unref (iter->data);
 
           window_data->menus = g_slist_delete_link (window_data->menus, iter);
         }

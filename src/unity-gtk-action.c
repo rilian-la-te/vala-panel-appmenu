@@ -125,7 +125,7 @@ UnityGtkAction *
 unity_gtk_action_new (const gchar      *name,
                       UnityGtkMenuItem *item)
 {
-  return g_object_new_debug (UNITY_GTK_TYPE_ACTION,
+  return g_object_new (UNITY_GTK_TYPE_ACTION,
                        "name", name,
                        "item", item,
                        NULL);
@@ -134,11 +134,11 @@ unity_gtk_action_new (const gchar      *name,
 UnityGtkAction *
 unity_gtk_action_new_radio (const gchar *name)
 {
-  UnityGtkAction *action = g_object_new_debug (UNITY_GTK_TYPE_ACTION,
+  UnityGtkAction *action = g_object_new (UNITY_GTK_TYPE_ACTION,
                                          "name", name,
                                          NULL);
 
-  action->items_by_name = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref_debug);
+  action->items_by_name = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
 
   return action;
 }
@@ -168,11 +168,11 @@ unity_gtk_action_set_item (UnityGtkAction   *action,
       if (old_item != NULL)
         {
           action->item = NULL;
-          g_object_unref_debug (old_item);
+          g_object_unref (old_item);
         }
 
       if (item != NULL)
-        action->item = g_object_ref_debug (item);
+        action->item = g_object_ref (item);
     }
 }
 

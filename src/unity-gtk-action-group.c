@@ -344,14 +344,14 @@ unity_gtk_action_group_action_group_init (GActionGroupInterface *iface)
 static void
 unity_gtk_action_group_init (UnityGtkActionGroup *self)
 {
-  self->actions_by_name = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref_debug);
+  self->actions_by_name = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref);
   self->names_by_radio_menu_item = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_free);
 }
 
 UnityGtkActionGroup *
 unity_gtk_action_group_new (void)
 {
-  return g_object_new_debug (UNITY_GTK_TYPE_ACTION_GROUP,
+  return g_object_new (UNITY_GTK_TYPE_ACTION_GROUP,
                        NULL);
 }
 
@@ -601,7 +601,7 @@ unity_gtk_action_group_connect_item (UnityGtkActionGroup *group,
             action = new_action = unity_gtk_action_new_radio (action_name);
 
           state_name = unity_gtk_action_group_get_state_name (group, item);
-          g_hash_table_insert (action->items_by_name, state_name, g_object_ref_debug (item));
+          g_hash_table_insert (action->items_by_name, state_name, g_object_ref (item));
         }
       else if (!unity_gtk_menu_item_is_separator (item))
         {
@@ -729,7 +729,7 @@ unity_gtk_action_group_connect_shell (UnityGtkActionGroup *group,
     }
 
   if (shell->action_group == NULL)
-    shell->action_group = g_object_ref_debug (group);
+    shell->action_group = g_object_ref (group);
 }
 
 void
@@ -773,7 +773,7 @@ unity_gtk_action_group_disconnect_shell (UnityGtkActionGroup *group,
   if (action_group != NULL)
     {
       shell->action_group = NULL;
-      g_object_unref_debug (action_group);
+      g_object_unref (action_group);
     }
 }
 

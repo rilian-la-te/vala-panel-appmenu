@@ -37,11 +37,11 @@ unity_gtk_menu_section_set_parent_shell (UnityGtkMenuSection *section,
       if (old_parent_shell != NULL)
         {
           section->parent_shell = NULL;
-          g_object_unref_debug (old_parent_shell);
+          g_object_unref (old_parent_shell);
         }
 
       if (parent_shell != NULL)
-        section->parent_shell = g_object_ref_debug (parent_shell);
+        section->parent_shell = g_object_ref (parent_shell);
     }
 }
 
@@ -227,10 +227,10 @@ unity_gtk_menu_section_get_item_links (GMenuModel  *model,
   item = unity_gtk_menu_shell_get_item (parent_shell, index);
   child_shell = unity_gtk_menu_item_get_child_shell (item);
 
-  *links = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref_debug);
+  *links = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_object_unref);
 
   if (child_shell != NULL)
-    g_hash_table_insert (*links, G_MENU_LINK_SUBMENU, g_object_ref_debug (child_shell));
+    g_hash_table_insert (*links, G_MENU_LINK_SUBMENU, g_object_ref (child_shell));
 }
 
 static void
@@ -272,7 +272,7 @@ UnityGtkMenuSection *
 unity_gtk_menu_section_new (UnityGtkMenuShell *parent_shell,
                             guint              section_index)
 {
-  return g_object_new_debug (UNITY_GTK_TYPE_MENU_SECTION,
+  return g_object_new (UNITY_GTK_TYPE_MENU_SECTION,
                        "parent-shell", parent_shell,
                        "section-index", section_index,
                        NULL);

@@ -34,14 +34,6 @@ struct _UnityGtkMenuShellClass
   GMenuModelClass parent_class;
 };
 
-gpointer            g_object_new_debug                         (GType        object_type,
-                                                                const gchar *first_property_name,
-                                                                ...);
-
-gpointer            g_object_ref_debug                         (gpointer     object);
-
-void                g_object_unref_debug                       (gpointer     object);
-
 GType               unity_gtk_menu_shell_get_type              (void)                          G_GNUC_INTERNAL;
 
 UnityGtkMenuShell * unity_gtk_menu_shell_new                   (GtkMenuShell      *menu_shell) G_GNUC_INTERNAL;
