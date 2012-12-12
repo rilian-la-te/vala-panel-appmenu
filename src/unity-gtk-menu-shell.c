@@ -351,6 +351,37 @@ unity_gtk_menu_shell_hide_item (UnityGtkMenuShell *shell,
 }
 
 static void
+unity_gtk_menu_shell_update_item (UnityGtkMenuShell *shell,
+                                  UnityGtkMenuItem  *item)
+{
+  GSequence *visible_indices;
+  GSequence *separator_indices;
+  GSequenceIter *separator_iter;
+  guint section_index;
+  GPtrArray *sections;
+  UnityGtkMenuSection *section;
+  GSequenceIter *section_iter;
+  GSequenceIter *visible_iter;
+  guint position;
+
+  g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+  g_warn_if_fail (item->parent_shell == shell);
+
+  visible_indices = unity_gtk_menu_shell_get_visible_indices (shell);
+  separator_indices = unity_gtk_menu_shell_get_separator_indices (shell);
+  separator_iter = g_sequence_search_inf_uint (separator_indices, item->item_index);
+  section_index = separator_iter == NULL ? 0 : g_sequence_iter_get_position (separator_iter) + 1;
+  sections = unity_gtk_menu_shell_get_sections (shell);
+  section = g_ptr_array_index (sections, section_index);
+  section_iter = unity_gtk_menu_section_get_begin_iter (section);
+  visible_iter = g_sequence_lookup_uint (visible_indices, item->item_index);
+  position = g_sequence_iter_get_position (visible_iter) - g_sequence_iter_get_position (section_iter);
+
+  g_menu_model_items_changed (G_MENU_MODEL (section), position, 1, 1);
+}
+
+static void
 unity_gtk_menu_shell_handle_item_visible (UnityGtkMenuShell *shell,
                                           UnityGtkMenuItem  *item)
 {
@@ -395,6 +426,20 @@ unity_gtk_menu_shell_handle_item_sensitive (UnityGtkMenuShell *shell,
 
       g_action_group_action_enabled_changed (action_group, action->name, enabled);
     }
+}
+
+static void
+unity_gtk_menu_shell_handle_item_label (UnityGtkMenuShell *shell,
+                                        UnityGtkMenuItem  *item)
+{
+  unity_gtk_menu_shell_update_item (shell, item);
+}
+
+static void
+unity_gtk_menu_shell_handle_item_accel_path (UnityGtkMenuShell *shell,
+                                             UnityGtkMenuItem  *item)
+{
+  unity_gtk_menu_shell_update_item (shell, item);
 }
 
 static void
@@ -910,6 +955,8 @@ unity_gtk_menu_shell_handle_item_notify (UnityGtkMenuShell *shell,
 {
   static const gchar *visible_name;
   static const gchar *sensitive_name;
+  static const gchar *label_name;
+  static const gchar *accel_path_name;
   static const gchar *active_name;
   static const gchar *parent_name;
   static const gchar *submenu_name;
@@ -923,6 +970,10 @@ unity_gtk_menu_shell_handle_item_notify (UnityGtkMenuShell *shell,
     visible_name = g_intern_static_string ("visible");
   if (sensitive_name == NULL)
     sensitive_name = g_intern_static_string ("sensitive");
+  if (label_name == NULL)
+    label_name = g_intern_static_string ("label");
+  if (accel_path_name == NULL)
+    accel_path_name = g_intern_static_string ("accel-path");
   if (active_name == NULL)
     active_name = g_intern_static_string ("active");
   if (parent_name == NULL)
@@ -936,6 +987,10 @@ unity_gtk_menu_shell_handle_item_notify (UnityGtkMenuShell *shell,
     unity_gtk_menu_shell_handle_item_visible (shell, item);
   else if (pspec_name == sensitive_name)
     unity_gtk_menu_shell_handle_item_sensitive (shell, item);
+  else if (pspec_name == label_name)
+    unity_gtk_menu_shell_handle_item_label (shell, item);
+  else if (pspec_name == accel_path_name)
+    unity_gtk_menu_shell_handle_item_accel_path (shell, item);
   else if (pspec_name == active_name)
     unity_gtk_menu_shell_handle_item_active (shell, item);
   else if (pspec_name == parent_name)
