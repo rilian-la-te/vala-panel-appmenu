@@ -51,7 +51,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = x86_64-unknown-linux-gnu
 host_triplet = x86_64-unknown-linux-gnu
-noinst_PROGRAMS = client$(EXEEXT) black$(EXEEXT)
+noinst_PROGRAMS = client$(EXEEXT) black$(EXEEXT) \
+	unity-gtk-menu-tester$(EXEEXT) test-radio$(EXEEXT) \
+	hello$(EXEEXT)
 subdir = demos
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in black.c \
 	black_vala.stamp
@@ -80,6 +82,15 @@ am_client_OBJECTS = altgrabber.$(OBJEXT) altmonitor.$(OBJEXT) \
 	menusource.$(OBJEXT) client.$(OBJEXT)
 client_OBJECTS = $(am_client_OBJECTS)
 client_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+am_hello_OBJECTS = hello.$(OBJEXT)
+hello_OBJECTS = $(am_hello_OBJECTS)
+hello_LDADD = $(LDADD)
+am_test_radio_OBJECTS = test-radio.$(OBJEXT)
+test_radio_OBJECTS = $(am_test_radio_OBJECTS)
+test_radio_LDADD = $(LDADD)
+am_unity_gtk_menu_tester_OBJECTS = unity-gtk-menu-tester.$(OBJEXT)
+unity_gtk_menu_tester_OBJECTS = $(am_unity_gtk_menu_tester_OBJECTS)
+unity_gtk_menu_tester_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I.
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__depfiles_maybe = depfiles
@@ -113,8 +124,10 @@ am__v_VALAC_0 = @echo "  VALAC " $@;
 AM_V_GEN = $(am__v_GEN_$(V))
 am__v_GEN_ = $(am__v_GEN_$(AM_DEFAULT_VERBOSITY))
 am__v_GEN_0 = @echo "  GEN   " $@;
-SOURCES = $(black_SOURCES) $(client_SOURCES)
-DIST_SOURCES = $(black_SOURCES) $(client_SOURCES)
+SOURCES = $(black_SOURCES) $(client_SOURCES) $(hello_SOURCES) \
+	$(test_radio_SOURCES) $(unity_gtk_menu_tester_SOURCES)
+DIST_SOURCES = $(black_SOURCES) $(client_SOURCES) $(hello_SOURCES) \
+	$(test_radio_SOURCES) $(unity_gtk_menu_tester_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -137,7 +150,7 @@ CFLAGS = -Wno-error=deprecated-declarations -O0 -ggdb3
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
-DEFS = -DPACKAGE_NAME=\"unity-gtk-module\" -DPACKAGE_TARNAME=\"unity-gtk-module\" -DPACKAGE_VERSION=\"0\" -DPACKAGE_STRING=\"unity-gtk-module\ 0\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -DPACKAGE=\"unity-gtk-module\" -DVERSION=\"0\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DLT_OBJDIR=\".libs/\"
+DEFS = -DPACKAGE_NAME=\"unity-gtk-module\" -DPACKAGE_TARNAME=\"unity-gtk-module\" -DPACKAGE_VERSION=\"0.0.0\" -DPACKAGE_STRING=\"unity-gtk-module\ 0.0.0\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -DPACKAGE=\"unity-gtk-module\" -DVERSION=\"0.0.0\" -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_DLFCN_H=1 -DLT_OBJDIR=\".libs/\"
 DEPDIR = .deps
 DLLTOOL = false
 DSYMUTIL = 
@@ -176,10 +189,10 @@ OTOOL64 =
 PACKAGE = unity-gtk-module
 PACKAGE_BUGREPORT = 
 PACKAGE_NAME = unity-gtk-module
-PACKAGE_STRING = unity-gtk-module 0
+PACKAGE_STRING = unity-gtk-module 0.0.0
 PACKAGE_TARNAME = unity-gtk-module
 PACKAGE_URL = 
-PACKAGE_VERSION = 0
+PACKAGE_VERSION = 0.0.0
 PATH_SEPARATOR = :
 PKG_CONFIG = /usr/bin/pkg-config
 PKG_CONFIG_LIBDIR = 
@@ -190,7 +203,7 @@ SET_MAKE =
 SHELL = /bin/bash
 STRIP = strip
 VALAC = /home/william/Code/jhbuild/install/bin/valac
-VERSION = 0
+VERSION = 0.0.0
 abs_builddir = /home/william/Code/unity-gtk-module/demos
 abs_srcdir = /home/william/Code/unity-gtk-module/demos
 abs_top_builddir = /home/william/Code/unity-gtk-module
@@ -264,6 +277,15 @@ black_CFLAGS = $(gtk_CFLAGS)
 black_VALAFLAGS = --pkg gtk+-3.0
 black_LDADD = $(gtk_LIBS)
 black_SOURCES = black.vala
+unity_gtk_menu_tester_SOURCES = \
+	unity-gtk-menu-tester.c
+
+test_radio_SOURCES = \
+	test-radio.c
+
+hello_SOURCES = \
+	hello.c
+
 all: all-am
 
 .SUFFIXES:
@@ -313,6 +335,15 @@ black$(EXEEXT): $(black_OBJECTS) $(black_DEPENDENCIES) $(EXTRA_black_DEPENDENCIE
 client$(EXEEXT): $(client_OBJECTS) $(client_DEPENDENCIES) $(EXTRA_client_DEPENDENCIES) 
 	@rm -f client$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(client_OBJECTS) $(client_LDADD) $(LIBS)
+hello$(EXEEXT): $(hello_OBJECTS) $(hello_DEPENDENCIES) $(EXTRA_hello_DEPENDENCIES) 
+	@rm -f hello$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(hello_OBJECTS) $(hello_LDADD) $(LIBS)
+test-radio$(EXEEXT): $(test_radio_OBJECTS) $(test_radio_DEPENDENCIES) $(EXTRA_test_radio_DEPENDENCIES) 
+	@rm -f test-radio$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(test_radio_OBJECTS) $(test_radio_LDADD) $(LIBS)
+unity-gtk-menu-tester$(EXEEXT): $(unity_gtk_menu_tester_OBJECTS) $(unity_gtk_menu_tester_DEPENDENCIES) $(EXTRA_unity_gtk_menu_tester_DEPENDENCIES) 
+	@rm -f unity-gtk-menu-tester$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(unity_gtk_menu_tester_OBJECTS) $(unity_gtk_menu_tester_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -324,7 +355,10 @@ include ./$(DEPDIR)/altgrabber.Po
 include ./$(DEPDIR)/altmonitor.Po
 include ./$(DEPDIR)/black-black.Po
 include ./$(DEPDIR)/client.Po
+include ./$(DEPDIR)/hello.Po
 include ./$(DEPDIR)/menusource.Po
+include ./$(DEPDIR)/test-radio.Po
+include ./$(DEPDIR)/unity-gtk-menu-tester.Po
 
 .c.o:
 	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

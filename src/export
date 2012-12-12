@@ -1,2 +1,0 @@
-export LD_LIBRARY_PATH=.libs:$LD_LIBRARY_PATH
-export GTK_MODULES=$GTK_MODULES:unity-gtk-module
