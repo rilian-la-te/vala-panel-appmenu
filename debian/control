@@ -14,6 +14,6 @@ Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: GTK+ module for exporting old-style menus as GMenuModels
  Many applications implement menus as GtkMenuShells and GtkMenuItems
  and aren't looking to migrate to the newer GMenuModel API.
-
+ .
  This GTK+ module watches for these types of menus and exports the
  appropriate GMenuModel implementation.
