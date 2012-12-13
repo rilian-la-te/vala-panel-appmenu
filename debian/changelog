@@ -1,4 +1,4 @@
-unity-gtk-module (0.0.0) unstable; urgency=low
+unity-gtk-module (0.0.0-0ubuntu1) raring; urgency=low
 
   * Initial Release.
 
