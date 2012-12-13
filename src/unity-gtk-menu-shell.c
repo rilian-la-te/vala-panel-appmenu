@@ -281,11 +281,6 @@ unity_gtk_menu_shell_hide_item (UnityGtkMenuShell *shell,
                       guint added = g_menu_model_get_n_items (G_MENU_MODEL (next_section));
                       guint i;
 
-                      g_ptr_array_remove_index (sections, section_index + 1);
-
-                      for (i = section_index + 1; i < sections->len; i++)
-                        UNITY_GTK_MENU_SECTION (g_ptr_array_index (sections, i))->section_index = i;
-
                       g_sequence_remove (separator_iter);
 
                       if (visible_iter != NULL)
@@ -297,6 +292,11 @@ unity_gtk_menu_shell_hide_item (UnityGtkMenuShell *shell,
 
                       if (added)
                         g_menu_model_items_changed (G_MENU_MODEL (section), position, 0, added);
+
+                      g_ptr_array_remove_index (sections, section_index + 1);
+
+                      for (i = section_index + 1; i < sections->len; i++)
+                        UNITY_GTK_MENU_SECTION (g_ptr_array_index (sections, i))->section_index = i;
                     }
                   else
                     {
