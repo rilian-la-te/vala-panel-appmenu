@@ -18,9 +18,9 @@ PKG_PROG_PKG_CONFIG([0.26])
 PKG_CHECK_MODULES([GTK], [gtk+-3.0])
 AC_SUBST([GTK_CFLAGS])
 AC_SUBST([GTK_LIBS])
-AC_SUBST([GTK_LIBDIR], [PKG_CONFIG --variable=libdir gtk+-3.0])
+AC_SUBST([GTK_LIBDIR], [`$PKG_CONFIG --variable=libdir gtk+-3.0`])
 
-AC_ARG_WITH([gtk-module-dir], [AS_HELP_STRING([--with-gtk-module-dir=PATH], [GTK+ module directory [default=GTK_LIBDIR/gtk-3.0/modules]])], [], [with_gtk_module_dir=GTK_LIBDIR/gtk-3.0/modules])
+AC_ARG_WITH([gtk-module-dir], [AS_HELP_STRING([--with-gtk-module-dir=PATH], [GTK+ module directory [default=GTK_LIBDIR/gtk-3.0/modules]])], [], [with_gtk_module_dir=$GTK_LIBDIR/gtk-3.0/modules])
 AC_SUBST([GTK_MODULE_DIR], [$with_gtk_module_dir])
 
 AC_CONFIG_FILES([Makefile data/Makefile src/Makefile])
