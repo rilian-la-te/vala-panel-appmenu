@@ -1,7 +1,7 @@
 libunity_gtk_module_LTLIBRARIES = libunity-gtk-module.la
 
 AM_CFLAGS = $(GTK_CFLAGS) -Wall
-AM_LDFLAGS = -avoid-version -module -shared
+AM_LDFLAGS = $(GTK_LIBS) -avoid-version -module -shared
 
 libunity_gtk_moduledir = $(GTK_MODULE_DIR)
 
