@@ -73,6 +73,65 @@ static void (* pre_hijacked_menu_bar_get_preferred_height_for_width) (GtkWidget 
                                                                       gint          *minimum_height,
                                                                       gint          *natural_height);
 
+static gboolean
+gtk_widget_has_x11_property (GtkWidget   *widget,
+                             const gchar *name)
+{
+  GdkWindow *window;
+  GdkDisplay *display;
+  Display *xdisplay;
+  Window xwindow;
+  Atom property;
+  Atom actual_type;
+  int actual_format;
+  unsigned long nitems;
+  unsigned long bytes_after;
+  unsigned char *prop;
+
+  g_return_val_if_fail (GTK_IS_WIDGET (widget), FALSE);
+
+  window = gtk_widget_get_window (widget);
+  display = gdk_window_get_display (window);
+  xdisplay = GDK_DISPLAY_XDISPLAY (display);
+  xwindow = GDK_WINDOW_XID (window);
+
+  property = None;
+
+  if (display != NULL)
+    property = gdk_x11_get_xatom_by_name_for_display (display, name);
+
+  if (property == None)
+    property = gdk_x11_get_xatom_by_name (name);
+
+  g_return_val_if_fail (property != None, FALSE);
+
+  if (XGetWindowProperty (xdisplay,
+                          xwindow,
+                          property,
+                          0,
+                          G_MAXLONG,
+                          False,
+                          AnyPropertyType,
+                          &actual_type,
+                          &actual_format,
+                          &nitems,
+                          &bytes_after,
+                          &prop) == Success)
+    {
+      if (actual_format)
+        {
+          if (prop != NULL)
+            XFree (prop);
+
+          return TRUE;
+        }
+      else
+        return FALSE;
+    }
+
+  return FALSE;
+}
+
 static gchar *
 gtk_widget_get_x11_property_string (GtkWidget   *widget,
                                     const gchar *name)
@@ -132,26 +191,6 @@ gtk_widget_get_x11_property_string (GtkWidget   *widget,
     }
 
   return NULL;
-}
-
-static gboolean
-gtk_widget_has_x11_property_string (GtkWidget   *widget,
-                                    const gchar *name)
-{
-  gchar *value;
-
-  g_return_val_if_fail (GTK_IS_WIDGET (widget), FALSE);
-
-  value = gtk_widget_get_x11_property_string (widget, name);
-
-  if (value != NULL)
-    {
-      g_free (value);
-
-      return TRUE;
-    }
-  else
-    return FALSE;
 }
 
 static WindowData *
@@ -227,7 +266,7 @@ window_get_window_data (GtkWidget *widget)
       gdk_x11_window_set_utf8_property (window, "_GTK_UNIQUE_BUS_NAME", g_dbus_connection_get_unique_name (session));
       gdk_x11_window_set_utf8_property (window, "_GTK_WINDOW_OBJECT_PATH", object_path);
 
-      if (!gtk_widget_has_x11_property_string (widget, "_GTK_MENUBAR_OBJECT_PATH"))
+      if (!gtk_widget_has_x11_property (widget, "_GTK_MENUBAR_OBJECT_PATH"))
         gdk_x11_window_set_utf8_property (window, "_GTK_MENUBAR_OBJECT_PATH", object_path);
 
       g_object_set_qdata_full (G_OBJECT (widget), window_data_quark (), window_data, window_data_free);
