@@ -114,12 +114,62 @@ window_data_free (gpointer data)
     }
 }
 
-static void
-window_realize (GtkWidget *widget)
+static gboolean
+gtk_widget_has_x11_property (GtkWidget   *widget,
+                             const gchar *name)
+{
+  GdkWindow *window;
+  GdkDisplay *display;
+  Display *xdisplay;
+  Window xwindow;
+  Atom property;
+  Atom actual_type;
+  int actual_format;
+  unsigned long nitems;
+  unsigned long bytes_after;
+  unsigned char *prop = NULL;
+
+  g_return_val_if_fail (GTK_IS_WIDGET (widget), FALSE);
+
+  window = gtk_widget_get_window (widget);
+  display = gdk_window_get_display (window);
+  xdisplay = GDK_DISPLAY_XDISPLAY (display);
+  xwindow = GDK_WINDOW_XID (window);
+  property = gdk_x11_get_xatom_by_name_for_display (display, name);
+
+  if (Success == XGetWindowProperty (xdisplay,
+                                     xwindow,
+                                     property,
+                                     0,
+                                     G_MAXLONG,
+                                     False,
+                                     AnyPropertyType,
+                                     &actual_type,
+                                     &actual_format,
+                                     &nitems,
+                                     &bytes_after,
+                                     &prop))
+    {
+      if (actual_format != 0)
+        {
+          if (prop != NULL)
+            XFree (prop);
+
+          return TRUE;
+        }
+      else
+        return FALSE;
+    }
+
+  return FALSE;
+}
+
+static WindowData *
+window_get_window_data (GtkWidget *widget)
 {
   WindowData *window_data;
 
-  g_return_if_fail (GTK_IS_WINDOW (widget));
+  g_return_val_if_fail (GTK_IS_WINDOW (widget), NULL);
 
   window_data = g_object_get_qdata (G_OBJECT (widget), window_data_quark ());
 
@@ -137,19 +187,25 @@ window_realize (GtkWidget *widget)
       window_data->action_group = unity_gtk_action_group_new ();
 
       session = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
+      window = GDK_X11_WINDOW (gtk_widget_get_window (widget));
       object_path = g_strdup_printf (WINDOW_OBJECT_PATH "/%d", window_data->window_id);
+
       window_data->menu_model_export_id = g_dbus_connection_export_menu_model (session, object_path, G_MENU_MODEL (window_data->menu_model), NULL);
       window_data->action_group_export_id = g_dbus_connection_export_action_group (session, object_path, G_ACTION_GROUP (window_data->action_group), NULL);
 
-      window = GDK_X11_WINDOW (gtk_widget_get_window (widget));
-      gdk_x11_window_set_utf8_property (window, "_GTK_UNIQUE_BUS_NAME", g_dbus_connection_get_unique_name (session));
-      gdk_x11_window_set_utf8_property (window, "_GTK_WINDOW_OBJECT_PATH", object_path);
-      gdk_x11_window_set_utf8_property (window, "_GTK_MENUBAR_OBJECT_PATH", object_path);
+      if (!gtk_widget_has_x11_property (widget, "_GTK_UNIQUE_BUS_NAME"))
+        gdk_x11_window_set_utf8_property (window, "_GTK_UNIQUE_BUS_NAME", g_dbus_connection_get_unique_name (session));
+      if (!gtk_widget_has_x11_property (widget, "_GTK_WINDOW_OBJECT_PATH"))
+        gdk_x11_window_set_utf8_property (window, "_GTK_WINDOW_OBJECT_PATH", object_path);
+      if (!gtk_widget_has_x11_property (widget, "_GTK_MENUBAR_OBJECT_PATH"))
+        gdk_x11_window_set_utf8_property (window, "_GTK_MENUBAR_OBJECT_PATH", object_path);
 
       g_object_set_qdata_full (G_OBJECT (widget), window_data_quark (), window_data, window_data_free);
 
       g_free (object_path);
     }
+
+  return window_data;
 }
 
 static void
@@ -160,7 +216,7 @@ hijacked_window_realize (GtkWidget *widget)
   (* pre_hijacked_window_realize) (widget);
 
   if (!GTK_IS_APPLICATION_WINDOW (widget))
-    window_realize (widget);
+    window_get_window_data (widget);
 }
 
 static void
@@ -180,7 +236,7 @@ hijacked_application_window_realize (GtkWidget *widget)
 
   (* pre_hijacked_application_window_realize) (widget);
 
-  window_realize (widget);
+  window_get_window_data (widget);
 }
 
 static void
@@ -194,7 +250,7 @@ hijacked_menu_bar_realize (GtkWidget *widget)
   (* pre_hijacked_menu_bar_realize) (widget);
 
   window = gtk_widget_get_toplevel (widget);
-  window_data = g_object_get_qdata (G_OBJECT (window), window_data_quark ());
+  window_data = window_get_window_data (window);
 
   if (window_data != NULL)
     {
@@ -228,7 +284,7 @@ hijacked_menu_bar_unrealize (GtkWidget *widget)
   (* pre_hijacked_menu_bar_unrealize) (widget);
 
   window = gtk_widget_get_toplevel (widget);
-  window_data = g_object_get_qdata (G_OBJECT (window), window_data_quark ());
+  window_data = window_get_window_data (window);
 
   if (window_data != NULL)
     {
