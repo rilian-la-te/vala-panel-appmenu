@@ -268,30 +268,64 @@ static gchar **
 unity_gtk_action_group_list_actions (GActionGroup *action_group)
 {
   UnityGtkActionGroup *group;
-  GHashTable *actions_by_name;
-  GHashTableIter iter;
-  gchar **names;
-  gpointer key;
-  guint n;
-  guint i;
 
   g_return_val_if_fail (UNITY_GTK_IS_ACTION_GROUP (action_group), NULL);
 
   group = UNITY_GTK_ACTION_GROUP (action_group);
-  actions_by_name = group->actions_by_name;
 
-  g_return_val_if_fail (actions_by_name != NULL, NULL);
+  if (group->actions_by_name != NULL)
+    {
+      gchar **names;
+      gchar **new_names;
+      GHashTableIter iter;
+      gpointer key;
+      guint n;
+      guint i;
 
-  n = g_hash_table_size (actions_by_name);
-  names = g_malloc_n (n + 1, sizeof (gchar *));
+      names = NULL;
+      new_names = NULL;
+      n = g_hash_table_size (group->actions_by_name);
 
-  g_hash_table_iter_init (&iter, actions_by_name);
-  for (i = 0; i < n && g_hash_table_iter_next (&iter, &key, NULL); i++)
-    names[i] = g_strdup (key);
+      if (group->old_group != NULL)
+        {
+          gchar **old_names = g_action_group_list_actions (group->old_group);
 
-  names[i] = NULL;
+          if (old_names != NULL)
+            {
+              for (i = 0; old_names[i] != NULL; i++);
 
-  return names;
+              names = g_malloc_n (i + n + 1, sizeof (gchar *));
+              new_names = names + i;
+
+              for (i = 0; old_names[i] != NULL; i++)
+                names[i] = old_names[i];
+
+              g_free (old_names);
+            }
+          else
+            g_warn_if_reached ();
+        }
+
+      if (names == NULL)
+        new_names = names = g_malloc_n (n + 1, sizeof (gchar *));
+
+      g_hash_table_iter_init (&iter, group->actions_by_name);
+      for (i = 0; i < n && g_hash_table_iter_next (&iter, &key, NULL); i++)
+        new_names[i] = g_strdup (key);
+
+      new_names[i] = NULL;
+
+      return names;
+    }
+  else
+    {
+      g_warn_if_reached ();
+
+      if (group->old_group != NULL)
+        return g_action_group_list_actions (group->old_group);
+      else
+        return NULL;
+    }
 }
 
 static void
