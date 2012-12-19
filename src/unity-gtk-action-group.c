@@ -40,6 +40,72 @@ enum
 static GParamSpec *action_group_properties[ACTION_GROUP_N_PROPERTIES] = { NULL };
 
 static void
+unity_gtk_action_group_handle_group_action_added (GActionGroup *action_group,
+                                                  gchar        *action_name,
+                                                  gpointer      user_data)
+{
+  UnityGtkActionGroup *group;
+
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (user_data));
+
+  group = UNITY_GTK_ACTION_GROUP (user_data);
+
+  g_warn_if_fail (action_group == group->old_group);
+
+  g_action_group_action_added (G_ACTION_GROUP (group), action_name);
+}
+
+static void
+unity_gtk_action_group_handle_group_action_removed (GActionGroup *action_group,
+                                                    gchar        *action_name,
+                                                    gpointer      user_data)
+{
+  UnityGtkActionGroup *group;
+
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (user_data));
+
+  group = UNITY_GTK_ACTION_GROUP (user_data);
+
+  g_warn_if_fail (action_group == group->old_group);
+
+  g_action_group_action_removed (G_ACTION_GROUP (group), action_name);
+}
+
+static void
+unity_gtk_action_group_handle_group_action_enabled_changed (GActionGroup *action_group,
+                                                            gchar        *action_name,
+                                                            gboolean      enabled,
+                                                            gpointer      user_data)
+{
+  UnityGtkActionGroup *group;
+
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (user_data));
+
+  group = UNITY_GTK_ACTION_GROUP (user_data);
+
+  g_warn_if_fail (action_group == group->old_group);
+
+  g_action_group_action_enabled_changed (G_ACTION_GROUP (group), action_name, enabled);
+}
+
+static void
+unity_gtk_action_group_handle_group_action_state_changed (GActionGroup *action_group,
+                                                          gchar        *action_name,
+                                                          GVariant     *value,
+                                                          gpointer      user_data)
+{
+  UnityGtkActionGroup *group;
+
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (user_data));
+
+  group = UNITY_GTK_ACTION_GROUP (user_data);
+
+  g_warn_if_fail (action_group == group->old_group);
+
+  g_action_group_action_state_changed (G_ACTION_GROUP (group), action_name, value);
+}
+
+static void
 unity_gtk_action_group_set_old_group (UnityGtkActionGroup *group,
                                       GActionGroup        *old_group)
 {
@@ -51,6 +117,34 @@ unity_gtk_action_group_set_old_group (UnityGtkActionGroup *group,
 
   if (old_group != old_old_group)
     {
+      if (group->old_group_action_state_changed_handler_id)
+        {
+          g_assert (old_old_group != NULL);
+          g_signal_handler_disconnect (old_old_group, group->old_group_action_state_changed_handler_id);
+          group->old_group_action_state_changed_handler_id = 0;
+        }
+
+      if (group->old_group_action_enabled_changed_handler_id)
+        {
+          g_assert (old_old_group != NULL);
+          g_signal_handler_disconnect (old_old_group, group->old_group_action_enabled_changed_handler_id);
+          group->old_group_action_enabled_changed_handler_id = 0;
+        }
+
+      if (group->old_group_action_removed_handler_id)
+        {
+          g_assert (old_old_group != NULL);
+          g_signal_handler_disconnect (old_old_group, group->old_group_action_removed_handler_id);
+          group->old_group_action_removed_handler_id = 0;
+        }
+
+      if (group->old_group_action_added_handler_id)
+        {
+          g_assert (old_old_group != NULL);
+          g_signal_handler_disconnect (old_old_group, group->old_group_action_added_handler_id);
+          group->old_group_action_added_handler_id = 0;
+        }
+
       if (old_old_group != NULL)
         {
           gchar **names = g_action_group_list_actions (old_old_group);
@@ -74,6 +168,10 @@ unity_gtk_action_group_set_old_group (UnityGtkActionGroup *group,
           gchar **names = g_action_group_list_actions (old_group);
 
           group->old_group = g_object_ref (old_group);
+          group->old_group_action_added_handler_id = g_signal_connect (old_group, "action-added", G_CALLBACK (unity_gtk_action_group_handle_group_action_added), group);
+          group->old_group_action_removed_handler_id = g_signal_connect (old_group, "action-removed", G_CALLBACK (unity_gtk_action_group_handle_group_action_removed), group);
+          group->old_group_action_enabled_changed_handler_id = g_signal_connect (old_group, "action-enabled-changed", G_CALLBACK (unity_gtk_action_group_handle_group_action_enabled_changed), group);
+          group->old_group_action_state_changed_handler_id = g_signal_connect (old_group, "action-state-changed", G_CALLBACK (unity_gtk_action_group_handle_group_action_state_changed), group);
 
           if (names != NULL)
             {
