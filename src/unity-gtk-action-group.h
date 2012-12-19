@@ -39,8 +39,9 @@ struct _UnityGtkActionGroup
   GObject parent_instance;
 
   /*< private >*/
-  GHashTable *actions_by_name;
-  GHashTable *names_by_radio_menu_item;
+  GActionGroup *old_group;
+  GHashTable   *actions_by_name;
+  GHashTable   *names_by_radio_menu_item;
 };
 
 struct _UnityGtkActionGroupClass
@@ -48,23 +49,23 @@ struct _UnityGtkActionGroupClass
   GObjectClass parent_class;
 };
 
-GType                 unity_gtk_action_group_get_type         (void)                        G_GNUC_INTERNAL;
+GType                 unity_gtk_action_group_get_type         (void)                           G_GNUC_INTERNAL;
 
-UnityGtkActionGroup * unity_gtk_action_group_new              (void)                        G_GNUC_INTERNAL;
+UnityGtkActionGroup * unity_gtk_action_group_new              (GActionGroup        *old_group) G_GNUC_INTERNAL;
 
 void                  unity_gtk_action_group_connect_item     (UnityGtkActionGroup *group,
-                                                               UnityGtkMenuItem    *item)   G_GNUC_INTERNAL;
+                                                               UnityGtkMenuItem    *item)      G_GNUC_INTERNAL;
 
 void                  unity_gtk_action_group_disconnect_item  (UnityGtkActionGroup *group,
-                                                               UnityGtkMenuItem    *item)   G_GNUC_INTERNAL;
+                                                               UnityGtkMenuItem    *item)      G_GNUC_INTERNAL;
 
 void                  unity_gtk_action_group_connect_shell    (UnityGtkActionGroup *group,
-                                                               UnityGtkMenuShell   *shell)  G_GNUC_INTERNAL;
+                                                               UnityGtkMenuShell   *shell)     G_GNUC_INTERNAL;
 
 void                  unity_gtk_action_group_disconnect_shell (UnityGtkActionGroup *group,
-                                                               UnityGtkMenuShell   *shell)  G_GNUC_INTERNAL;
+                                                               UnityGtkMenuShell   *shell)     G_GNUC_INTERNAL;
 
 void                  unity_gtk_action_group_print            (UnityGtkActionGroup *group,
-                                                               guint                indent) G_GNUC_INTERNAL;
+                                                               guint                indent)    G_GNUC_INTERNAL;
 
 #endif /* __UNITY_GTK_ACTION_GROUP_H__ */

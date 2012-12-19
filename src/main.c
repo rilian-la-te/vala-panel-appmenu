@@ -254,7 +254,7 @@ window_get_window_data (GtkWidget *widget)
       window_data = window_data_new ();
       window_data->window_id = window_id++;
       window_data->menu_model = g_menu_new ();
-      window_data->action_group = unity_gtk_action_group_new ();
+      window_data->action_group = unity_gtk_action_group_new (NULL);
 
       session = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
       window = GDK_X11_WINDOW (gtk_widget_get_window (widget));

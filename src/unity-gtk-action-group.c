@@ -30,6 +30,64 @@ G_DEFINE_TYPE_WITH_CODE (UnityGtkActionGroup,
                          G_IMPLEMENT_INTERFACE (G_TYPE_ACTION_GROUP,
                                                 unity_gtk_action_group_action_group_init));
 
+enum
+{
+  ACTION_GROUP_PROP_0,
+  ACTION_GROUP_PROP_OLD_GROUP,
+  ACTION_GROUP_N_PROPERTIES
+};
+
+static GParamSpec *action_group_properties[ACTION_GROUP_N_PROPERTIES] = { NULL };
+
+static void
+unity_gtk_action_group_set_old_group (UnityGtkActionGroup *group,
+                                      GActionGroup        *old_group)
+{
+  GActionGroup *old_old_group;
+
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (group));
+
+  old_old_group = group->old_group;
+
+  if (old_group != old_old_group)
+    {
+      if (old_old_group != NULL)
+        {
+          gchar **names = g_action_group_list_actions (old_old_group);
+
+          group->old_group = NULL;
+          g_object_unref (old_old_group);
+
+          if (names != NULL)
+            {
+              gchar **i;
+
+              for (i = names; *i != NULL; i++)
+                g_action_group_action_removed (G_ACTION_GROUP (group), *i);
+
+              g_strfreev (names);
+            }
+        }
+
+      if (old_group != NULL)
+        {
+          gchar **names = g_action_group_list_actions (old_group);
+
+          group->old_group = g_object_ref (old_group);
+
+          if (names != NULL)
+            {
+              gchar **i;
+
+              for (i = names; *i != NULL; i++)
+                g_action_group_action_added (G_ACTION_GROUP (group), *i);
+
+              g_strfreev (names);
+            }
+        }
+    }
+}
+
 static void
 unity_gtk_action_group_dispose (GObject *object)
 {
@@ -55,7 +113,57 @@ unity_gtk_action_group_dispose (GObject *object)
       g_hash_table_unref (actions_by_name);
     }
 
+  unity_gtk_action_group_set_old_group (group, NULL);
+
   G_OBJECT_CLASS (unity_gtk_action_group_parent_class)->dispose (object);
+}
+
+static void
+unity_gtk_action_group_get_property (GObject    *object,
+                                     guint       property_id,
+                                     GValue     *value,
+                                     GParamSpec *pspec)
+{
+  UnityGtkActionGroup *group;
+
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (object));
+
+  group = UNITY_GTK_ACTION_GROUP (object);
+
+  switch (property_id)
+    {
+    case ACTION_GROUP_PROP_OLD_GROUP:
+      g_value_set_object (value, group->old_group);
+      break;
+
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
+    }
+}
+
+static void
+unity_gtk_action_group_set_property (GObject      *object,
+                                     guint         property_id,
+                                     const GValue *value,
+                                     GParamSpec   *pspec)
+{
+  UnityGtkActionGroup *group;
+
+  g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (object));
+
+  group = UNITY_GTK_ACTION_GROUP (object);
+
+  switch (property_id)
+    {
+    case ACTION_GROUP_PROP_OLD_GROUP:
+      unity_gtk_action_group_set_old_group (group, g_value_get_object (value));
+      break;
+
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+      break;
+    }
 }
 
 static gchar **
@@ -350,6 +458,16 @@ unity_gtk_action_group_class_init (UnityGtkActionGroupClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = unity_gtk_action_group_dispose;
+  object_class->get_property = unity_gtk_action_group_get_property;
+  object_class->set_property = unity_gtk_action_group_set_property;
+
+  action_group_properties[ACTION_GROUP_PROP_OLD_GROUP] = g_param_spec_object ("old-group",
+                                                                              "Old group",
+                                                                              "Old group",
+                                                                              G_TYPE_ACTION_GROUP,
+                                                                              G_PARAM_READWRITE);
+
+  g_object_class_install_properties (object_class, ACTION_GROUP_N_PROPERTIES, action_group_properties);
 }
 
 static void
@@ -369,9 +487,10 @@ unity_gtk_action_group_init (UnityGtkActionGroup *self)
 }
 
 UnityGtkActionGroup *
-unity_gtk_action_group_new (void)
+unity_gtk_action_group_new (GActionGroup *old_group)
 {
   return g_object_new (UNITY_GTK_TYPE_ACTION_GROUP,
+                       "old-group", old_group,
                        NULL);
 }
 
