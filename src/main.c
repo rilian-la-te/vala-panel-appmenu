@@ -247,31 +247,36 @@ window_get_window_data (GtkWidget *widget)
     {
       static guint window_id;
 
-      GDBusConnection *session;
-      GdkX11Window *window;
-      gchar *object_path;
+      GDBusConnection *session = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
+      GdkX11Window *window = GDK_X11_WINDOW (gtk_widget_get_window (widget));
+      gchar *window_object_path = g_strdup_printf (WINDOW_OBJECT_PATH "/%d", window_id);
+      gchar *old_unique_bus_name = gtk_widget_get_x11_property_string (widget, "_GTK_UNIQUE_BUS_NAME");
+      gchar *old_window_object_path = gtk_widget_get_x11_property_string (widget, "_GTK_WINDOW_OBJECT_PATH");
+      GDBusActionGroup *old_action_group = NULL;
+
+      if (old_unique_bus_name != NULL && old_window_object_path != NULL)
+        old_action_group = g_dbus_action_group_get (session, old_unique_bus_name, old_window_object_path);
 
       window_data = window_data_new ();
       window_data->window_id = window_id++;
       window_data->menu_model = g_menu_new ();
-      window_data->action_group = unity_gtk_action_group_new (NULL);
+      window_data->action_group = unity_gtk_action_group_new (G_ACTION_GROUP (old_action_group));
+      window_data->menu_model_export_id = g_dbus_connection_export_menu_model (session, window_object_path, G_MENU_MODEL (window_data->menu_model), NULL);
+      window_data->action_group_export_id = g_dbus_connection_export_action_group (session, window_object_path, G_ACTION_GROUP (window_data->action_group), NULL);
 
-      session = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
-      window = GDK_X11_WINDOW (gtk_widget_get_window (widget));
-      object_path = g_strdup_printf (WINDOW_OBJECT_PATH "/%d", window_data->window_id);
+      if (old_unique_bus_name == NULL)
+        gdk_x11_window_set_utf8_property (window, "_GTK_UNIQUE_BUS_NAME", g_dbus_connection_get_unique_name (session));
 
-      window_data->menu_model_export_id = g_dbus_connection_export_menu_model (session, object_path, G_MENU_MODEL (window_data->menu_model), NULL);
-      window_data->action_group_export_id = g_dbus_connection_export_action_group (session, object_path, G_ACTION_GROUP (window_data->action_group), NULL);
-
-      gdk_x11_window_set_utf8_property (window, "_GTK_UNIQUE_BUS_NAME", g_dbus_connection_get_unique_name (session));
-      gdk_x11_window_set_utf8_property (window, "_GTK_WINDOW_OBJECT_PATH", object_path);
+      gdk_x11_window_set_utf8_property (window, "_GTK_WINDOW_OBJECT_PATH", window_object_path);
 
       if (!gtk_widget_has_x11_property (widget, "_GTK_MENUBAR_OBJECT_PATH"))
-        gdk_x11_window_set_utf8_property (window, "_GTK_MENUBAR_OBJECT_PATH", object_path);
+        gdk_x11_window_set_utf8_property (window, "_GTK_MENUBAR_OBJECT_PATH", window_object_path);
 
       g_object_set_qdata_full (G_OBJECT (widget), window_data_quark (), window_data, window_data_free);
 
-      g_free (object_path);
+      g_free (old_window_object_path);
+      g_free (old_unique_bus_name);
+      g_free (window_object_path);
     }
 
   return window_data;
