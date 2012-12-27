@@ -199,7 +199,7 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
 
   if (action != NULL && action->name != NULL)
     {
-      gchar *name = g_strdup_printf ("win.%s", action->name);
+      gchar *name = g_strdup_printf ("unity.%s", action->name);
       GVariant *variant = g_variant_ref_sink (g_variant_new_string (name));
 
       g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_ACTION, variant);

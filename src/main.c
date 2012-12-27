@@ -24,7 +24,7 @@
 #include "unity-gtk-action-group.h"
 
 #define _GTK_UNIQUE_BUS_NAME     "_GTK_UNIQUE_BUS_NAME"
-#define _GTK_WINDOW_OBJECT_PATH  "_GTK_WINDOW_OBJECT_PATH"
+#define _UNITY_OBJECT_PATH       "_UNITY_OBJECT_PATH"
 #define _GTK_MENUBAR_OBJECT_PATH "_GTK_MENUBAR_OBJECT_PATH"
 #define OBJECT_PATH              "/com/canonical/unity/gtk/window"
 
@@ -199,15 +199,15 @@ window_get_window_data (GtkWidget *widget)
       GdkX11Window *window = GDK_X11_WINDOW (gtk_widget_get_window (widget));
       gchar *object_path = g_strdup_printf (OBJECT_PATH "/%d", window_id);
       gchar *old_unique_bus_name = gtk_widget_get_x11_property_string (widget, _GTK_UNIQUE_BUS_NAME);
-      gchar *old_window_object_path = gtk_widget_get_x11_property_string (widget, _GTK_WINDOW_OBJECT_PATH);
+      gchar *old_unity_object_path = gtk_widget_get_x11_property_string (widget, _UNITY_OBJECT_PATH);
       gchar *old_menubar_object_path = gtk_widget_get_x11_property_string (widget, _GTK_MENUBAR_OBJECT_PATH);
       GDBusActionGroup *old_action_group = NULL;
       GDBusMenuModel *old_menu_model = NULL;
 
       if (old_unique_bus_name != NULL)
         {
-          if (old_window_object_path != NULL)
-            old_action_group = g_dbus_action_group_get (session, old_unique_bus_name, old_window_object_path);
+          if (old_unity_object_path != NULL)
+            old_action_group = g_dbus_action_group_get (session, old_unique_bus_name, old_unity_object_path);
 
           if (old_menubar_object_path != NULL)
             old_menu_model = g_dbus_menu_model_get (session, old_unique_bus_name, old_menubar_object_path);
@@ -225,13 +225,13 @@ window_get_window_data (GtkWidget *widget)
         }
 
       window_data->menu_model_export_id = g_dbus_connection_export_menu_model (session, old_menubar_object_path != NULL ? old_menubar_object_path : object_path, G_MENU_MODEL (window_data->menu_model), NULL);
-      window_data->action_group_export_id = g_dbus_connection_export_action_group (session, old_window_object_path != NULL ? old_window_object_path : object_path, G_ACTION_GROUP (window_data->action_group), NULL);
+      window_data->action_group_export_id = g_dbus_connection_export_action_group (session, old_unity_object_path != NULL ? old_unity_object_path : object_path, G_ACTION_GROUP (window_data->action_group), NULL);
 
       if (old_unique_bus_name == NULL)
         gdk_x11_window_set_utf8_property (window, _GTK_UNIQUE_BUS_NAME, g_dbus_connection_get_unique_name (session));
 
-      if (old_window_object_path == NULL)
-        gdk_x11_window_set_utf8_property (window, _GTK_WINDOW_OBJECT_PATH, object_path);
+      if (old_unity_object_path == NULL)
+        gdk_x11_window_set_utf8_property (window, _UNITY_OBJECT_PATH, object_path);
 
       if (old_menubar_object_path == NULL)
         gdk_x11_window_set_utf8_property (window, _GTK_MENUBAR_OBJECT_PATH, object_path);
@@ -239,7 +239,7 @@ window_get_window_data (GtkWidget *widget)
       g_object_set_qdata_full (G_OBJECT (widget), window_data_quark (), window_data, window_data_free);
 
       g_free (old_menubar_object_path);
-      g_free (old_window_object_path);
+      g_free (old_unity_object_path);
       g_free (old_unique_bus_name);
       g_free (object_path);
     }
