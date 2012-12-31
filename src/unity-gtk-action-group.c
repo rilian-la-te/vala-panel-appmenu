@@ -653,19 +653,25 @@ unity_gtk_action_group_new (GActionGroup *old_group)
 static gchar *
 g_strdup_normalize (const gchar *str)
 {
-  gchar *string = g_strdup (str);
-  guint i = 0;
-  guint j;
+  gchar *string = NULL;
 
-  for (j = 0; str[j] != '\0'; j++)
+  if (str != NULL)
     {
-      if (g_ascii_isalnum (str[j]))
-        string[i++] = str[j];
-      else
-        string[i++] = '-';
-    }
+      guint i = 0;
+      guint j;
 
-  string[i] = '\0';
+      string = g_strdup (str);
+
+      for (j = 0; str[j] != '\0'; j++)
+        {
+          if (g_ascii_isalnum (str[j]))
+            string[i++] = str[j];
+          else
+            string[i++] = '-';
+        }
+
+      string[i] = '\0';
+    }
 
   return string;
 }
@@ -706,13 +712,14 @@ unity_gtk_action_group_get_action_name (UnityGtkActionGroup *group,
   if (name == NULL || name[0] == '\0')
     name = gtk_menu_item_get_label (menu_item);
 
-  g_return_val_if_fail (name != NULL && name[0] != '\0', NULL);
+  if (name != NULL && name[0] == '\0')
+    name = NULL;
 
   normalized_name = g_strdup_normalize (name);
   actions_by_name = group->actions_by_name;
   old_group = group->old_group;
 
-  if ((actions_by_name != NULL && g_hash_table_contains (actions_by_name, normalized_name)) || (old_group != NULL && g_action_group_has_action (old_group, normalized_name)))
+  if (normalized_name == NULL || (actions_by_name != NULL && g_hash_table_contains (actions_by_name, normalized_name)) || (old_group != NULL && g_action_group_has_action (old_group, normalized_name)))
     {
       gchar *next_normalized_name = NULL;
       guint i = 0;
@@ -720,7 +727,11 @@ unity_gtk_action_group_get_action_name (UnityGtkActionGroup *group,
       do
         {
           g_free (next_normalized_name);
-          next_normalized_name = g_strdup_printf ("%s-%u", normalized_name, i++);
+
+          if (normalized_name != NULL)
+            next_normalized_name = g_strdup_printf ("%s-%u", normalized_name, i++);
+          else
+            next_normalized_name = g_strdup_printf ("%u", i++);
         }
       while ((actions_by_name != NULL && g_hash_table_contains (actions_by_name, next_normalized_name)) || (old_group != NULL && g_action_group_has_action (old_group, next_normalized_name)));
 
