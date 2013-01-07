@@ -18,8 +18,9 @@
  *          William Hua <william.hua@canonical.com>
  */
 
-#include "unity-gtk-menu-shell.h"
-#include "unity-gtk-menu-section.h"
+#include "unity-gtk-menu-shell-private.h"
+#include "unity-gtk-menu-section-private.h"
+#include "unity-gtk-action-group-private.h"
 
 G_DEFINE_QUARK (menu_shell, menu_shell);
 

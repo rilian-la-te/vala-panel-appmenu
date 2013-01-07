@@ -18,8 +18,8 @@
  *          William Hua <william.hua@canonical.com>
  */
 
-#include "unity-gtk-menu-item.h"
-#include "unity-gtk-action-group.h"
+#include "unity-gtk-menu-item-private.h"
+#include "unity-gtk-action-group-private.h"
 
 G_DEFINE_TYPE (UnityGtkMenuItem,
                unity_gtk_menu_item,

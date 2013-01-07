@@ -18,8 +18,8 @@
  *          William Hua <william.hua@canonical.com>
  */
 
-#ifndef __UNITY_GTK_MENU_ITEM_H__
-#define __UNITY_GTK_MENU_ITEM_H__
+#ifndef __UNITY_GTK_MENU_ITEM_PRIVATE_H__
+#define __UNITY_GTK_MENU_ITEM_PRIVATE_H__
 
 typedef struct _UnityGtkMenuItem      UnityGtkMenuItem;
 typedef struct _UnityGtkMenuItemClass UnityGtkMenuItemClass;
@@ -32,8 +32,8 @@ typedef struct _UnityGtkMenuItemClass UnityGtkMenuItemClass;
 #define UNITY_GTK_MENU_ITEM_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_MENU_ITEM, UnityGtkMenuItemClass))
 
 #include <gtk/gtk.h>
-#include "unity-gtk-menu-shell.h"
-#include "unity-gtk-action.h"
+#include "unity-gtk-menu-shell-private.h"
+#include "unity-gtk-action-private.h"
 
 struct _UnityGtkMenuItem
 {
@@ -84,4 +84,4 @@ gboolean            unity_gtk_menu_item_get_draw_as_radio (UnityGtkMenuItem  *it
 void                unity_gtk_menu_item_print             (UnityGtkMenuItem  *item,
                                                            guint              indent)       G_GNUC_INTERNAL;
 
-#endif /* __UNITY_GTK_MENU_ITEM_H__ */
+#endif /* __UNITY_GTK_MENU_ITEM_PRIVATE_H__ */

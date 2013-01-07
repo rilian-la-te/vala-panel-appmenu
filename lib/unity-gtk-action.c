@@ -18,7 +18,7 @@
  *          William Hua <william.hua@canonical.com>
  */
 
-#include "unity-gtk-action.h"
+#include "unity-gtk-action-private.h"
 
 G_DEFINE_TYPE (UnityGtkAction,
                unity_gtk_action,

@@ -20,8 +20,7 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
-#include "unity-gtk-menu-shell.h"
-#include "unity-gtk-action-group.h"
+#include "unity-gtk-parser.h"
 
 #define _GTK_UNIQUE_BUS_NAME     "_GTK_UNIQUE_BUS_NAME"
 #define _UNITY_OBJECT_PATH       "_UNITY_OBJECT_PATH"

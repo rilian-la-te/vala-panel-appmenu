@@ -18,7 +18,7 @@
  *          William Hua <william.hua@canonical.com>
  */
 
-#include "unity-gtk-menu-section.h"
+#include "unity-gtk-menu-section-private.h"
 
 #ifndef G_MENU_ATTRIBUTE_ACCEL
 #define G_MENU_ATTRIBUTE_ACCEL "accel"

@@ -32,7 +32,6 @@ typedef struct _UnityGtkMenuShellClass UnityGtkMenuShellClass;
 #define UNITY_GTK_MENU_SHELL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_MENU_SHELL, UnityGtkMenuShellClass))
 
 #include <gtk/gtk.h>
-#include "unity-gtk-menu-item.h"
 #include "unity-gtk-action-group.h"
 
 struct _UnityGtkMenuShell
@@ -54,22 +53,8 @@ struct _UnityGtkMenuShellClass
   GMenuModelClass parent_class;
 };
 
-GType               unity_gtk_menu_shell_get_type              (void)                          G_GNUC_INTERNAL;
+GType               unity_gtk_menu_shell_get_type (void);
 
-UnityGtkMenuShell * unity_gtk_menu_shell_new                   (GtkMenuShell      *menu_shell) G_GNUC_INTERNAL;
-
-UnityGtkMenuItem *  unity_gtk_menu_shell_get_item              (UnityGtkMenuShell *shell,
-                                                                guint              index)      G_GNUC_INTERNAL;
-
-GSequence *         unity_gtk_menu_shell_get_visible_indices   (UnityGtkMenuShell *shell)      G_GNUC_INTERNAL;
-
-GSequence *         unity_gtk_menu_shell_get_separator_indices (UnityGtkMenuShell *shell)      G_GNUC_INTERNAL;
-
-void                unity_gtk_menu_shell_handle_item_notify    (UnityGtkMenuShell *shell,
-                                                                UnityGtkMenuItem  *item,
-                                                                GParamSpec        *pspec)      G_GNUC_INTERNAL;
-
-void                unity_gtk_menu_shell_print                 (UnityGtkMenuShell *shell,
-                                                                guint              indent)     G_GNUC_INTERNAL;
+UnityGtkMenuShell * unity_gtk_menu_shell_new      (GtkMenuShell *menu_shell);
 
 #endif /* __UNITY_GTK_MENU_SHELL_H__ */

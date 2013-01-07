@@ -18,8 +18,8 @@
  *          William Hua <william.hua@canonical.com>
  */
 
-#include "unity-gtk-action-group.h"
-#include "unity-gtk-action.h"
+#include "unity-gtk-action-group-private.h"
+#include "unity-gtk-action-private.h"
 #include <gio/gio.h>
 
 static void unity_gtk_action_group_action_group_init (GActionGroupInterface *iface);

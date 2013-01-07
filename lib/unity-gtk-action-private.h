@@ -18,8 +18,8 @@
  *          William Hua <william.hua@canonical.com>
  */
 
-#ifndef __UNITY_GTK_ACTION_H__
-#define __UNITY_GTK_ACTION_H__
+#ifndef __UNITY_GTK_ACTION_PRIVATE_H__
+#define __UNITY_GTK_ACTION_PRIVATE_H__
 
 typedef struct _UnityGtkAction      UnityGtkAction;
 typedef struct _UnityGtkActionClass UnityGtkActionClass;
@@ -32,7 +32,7 @@ typedef struct _UnityGtkActionClass UnityGtkActionClass;
 #define UNITY_GTK_ACTION_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_ACTION, UnityGtkActionClass))
 
 #include <glib-object.h>
-#include "unity-gtk-menu-item.h"
+#include "unity-gtk-menu-item-private.h"
 
 struct _UnityGtkAction
 {
@@ -65,4 +65,4 @@ void             unity_gtk_action_set_item  (UnityGtkAction   *action,
 void             unity_gtk_action_print     (UnityGtkAction   *action,
                                              guint             indent) G_GNUC_INTERNAL;
 
-#endif /* __UNITY_GTK_ACTION_H__ */
+#endif /* __UNITY_GTK_ACTION_PRIVATE_H__ */

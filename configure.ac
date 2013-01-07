@@ -10,6 +10,8 @@ AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.11 foreign -Wall -Woverride -Wno-portability])
 AM_SILENT_RULES([yes])
 
+LT_INIT([disable-static])
+
 AC_PROG_CC
 AC_PROG_LIBTOOL
 AC_PROG_INSTALL
@@ -27,6 +29,6 @@ AC_ARG_WITH([x11-sysconfdir], [AS_HELP_STRING([--with-x11-sysconfdir=DIR], [X11 
 AC_ARG_WITH([x-session-dir], [AS_HELP_STRING([--with-x-session-dir=DIR], [Xsession.d directory [default=$with_x11_sysconfdir/X11/Xsession.d]])], [], [with_x_session_dir=$with_x11_sysconfdir/X11/Xsession.d])
 AC_SUBST([X_SESSION_DIR], [$with_x_session_dir])
 
-AC_CONFIG_FILES([Makefile data/Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile data/Makefile lib/Makefile src/Makefile])
 
 AC_OUTPUT

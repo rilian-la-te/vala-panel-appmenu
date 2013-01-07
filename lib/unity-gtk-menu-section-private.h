@@ -18,8 +18,8 @@
  *          William Hua <william.hua@canonical.com>
  */
 
-#ifndef __UNITY_GTK_MENU_SECTION_H__
-#define __UNITY_GTK_MENU_SECTION_H__
+#ifndef __UNITY_GTK_MENU_SECTION_PRIVATE_H__
+#define __UNITY_GTK_MENU_SECTION_PRIVATE_H__
 
 typedef struct _UnityGtkMenuSection      UnityGtkMenuSection;
 typedef struct _UnityGtkMenuSectionClass UnityGtkMenuSectionClass;
@@ -32,7 +32,7 @@ typedef struct _UnityGtkMenuSectionClass UnityGtkMenuSectionClass;
 #define UNITY_GTK_MENU_SECTION_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_MENU_SECTION, UnityGtkMenuSectionClass))
 
 #include <gio/gio.h>
-#include "unity-gtk-menu-shell.h"
+#include "unity-gtk-menu-shell-private.h"
 
 struct _UnityGtkMenuSection
 {
@@ -63,4 +63,4 @@ GSequenceIter *       unity_gtk_menu_section_get_iter       (UnityGtkMenuSection
 void                  unity_gtk_menu_section_print          (UnityGtkMenuSection *section,
                                                              guint                indent)        G_GNUC_INTERNAL;
 
-#endif /* __UNITY_GTK_MENU_SECTION_H__ */
+#endif /* __UNITY_GTK_MENU_SECTION_PRIVATE_H__ */
