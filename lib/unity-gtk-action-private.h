@@ -49,7 +49,7 @@ struct _UnityGtkActionClass
   GObjectClass parent_class;
 };
 
-GType            unity_gtk_action_get_type  (void);
+GType            unity_gtk_action_get_type  (void)                     G_GNUC_INTERNAL;
 
 UnityGtkAction * unity_gtk_action_new       (const gchar      *name,
                                              UnityGtkMenuItem *item)   G_GNUC_INTERNAL;
