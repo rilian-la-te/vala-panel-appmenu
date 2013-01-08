@@ -1,3 +1,12 @@
+unity-gtk-module (0.0.0-0ubuntu6) raring; urgency=low
+
+  * docs
+    - Add GTK-Doc support.
+  * lib/libunity-gtk-parser.la
+    - Split parser into separate library.
+
+ -- William Hua <william.hua@canonical.com>  Tue, 08 Jan 2013 01:05:47 -0500
+
 unity-gtk-module (0.0.0-0ubuntu5) raring; urgency=low
 
   * src/main.c
