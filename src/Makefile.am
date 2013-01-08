@@ -8,3 +8,6 @@ libunity_gtk_module_LTLIBRARIES = libunity-gtk-module.la
 
 libunity_gtk_module_la_SOURCES = \
 	main.c
+
+libunity_gtk_module_la_LDFLAGS = \
+	../lib/libunity-gtk-parser.la
