@@ -54,7 +54,7 @@ struct _UnityGtkMenuItemClass
   GObjectClass parent_class;
 };
 
-GType               unity_gtk_menu_item_get_type          (void)                            G_GNUC_INTERNAL;
+GType               unity_gtk_menu_item_get_type          (void);
 
 UnityGtkMenuItem *  unity_gtk_menu_item_new               (GtkMenuItem       *menu_item,
                                                            UnityGtkMenuShell *parent_shell,

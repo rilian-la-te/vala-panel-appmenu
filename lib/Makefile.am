@@ -23,5 +23,3 @@ libunity_gtk_parser_la_SOURCES = \
 	unity-gtk-action-group.c		\
 	unity-gtk-action-private.h		\
 	unity-gtk-action.c
-
-libunity_gtk_parser_la_LDFLAGS = -version-info 0:0:0

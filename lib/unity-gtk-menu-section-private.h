@@ -48,7 +48,7 @@ struct _UnityGtkMenuSectionClass
   GMenuModelClass parent_class;
 };
 
-GType                 unity_gtk_menu_section_get_type       (void)                               G_GNUC_INTERNAL;
+GType                 unity_gtk_menu_section_get_type       (void);
 
 UnityGtkMenuSection * unity_gtk_menu_section_new            (UnityGtkMenuShell   *parent_shell,
                                                              guint                section_index) G_GNUC_INTERNAL;
