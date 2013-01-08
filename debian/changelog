@@ -1,3 +1,14 @@
+unity-gtk-module (0.0.0-0ubuntu7) raring; urgency=low
+
+  * debian/control
+  * debian/unity-gtk-module1.dirs
+  * debian/unity-gtk-module1.install
+  * debian/unity-gtk-module-dev.dirs
+  * debian/unity-gtk-module-dev.install
+    - Separate -dev package.
+
+ -- William Hua <william.hua@canonical.com>  Tue, 08 Jan 2013 10:18:24 -0500
+
 unity-gtk-module (0.0.0-0ubuntu6) raring; urgency=low
 
   * docs
