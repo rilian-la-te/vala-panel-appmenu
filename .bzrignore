@@ -1,5 +1,7 @@
 *.la
 *.lo
+*.pc
+*.stamp
 .deps
 .libs
 Makefile
@@ -10,5 +12,6 @@ build-aux
 config.log
 config.status
 configure
+gtk-doc.make
 libtool
 m4

@@ -1,3 +1,4 @@
 ACLOCAL_AMFLAGS = -I m4
+DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc
 
-SUBDIRS = data lib src
+SUBDIRS = lib src data
