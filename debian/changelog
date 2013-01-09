@@ -1,3 +1,14 @@
+unity-gtk-module (0.0.0-0ubuntu8) raring; urgency=low
+
+  * debian/control
+  * debian/unity-gtk-module1.dirs
+  * debian/unity-gtk-module1.install
+  * debian/unity-gtk-module-dev.dirs
+  * debian/unity-gtk-module-dev.install
+    - Fix packaging issues.
+
+ -- William Hua <william.hua@canonical.com>  Wed, 09 Jan 2013 09:27:01 -0500
+
 unity-gtk-module (0.0.0-0ubuntu7) raring; urgency=low
 
   * debian/control
