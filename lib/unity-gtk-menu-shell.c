@@ -41,14 +41,6 @@ enum
 
 static GParamSpec *menu_shell_properties[MENU_SHELL_N_PROPERTIES] = { NULL };
 
-static void
-g_object_run_dispose_unref (gpointer data)
-{
-  g_return_if_fail (G_IS_OBJECT (data));
-  g_object_run_dispose (data);
-  g_object_unref (data);
-}
-
 static gint
 g_uintcmp (gconstpointer a,
            gconstpointer b,
@@ -133,7 +125,7 @@ unity_gtk_menu_shell_get_items (UnityGtkMenuShell *shell)
 
       g_return_val_if_fail (shell->menu_shell != NULL, NULL);
 
-      shell->items = g_ptr_array_new_with_free_func (g_object_run_dispose_unref);
+      shell->items = g_ptr_array_new_with_free_func (g_object_unref);
       iter = gtk_container_get_children (GTK_CONTAINER (shell->menu_shell));
 
       for (i = 0; iter != NULL; i++)
@@ -157,7 +149,7 @@ unity_gtk_menu_shell_get_sections (UnityGtkMenuShell *shell)
       guint n = g_sequence_get_length (separator_indices);
       guint i;
 
-      shell->sections = g_ptr_array_new_full (n + 1, g_object_run_dispose_unref);
+      shell->sections = g_ptr_array_new_full (n + 1, g_object_unref);
 
       for (i = 0; i <= n; i++)
         g_ptr_array_add (shell->sections, unity_gtk_menu_section_new (shell, i));
@@ -773,7 +765,7 @@ unity_gtk_menu_shell_get_property (GObject    *object,
   switch (property_id)
     {
     case MENU_SHELL_PROP_MENU_SHELL:
-      g_value_set_pointer (value, self->menu_shell);
+      g_value_set_object (value, self->menu_shell);
       break;
 
     case MENU_SHELL_PROP_ITEMS:
@@ -813,7 +805,7 @@ unity_gtk_menu_shell_set_property (GObject      *object,
   switch (property_id)
     {
     case MENU_SHELL_PROP_MENU_SHELL:
-      unity_gtk_menu_shell_set_menu_shell (self, g_value_get_pointer (value));
+      unity_gtk_menu_shell_set_menu_shell (self, g_value_get_object (value));
       break;
 
     default:
@@ -885,10 +877,11 @@ unity_gtk_menu_shell_class_init (UnityGtkMenuShellClass *klass)
   menu_model_class->get_item_attributes = unity_gtk_menu_shell_get_item_attributes;
   menu_model_class->get_item_links = unity_gtk_menu_shell_get_item_links;
 
-  menu_shell_properties[MENU_SHELL_PROP_MENU_SHELL] = g_param_spec_pointer ("menu-shell",
-                                                                            "Menu shell",
-                                                                            "Menu shell",
-                                                                            G_PARAM_READWRITE);
+  menu_shell_properties[MENU_SHELL_PROP_MENU_SHELL] = g_param_spec_object ("menu-shell",
+                                                                           "Menu shell",
+                                                                           "Menu shell",
+                                                                           GTK_TYPE_MENU_SHELL,
+                                                                           G_PARAM_READWRITE);
   menu_shell_properties[MENU_SHELL_PROP_ITEMS] = g_param_spec_pointer ("items",
                                                                        "Items",
                                                                        "Items",

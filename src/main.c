@@ -168,14 +168,7 @@ window_data_free (gpointer data)
         g_object_unref (window_data->old_model);
 
       if (window_data->menus != NULL)
-        {
-          GSList *iter;
-
-          for (iter = window_data->menus; iter != NULL; iter = g_slist_next (iter))
-            g_object_run_dispose (iter->data);
-
-          g_slist_free_full (window_data->menus, g_object_unref);
-        }
+        g_slist_free_full (window_data->menus, g_object_unref);
 
       g_slice_free (WindowData, window_data);
     }
@@ -341,7 +334,7 @@ hijacked_menu_bar_unrealize (GtkWidget *widget)
           g_menu_remove (window_data->menu_model, i);
 
           unity_gtk_action_group_disconnect_shell (window_data->action_group, iter->data);
-          g_object_run_dispose (iter->data);
+
           g_object_unref (iter->data);
 
           window_data->menus = g_slist_delete_link (window_data->menus, iter);

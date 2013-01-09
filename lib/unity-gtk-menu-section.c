@@ -50,23 +50,9 @@ static void
 unity_gtk_menu_section_set_parent_shell (UnityGtkMenuSection *section,
                                          UnityGtkMenuShell   *parent_shell)
 {
-  UnityGtkMenuShell *old_parent_shell;
-
   g_return_if_fail (UNITY_GTK_IS_MENU_SECTION (section));
 
-  old_parent_shell = section->parent_shell;
-
-  if (parent_shell != old_parent_shell)
-    {
-      if (old_parent_shell != NULL)
-        {
-          section->parent_shell = NULL;
-          g_object_unref (old_parent_shell);
-        }
-
-      if (parent_shell != NULL)
-        section->parent_shell = g_object_ref (parent_shell);
-    }
+  section->parent_shell = parent_shell;
 }
 
 static void

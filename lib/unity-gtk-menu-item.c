@@ -80,7 +80,6 @@ unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
         {
           g_warn_if_fail (item->child_shell_valid);
           item->child_shell = NULL;
-          g_object_run_dispose (G_OBJECT (child_shell));
           g_object_unref (child_shell);
         }
 
@@ -96,23 +95,9 @@ static void
 unity_gtk_menu_item_set_parent_shell (UnityGtkMenuItem  *item,
                                       UnityGtkMenuShell *parent_shell)
 {
-  UnityGtkMenuShell *old_parent_shell;
-
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
 
-  old_parent_shell = item->parent_shell;
-
-  if (parent_shell != old_parent_shell)
-    {
-      if (old_parent_shell != NULL)
-        {
-          item->parent_shell = NULL;
-          g_object_unref (old_parent_shell);
-        }
-
-      if (parent_shell != NULL)
-        item->parent_shell = g_object_ref (parent_shell);
-    }
+  item->parent_shell = parent_shell;
 }
 
 static void
@@ -146,7 +131,7 @@ unity_gtk_menu_item_get_property (GObject    *object,
   switch (property_id)
     {
     case MENU_ITEM_PROP_MENU_ITEM:
-      g_value_set_pointer (value, self->menu_item);
+      g_value_set_object (value, self->menu_item);
       break;
 
     case MENU_ITEM_PROP_PARENT_SHELL:
@@ -186,7 +171,7 @@ unity_gtk_menu_item_set_property (GObject      *object,
   switch (property_id)
     {
     case MENU_ITEM_PROP_MENU_ITEM:
-      unity_gtk_menu_item_set_menu_item (self, g_value_get_pointer (value));
+      unity_gtk_menu_item_set_menu_item (self, g_value_get_object (value));
       break;
 
     case MENU_ITEM_PROP_PARENT_SHELL:
@@ -216,10 +201,11 @@ unity_gtk_menu_item_class_init (UnityGtkMenuItemClass *klass)
   object_class->get_property = unity_gtk_menu_item_get_property;
   object_class->set_property = unity_gtk_menu_item_set_property;
 
-  menu_item_properties[MENU_ITEM_PROP_MENU_ITEM] = g_param_spec_pointer ("menu-item",
-                                                                         "Menu item",
-                                                                         "Menu item",
-                                                                         G_PARAM_READWRITE);
+  menu_item_properties[MENU_ITEM_PROP_MENU_ITEM] = g_param_spec_object ("menu-item",
+                                                                        "Menu item",
+                                                                        "Menu item",
+                                                                        GTK_TYPE_MENU_ITEM,
+                                                                        G_PARAM_READWRITE);
   menu_item_properties[MENU_ITEM_PROP_PARENT_SHELL] = g_param_spec_object ("parent-shell",
                                                                            "Parent shell",
                                                                            "Parent shell",
@@ -277,7 +263,6 @@ unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem *item)
         {
           g_warn_if_reached ();
           item->child_shell = NULL;
-          g_object_run_dispose (G_OBJECT (child_shell));
           g_object_unref (child_shell);
         }
 
