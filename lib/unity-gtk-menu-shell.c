@@ -18,6 +18,19 @@
  *          William Hua <william.hua@canonical.com>
  */
 
+/**
+ * SECTION:unity-gtk-menu-shell
+ * @short_description: Menu shell proxy
+ * @include: unity-gtk-module/unity-gtk-parser.h
+ *
+ * A #UnityGtkMenuShell is a #GMenuModel that acts as a proxy for a
+ * #GtkMenuShell. This can be used for purposes such as exporting menu
+ * shells over DBus with g_dbus_connection_export_menu_model ().
+ *
+ * #UnityGtkMenuShell<!-- -->s are most useful when used with
+ * #UnityGtkActionGroup<!-- -->s.
+ */
+
 #include "unity-gtk-menu-shell-private.h"
 #include "unity-gtk-menu-section-private.h"
 #include "unity-gtk-action-group-private.h"
@@ -907,6 +920,16 @@ unity_gtk_menu_shell_init (UnityGtkMenuShell *self)
 {
 }
 
+/**
+ * unity_gtk_menu_shell_new:
+ * @menu_shell: a #GtkMenuShell to watch.
+ *
+ * Creates a new #UnityGtkMenuShell based on the contents of the given
+ * @menu_shell. Any subsequent changes to @menu_shell are reflected in
+ * the returned #UnityGtkMenuShell.
+ *
+ * Returns: a new #UnityGtkMenuShell based on @menu_shell.
+ */
 UnityGtkMenuShell *
 unity_gtk_menu_shell_new (GtkMenuShell *menu_shell)
 {

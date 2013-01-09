@@ -18,6 +18,17 @@
  *          William Hua <william.hua@canonical.com>
  */
 
+/**
+ * SECTION:unity-gtk-action-group
+ * @short_description: Action group collector
+ * @include: unity-gtk-module/unity-gtk-parser.h
+ *
+ * A #UnityGtkActionGroup is a #GActionGroup that accumulates the
+ * actions of multiple #UnityGtkMenuShell<!-- -->s into a single object.
+ * This can be used for purposes such as exporting actions over DBus
+ * with g_dbus_connection_export_action_group ().
+ */
+
 #include "unity-gtk-action-group-private.h"
 #include "unity-gtk-action-private.h"
 #include <gio/gio.h>
@@ -642,6 +653,19 @@ unity_gtk_action_group_init (UnityGtkActionGroup *self)
   self->names_by_radio_menu_item = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, g_free);
 }
 
+/**
+ * unity_gtk_action_group_new:
+ * @old_group: a fallback #GActionGroup.
+ *
+ * Creates a new #UnityGtkMenuShell based on the contents of the given
+ * @menu_shell. Any subsequent changes to @menu_shell are reflected in
+ * the returned #UnityGtkMenuShell.
+ *
+ * Actions not found in an attached #UnityGtkMenuShell are queried in
+ * @old_group before failing.
+ *
+ * Returns: a new #UnityGtkActionGroup.
+ */
 UnityGtkActionGroup *
 unity_gtk_action_group_new (GActionGroup *old_group)
 {
@@ -999,6 +1023,14 @@ unity_gtk_action_group_disconnect_item (UnityGtkActionGroup *group,
   unity_gtk_menu_item_set_action (item, NULL);
 }
 
+/**
+ * unity_gtk_action_group_connect_shell:
+ * @group: a #UnityGtkActionGroup.
+ * @shell: a #UnityGtkMenuShell.
+ *
+ * Creates actions for all menu items in @shell and adds them to @group.
+ * Subsequent changes to @shell also affect @group.
+ */
 void
 unity_gtk_action_group_connect_shell (UnityGtkActionGroup *group,
                                       UnityGtkMenuShell   *shell)
@@ -1040,6 +1072,13 @@ unity_gtk_action_group_connect_shell (UnityGtkActionGroup *group,
     shell->action_group = g_object_ref (group);
 }
 
+/**
+ * unity_gtk_action_group_disconnect_shell:
+ * @group: a #UnityGtkActionGroup.
+ * @shell: a #UnityGtkMenuShell.
+ *
+ * Removes the actions for @shell from @group.
+ */
 void
 unity_gtk_action_group_disconnect_shell (UnityGtkActionGroup *group,
                                          UnityGtkMenuShell   *shell)
