@@ -10,4 +10,4 @@ libunity_gtk_module_la_SOURCES = \
 	main.c
 
 libunity_gtk_module_la_LDFLAGS = \
-	../lib/libunity-gtk-parser.la
+	$(top_builddir)/lib/libunity-gtk-parser.la
