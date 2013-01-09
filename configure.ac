@@ -10,7 +10,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.11 foreign -Wall -Woverride -Wno-portability])
 AM_SILENT_RULES([yes])
 
-LT_INIT([disable-static])
+LT_INIT
 
 AC_PROG_CC
 AC_PROG_LIBTOOL

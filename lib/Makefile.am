@@ -1,5 +1,5 @@
 AM_CFLAGS = $(GTK_CFLAGS) -Wall
-AM_LDFLAGS = $(GTK_LIBS) -avoid-version -module -shared
+AM_LDFLAGS = $(GTK_LIBS) -avoid-version
 
 lib_LTLIBRARIES = libunity-gtk-parser.la
 
