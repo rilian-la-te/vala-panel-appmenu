@@ -34,6 +34,11 @@ typedef struct _UnityGtkActionGroupClass UnityGtkActionGroupClass;
 #include <glib-object.h>
 #include "unity-gtk-menu-shell.h"
 
+/**
+ * UnityGtkActionGroup:
+ *
+ * Opaque action group collector for #UnityGtkMenuShell.
+ */
 struct _UnityGtkActionGroup
 {
   GObject parent_instance;
@@ -48,6 +53,11 @@ struct _UnityGtkActionGroup
   GHashTable   *names_by_radio_menu_item;
 };
 
+/**
+ * UnityGtkActionGroupClass:
+ *
+ * #UnityGtkActionGroup class structure.
+ */
 struct _UnityGtkActionGroupClass
 {
   GObjectClass parent_class;

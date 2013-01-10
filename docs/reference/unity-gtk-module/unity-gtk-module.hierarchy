@@ -1,0 +1,13 @@
+GObject
+  UnityGtkActionGroup
+  GMenuModel
+    UnityGtkMenuShell
+  GInitiallyUnowned
+    GtkWidget
+      GtkContainer
+        GtkMenuShell
+GInterface
+  GTypePlugin
+  GActionGroup
+  AtkImplementorIface
+  GtkBuildable

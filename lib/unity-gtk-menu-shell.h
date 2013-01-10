@@ -34,6 +34,11 @@ typedef struct _UnityGtkMenuShellClass UnityGtkMenuShellClass;
 #include <gtk/gtk.h>
 #include "unity-gtk-action-group.h"
 
+/**
+ * UnityGtkMenuShell:
+ *
+ * Opaque #GMenuModel proxy for #GtkMenuShell.
+ */
 struct _UnityGtkMenuShell
 {
   GMenuModel parent_instance;
@@ -48,6 +53,11 @@ struct _UnityGtkMenuShell
   UnityGtkActionGroup *action_group;
 };
 
+/**
+ * UnityGtkMenuShellClass:
+ *
+ * #UnityGtkMenuShell class structure.
+ */
 struct _UnityGtkMenuShellClass
 {
   GMenuModelClass parent_class;

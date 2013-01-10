@@ -1,0 +1,2 @@
+unity_gtk_action_group_get_type
+unity_gtk_menu_shell_get_type

@@ -12,4 +12,6 @@ build-aux
 config.log
 config.status
 configure
+docs/reference/unity-gtk-module/html
+docs/reference/unity-gtk-module/xml
 libtool
