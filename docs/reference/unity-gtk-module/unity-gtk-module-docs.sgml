@@ -8,14 +8,14 @@
   <bookinfo>
     <title>unity-gtk-module Reference Manual</title>
     <releaseinfo>
-      for unity-gtk-module [VERSION].
+      for unity-gtk-module 0.0.0.
       The latest version of this documentation can be found on-line at
       <ulink role="online-location" url="http://[SERVER]/unity-gtk-module/index.html">http://[SERVER]/unity-gtk-module/</ulink>.
     </releaseinfo>
   </bookinfo>
 
   <chapter>
-    <title>[Insert title here]</title>
+    <title>API Reference</title>
         <xi:include href="xml/unity-gtk-action-group.xml"/>
     <xi:include href="xml/unity-gtk-menu-shell.xml"/>
 
@@ -32,6 +32,4 @@
     <title>Index of deprecated API</title>
     <xi:include href="xml/api-index-deprecated.xml"><xi:fallback /></xi:include>
   </index>
-
-  <xi:include href="xml/annotation-glossary.xml"><xi:fallback /></xi:include>
 </book>
