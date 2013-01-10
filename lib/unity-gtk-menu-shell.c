@@ -41,19 +41,6 @@ G_DEFINE_TYPE (UnityGtkMenuShell,
                unity_gtk_menu_shell,
                G_TYPE_MENU_MODEL);
 
-enum
-{
-  MENU_SHELL_PROP_0,
-  MENU_SHELL_PROP_MENU_SHELL,
-  MENU_SHELL_PROP_ITEMS,
-  MENU_SHELL_PROP_SECTIONS,
-  MENU_SHELL_PROP_VISIBLE_INDICES,
-  MENU_SHELL_PROP_SEPARATOR_INDICES,
-  MENU_SHELL_N_PROPERTIES
-};
-
-static GParamSpec *menu_shell_properties[MENU_SHELL_N_PROPERTIES] = { NULL };
-
 static gint
 g_uintcmp (gconstpointer a,
            gconstpointer b,
@@ -763,70 +750,6 @@ unity_gtk_menu_shell_dispose (GObject *object)
   G_OBJECT_CLASS (unity_gtk_menu_shell_parent_class)->dispose (object);
 }
 
-static void
-unity_gtk_menu_shell_get_property (GObject    *object,
-                                   guint       property_id,
-                                   GValue     *value,
-                                   GParamSpec *pspec)
-{
-  UnityGtkMenuShell *self;
-
-  g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (object));
-
-  self = UNITY_GTK_MENU_SHELL (object);
-
-  switch (property_id)
-    {
-    case MENU_SHELL_PROP_MENU_SHELL:
-      g_value_set_object (value, self->menu_shell);
-      break;
-
-    case MENU_SHELL_PROP_ITEMS:
-      g_value_set_pointer (value, unity_gtk_menu_shell_get_items (self));
-      break;
-
-    case MENU_SHELL_PROP_SECTIONS:
-      g_value_set_pointer (value, unity_gtk_menu_shell_get_sections (self));
-      break;
-
-    case MENU_SHELL_PROP_VISIBLE_INDICES:
-      g_value_set_pointer (value, unity_gtk_menu_shell_get_visible_indices (self));
-      break;
-
-    case MENU_SHELL_PROP_SEPARATOR_INDICES:
-      g_value_set_pointer (value, unity_gtk_menu_shell_get_separator_indices (self));
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-      break;
-    }
-}
-
-static void
-unity_gtk_menu_shell_set_property (GObject      *object,
-                                   guint         property_id,
-                                   const GValue *value,
-                                   GParamSpec   *pspec)
-{
-  UnityGtkMenuShell *self;
-
-  g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (object));
-
-  self = UNITY_GTK_MENU_SHELL (object);
-
-  switch (property_id)
-    {
-    case MENU_SHELL_PROP_MENU_SHELL:
-      unity_gtk_menu_shell_set_menu_shell (self, g_value_get_object (value));
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-      break;
-    }
-}
-
 static gboolean
 unity_gtk_menu_shell_is_mutable (GMenuModel *model)
 {
@@ -883,36 +806,10 @@ unity_gtk_menu_shell_class_init (UnityGtkMenuShellClass *klass)
   GMenuModelClass *menu_model_class = G_MENU_MODEL_CLASS (klass);
 
   object_class->dispose = unity_gtk_menu_shell_dispose;
-  object_class->get_property = unity_gtk_menu_shell_get_property;
-  object_class->set_property = unity_gtk_menu_shell_set_property;
   menu_model_class->is_mutable = unity_gtk_menu_shell_is_mutable;
   menu_model_class->get_n_items = unity_gtk_menu_shell_get_n_items;
   menu_model_class->get_item_attributes = unity_gtk_menu_shell_get_item_attributes;
   menu_model_class->get_item_links = unity_gtk_menu_shell_get_item_links;
-
-  menu_shell_properties[MENU_SHELL_PROP_MENU_SHELL] = g_param_spec_object ("menu-shell",
-                                                                           "Menu shell",
-                                                                           "Menu shell",
-                                                                           GTK_TYPE_MENU_SHELL,
-                                                                           G_PARAM_READWRITE);
-  menu_shell_properties[MENU_SHELL_PROP_ITEMS] = g_param_spec_pointer ("items",
-                                                                       "Items",
-                                                                       "Items",
-                                                                       G_PARAM_READABLE);
-  menu_shell_properties[MENU_SHELL_PROP_SECTIONS] = g_param_spec_pointer ("sections",
-                                                                          "Sections",
-                                                                          "Sections",
-                                                                          G_PARAM_READABLE);
-  menu_shell_properties[MENU_SHELL_PROP_VISIBLE_INDICES] = g_param_spec_pointer ("visible-indices",
-                                                                                 "Visible indices",
-                                                                                 "Visible indices",
-                                                                                 G_PARAM_READABLE);
-  menu_shell_properties[MENU_SHELL_PROP_SEPARATOR_INDICES] = g_param_spec_pointer ("separator-indices",
-                                                                                   "Separator indices",
-                                                                                   "Separator indices",
-                                                                                   G_PARAM_READABLE);
-
-  g_object_class_install_properties (object_class, MENU_SHELL_N_PROPERTIES, menu_shell_properties);
 }
 
 static void
@@ -933,9 +830,11 @@ unity_gtk_menu_shell_init (UnityGtkMenuShell *self)
 UnityGtkMenuShell *
 unity_gtk_menu_shell_new (GtkMenuShell *menu_shell)
 {
-  return g_object_new (UNITY_GTK_TYPE_MENU_SHELL,
-                       "menu-shell", menu_shell,
-                       NULL);
+  UnityGtkMenuShell *shell = g_object_new (UNITY_GTK_TYPE_MENU_SHELL, NULL);
+
+  unity_gtk_menu_shell_set_menu_shell (shell, menu_shell);
+
+  return shell;
 }
 
 UnityGtkMenuItem *

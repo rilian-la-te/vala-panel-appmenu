@@ -21,8 +21,10 @@
 #ifndef __UNITY_GTK_MENU_ITEM_PRIVATE_H__
 #define __UNITY_GTK_MENU_ITEM_PRIVATE_H__
 
-typedef struct _UnityGtkMenuItem      UnityGtkMenuItem;
-typedef struct _UnityGtkMenuItemClass UnityGtkMenuItemClass;
+#include <gtk/gtk.h>
+
+typedef struct _UnityGtkMenuItem UnityGtkMenuItem;
+typedef GObjectClass             UnityGtkMenuItemClass;
 
 #define UNITY_GTK_TYPE_MENU_ITEM            (unity_gtk_menu_item_get_type ())
 #define UNITY_GTK_MENU_ITEM(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), UNITY_GTK_TYPE_MENU_ITEM, UnityGtkMenuItem))
@@ -31,7 +33,6 @@ typedef struct _UnityGtkMenuItemClass UnityGtkMenuItemClass;
 #define UNITY_GTK_IS_MENU_ITEM_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), UNITY_GTK_TYPE_MENU_ITEM))
 #define UNITY_GTK_MENU_ITEM_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_MENU_ITEM, UnityGtkMenuItemClass))
 
-#include <gtk/gtk.h>
 #include "unity-gtk-menu-shell-private.h"
 #include "unity-gtk-action-private.h"
 
@@ -47,11 +48,6 @@ struct _UnityGtkMenuItem
   guchar             child_shell_valid : 1;
   guint              item_index;
   UnityGtkAction    *action;
-};
-
-struct _UnityGtkMenuItemClass
-{
-  GObjectClass parent_class;
 };
 
 GType               unity_gtk_menu_item_get_type          (void)                            G_GNUC_INTERNAL;

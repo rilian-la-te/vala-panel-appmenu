@@ -28,16 +28,6 @@ G_DEFINE_TYPE (UnityGtkMenuSection,
                unity_gtk_menu_section,
                G_TYPE_MENU_MODEL);
 
-enum
-{
-  MENU_SECTION_PROP_0,
-  MENU_SECTION_PROP_PARENT_SHELL,
-  MENU_SECTION_PROP_SECTION_INDEX,
-  MENU_SECTION_N_PROPERTIES
-};
-
-static GParamSpec *menu_section_properties[MENU_SECTION_N_PROPERTIES] = { NULL };
-
 static gint
 g_uintcmp (gconstpointer a,
            gconstpointer b,
@@ -67,62 +57,6 @@ unity_gtk_menu_section_dispose (GObject *object)
   unity_gtk_menu_section_set_parent_shell (section, NULL);
 
   G_OBJECT_CLASS (unity_gtk_menu_section_parent_class)->dispose (object);
-}
-
-static void
-unity_gtk_menu_section_get_property (GObject    *object,
-                                     guint       property_id,
-                                     GValue     *value,
-                                     GParamSpec *pspec)
-{
-  UnityGtkMenuSection *self;
-
-  g_return_if_fail (UNITY_GTK_IS_MENU_SECTION (object));
-
-  self = UNITY_GTK_MENU_SECTION (object);
-
-  switch (property_id)
-    {
-    case MENU_SECTION_PROP_PARENT_SHELL:
-      g_value_set_object (value, self->parent_shell);
-      break;
-
-    case MENU_SECTION_PROP_SECTION_INDEX:
-      g_value_set_uint (value, self->section_index);
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-      break;
-    }
-}
-
-static void
-unity_gtk_menu_section_set_property (GObject      *object,
-                                     guint         property_id,
-                                     const GValue *value,
-                                     GParamSpec   *pspec)
-{
-  UnityGtkMenuSection *self;
-
-  g_return_if_fail (UNITY_GTK_IS_MENU_SECTION (object));
-
-  self = UNITY_GTK_MENU_SECTION (object);
-
-  switch (property_id)
-    {
-    case MENU_SECTION_PROP_PARENT_SHELL:
-      unity_gtk_menu_section_set_parent_shell (self, g_value_get_object (value));
-      break;
-
-    case MENU_SECTION_PROP_SECTION_INDEX:
-      self->section_index = g_value_get_uint (value);
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-      break;
-    }
 }
 
 static gboolean
@@ -269,27 +203,10 @@ unity_gtk_menu_section_class_init (UnityGtkMenuSectionClass *klass)
   GMenuModelClass *menu_model_class = G_MENU_MODEL_CLASS (klass);
 
   object_class->dispose = unity_gtk_menu_section_dispose;
-  object_class->get_property = unity_gtk_menu_section_get_property;
-  object_class->set_property = unity_gtk_menu_section_set_property;
   menu_model_class->is_mutable = unity_gtk_menu_section_is_mutable;
   menu_model_class->get_n_items = unity_gtk_menu_section_get_n_items;
   menu_model_class->get_item_attributes = unity_gtk_menu_section_get_item_attributes;
   menu_model_class->get_item_links = unity_gtk_menu_section_get_item_links;
-
-  menu_section_properties[MENU_SECTION_PROP_PARENT_SHELL] = g_param_spec_object ("parent-shell",
-                                                                                 "Parent shell",
-                                                                                 "Parent shell",
-                                                                                 UNITY_GTK_TYPE_MENU_SHELL,
-                                                                                 G_PARAM_READWRITE);
-  menu_section_properties[MENU_SECTION_PROP_SECTION_INDEX] = g_param_spec_uint ("section-index",
-                                                                                "Section index",
-                                                                                "Section index",
-                                                                                0,
-                                                                                G_MAXUINT,
-                                                                                0,
-                                                                                G_PARAM_READWRITE);
-
-  g_object_class_install_properties (object_class, MENU_SECTION_N_PROPERTIES, menu_section_properties);
 }
 
 static void
@@ -301,10 +218,12 @@ UnityGtkMenuSection *
 unity_gtk_menu_section_new (UnityGtkMenuShell *parent_shell,
                             guint              section_index)
 {
-  return g_object_new (UNITY_GTK_TYPE_MENU_SECTION,
-                       "parent-shell", parent_shell,
-                       "section-index", section_index,
-                       NULL);
+  UnityGtkMenuSection *section = g_object_new (UNITY_GTK_TYPE_MENU_SECTION, NULL);
+
+  unity_gtk_menu_section_set_parent_shell (section, parent_shell);
+  section->section_index = section_index;
+
+  return section;
 }
 
 GSequenceIter *

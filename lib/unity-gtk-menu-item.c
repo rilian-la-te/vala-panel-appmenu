@@ -25,19 +25,6 @@ G_DEFINE_TYPE (UnityGtkMenuItem,
                unity_gtk_menu_item,
                G_TYPE_OBJECT);
 
-enum
-{
-  MENU_ITEM_PROP_0,
-  MENU_ITEM_PROP_MENU_ITEM,
-  MENU_ITEM_PROP_PARENT_SHELL,
-  MENU_ITEM_PROP_CHILD_SHELL,
-  MENU_ITEM_PROP_ITEM_INDEX,
-  MENU_ITEM_PROP_ACTION,
-  MENU_ITEM_N_PROPERTIES
-};
-
-static GParamSpec *menu_item_properties[MENU_ITEM_N_PROPERTIES] = { NULL };
-
 static void
 unity_gtk_menu_item_handle_item_notify (GObject    *object,
                                         GParamSpec *pspec,
@@ -117,119 +104,11 @@ unity_gtk_menu_item_dispose (GObject *object)
 }
 
 static void
-unity_gtk_menu_item_get_property (GObject    *object,
-                                  guint       property_id,
-                                  GValue     *value,
-                                  GParamSpec *pspec)
-{
-  UnityGtkMenuItem *self;
-
-  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (object));
-
-  self = UNITY_GTK_MENU_ITEM (object);
-
-  switch (property_id)
-    {
-    case MENU_ITEM_PROP_MENU_ITEM:
-      g_value_set_object (value, self->menu_item);
-      break;
-
-    case MENU_ITEM_PROP_PARENT_SHELL:
-      g_value_set_object (value, self->parent_shell);
-      break;
-
-    case MENU_ITEM_PROP_CHILD_SHELL:
-      g_value_set_object (value, unity_gtk_menu_item_get_child_shell (self));
-      break;
-
-    case MENU_ITEM_PROP_ITEM_INDEX:
-      g_value_set_uint (value, self->item_index);
-      break;
-
-    case MENU_ITEM_PROP_ACTION:
-      g_value_set_object (value, self->action);
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-      break;
-    }
-}
-
-static void
-unity_gtk_menu_item_set_property (GObject      *object,
-                                  guint         property_id,
-                                  const GValue *value,
-                                  GParamSpec   *pspec)
-{
-  UnityGtkMenuItem *self;
-
-  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (object));
-
-  self = UNITY_GTK_MENU_ITEM (object);
-
-  switch (property_id)
-    {
-    case MENU_ITEM_PROP_MENU_ITEM:
-      unity_gtk_menu_item_set_menu_item (self, g_value_get_object (value));
-      break;
-
-    case MENU_ITEM_PROP_PARENT_SHELL:
-      unity_gtk_menu_item_set_parent_shell (self, g_value_get_object (value));
-      break;
-
-    case MENU_ITEM_PROP_ITEM_INDEX:
-      self->item_index = g_value_get_uint (value);
-      break;
-
-    case MENU_ITEM_PROP_ACTION:
-      unity_gtk_menu_item_set_action (self, g_value_get_object (value));
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
-      break;
-    }
-}
-
-static void
 unity_gtk_menu_item_class_init (UnityGtkMenuItemClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = unity_gtk_menu_item_dispose;
-  object_class->get_property = unity_gtk_menu_item_get_property;
-  object_class->set_property = unity_gtk_menu_item_set_property;
-
-  menu_item_properties[MENU_ITEM_PROP_MENU_ITEM] = g_param_spec_object ("menu-item",
-                                                                        "Menu item",
-                                                                        "Menu item",
-                                                                        GTK_TYPE_MENU_ITEM,
-                                                                        G_PARAM_READWRITE);
-  menu_item_properties[MENU_ITEM_PROP_PARENT_SHELL] = g_param_spec_object ("parent-shell",
-                                                                           "Parent shell",
-                                                                           "Parent shell",
-                                                                           UNITY_GTK_TYPE_MENU_SHELL,
-                                                                           G_PARAM_READWRITE);
-  menu_item_properties[MENU_ITEM_PROP_CHILD_SHELL] = g_param_spec_object ("child-shell",
-                                                                          "Child shell",
-                                                                          "Child shell",
-                                                                          UNITY_GTK_TYPE_MENU_SHELL,
-                                                                          G_PARAM_READABLE);
-  menu_item_properties[MENU_ITEM_PROP_ITEM_INDEX] = g_param_spec_uint ("item-index",
-                                                                       "Item index",
-                                                                       "Item index",
-                                                                       0,
-                                                                       G_MAXUINT,
-                                                                       0,
-                                                                       G_PARAM_READWRITE);
-  menu_item_properties[MENU_ITEM_PROP_ACTION] = g_param_spec_object ("action",
-                                                                     "Action",
-                                                                     "Action",
-                                                                     UNITY_GTK_TYPE_ACTION,
-                                                                     G_PARAM_READWRITE);
-
-  g_object_class_install_properties (object_class, MENU_ITEM_N_PROPERTIES, menu_item_properties);
 }
 
 static void
@@ -242,11 +121,13 @@ unity_gtk_menu_item_new (GtkMenuItem       *menu_item,
                          UnityGtkMenuShell *parent_shell,
                          guint              item_index)
 {
-  return g_object_new (UNITY_GTK_TYPE_MENU_ITEM,
-                       "menu-item", menu_item,
-                       "parent-shell", parent_shell,
-                       "item-index", item_index,
-                       NULL);
+  UnityGtkMenuItem *item = g_object_new (UNITY_GTK_TYPE_MENU_ITEM, NULL);
+
+  unity_gtk_menu_item_set_menu_item (item, menu_item);
+  unity_gtk_menu_item_set_parent_shell (item, parent_shell);
+  item->item_index = item_index;
+
+  return item;
 }
 
 UnityGtkMenuShell *

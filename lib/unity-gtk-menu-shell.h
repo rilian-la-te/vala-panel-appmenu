@@ -21,8 +21,10 @@
 #ifndef __UNITY_GTK_MENU_SHELL_H__
 #define __UNITY_GTK_MENU_SHELL_H__
 
-typedef struct _UnityGtkMenuShell      UnityGtkMenuShell;
-typedef struct _UnityGtkMenuShellClass UnityGtkMenuShellClass;
+#include <gtk/gtk.h>
+
+typedef struct _UnityGtkMenuShell UnityGtkMenuShell;
+typedef GMenuModelClass           UnityGtkMenuShellClass;
 
 #define UNITY_GTK_TYPE_MENU_SHELL            (unity_gtk_menu_shell_get_type ())
 #define UNITY_GTK_MENU_SHELL(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), UNITY_GTK_TYPE_MENU_SHELL, UnityGtkMenuShell))
@@ -31,7 +33,6 @@ typedef struct _UnityGtkMenuShellClass UnityGtkMenuShellClass;
 #define UNITY_GTK_IS_MENU_SHELL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), UNITY_GTK_TYPE_MENU_SHELL))
 #define UNITY_GTK_MENU_SHELL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_MENU_SHELL, UnityGtkMenuShellClass))
 
-#include <gtk/gtk.h>
 #include "unity-gtk-action-group.h"
 
 /**
@@ -51,16 +52,6 @@ struct _UnityGtkMenuShell
   GSequence           *visible_indices;
   GSequence           *separator_indices;
   UnityGtkActionGroup *action_group;
-};
-
-/**
- * UnityGtkMenuShellClass:
- *
- * #UnityGtkMenuShell class structure.
- */
-struct _UnityGtkMenuShellClass
-{
-  GMenuModelClass parent_class;
 };
 
 GType               unity_gtk_menu_shell_get_type (void);
