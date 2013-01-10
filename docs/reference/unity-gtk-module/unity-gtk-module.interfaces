@@ -1,4 +1,0 @@
-UnityGtkActionGroup GActionGroup
-GtkWidget AtkImplementorIface GtkBuildable
-GtkContainer AtkImplementorIface GtkBuildable
-GtkMenuShell AtkImplementorIface GtkBuildable
