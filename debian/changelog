@@ -1,3 +1,12 @@
+unity-gtk-module (0.0.0-0ubuntu9) raring; urgency=low
+
+  * docs
+    - Update docs.
+  * lib
+    - Remove ref cycles, thanks Lars Uebernickel.
+
+ -- William Hua <william.hua@canonical.com>  Thu, 10 Jan 2013 11:29:03 -0500
+
 unity-gtk-module (0.0.0-0ubuntu8) raring; urgency=low
 
   * debian/control
