@@ -3,9 +3,9 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: unity-gtk-module
-Description: Unity GTK+ module
+Name: unity-gtk3-module
+Description: Unity GTK+ 3 module
 Version: @VERSION@
 Requires: gtk+-3.0
 Cflags: -I${includedir}/unity-gtk-module
-Libs: -L${libdir}/unity-gtk-module -lunity-gtk-parser
+Libs: -L${libdir}/unity-gtk-module -lunity-gtk3-parser
