@@ -41,7 +41,8 @@ AC_SUBST([X_SESSION_DIR], [$with_x_session_dir])
 
 AC_CONFIG_FILES([Makefile
                  data/Makefile
-                 data/unity-gtk-module.pc
+                 data/unity-gtk2-parser.pc
+                 data/unity-gtk3-parser.pc
                  docs/Makefile
                  docs/reference/Makefile
                  docs/reference/unity-gtk-module/Makefile

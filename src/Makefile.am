@@ -1,13 +1,12 @@
 AM_CPPFLAGS = -I../lib
-AM_CFLAGS = $(GTK_CFLAGS) -Wall
-AM_LDFLAGS = $(GTK_LIBS) -avoid-version -module -shared
+AM_CFLAGS = $(GTK3_CFLAGS) -Wall
+AM_LDFLAGS = $(GTK3_LIBS) -avoid-version -module -shared
 
-libunity_gtk_moduledir = $(GTK_MODULE_DIR)
+libunitygtkmoduledir = $(GTK_MODULE_DIR)
+libunitygtkmodule_LTLIBRARIES = libunitygtk3module.la
 
-libunity_gtk_module_LTLIBRARIES = libunitygtk3module.la
-
-libunity_gtk_module_la_SOURCES = \
+libunitygtk3module_la_SOURCES = \
 	main.c
 
-libunity_gtk_module_la_LDFLAGS = \
-	$(top_builddir)/lib/libunitygtk3parser.la
+libunitygtk3module_la_LDFLAGS = \
+	$(top_builddir)/lib/libgtk3menuparser.la

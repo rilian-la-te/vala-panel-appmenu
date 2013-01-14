@@ -56,14 +56,14 @@ Description: GtkMenuShell D-Bus exporter
 
 Package: libunitygtkparser0
 Section: libs
-Architecture: any
+Architecture: all
 Depends: libunitygtk2parser0, libunitygtk3parser0
 Description: GtkMenuShell to GMenuModel parser
  This library converts GtkMenuShells into GMenuModels.
 
 Package: libunitygtkparser-dev
 Section: libdevel
-Architecture: any
+Architecture: all
 Depends: libunitygtk2parser-dev, libunitygtk3parser-dev
 Description: GtkMenuShell to GMenuModel parser
  This library converts GtkMenuShells into GMenuModels.
@@ -72,7 +72,7 @@ Description: GtkMenuShell to GMenuModel parser
 
 Package: unity-gtk-module
 Section: libs
-Architecture: any
+Architecture: all
 Depends: unity-gtk2-module, unity-gtk3-module
 Description: GtkMenuShell D-Bus exporter
  This GTK+ module exports GtkMenuShells over D-Bus.
