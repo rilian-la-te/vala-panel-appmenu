@@ -8,4 +8,4 @@ Description: GtkMenuShell to GMenuModel parser
 Version: @VERSION@
 Requires: gtk+-2.0
 Cflags: -I${includedir}/unity-gtk-parser
-Libs: -L${libdir} -lunitygtk2parser
+Libs: -L${libdir} -lunity-gtk2-parser

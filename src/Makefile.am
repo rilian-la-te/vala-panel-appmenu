@@ -2,8 +2,8 @@ AM_CPPFLAGS = -I$(top_srcdir)/lib
 AM_CFLAGS = $(GTK_CFLAGS) -Wall
 AM_LDFLAGS = $(GTK_LIBS) -avoid-version -module -shared
 
-libunitygtkmoduledir = $(GTK_MODULE_DIR)
-libunitygtkmodule_LTLIBRARIES = libunitygtkmodule.la
+libunity_gtk_moduledir = $(GTK_MODULE_DIR)
+libunity_gtk_module_LTLIBRARIES = libunity-gtk-module.la
 
-libunitygtkmodule_la_SOURCES = main.c
-libunitygtkmodule_la_LDFLAGS = $(top_builddir)/lib/libunitygtk$(GTK_VERSION)parser.la
+libunity_gtk_module_la_SOURCES = main.c
+libunity_gtk_module_la_LDFLAGS = $(top_builddir)/lib/libunity-gtk$(GTK_VERSION)-parser.la

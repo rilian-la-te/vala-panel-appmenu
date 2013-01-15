@@ -8,4 +8,4 @@ Description: GtkMenuShell to GMenuModel parser
 Version: @VERSION@
 Requires: gtk+-3.0
 Cflags: -I${includedir}/unity-gtk-parser
-Libs: -L${libdir} -lunitygtk3parser
+Libs: -L${libdir} -lunity-gtk3-parser
