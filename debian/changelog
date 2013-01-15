@@ -1,3 +1,12 @@
+unity-gtk-module (0.0.0-0ubuntu12) raring; urgency=low
+
+  * debian/control
+    - Fix dependencies.
+  * lib/Makefile.am
+    - Use conditional test for build.
+
+ -- William Hua <william.hua@canonical.com>  Tue, 15 Jan 2013 16:22:57 -0500
+
 unity-gtk-module (0.0.0-0ubuntu11) raring; urgency=low
 
   * debian/unity-gtk3-module.install
