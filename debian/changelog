@@ -1,3 +1,11 @@
+unity-gtk-module (0.0.0-0ubuntu10) raring; urgency=low
+
+  * debian/control
+  * debian/rules
+    - Restructure packaging.
+
+ -- William Hua <william.hua@canonical.com>  Tue, 15 Jan 2013 00:59:30 -0500
+
 unity-gtk-module (0.0.0-0ubuntu9) raring; urgency=low
 
   * docs
