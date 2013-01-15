@@ -11,14 +11,14 @@ Homepage: https://code.launchpad.net/~attente/+junk/unity-gtk-module
 Package: libunity-gtk3-parser0
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libgtk-3-0 (>= 3.2.0)
+Depends: ${misc:Depends}, libgtk-3-0 (>= 3.2.0)
 Description: GtkMenuShell to GMenuModel parser
  This library converts GtkMenuShells into GMenuModels.
 
 Package: libunity-gtk3-parser-dev
 Section: libdevel
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libunity-gtk3-parser0 (= ${binary:Version}), libgtk-3-dev (>= 3.2.0)
+Depends: ${misc:Depends}, libunity-gtk3-parser0 (= ${binary:Version}), libgtk-3-dev (>= 3.2.0)
 Description: GtkMenuShell to GMenuModel parser
  This library converts GtkMenuShells into GMenuModels.
  .
@@ -27,21 +27,21 @@ Description: GtkMenuShell to GMenuModel parser
 Package: unity-gtk3-module
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libunity-gtk3-parser0 (= ${binary:Version})
+Depends: ${misc:Depends}, libunity-gtk3-parser0 (= ${binary:Version})
 Description: GtkMenuShell D-Bus exporter
  This GTK+ 3 module exports GtkMenuShells over D-Bus.
 
 Package: libunity-gtk-parser0
 Section: libs
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, libunity-gtk3-parser0
+Depends: ${misc:Depends}, libunity-gtk3-parser0
 Description: GtkMenuShell to GMenuModel parser
  This library converts GtkMenuShells into GMenuModels.
 
 Package: libunity-gtk-parser-dev
 Section: libdevel
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, libunity-gtk-parser0 (= ${binary:Version}), libunity-gtk3-parser-dev
+Depends: ${misc:Depends}, libunity-gtk-parser0 (= ${binary:Version}), libunity-gtk3-parser-dev
 Description: GtkMenuShell to GMenuModel parser
  This library converts GtkMenuShells into GMenuModels.
  .
@@ -50,6 +50,6 @@ Description: GtkMenuShell to GMenuModel parser
 Package: unity-gtk-module
 Section: libs
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, libunity-gtk-parser0 (= ${binary:Version}), unity-gtk3-module
+Depends: ${misc:Depends}, libunity-gtk-parser0 (= ${binary:Version}), unity-gtk3-module
 Description: GtkMenuShell D-Bus exporter
  This GTK+ module exports GtkMenuShells over D-Bus.
