@@ -1,3 +1,4 @@
+*.debhelper
 *.la
 *.lo
 *.log
@@ -25,8 +26,6 @@ debian/libunity-gtk3-parser0
 debian/tmp
 debian/unity-gtk-module
 debian/unity-gtk3-module
-debian/unity-gtk3-module.postinst.debhelper
-debian/unity-gtk3-module.postrm.debhelper
 docs/reference/unity-gtk-module/html
 docs/reference/unity-gtk-module/xml
 docs/reference/unity-gtk-module/unity-gtk-module-decl-list.txt

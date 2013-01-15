@@ -6,4 +6,4 @@ libunity_gtk_moduledir = $(GTK_MODULE_DIR)
 libunity_gtk_module_LTLIBRARIES = libunity-gtk-module.la
 
 libunity_gtk_module_la_SOURCES = main.c
-libunity_gtk_module_la_LDFLAGS = $(top_builddir)/lib/libunity-gtk$(GTK_VERSION)-parser.la
+libunity_gtk_module_la_LIBADD = $(top_builddir)/lib/libunity-gtk$(GTK_VERSION)-parser.la
