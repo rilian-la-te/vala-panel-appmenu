@@ -8,7 +8,7 @@ AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE([1.11 foreign -Wall -Woverride -Wno-portability])
-dnl AM_SILENT_RULES([yes])
+AM_SILENT_RULES([yes])
 
 LT_INIT
 
