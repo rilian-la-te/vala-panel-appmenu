@@ -1,5 +1,5 @@
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = unity-gtk2-parser.pc unity-gtk3-parser.pc
+pkgconfig_DATA = unity-gtk$(GTK_VERSION)-parser.pc
 
 xsessiondir = $(X_SESSION_DIR)
 dist_xsession_DATA = 80unity-gtk-module

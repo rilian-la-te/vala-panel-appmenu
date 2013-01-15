@@ -1,9 +1,9 @@
 AM_CFLAGS = -Wall
 AM_LDFLAGS = -avoid-version
 
-lib_LTLIBRARIES = libgtk3menuparser.la
+lib_LTLIBRARIES = libunitygtk$(GTK_VERSION)parser.la
 
-libgtk3menuparser_la_SOURCES = \
+SOURCES = \
 	unity-gtk-menu-shell.h			\
 	unity-gtk-menu-shell-private.h		\
 	unity-gtk-menu-shell.c			\
@@ -17,12 +17,13 @@ libgtk3menuparser_la_SOURCES = \
 	unity-gtk-action-private.h		\
 	unity-gtk-action.c
 
-libgtk3menuparser_la_CFLAGS = $(GTK3_CFLAGS) $(AM_CFLAGS)
-libgtk3menuparser_la_LDFLAGS = $(GTK3_LIBS) $(AM_LDFLAGS)
+libunitygtk__GTK_VERSION_parser_la_SOURCES = $(SOURCES)
+libunitygtk__GTK_VERSION_parser_la_CFLAGS = $(GTK_CFLAGS) $(AM_CFLAGS)
+libunitygtk__GTK_VERSION_parser_la_LDFLAGS = $(GTK_LIBS) $(AM_LDFLAGS)
 
-libgtkmenuparser_la_includedir = $(includedir)/gtk-menu-parser
+libunitygtkparser_la_includedir = $(includedir)/unity-gtk-parser
 
-libgtkmenuparser_la_include_HEADERS = \
+libunitygtkparser_la_include_HEADERS = \
 	unity-gtk-parser.h		\
 	unity-gtk-menu-shell.h		\
 	unity-gtk-action-group.h

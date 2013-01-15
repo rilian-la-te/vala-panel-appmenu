@@ -3,7 +3,7 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: libunitygtk3parser
+Name: unity-gtk3-parser
 Description: GtkMenuShell to GMenuModel parser
 Version: @VERSION@
 Requires: gtk+-3.0
