@@ -1,5 +1,4 @@
 AM_CFLAGS = -Wall
-AM_LDFLAGS = -avoid-version
 
 SOURCES = \
 	unity-gtk-menu-shell.h			\

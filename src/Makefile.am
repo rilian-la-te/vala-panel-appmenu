@@ -1,6 +1,6 @@
 AM_CPPFLAGS = -I$(top_srcdir)/lib
-AM_CFLAGS = $(GTK_CFLAGS) -Wall
-AM_LDFLAGS = $(GTK_LIBS) -avoid-version -module -shared
+AM_CFLAGS = $(GTK_CFLAGS) $(X11_CFLAGS) -Wall
+AM_LDFLAGS = $(GTK_LIBS) $(X11_LIBS) -avoid-version -module -shared
 
 libunity_gtk_moduledir = $(GTK_MODULE_DIR)
 libunity_gtk_module_LTLIBRARIES = libunity-gtk-module.la

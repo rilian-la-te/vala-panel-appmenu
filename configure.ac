@@ -33,6 +33,10 @@ PKG_CHECK_MODULES([GTK], [gtk+-$with_gtk.0])
 AC_SUBST([GTK_CFLAGS])
 AC_SUBST([GTK_LIBS])
 
+PKG_CHECK_MODULES([X11], [x11])
+AC_SUBST([X11_CFLAGS])
+AC_SUBST([X11_LIBS])
+
 m4_ifdef([GTK_DOC_CHECK], [
 GTK_DOC_CHECK([1.18], [--flavour no-tmpl])
 ], [
