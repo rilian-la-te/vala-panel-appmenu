@@ -13,13 +13,10 @@
 	dh $@ --with autoreconf
 
 override_dh_auto_configure:
-	dh_auto_configure -Bbuild/gtk2 -- --with-gtk=2
-	dh_auto_configure -Bbuild/gtk3 -- --with-gtk=3
+	dh_auto_configure -Bgtk3 -- --with-gtk=3
 
 override_dh_auto_build:
-	dh_auto_build -Bbuild/gtk2
-	dh_auto_build -Bbuild/gtk3
+	dh_auto_build -Bgtk3
 
 override_dh_auto_install:
-	dh_auto_install -Dbuild/gtk2
-	dh_auto_install -Dbuild/gtk3
+	dh_auto_install -Dgtk3

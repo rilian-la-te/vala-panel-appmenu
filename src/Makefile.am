@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -I../lib
+AM_CPPFLAGS = -I$(top_srcdir)/lib
 AM_CFLAGS = $(GTK_CFLAGS) -Wall
 AM_LDFLAGS = $(GTK_LIBS) -avoid-version -module -shared
 
