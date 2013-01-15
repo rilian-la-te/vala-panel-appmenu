@@ -1,2 +1,2 @@
 debian/tmp/etc/X11/Xsession.d/*
-debian/tmp/usr/lib/*/modules/*
+debian/tmp/usr/lib/*/gtk-*.0/modules/*
