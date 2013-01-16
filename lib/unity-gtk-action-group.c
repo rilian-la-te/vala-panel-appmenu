@@ -21,7 +21,7 @@
 /**
  * SECTION:unity-gtk-action-group
  * @short_description: Action group collector
- * @include: unity-gtk-module/unity-gtk-parser.h
+ * @include: unity-gtk-parser.h
  *
  * A #UnityGtkActionGroup is a #GActionGroup that accumulates the
  * actions of multiple #UnityGtkMenuShell<!-- -->s into a single object.

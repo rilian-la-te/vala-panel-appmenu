@@ -21,7 +21,7 @@
 /**
  * SECTION:unity-gtk-menu-shell
  * @short_description: Menu shell proxy
- * @include: unity-gtk-module/unity-gtk-parser.h
+ * @include: unity-gtk-parser.h
  *
  * A #UnityGtkMenuShell is a #GMenuModel that acts as a proxy for a
  * #GtkMenuShell. This can be used for purposes such as exporting menu
