@@ -1,0 +1,2 @@
+debian/tmp/etc/X11/Xsession.d/*
+debian/tmp/usr/lib/*/gtk-2.0/modules/*

@@ -42,39 +42,46 @@ struct _WindowData
   guint                action_group_export_id;
 };
 
-static void (* pre_hijacked_window_realize)                          (GtkWidget     *widget);
+static void (* pre_hijacked_window_realize)                          (GtkWidget      *widget);
 
-static void (* pre_hijacked_window_unrealize)                        (GtkWidget     *widget);
+static void (* pre_hijacked_window_unrealize)                        (GtkWidget      *widget);
 
-static void (* pre_hijacked_application_window_realize)              (GtkWidget     *widget);
+#if GTK_MAJOR_VERSION == 3
+static void (* pre_hijacked_application_window_realize)              (GtkWidget      *widget);
+#endif
 
-static void (* pre_hijacked_menu_bar_realize)                        (GtkWidget     *widget);
+static void (* pre_hijacked_menu_bar_realize)                        (GtkWidget      *widget);
 
-static void (* pre_hijacked_menu_bar_unrealize)                      (GtkWidget     *widget);
+static void (* pre_hijacked_menu_bar_unrealize)                      (GtkWidget      *widget);
 
-static void (* pre_hijacked_widget_size_allocate)                    (GtkWidget     *widget,
-                                                                      GtkAllocation *allocation);
+static void (* pre_hijacked_widget_size_allocate)                    (GtkWidget      *widget,
+                                                                      GtkAllocation  *allocation);
 
-static void (* pre_hijacked_menu_bar_size_allocate)                  (GtkWidget     *widget,
-                                                                      GtkAllocation *allocation);
+static void (* pre_hijacked_menu_bar_size_allocate)                  (GtkWidget      *widget,
+                                                                      GtkAllocation  *allocation);
 
-static void (* pre_hijacked_menu_bar_get_preferred_width)            (GtkWidget     *widget,
-                                                                      gint          *minimum_width,
-                                                                      gint          *natural_width);
+#if GTK_MAJOR_VERSION == 2
+static void (* pre_hijacked_menu_bar_size_request)                   (GtkWidget      *widget,
+                                                                      GtkRequisition *requisition);
+#elif GTK_MAJOR_VERSION == 3
+static void (* pre_hijacked_menu_bar_get_preferred_width)            (GtkWidget      *widget,
+                                                                      gint           *minimum_width,
+                                                                      gint           *natural_width);
 
-static void (* pre_hijacked_menu_bar_get_preferred_height)           (GtkWidget     *widget,
-                                                                      gint          *minimum_height,
-                                                                      gint          *natural_height);
+static void (* pre_hijacked_menu_bar_get_preferred_height)           (GtkWidget      *widget,
+                                                                      gint           *minimum_height,
+                                                                      gint           *natural_height);
 
-static void (* pre_hijacked_menu_bar_get_preferred_width_for_height) (GtkWidget     *widget,
-                                                                      gint           height,
-                                                                      gint          *minimum_width,
-                                                                      gint          *natural_width);
+static void (* pre_hijacked_menu_bar_get_preferred_width_for_height) (GtkWidget      *widget,
+                                                                      gint            height,
+                                                                      gint           *minimum_width,
+                                                                      gint           *natural_width);
 
-static void (* pre_hijacked_menu_bar_get_preferred_height_for_width) (GtkWidget     *widget,
-                                                                      gint           width,
-                                                                      gint          *minimum_height,
-                                                                      gint          *natural_height);
+static void (* pre_hijacked_menu_bar_get_preferred_height_for_width) (GtkWidget      *widget,
+                                                                      gint            width,
+                                                                      gint           *minimum_height,
+                                                                      gint           *natural_height);
+#endif
 
 static gchar *
 gtk_widget_get_x11_property_string (GtkWidget   *widget,
@@ -137,6 +144,60 @@ gtk_widget_get_x11_property_string (GtkWidget   *widget,
   return NULL;
 }
 
+static void
+gtk_widget_set_x11_property_string (GtkWidget   *widget,
+                                    const gchar *name,
+                                    const gchar *value)
+{
+  GdkWindow *window;
+  GdkDisplay *display;
+  Display *xdisplay;
+  Window xwindow;
+  Atom property;
+  Atom type;
+
+  g_return_if_fail (GTK_IS_WIDGET (widget));
+
+  window = gtk_widget_get_window (widget);
+  display = gdk_window_get_display (window);
+  xdisplay = GDK_DISPLAY_XDISPLAY (display);
+  xwindow = GDK_WINDOW_XID (window);
+
+  property = None;
+
+  if (display != NULL)
+    property = gdk_x11_get_xatom_by_name_for_display (display, name);
+
+  if (property == None)
+    property = gdk_x11_get_xatom_by_name (name);
+
+  g_return_if_fail (property != None);
+
+  type = None;
+
+  if (display != NULL)
+    type = gdk_x11_get_xatom_by_name_for_display (display, "UTF8_STRING");
+
+  if (type == None)
+    type = gdk_x11_get_xatom_by_name ("UTF8_STRING");
+
+  g_return_if_fail (type != None);
+
+  if (value != NULL)
+    XChangeProperty (xdisplay,
+                     xwindow,
+                     property,
+                     type,
+                     8,
+                     PropModeReplace,
+                     (unsigned char *) value,
+                     g_utf8_strlen (value, -1));
+  else
+    XDeleteProperty (xdisplay,
+                     xwindow,
+                     property);
+}
+
 static WindowData *
 window_data_new (void)
 {
@@ -188,7 +249,6 @@ window_get_window_data (GtkWidget *widget)
       static guint window_id;
 
       GDBusConnection *session = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
-      GdkX11Window *window = GDK_X11_WINDOW (gtk_widget_get_window (widget));
       gchar *object_path = g_strdup_printf (OBJECT_PATH "/%d", window_id);
       gchar *old_unique_bus_name = gtk_widget_get_x11_property_string (widget, _GTK_UNIQUE_BUS_NAME);
       gchar *old_unity_object_path = gtk_widget_get_x11_property_string (widget, _UNITY_OBJECT_PATH);
@@ -220,13 +280,13 @@ window_get_window_data (GtkWidget *widget)
       window_data->action_group_export_id = g_dbus_connection_export_action_group (session, old_unity_object_path != NULL ? old_unity_object_path : object_path, G_ACTION_GROUP (window_data->action_group), NULL);
 
       if (old_unique_bus_name == NULL)
-        gdk_x11_window_set_utf8_property (window, _GTK_UNIQUE_BUS_NAME, g_dbus_connection_get_unique_name (session));
+        gtk_widget_set_x11_property_string (widget, _GTK_UNIQUE_BUS_NAME, g_dbus_connection_get_unique_name (session));
 
       if (old_unity_object_path == NULL)
-        gdk_x11_window_set_utf8_property (window, _UNITY_OBJECT_PATH, object_path);
+        gtk_widget_set_x11_property_string (widget, _UNITY_OBJECT_PATH, object_path);
 
       if (old_menubar_object_path == NULL)
-        gdk_x11_window_set_utf8_property (window, _GTK_MENUBAR_OBJECT_PATH, object_path);
+        gtk_widget_set_x11_property_string (widget, _GTK_MENUBAR_OBJECT_PATH, object_path);
 
       g_object_set_qdata_full (G_OBJECT (widget), window_data_quark (), window_data, window_data_free);
 
@@ -246,7 +306,9 @@ hijacked_window_realize (GtkWidget *widget)
 
   (* pre_hijacked_window_realize) (widget);
 
+#if GTK_MAJOR_VERSION == 3
   if (!GTK_IS_APPLICATION_WINDOW (widget))
+#endif
     window_get_window_data (widget);
 }
 
@@ -260,6 +322,7 @@ hijacked_window_unrealize (GtkWidget *widget)
   g_object_set_qdata (G_OBJECT (widget), window_data_quark (), NULL);
 }
 
+#if GTK_MAJOR_VERSION == 3
 static void
 hijacked_application_window_realize (GtkWidget *widget)
 {
@@ -269,6 +332,7 @@ hijacked_application_window_realize (GtkWidget *widget)
 
   window_get_window_data (widget);
 }
+#endif
 
 static void
 hijacked_menu_bar_realize (GtkWidget *widget)
@@ -368,6 +432,19 @@ hijacked_menu_bar_size_allocate (GtkWidget     *widget,
     gdk_window_move_resize (window, -1, -1, 1, 1);
 }
 
+#if GTK_MAJOR_VERSION == 2
+static void
+hijacked_menu_bar_size_request (GtkWidget      *widget,
+                                GtkRequisition *requisition)
+{
+  g_return_if_fail (GTK_IS_MENU_BAR (widget));
+
+  (* pre_hijacked_menu_bar_size_request) (widget, requisition);
+
+  requisition->width = 0;
+  requisition->height = 0;
+}
+#elif GTK_MAJOR_VERSION == 3
 static void
 hijacked_menu_bar_get_preferred_width (GtkWidget *widget,
                                        gint      *minimum_width,
@@ -421,6 +498,7 @@ hijacked_menu_bar_get_preferred_height_for_width (GtkWidget *widget,
   *minimum_height = 0;
   *natural_height = 0;
 }
+#endif
 
 static void
 hijack_window_class_vtable (GType type)
@@ -433,8 +511,10 @@ hijack_window_class_vtable (GType type)
   if (widget_class->realize == pre_hijacked_window_realize)
     widget_class->realize = hijacked_window_realize;
 
+#if GTK_MAJOR_VERSION == 3
   if (widget_class->realize == pre_hijacked_application_window_realize)
     widget_class->realize = hijacked_application_window_realize;
+#endif
 
   if (widget_class->unrealize == pre_hijacked_window_unrealize)
     widget_class->unrealize = hijacked_window_unrealize;
@@ -455,6 +535,19 @@ hijack_menu_bar_class_vtable (GType type)
   guint n;
   guint i;
 
+  if (widget_class->realize == pre_hijacked_menu_bar_realize)
+    widget_class->realize = hijacked_menu_bar_realize;
+
+  if (widget_class->unrealize == pre_hijacked_menu_bar_unrealize)
+    widget_class->unrealize = hijacked_menu_bar_unrealize;
+
+  if (widget_class->size_allocate == pre_hijacked_menu_bar_size_allocate)
+    widget_class->size_allocate = hijacked_menu_bar_size_allocate;
+
+#if GTK_MAJOR_VERSION == 2
+  if (widget_class->size_request == pre_hijacked_menu_bar_size_request)
+    widget_class->size_request = hijacked_menu_bar_size_request;
+#elif GTK_MAJOR_VERSION == 3
   if (widget_class->get_preferred_width == pre_hijacked_menu_bar_get_preferred_width)
     widget_class->get_preferred_width = hijacked_menu_bar_get_preferred_width;
 
@@ -466,15 +559,7 @@ hijack_menu_bar_class_vtable (GType type)
 
   if (widget_class->get_preferred_height_for_width == pre_hijacked_menu_bar_get_preferred_height_for_width)
     widget_class->get_preferred_height_for_width = hijacked_menu_bar_get_preferred_height_for_width;
-
-  if (widget_class->size_allocate == pre_hijacked_menu_bar_size_allocate)
-    widget_class->size_allocate = hijacked_menu_bar_size_allocate;
-
-  if (widget_class->realize == pre_hijacked_menu_bar_realize)
-    widget_class->realize = hijacked_menu_bar_realize;
-
-  if (widget_class->unrealize == pre_hijacked_menu_bar_unrealize)
-    widget_class->unrealize = hijacked_menu_bar_unrealize;
+#endif
 
   children = g_type_children (type, &n);
 
@@ -493,9 +578,11 @@ gtk_module_init (void)
   widget_class = g_type_class_ref (GTK_TYPE_WIDGET);
   pre_hijacked_widget_size_allocate = widget_class->size_allocate;
 
+#if GTK_MAJOR_VERSION == 3
   /* store the base GtkApplicationWindow realize vfunc */
   widget_class = g_type_class_ref (GTK_TYPE_APPLICATION_WINDOW);
   pre_hijacked_application_window_realize = widget_class->realize;
+#endif
 
   /* intercept window realize vcalls on GtkWindow */
   widget_class = g_type_class_ref (GTK_TYPE_WINDOW);
@@ -508,9 +595,13 @@ gtk_module_init (void)
   pre_hijacked_menu_bar_realize = widget_class->realize;
   pre_hijacked_menu_bar_unrealize = widget_class->unrealize;
   pre_hijacked_menu_bar_size_allocate = widget_class->size_allocate;
+#if GTK_MAJOR_VERSION == 2
+  pre_hijacked_menu_bar_size_request = widget_class->size_request;
+#elif GTK_MAJOR_VERSION == 3
   pre_hijacked_menu_bar_get_preferred_width = widget_class->get_preferred_width;
   pre_hijacked_menu_bar_get_preferred_height = widget_class->get_preferred_height;
   pre_hijacked_menu_bar_get_preferred_width_for_height = widget_class->get_preferred_width_for_height;
   pre_hijacked_menu_bar_get_preferred_height_for_width = widget_class->get_preferred_height_for_width;
+#endif
   hijack_menu_bar_class_vtable (GTK_TYPE_MENU_BAR);
 }
