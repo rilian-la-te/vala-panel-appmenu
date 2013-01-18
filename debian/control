@@ -36,7 +36,7 @@ Description: GtkMenuShell to GMenuModel parser
 Package: libunity-gtk2-parser-dev
 Section: libdevel
 Architecture: any
-Depends: ${misc:Depends}, libgtk2.0-dev (>= 2.24.0), libunity-gtk-parser-dev-common (= ${binary:Version}), libunity-gtk2-parser0 (= ${binary:Version})
+Depends: ${misc:Depends}, libgtk2.0-dev (>= 2.24.0), libunity-gtk-parser-dev-common (>= ${source:Version}), libunity-gtk2-parser0 (= ${binary:Version})
 Description: GtkMenuShell to GMenuModel parser
  This library converts GtkMenuShells into GMenuModels.
  .
@@ -45,7 +45,7 @@ Description: GtkMenuShell to GMenuModel parser
 Package: unity-gtk2-module
 Section: libs
 Architecture: any
-Depends: ${misc:Depends}, libx11-6, unity-gtk-module-common (= ${binary:Version}), libunity-gtk2-parser0 (= ${binary:Version})
+Depends: ${misc:Depends}, libx11-6, unity-gtk-module-common (>= ${source:Version}), libunity-gtk2-parser0 (>= ${binary:Version})
 Description: GtkMenuShell D-Bus exporter
  This GTK+ 2 module exports GtkMenuShells over D-Bus.
 
@@ -59,7 +59,7 @@ Description: GtkMenuShell to GMenuModel parser
 Package: libunity-gtk3-parser-dev
 Section: libdevel
 Architecture: any
-Depends: ${misc:Depends}, libgtk-3-dev (>= 3.2.0), libunity-gtk-parser-dev-common (= ${binary:Version}), libunity-gtk3-parser0 (= ${binary:Version})
+Depends: ${misc:Depends}, libgtk-3-dev (>= 3.2.0), libunity-gtk-parser-dev-common (>= ${source:Version}), libunity-gtk3-parser0 (= ${binary:Version})
 Description: GtkMenuShell to GMenuModel parser
  This library converts GtkMenuShells into GMenuModels.
  .
@@ -68,21 +68,21 @@ Description: GtkMenuShell to GMenuModel parser
 Package: unity-gtk3-module
 Section: libs
 Architecture: any
-Depends: ${misc:Depends}, libx11-6, unity-gtk-module-common (= ${binary:Version}), libunity-gtk3-parser0 (= ${binary:Version})
+Depends: ${misc:Depends}, libx11-6, unity-gtk-module-common (>= ${source:Version}), libunity-gtk3-parser0 (>= ${binary:Version})
 Description: GtkMenuShell D-Bus exporter
  This GTK+ 3 module exports GtkMenuShells over D-Bus.
 
 Package: libunity-gtk-parser0
 Section: libs
 Architecture: all
-Depends: ${misc:Depends}, libunity-gtk2-parser0 (= ${binary:Version}), libunity-gtk3-parser0 (= ${binary:Version})
+Depends: ${misc:Depends}, libunity-gtk2-parser0 (>= ${binary:Version}), libunity-gtk3-parser0 (>= ${binary:Version})
 Description: GtkMenuShell to GMenuModel parser
  This library converts GtkMenuShells into GMenuModels.
 
 Package: libunity-gtk-parser-dev
 Section: libdevel
 Architecture: all
-Depends: ${misc:Depends}, libunity-gtk-parser0 (= ${binary:Version}), libunity-gtk2-parser-dev (= ${binary:Version}), libunity-gtk3-parser-dev (= ${binary:Version})
+Depends: ${misc:Depends}, libunity-gtk-parser0 (= ${binary:Version}), libunity-gtk2-parser-dev (>= ${binary:Version}), libunity-gtk3-parser-dev (>= ${binary:Version})
 Description: GtkMenuShell to GMenuModel parser
  This library converts GtkMenuShells into GMenuModels.
  .
@@ -91,6 +91,6 @@ Description: GtkMenuShell to GMenuModel parser
 Package: unity-gtk-module
 Section: libs
 Architecture: all
-Depends: ${misc:Depends}, libunity-gtk-parser0 (= ${binary:Version}), unity-gtk2-module (= ${binary:Version}), unity-gtk3-module (= ${binary:Version})
+Depends: ${misc:Depends}, libunity-gtk-parser0 (>= ${binary:Version}), unity-gtk2-module (>= ${binary:Version}), unity-gtk3-module (>= ${binary:Version})
 Description: GtkMenuShell D-Bus exporter
  This GTK+ module exports GtkMenuShells over D-Bus.
