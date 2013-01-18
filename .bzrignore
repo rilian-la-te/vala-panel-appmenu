@@ -20,6 +20,7 @@ debian/autoreconf.after
 debian/autoreconf.before
 debian/files
 debian/libunity-gtk-parser-dev
+debian/libunity-gtk-parser-dev-common
 debian/libunity-gtk-parser0
 debian/libunity-gtk2-parser-dev
 debian/libunity-gtk2-parser0
@@ -27,6 +28,7 @@ debian/libunity-gtk3-parser-dev
 debian/libunity-gtk3-parser0
 debian/tmp
 debian/unity-gtk-module
+debian/unity-gtk-module-common
 debian/unity-gtk2-module
 debian/unity-gtk3-module
 docs/reference/unity-gtk-module/html
