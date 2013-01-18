@@ -1,2 +1,3 @@
-debian/tmp/usr/include/unity-gtk-parser/*
-debian/tmp/usr/lib/pkgconfig/*
+debian/tmp/usr/lib/pkgconfig/unity-gtk3-parser.pc
+debian/tmp/usr/lib/libunity-gtk3-parser.a
+debian/tmp/usr/lib/libunity-gtk3-parser.so

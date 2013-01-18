@@ -8,6 +8,24 @@ Homepage: https://code.launchpad.net/~attente/+junk/unity-gtk-module
 #Vcs-Git: git://git.debian.org/collab-maint/unity-gtk-module.git
 #Vcs-Browser: http://git.debian.org/?p=collab-maint/unity-gtk-module.git;a=summary
 
+Package: libunity-gtk-parser-dev-common
+Section: libdevel
+Architecture: all
+Depends: ${misc:Depends}
+Description: Common files for GtkMenuShell to GMenuModel parser
+ This library converts GtkMenuShells into GMenuModels.
+ .
+ This package contains common headers.
+
+Package: unity-gtk-module-common
+Section: libs
+Architecture: all
+Depends: ${misc:Depends}
+Description: Common files for GtkMenuShell D-Bus exporter
+ This GTK+ module exports GtkMenuShells over D-Bus.
+ .
+ This package contains common Xsession.d scripts.
+
 Package: libunity-gtk2-parser0
 Section: libs
 Architecture: any
@@ -18,16 +36,16 @@ Description: GtkMenuShell to GMenuModel parser
 Package: libunity-gtk2-parser-dev
 Section: libdevel
 Architecture: any
-Depends: ${misc:Depends}, libunity-gtk2-parser0 (= ${binary:Version}), libgtk2.0-dev (>= 2.24.0)
+Depends: ${misc:Depends}, libgtk2.0-dev (>= 2.24.0), libunity-gtk-parser-dev-common (= ${binary:Version}), libunity-gtk2-parser0 (= ${binary:Version})
 Description: GtkMenuShell to GMenuModel parser
  This library converts GtkMenuShells into GMenuModels.
  .
- This package contains headers and documentation.
+ This package contains pkg-config files and documentation.
 
 Package: unity-gtk2-module
 Section: libs
 Architecture: any
-Depends: ${misc:Depends}, libunity-gtk2-parser0 (= ${binary:Version}), libx11-6
+Depends: ${misc:Depends}, libx11-6, unity-gtk-module-common (= ${binary:Version}), libunity-gtk2-parser0 (= ${binary:Version})
 Description: GtkMenuShell D-Bus exporter
  This GTK+ 2 module exports GtkMenuShells over D-Bus.
 
@@ -41,30 +59,30 @@ Description: GtkMenuShell to GMenuModel parser
 Package: libunity-gtk3-parser-dev
 Section: libdevel
 Architecture: any
-Depends: ${misc:Depends}, libunity-gtk3-parser0 (= ${binary:Version}), libgtk-3-dev (>= 3.2.0)
+Depends: ${misc:Depends}, libgtk-3-dev (>= 3.2.0), libunity-gtk-parser-dev-common (= ${binary:Version}), libunity-gtk3-parser0 (= ${binary:Version})
 Description: GtkMenuShell to GMenuModel parser
  This library converts GtkMenuShells into GMenuModels.
  .
- This package contains headers and documentation.
+ This package contains pkg-config files and documentation.
 
 Package: unity-gtk3-module
 Section: libs
 Architecture: any
-Depends: ${misc:Depends}, libunity-gtk3-parser0 (= ${binary:Version}), libx11-6
+Depends: ${misc:Depends}, libx11-6, unity-gtk-module-common (= ${binary:Version}), libunity-gtk3-parser0 (= ${binary:Version})
 Description: GtkMenuShell D-Bus exporter
  This GTK+ 3 module exports GtkMenuShells over D-Bus.
 
 Package: libunity-gtk-parser0
 Section: libs
 Architecture: all
-Depends: ${misc:Depends}, libunity-gtk2-parser0, libunity-gtk3-parser0
+Depends: ${misc:Depends}, libunity-gtk2-parser0 (= ${binary:Version}), libunity-gtk3-parser0 (= ${binary:Version})
 Description: GtkMenuShell to GMenuModel parser
  This library converts GtkMenuShells into GMenuModels.
 
 Package: libunity-gtk-parser-dev
 Section: libdevel
 Architecture: all
-Depends: ${misc:Depends}, libunity-gtk-parser0 (= ${binary:Version}), libunity-gtk2-parser-dev, libunity-gtk3-parser-dev
+Depends: ${misc:Depends}, libunity-gtk-parser0 (= ${binary:Version}), libunity-gtk2-parser-dev (= ${binary:Version}), libunity-gtk3-parser-dev (= ${binary:Version})
 Description: GtkMenuShell to GMenuModel parser
  This library converts GtkMenuShells into GMenuModels.
  .
@@ -73,6 +91,6 @@ Description: GtkMenuShell to GMenuModel parser
 Package: unity-gtk-module
 Section: libs
 Architecture: all
-Depends: ${misc:Depends}, libunity-gtk-parser0 (= ${binary:Version}), unity-gtk2-module, unity-gtk3-module
+Depends: ${misc:Depends}, libunity-gtk-parser0 (= ${binary:Version}), unity-gtk2-module (= ${binary:Version}), unity-gtk3-module (= ${binary:Version})
 Description: GtkMenuShell D-Bus exporter
  This GTK+ module exports GtkMenuShells over D-Bus.

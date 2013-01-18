@@ -1,2 +1,1 @@
-debian/tmp/etc/X11/Xsession.d/*
-debian/tmp/usr/lib/*/gtk-3.0/modules/*
+debian/tmp/usr/lib/*/gtk-3.0/modules/libunity-gtk-module.so
