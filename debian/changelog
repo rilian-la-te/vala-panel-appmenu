@@ -1,3 +1,15 @@
+unity-gtk-module (0.0.0-0ubuntu13) raring; urgency=low
+
+  * debian/control
+    - Add GTK+ 2 support.
+    - Put common files into separate packages.
+  * debian/rules
+    - Add GTK-Doc support.
+  * src/main.c
+    - Add GTK+ 2 support.
+
+ -- William Hua <william.hua@canonical.com>  Fri, 18 Jan 2013 12:10:12 -0500
+
 unity-gtk-module (0.0.0-0ubuntu12) raring; urgency=low
 
   * debian/control
