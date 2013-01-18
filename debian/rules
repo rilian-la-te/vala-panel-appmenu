@@ -13,8 +13,8 @@
 	dh $@ --with autoreconf
 
 override_dh_auto_configure:
-	dh_auto_configure -Bbuild/gtk2 -- --with-gtk=2
-	dh_auto_configure -Bbuild/gtk3 -- --with-gtk=3
+	dh_auto_configure -Bbuild/gtk2 -- --with-gtk=2 --enable-gtk-doc
+	dh_auto_configure -Bbuild/gtk3 -- --with-gtk=3 --enable-gtk-doc
 
 override_dh_auto_build:
 	dh_auto_build -Bbuild/gtk2

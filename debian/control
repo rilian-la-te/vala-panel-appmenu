@@ -15,7 +15,7 @@ Depends: ${misc:Depends}
 Description: Common files for GtkMenuShell to GMenuModel parser
  This library converts GtkMenuShells into GMenuModels.
  .
- This package contains common headers.
+ This package contains common headers and documentation.
 
 Package: unity-gtk-module-common
 Section: libs
@@ -40,7 +40,7 @@ Depends: ${misc:Depends}, libgtk2.0-dev (>= 2.24.0), libunity-gtk-parser-dev-com
 Description: GtkMenuShell to GMenuModel parser
  This library converts GtkMenuShells into GMenuModels.
  .
- This package contains pkg-config files and documentation.
+ This package contains pkg-config files and libraries.
 
 Package: unity-gtk2-module
 Section: libs
@@ -63,7 +63,7 @@ Depends: ${misc:Depends}, libgtk-3-dev (>= 3.2.0), libunity-gtk-parser-dev-commo
 Description: GtkMenuShell to GMenuModel parser
  This library converts GtkMenuShells into GMenuModels.
  .
- This package contains pkg-config files and documentation.
+ This package contains pkg-config files and libraries.
 
 Package: unity-gtk3-module
 Section: libs
