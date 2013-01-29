@@ -671,6 +671,9 @@ unity_gtk_action_group_get_action_name (UnityGtkActionGroup *group,
   if (name == NULL || name[0] == '\0')
     name = gtk_menu_item_get_label (menu_item);
 
+  if (name == NULL || name[0] == '\0')
+    name = gtk_menu_item_get_nth_label (menu_item, 0);
+
   if (name != NULL && name[0] == '\0')
     name = NULL;
 

@@ -80,4 +80,7 @@ gboolean            unity_gtk_menu_item_get_draw_as_radio (UnityGtkMenuItem  *it
 void                unity_gtk_menu_item_print             (UnityGtkMenuItem  *item,
                                                            guint              indent)       G_GNUC_INTERNAL;
 
+const gchar *       gtk_menu_item_get_nth_label           (GtkMenuItem       *menu_item,
+                                                           guint              index)        G_GNUC_INTERNAL;
+
 #endif /* __UNITY_GTK_MENU_ITEM_PRIVATE_H__ */

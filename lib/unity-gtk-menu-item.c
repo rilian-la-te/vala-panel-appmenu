@@ -202,6 +202,9 @@ unity_gtk_menu_item_get_label (UnityGtkMenuItem *item)
 
   label = gtk_menu_item_get_label (item->menu_item);
 
+  if (label == NULL || label[0] == '\0')
+    label = gtk_menu_item_get_nth_label (item->menu_item, 0);
+
   return label != NULL && label[0] != '\0' ? label : NULL;
 }
 
@@ -298,4 +301,54 @@ unity_gtk_menu_item_print (UnityGtkMenuItem *item,
     g_print ("%sNULL\n", space);
 
   g_free (space);
+}
+
+typedef struct _UnityGtkSearch UnityGtkSearch;
+
+struct _UnityGtkSearch
+{
+  GtkLabel *label;
+  guint     index;
+};
+
+static void
+gtk_widget_get_nth_label (GtkWidget *widget,
+                          gpointer   data)
+{
+  UnityGtkSearch *search = data;
+
+  g_return_if_fail (GTK_IS_WIDGET (widget));
+
+  if (search->label == NULL)
+    {
+      if (GTK_IS_LABEL (widget))
+        {
+          if (search->index == 0)
+            search->label = GTK_LABEL (widget);
+          else
+            search->index--;
+        }
+      else if (GTK_IS_CONTAINER (widget))
+        gtk_container_forall (GTK_CONTAINER (widget), gtk_widget_get_nth_label, data);
+    }
+}
+
+const gchar *
+gtk_menu_item_get_nth_label (GtkMenuItem *menu_item,
+                             guint        index)
+{
+  UnityGtkSearch search;
+  const gchar *label = NULL;
+
+  g_return_val_if_fail (GTK_IS_MENU_ITEM (menu_item), NULL);
+
+  search.label = NULL;
+  search.index = index;
+
+  gtk_widget_get_nth_label (GTK_WIDGET (menu_item), &search);
+
+  if (search.label != NULL)
+    label = gtk_label_get_label (search.label);
+
+  return label != NULL && label[0] != '\0' ? label : NULL;
 }
