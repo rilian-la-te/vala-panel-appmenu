@@ -147,6 +147,7 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
 
   if (item->menu_item != NULL)
     {
+      gchar *accel_name = NULL;
       const gchar *accel_path = gtk_menu_item_get_accel_path (item->menu_item);
 
       if (accel_path != NULL)
@@ -154,14 +155,16 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
           GtkAccelKey accel_key;
 
           if (gtk_accel_map_lookup_entry (accel_path, &accel_key))
-            {
-              gchar *accel_name = gtk_accelerator_name (accel_key.accel_key, accel_key.accel_mods);
-
-              g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_ACCEL, g_variant_ref_sink (g_variant_new_string (accel_name)));
-
-              g_free (accel_name);
-            }
+            accel_name = gtk_accelerator_name (accel_key.accel_key, accel_key.accel_mods);
         }
+
+      if (accel_name == NULL)
+        accel_name = g_strdup (gtk_menu_item_get_nth_label (item->menu_item, 1));
+
+      if (accel_name != NULL)
+        g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_ACCEL, g_variant_ref_sink (g_variant_new_string (accel_name)));
+
+      g_free (accel_name);
     }
 }
 
