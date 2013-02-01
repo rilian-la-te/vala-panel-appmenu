@@ -28,9 +28,10 @@
 #define OBJECT_PATH              "/com/canonical/unity/gtk/window"
 
 G_DEFINE_QUARK (window_data, window_data);
-G_DEFINE_QUARK (menu_shell_window, menu_shell_window);
+G_DEFINE_QUARK (menu_shell_data, menu_shell_data);
 
 typedef struct _WindowData WindowData;
+typedef struct _MenuShellData MenuShellData;
 
 struct _WindowData
 {
@@ -41,6 +42,11 @@ struct _WindowData
   GMenuModel          *old_model;
   UnityGtkActionGroup *action_group;
   guint                action_group_export_id;
+};
+
+struct _MenuShellData
+{
+  GtkWindow *window;
 };
 
 static void (* pre_hijacked_window_realize)                          (GtkWidget      *widget);
@@ -236,18 +242,46 @@ window_data_free (gpointer data)
     }
 }
 
-static WindowData *
-window_get_window_data (GtkWindow *window)
+static MenuShellData *
+menu_shell_data_new (void)
 {
-  GObject *object;
-  GtkWidget *widget;
+  return g_slice_new0 (MenuShellData);
+}
+
+static void
+menu_shell_data_free (gpointer data)
+{
+  if (data != NULL)
+    g_slice_free (MenuShellData, data);
+}
+
+static MenuShellData *
+gtk_menu_shell_get_menu_shell_data (GtkMenuShell *menu_shell)
+{
+  MenuShellData *menu_shell_data;
+
+  g_return_val_if_fail (GTK_IS_MENU_SHELL (menu_shell), NULL);
+
+  menu_shell_data = g_object_get_qdata (G_OBJECT (menu_shell), menu_shell_data_quark ());
+
+  if (menu_shell_data == NULL)
+    {
+      menu_shell_data = menu_shell_data_new ();
+
+      g_object_set_qdata_full (G_OBJECT (menu_shell), menu_shell_data_quark (), menu_shell_data, menu_shell_data_free);
+    }
+
+  return menu_shell_data;
+}
+
+static WindowData *
+gtk_window_get_window_data (GtkWindow *window)
+{
   WindowData *window_data;
 
   g_return_val_if_fail (GTK_IS_WINDOW (window), NULL);
 
-  object = G_OBJECT (window);
-  widget = GTK_WIDGET (window);
-  window_data = g_object_get_qdata (object, window_data_quark ());
+  window_data = g_object_get_qdata (G_OBJECT (window), window_data_quark ());
 
   if (window_data == NULL)
     {
@@ -255,9 +289,9 @@ window_get_window_data (GtkWindow *window)
 
       GDBusConnection *session = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
       gchar *object_path = g_strdup_printf (OBJECT_PATH "/%d", window_id);
-      gchar *old_unique_bus_name = gtk_widget_get_x11_property_string (widget, _GTK_UNIQUE_BUS_NAME);
-      gchar *old_unity_object_path = gtk_widget_get_x11_property_string (widget, _UNITY_OBJECT_PATH);
-      gchar *old_menubar_object_path = gtk_widget_get_x11_property_string (widget, _GTK_MENUBAR_OBJECT_PATH);
+      gchar *old_unique_bus_name = gtk_widget_get_x11_property_string (GTK_WIDGET (window), _GTK_UNIQUE_BUS_NAME);
+      gchar *old_unity_object_path = gtk_widget_get_x11_property_string (GTK_WIDGET (window), _UNITY_OBJECT_PATH);
+      gchar *old_menubar_object_path = gtk_widget_get_x11_property_string (GTK_WIDGET (window), _GTK_MENUBAR_OBJECT_PATH);
       GDBusActionGroup *old_action_group = NULL;
       GDBusMenuModel *old_menu_model = NULL;
 
@@ -285,15 +319,15 @@ window_get_window_data (GtkWindow *window)
       window_data->action_group_export_id = g_dbus_connection_export_action_group (session, old_unity_object_path != NULL ? old_unity_object_path : object_path, G_ACTION_GROUP (window_data->action_group), NULL);
 
       if (old_unique_bus_name == NULL)
-        gtk_widget_set_x11_property_string (widget, _GTK_UNIQUE_BUS_NAME, g_dbus_connection_get_unique_name (session));
+        gtk_widget_set_x11_property_string (GTK_WIDGET (window), _GTK_UNIQUE_BUS_NAME, g_dbus_connection_get_unique_name (session));
 
       if (old_unity_object_path == NULL)
-        gtk_widget_set_x11_property_string (widget, _UNITY_OBJECT_PATH, object_path);
+        gtk_widget_set_x11_property_string (GTK_WIDGET (window), _UNITY_OBJECT_PATH, object_path);
 
       if (old_menubar_object_path == NULL)
-        gtk_widget_set_x11_property_string (widget, _GTK_MENUBAR_OBJECT_PATH, object_path);
+        gtk_widget_set_x11_property_string (GTK_WIDGET (window), _GTK_MENUBAR_OBJECT_PATH, object_path);
 
-      g_object_set_qdata_full (object, window_data_quark (), window_data, window_data_free);
+      g_object_set_qdata_full (G_OBJECT (window), window_data_quark (), window_data, window_data_free);
 
       g_free (old_menubar_object_path);
       g_free (old_unity_object_path);
@@ -305,20 +339,20 @@ window_get_window_data (GtkWindow *window)
 }
 
 static void
-window_disconnect_menu_shell (GtkWindow    *window,
+gtk_window_disconnect_menu_shell (GtkWindow    *window,
                               GtkMenuShell *menu_shell)
 {
-  GtkWindow *old_window;
   WindowData *window_data;
+  MenuShellData *menu_shell_data;
 
   g_return_if_fail (GTK_IS_WINDOW (window));
   g_return_if_fail (GTK_IS_MENU_SHELL (menu_shell));
 
-  old_window = g_object_steal_qdata (G_OBJECT (menu_shell), menu_shell_window_quark ());
+  menu_shell_data = gtk_menu_shell_get_menu_shell_data (menu_shell);
 
-  g_warn_if_fail (window == old_window);
+  g_warn_if_fail (window == menu_shell_data->window);
 
-  window_data = window_get_window_data (old_window);
+  window_data = gtk_window_get_window_data (menu_shell_data->window);
 
   if (window_data != NULL)
     {
@@ -342,28 +376,30 @@ window_disconnect_menu_shell (GtkWindow    *window,
 
           window_data->menus = g_slist_delete_link (window_data->menus, iter);
         }
+
+      menu_shell_data->window = NULL;
     }
 }
 
 static void
-window_connect_menu_shell (GtkWindow    *window,
+gtk_window_connect_menu_shell (GtkWindow    *window,
                            GtkMenuShell *menu_shell)
 {
-  GtkWindow *old_window;
+  MenuShellData *menu_shell_data;
 
   g_return_if_fail (GTK_IS_WINDOW (window));
   g_return_if_fail (GTK_IS_MENU_SHELL (menu_shell));
 
-  old_window = g_object_get_qdata (G_OBJECT (menu_shell), menu_shell_window_quark ());
+  menu_shell_data = gtk_menu_shell_get_menu_shell_data (menu_shell);
 
-  if (window != old_window)
+  if (window != menu_shell_data->window)
     {
       WindowData *window_data;
 
-      if (old_window != NULL)
-        window_disconnect_menu_shell (old_window, menu_shell);
+      if (menu_shell_data->window != NULL)
+        gtk_window_disconnect_menu_shell (menu_shell_data->window, menu_shell);
 
-      window_data = window_get_window_data (window);
+      window_data = gtk_window_get_window_data (window);
 
       if (window_data != NULL)
         {
@@ -385,7 +421,7 @@ window_connect_menu_shell (GtkWindow    *window,
             }
         }
 
-      g_object_set_qdata (G_OBJECT (menu_shell), menu_shell_window_quark (), window);
+      menu_shell_data->window = window;
     }
 }
 
@@ -400,7 +436,7 @@ hijacked_window_realize (GtkWidget *widget)
 #if GTK_MAJOR_VERSION == 3
   if (!GTK_IS_APPLICATION_WINDOW (widget))
 #endif
-    window_get_window_data (GTK_WINDOW (widget));
+    gtk_window_get_window_data (GTK_WINDOW (widget));
 }
 
 static void
@@ -423,7 +459,7 @@ hijacked_application_window_realize (GtkWidget *widget)
   if (pre_hijacked_application_window_realize != NULL)
     (* pre_hijacked_application_window_realize) (widget);
 
-  window_get_window_data (GTK_WINDOW (widget));
+  gtk_window_get_window_data (GTK_WINDOW (widget));
 }
 #endif
 
@@ -440,21 +476,23 @@ hijacked_menu_bar_realize (GtkWidget *widget)
   window = gtk_widget_get_toplevel (widget);
 
   if (GTK_IS_WINDOW (window))
-    window_connect_menu_shell (GTK_WINDOW (window), GTK_MENU_SHELL (widget));
+    gtk_window_connect_menu_shell (GTK_WINDOW (window), GTK_MENU_SHELL (widget));
 }
 
 static void
 hijacked_menu_bar_unrealize (GtkWidget *widget)
 {
-  GtkWindow *window;
+  MenuShellData *menu_shell_data;
 
   g_return_if_fail (GTK_IS_MENU_BAR (widget));
 
   if (pre_hijacked_menu_bar_unrealize != NULL)
     (* pre_hijacked_menu_bar_unrealize) (widget);
 
-  window = g_object_get_qdata (G_OBJECT (widget), menu_shell_window_quark ());
-  window_disconnect_menu_shell (window, GTK_MENU_SHELL (widget));
+  menu_shell_data = gtk_menu_shell_get_menu_shell_data (GTK_MENU_SHELL (widget));
+
+  if (menu_shell_data->window != NULL)
+    gtk_window_disconnect_menu_shell (menu_shell_data->window, GTK_MENU_SHELL (widget));
 }
 
 static void
