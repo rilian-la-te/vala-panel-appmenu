@@ -28,6 +28,7 @@
 #define OBJECT_PATH              "/com/canonical/unity/gtk/window"
 
 G_DEFINE_QUARK (window_data, window_data);
+G_DEFINE_QUARK (menu_shell_window, menu_shell_window);
 
 typedef struct _WindowData WindowData;
 
@@ -236,13 +237,17 @@ window_data_free (gpointer data)
 }
 
 static WindowData *
-window_get_window_data (GtkWidget *widget)
+window_get_window_data (GtkWindow *window)
 {
+  GObject *object;
+  GtkWidget *widget;
   WindowData *window_data;
 
-  g_return_val_if_fail (GTK_IS_WINDOW (widget), NULL);
+  g_return_val_if_fail (GTK_IS_WINDOW (window), NULL);
 
-  window_data = g_object_get_qdata (G_OBJECT (widget), window_data_quark ());
+  object = G_OBJECT (window);
+  widget = GTK_WIDGET (window);
+  window_data = g_object_get_qdata (object, window_data_quark ());
 
   if (window_data == NULL)
     {
@@ -288,7 +293,7 @@ window_get_window_data (GtkWidget *widget)
       if (old_menubar_object_path == NULL)
         gtk_widget_set_x11_property_string (widget, _GTK_MENUBAR_OBJECT_PATH, object_path);
 
-      g_object_set_qdata_full (G_OBJECT (widget), window_data_quark (), window_data, window_data_free);
+      g_object_set_qdata_full (object, window_data_quark (), window_data, window_data_free);
 
       g_free (old_menubar_object_path);
       g_free (old_unity_object_path);
@@ -300,86 +305,20 @@ window_get_window_data (GtkWidget *widget)
 }
 
 static void
-hijacked_window_realize (GtkWidget *widget)
+window_disconnect_menu_shell (GtkWindow    *window,
+                              GtkMenuShell *menu_shell)
 {
-  g_return_if_fail (GTK_IS_WINDOW (widget));
-
-  (* pre_hijacked_window_realize) (widget);
-
-#if GTK_MAJOR_VERSION == 3
-  if (!GTK_IS_APPLICATION_WINDOW (widget))
-#endif
-    window_get_window_data (widget);
-}
-
-static void
-hijacked_window_unrealize (GtkWidget *widget)
-{
-  g_return_if_fail (GTK_IS_WINDOW (widget));
-
-  (* pre_hijacked_window_unrealize) (widget);
-
-  g_object_set_qdata (G_OBJECT (widget), window_data_quark (), NULL);
-}
-
-#if GTK_MAJOR_VERSION == 3
-static void
-hijacked_application_window_realize (GtkWidget *widget)
-{
-  g_return_if_fail (GTK_IS_APPLICATION_WINDOW (widget));
-
-  (* pre_hijacked_application_window_realize) (widget);
-
-  window_get_window_data (widget);
-}
-#endif
-
-static void
-hijacked_menu_bar_realize (GtkWidget *widget)
-{
-  GtkWidget *window;
+  GtkWindow *old_window;
   WindowData *window_data;
 
-  g_return_if_fail (GTK_IS_MENU_BAR (widget));
+  g_return_if_fail (GTK_IS_WINDOW (window));
+  g_return_if_fail (GTK_IS_MENU_SHELL (menu_shell));
 
-  (* pre_hijacked_menu_bar_realize) (widget);
+  old_window = g_object_steal_qdata (G_OBJECT (menu_shell), menu_shell_window_quark ());
 
-  window = gtk_widget_get_toplevel (widget);
-  window_data = window_get_window_data (window);
+  g_warn_if_fail (window == old_window);
 
-  if (window_data != NULL)
-    {
-      GSList *iter;
-
-      for (iter = window_data->menus; iter != NULL; iter = g_slist_next (iter))
-        if (UNITY_GTK_MENU_SHELL (iter->data)->menu_shell == GTK_MENU_SHELL (widget))
-          break;
-
-      if (iter == NULL)
-        {
-          UnityGtkMenuShell *shell = unity_gtk_menu_shell_new (GTK_MENU_SHELL (widget));
-
-          unity_gtk_action_group_connect_shell (window_data->action_group, shell);
-
-          g_menu_append_section (window_data->menu_model, NULL, G_MENU_MODEL (shell));
-
-          window_data->menus = g_slist_append (window_data->menus, shell);
-        }
-    }
-}
-
-static void
-hijacked_menu_bar_unrealize (GtkWidget *widget)
-{
-  GtkWidget *window;
-  WindowData *window_data;
-
-  g_return_if_fail (GTK_IS_MENU_BAR (widget));
-
-  (* pre_hijacked_menu_bar_unrealize) (widget);
-
-  window = gtk_widget_get_toplevel (widget);
-  window_data = window_get_window_data (window);
+  window_data = window_get_window_data (old_window);
 
   if (window_data != NULL)
     {
@@ -390,7 +329,7 @@ hijacked_menu_bar_unrealize (GtkWidget *widget)
         i++;
 
       for (iter = window_data->menus; iter != NULL; iter = g_slist_next (iter), i++)
-        if (UNITY_GTK_MENU_SHELL (iter->data)->menu_shell == GTK_MENU_SHELL (widget))
+        if (UNITY_GTK_MENU_SHELL (iter->data)->menu_shell == menu_shell)
           break;
 
       if (iter != NULL)
@@ -407,6 +346,118 @@ hijacked_menu_bar_unrealize (GtkWidget *widget)
 }
 
 static void
+window_connect_menu_shell (GtkWindow    *window,
+                           GtkMenuShell *menu_shell)
+{
+  GtkWindow *old_window;
+
+  g_return_if_fail (GTK_IS_WINDOW (window));
+  g_return_if_fail (GTK_IS_MENU_SHELL (menu_shell));
+
+  old_window = g_object_get_qdata (G_OBJECT (menu_shell), menu_shell_window_quark ());
+
+  if (window != old_window)
+    {
+      WindowData *window_data;
+
+      if (old_window != NULL)
+        window_disconnect_menu_shell (old_window, menu_shell);
+
+      window_data = window_get_window_data (window);
+
+      if (window_data != NULL)
+        {
+          GSList *iter;
+
+          for (iter = window_data->menus; iter != NULL; iter = g_slist_next (iter))
+            if (UNITY_GTK_MENU_SHELL (iter->data)->menu_shell == menu_shell)
+              break;
+
+          if (iter == NULL)
+            {
+              UnityGtkMenuShell *shell = unity_gtk_menu_shell_new (menu_shell);
+
+              unity_gtk_action_group_connect_shell (window_data->action_group, shell);
+
+              g_menu_append_section (window_data->menu_model, NULL, G_MENU_MODEL (shell));
+
+              window_data->menus = g_slist_append (window_data->menus, shell);
+            }
+        }
+
+      g_object_set_qdata (G_OBJECT (menu_shell), menu_shell_window_quark (), window);
+    }
+}
+
+static void
+hijacked_window_realize (GtkWidget *widget)
+{
+  g_return_if_fail (GTK_IS_WINDOW (widget));
+
+  if (pre_hijacked_window_realize != NULL)
+    (* pre_hijacked_window_realize) (widget);
+
+#if GTK_MAJOR_VERSION == 3
+  if (!GTK_IS_APPLICATION_WINDOW (widget))
+#endif
+    window_get_window_data (GTK_WINDOW (widget));
+}
+
+static void
+hijacked_window_unrealize (GtkWidget *widget)
+{
+  g_return_if_fail (GTK_IS_WINDOW (widget));
+
+  if (pre_hijacked_window_unrealize != NULL)
+    (* pre_hijacked_window_unrealize) (widget);
+
+  g_object_set_qdata (G_OBJECT (widget), window_data_quark (), NULL);
+}
+
+#if GTK_MAJOR_VERSION == 3
+static void
+hijacked_application_window_realize (GtkWidget *widget)
+{
+  g_return_if_fail (GTK_IS_APPLICATION_WINDOW (widget));
+
+  if (pre_hijacked_application_window_realize != NULL)
+    (* pre_hijacked_application_window_realize) (widget);
+
+  window_get_window_data (GTK_WINDOW (widget));
+}
+#endif
+
+static void
+hijacked_menu_bar_realize (GtkWidget *widget)
+{
+  GtkWidget *window;
+
+  g_return_if_fail (GTK_IS_MENU_BAR (widget));
+
+  if (pre_hijacked_menu_bar_realize != NULL)
+    (* pre_hijacked_menu_bar_realize) (widget);
+
+  window = gtk_widget_get_toplevel (widget);
+
+  if (GTK_IS_WINDOW (window))
+    window_connect_menu_shell (GTK_WINDOW (window), GTK_MENU_SHELL (widget));
+}
+
+static void
+hijacked_menu_bar_unrealize (GtkWidget *widget)
+{
+  GtkWindow *window;
+
+  g_return_if_fail (GTK_IS_MENU_BAR (widget));
+
+  if (pre_hijacked_menu_bar_unrealize != NULL)
+    (* pre_hijacked_menu_bar_unrealize) (widget);
+
+  window = g_object_get_qdata (G_OBJECT (widget), menu_shell_window_quark ());
+  window_disconnect_menu_shell (window, GTK_MENU_SHELL (widget));
+}
+
+static void
 hijacked_menu_bar_size_allocate (GtkWidget     *widget,
                                  GtkAllocation *allocation)
 {
@@ -419,7 +470,8 @@ hijacked_menu_bar_size_allocate (GtkWidget     *widget,
    * We manually assign an empty allocation to the menu bar to
    * prevent the container from attempting to draw it at all.
    */
-  (* pre_hijacked_widget_size_allocate) (widget, &zero);
+  if (pre_hijacked_widget_size_allocate != NULL)
+    (* pre_hijacked_widget_size_allocate) (widget, &zero);
 
   /*
    * Then we move the GdkWindow belonging to the menu bar outside of
@@ -439,7 +491,8 @@ hijacked_menu_bar_size_request (GtkWidget      *widget,
 {
   g_return_if_fail (GTK_IS_MENU_BAR (widget));
 
-  (* pre_hijacked_menu_bar_size_request) (widget, requisition);
+  if (pre_hijacked_menu_bar_size_request != NULL)
+    (* pre_hijacked_menu_bar_size_request) (widget, requisition);
 
   requisition->width = 0;
   requisition->height = 0;
@@ -452,7 +505,8 @@ hijacked_menu_bar_get_preferred_width (GtkWidget *widget,
 {
   g_return_if_fail (GTK_IS_MENU_BAR (widget));
 
-  (* pre_hijacked_menu_bar_get_preferred_width) (widget, minimum_width, natural_width);
+  if (pre_hijacked_menu_bar_get_preferred_width != NULL)
+    (* pre_hijacked_menu_bar_get_preferred_width) (widget, minimum_width, natural_width);
 
   *minimum_width = 0;
   *natural_width = 0;
@@ -465,7 +519,8 @@ hijacked_menu_bar_get_preferred_height (GtkWidget *widget,
 {
   g_return_if_fail (GTK_IS_MENU_BAR (widget));
 
-  (* pre_hijacked_menu_bar_get_preferred_height) (widget, minimum_height, natural_height);
+  if (pre_hijacked_menu_bar_get_preferred_height != NULL)
+    (* pre_hijacked_menu_bar_get_preferred_height) (widget, minimum_height, natural_height);
 
   *minimum_height = 0;
   *natural_height = 0;
@@ -479,7 +534,8 @@ hijacked_menu_bar_get_preferred_width_for_height (GtkWidget *widget,
 {
   g_return_if_fail (GTK_IS_MENU_BAR (widget));
 
-  (* pre_hijacked_menu_bar_get_preferred_width_for_height) (widget, height, minimum_width, natural_width);
+  if (pre_hijacked_menu_bar_get_preferred_width_for_height != NULL)
+    (* pre_hijacked_menu_bar_get_preferred_width_for_height) (widget, height, minimum_width, natural_width);
 
   *minimum_width = 0;
   *natural_width = 0;
@@ -493,7 +549,8 @@ hijacked_menu_bar_get_preferred_height_for_width (GtkWidget *widget,
 {
   g_return_if_fail (GTK_IS_MENU_BAR (widget));
 
-  (* pre_hijacked_menu_bar_get_preferred_height_for_width) (widget, width, minimum_height, natural_height);
+  if (pre_hijacked_menu_bar_get_preferred_height_for_width != NULL)
+    (* pre_hijacked_menu_bar_get_preferred_height_for_width) (widget, width, minimum_height, natural_height);
 
   *minimum_height = 0;
   *natural_height = 0;
