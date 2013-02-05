@@ -1,3 +1,12 @@
+unity-gtk-module (0.0.0-0ubuntu14) raring; urgency=low
+
+  * lib/unity-gtk-menu-item.c
+  * lib/unity-gtk-menu-section.c
+  * src/main.c
+    - Support manually added labels in menu items.
+
+ -- William Hua <william.hua@canonical.com>  Tue, 05 Feb 2013 09:08:39 -0500
+
 unity-gtk-module (0.0.0-0ubuntu13) raring; urgency=low
 
   * debian/control
