@@ -669,6 +669,9 @@ gtk_module_init (void)
 {
   GtkWidgetClass *widget_class;
 
+  unity_gtk_menu_shell_set_debug (g_getenv ("UNITY_GTK_MENU_SHELL_DEBUG") != NULL);
+  unity_gtk_action_group_set_debug (g_getenv ("UNITY_GTK_ACTION_GROUP_DEBUG") != NULL);
+
   /* store the base GtkWidget size_allocate vfunc */
   widget_class = g_type_class_ref (GTK_TYPE_WIDGET);
   pre_hijacked_widget_size_allocate = widget_class->size_allocate;

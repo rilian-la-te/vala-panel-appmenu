@@ -41,6 +41,8 @@ G_DEFINE_TYPE (UnityGtkMenuShell,
                unity_gtk_menu_shell,
                G_TYPE_MENU_MODEL);
 
+static gboolean unity_gtk_menu_shell_debug;
+
 static gint
 g_uintcmp (gconstpointer a,
            gconstpointer b,
@@ -1028,4 +1030,22 @@ unity_gtk_menu_shell_print (UnityGtkMenuShell *shell,
     g_print ("%sNULL\n", space);
 
   g_free (space);
+}
+
+gboolean
+unity_gtk_menu_shell_is_debug (void)
+{
+  return unity_gtk_menu_shell_debug;
+}
+
+/**
+ * unity_gtk_menu_shell_set_debug:
+ * @debug: #TRUE to enable debugging output
+ *
+ * Sets if menu shell changes should be logged using g_print ().
+ */
+void
+unity_gtk_menu_shell_set_debug (gboolean debug)
+{
+  unity_gtk_menu_shell_debug = debug;
 }

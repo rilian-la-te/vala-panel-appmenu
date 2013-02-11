@@ -64,4 +64,6 @@ void                  unity_gtk_action_group_connect_shell    (UnityGtkActionGro
 void                  unity_gtk_action_group_disconnect_shell (UnityGtkActionGroup *group,
                                                                UnityGtkMenuShell   *shell);
 
+void                  unity_gtk_action_group_set_debug        (gboolean             debug);
+
 #endif /* __UNITY_GTK_ACTION_GROUP_H__ */

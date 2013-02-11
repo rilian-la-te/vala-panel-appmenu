@@ -39,4 +39,6 @@ void               unity_gtk_menu_shell_handle_item_notify    (UnityGtkMenuShell
 void               unity_gtk_menu_shell_print                 (UnityGtkMenuShell *shell,
                                                                guint              indent) G_GNUC_INTERNAL;
 
+gboolean           unity_gtk_menu_shell_is_debug              (void)                      G_GNUC_INTERNAL;
+
 #endif /* __UNITY_GTK_MENU_SHELL_PRIVATE_H__ */

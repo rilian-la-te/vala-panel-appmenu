@@ -54,8 +54,10 @@ struct _UnityGtkMenuShell
   UnityGtkActionGroup *action_group;
 };
 
-GType               unity_gtk_menu_shell_get_type (void);
+GType               unity_gtk_menu_shell_get_type  (void);
 
-UnityGtkMenuShell * unity_gtk_menu_shell_new      (GtkMenuShell *menu_shell);
+UnityGtkMenuShell * unity_gtk_menu_shell_new       (GtkMenuShell *menu_shell);
+
+void                unity_gtk_menu_shell_set_debug (gboolean      debug);
 
 #endif /* __UNITY_GTK_MENU_SHELL_H__ */

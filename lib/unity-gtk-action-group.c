@@ -41,6 +41,8 @@ G_DEFINE_TYPE_WITH_CODE (UnityGtkActionGroup,
                          G_IMPLEMENT_INTERFACE (G_TYPE_ACTION_GROUP,
                                                 unity_gtk_action_group_action_group_init));
 
+static gboolean unity_gtk_action_group_debug;
+
 static void
 unity_gtk_action_group_handle_group_action_added (GActionGroup *action_group,
                                                   gchar        *action_name,
@@ -1105,4 +1107,16 @@ unity_gtk_action_group_print (UnityGtkActionGroup *group,
     g_print ("%sNULL\n", space);
 
   g_free (space);
+}
+
+gboolean
+unity_gtk_action_group_is_debug (void)
+{
+  return unity_gtk_action_group_debug;
+}
+
+void
+unity_gtk_action_group_set_debug (gboolean debug)
+{
+  unity_gtk_action_group_debug = debug;
 }
