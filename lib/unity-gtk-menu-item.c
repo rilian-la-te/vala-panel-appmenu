@@ -276,7 +276,12 @@ unity_gtk_menu_item_print (UnityGtkMenuItem *item,
 
   if (item != NULL)
     {
-      g_print ("%s%u (%s *) %p\n", space, item->item_index, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (item)), item);
+      const gchar *label = unity_gtk_menu_item_get_label (item);
+
+      if (label != NULL)
+        g_print ("%s%u (%s *) %p \"%s\"\n", space, item->item_index, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (item)), item, label);
+      else
+        g_print ("%s%u (%s *) %p\n", space, item->item_index, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (item)), item);
 
       if (item->menu_item != NULL)
         g_print ("%s  %lu (%s *) %p\n", space, item->menu_item_notify_handler_id, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (item->menu_item)), item->menu_item);
