@@ -997,7 +997,7 @@ unity_gtk_menu_shell_print (UnityGtkMenuShell *shell,
 
           g_print ("%s ", space);
 
-          while (iter != NULL)
+          while (!g_sequence_iter_is_end (iter))
             {
               g_print (" %u", g_sequence_get_uint (iter));
               iter = g_sequence_iter_next (iter);
@@ -1012,7 +1012,7 @@ unity_gtk_menu_shell_print (UnityGtkMenuShell *shell,
 
           g_print ("%s ", space);
 
-          while (iter != NULL)
+          while (!g_sequence_iter_is_end (iter))
             {
               g_print (" %u", g_sequence_get_uint (iter));
               iter = g_sequence_iter_next (iter);
