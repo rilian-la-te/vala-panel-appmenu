@@ -1115,6 +1115,12 @@ unity_gtk_action_group_is_debug (void)
   return unity_gtk_action_group_debug;
 }
 
+/**
+ * unity_gtk_action_group_set_debug:
+ * @debug: #TRUE to enable debugging output
+ *
+ * Sets if action group changes should be logged using g_print ().
+ */
 void
 unity_gtk_action_group_set_debug (gboolean debug)
 {
