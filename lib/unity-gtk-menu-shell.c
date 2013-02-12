@@ -372,30 +372,35 @@ unity_gtk_menu_shell_update_item (UnityGtkMenuShell *shell,
                                   UnityGtkMenuItem  *item)
 {
   GSequence *visible_indices;
-  GSequence *separator_indices;
-  GSequenceIter *separator_iter;
-  guint section_index;
-  GPtrArray *sections;
-  UnityGtkMenuSection *section;
-  GSequenceIter *section_iter;
   GSequenceIter *visible_iter;
-  guint position;
 
   g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
   g_warn_if_fail (item->parent_shell == shell);
 
   visible_indices = unity_gtk_menu_shell_get_visible_indices (shell);
-  separator_indices = unity_gtk_menu_shell_get_separator_indices (shell);
-  separator_iter = g_sequence_search_inf_uint (separator_indices, item->item_index);
-  section_index = separator_iter == NULL ? 0 : g_sequence_iter_get_position (separator_iter) + 1;
-  sections = unity_gtk_menu_shell_get_sections (shell);
-  section = g_ptr_array_index (sections, section_index);
-  section_iter = unity_gtk_menu_section_get_begin_iter (section);
   visible_iter = g_sequence_lookup_uint (visible_indices, item->item_index);
-  position = g_sequence_iter_get_position (visible_iter) - g_sequence_iter_get_position (section_iter);
 
-  g_menu_model_items_changed (G_MENU_MODEL (section), position, 1, 1);
+  if (visible_iter != NULL)
+    {
+      GSequence *separator_indices;
+      GSequenceIter *separator_iter;
+      guint section_index;
+      GPtrArray *sections;
+      UnityGtkMenuSection *section;
+      GSequenceIter *section_iter;
+      guint position;
+
+      separator_indices = unity_gtk_menu_shell_get_separator_indices (shell);
+      separator_iter = g_sequence_search_inf_uint (separator_indices, item->item_index);
+      section_index = separator_iter == NULL ? 0 : g_sequence_iter_get_position (separator_iter) + 1;
+      sections = unity_gtk_menu_shell_get_sections (shell);
+      section = g_ptr_array_index (sections, section_index);
+      section_iter = unity_gtk_menu_section_get_begin_iter (section);
+      position = g_sequence_iter_get_position (visible_iter) - g_sequence_iter_get_position (section_iter);
+
+      g_menu_model_items_changed (G_MENU_MODEL (section), position, 1, 1);
+    }
 }
 
 static void
@@ -613,6 +618,9 @@ unity_gtk_menu_shell_handle_shell_insert (GtkMenuShell *menu_shell,
   GPtrArray *items;
 
   g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (user_data));
+
+  if (unity_gtk_menu_shell_is_debug ())
+    g_print ("%s ((%s *) %p, (%s *) %p, %d, (%s *) %p)\n", G_STRFUNC, G_OBJECT_TYPE_NAME (menu_shell), menu_shell, G_OBJECT_TYPE_NAME (child), child, position, G_OBJECT_TYPE_NAME (user_data), user_data);
 
   shell = UNITY_GTK_MENU_SHELL (user_data);
   items = shell->items;
@@ -941,6 +949,9 @@ unity_gtk_menu_shell_handle_item_notify (UnityGtkMenuShell *shell,
     submenu_name = g_intern_static_string ("submenu");
 
   pspec_name = g_param_spec_get_name (pspec);
+
+  if (unity_gtk_menu_shell_is_debug ())
+    g_print ("%s ((%s *) %p, (%s *) %p { \"%s\" }, %s)\n", G_STRFUNC, G_OBJECT_TYPE_NAME (shell), shell, G_OBJECT_TYPE_NAME (item), item, unity_gtk_menu_item_get_label (item), pspec_name);
 
   if (pspec_name == visible_name)
     unity_gtk_menu_shell_handle_item_visible (shell, item);
