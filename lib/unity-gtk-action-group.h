@@ -23,6 +23,8 @@
 
 #include <glib-object.h>
 
+G_BEGIN_DECLS
+
 typedef struct _UnityGtkActionGroup UnityGtkActionGroup;
 typedef GObjectClass                UnityGtkActionGroupClass;
 
@@ -33,7 +35,11 @@ typedef GObjectClass                UnityGtkActionGroupClass;
 #define UNITY_GTK_IS_ACTION_GROUP_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), UNITY_GTK_TYPE_ACTION_GROUP))
 #define UNITY_GTK_ACTION_GROUP_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_ACTION_GROUP, UnityGtkActionGroupClass))
 
+G_END_DECLS
+
 #include "unity-gtk-menu-shell.h"
+
+G_BEGIN_DECLS
 
 /**
  * UnityGtkActionGroup:
@@ -65,5 +71,7 @@ void                  unity_gtk_action_group_disconnect_shell (UnityGtkActionGro
                                                                UnityGtkMenuShell   *shell);
 
 void                  unity_gtk_action_group_set_debug        (gboolean             debug);
+
+G_END_DECLS
 
 #endif /* __UNITY_GTK_ACTION_GROUP_H__ */

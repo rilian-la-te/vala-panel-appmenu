@@ -23,6 +23,8 @@
 
 #include <glib-object.h>
 
+G_BEGIN_DECLS
+
 typedef struct _UnityGtkAction UnityGtkAction;
 typedef GObjectClass           UnityGtkActionClass;
 
@@ -33,7 +35,11 @@ typedef GObjectClass           UnityGtkActionClass;
 #define UNITY_GTK_IS_ACTION_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), UNITY_GTK_TYPE_ACTION))
 #define UNITY_GTK_ACTION_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_ACTION, UnityGtkActionClass))
 
+G_END_DECLS
+
 #include "unity-gtk-menu-item-private.h"
+
+G_BEGIN_DECLS
 
 struct _UnityGtkAction
 {
@@ -60,5 +66,7 @@ void             unity_gtk_action_set_item  (UnityGtkAction   *action,
 
 void             unity_gtk_action_print     (UnityGtkAction   *action,
                                              guint             indent) G_GNUC_INTERNAL;
+
+G_END_DECLS
 
 #endif /* __UNITY_GTK_ACTION_PRIVATE_H__ */

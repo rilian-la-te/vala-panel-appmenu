@@ -23,6 +23,8 @@
 
 #include <gtk/gtk.h>
 
+G_BEGIN_DECLS
+
 typedef struct _UnityGtkMenuItem UnityGtkMenuItem;
 typedef GObjectClass             UnityGtkMenuItemClass;
 
@@ -33,8 +35,12 @@ typedef GObjectClass             UnityGtkMenuItemClass;
 #define UNITY_GTK_IS_MENU_ITEM_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), UNITY_GTK_TYPE_MENU_ITEM))
 #define UNITY_GTK_MENU_ITEM_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_MENU_ITEM, UnityGtkMenuItemClass))
 
+G_END_DECLS
+
 #include "unity-gtk-menu-shell-private.h"
 #include "unity-gtk-action-private.h"
+
+G_BEGIN_DECLS
 
 struct _UnityGtkMenuItem
 {
@@ -82,5 +88,7 @@ void                unity_gtk_menu_item_print             (UnityGtkMenuItem  *it
 
 const gchar *       gtk_menu_item_get_nth_label           (GtkMenuItem       *menu_item,
                                                            guint              index)        G_GNUC_INTERNAL;
+
+G_END_DECLS
 
 #endif /* __UNITY_GTK_MENU_ITEM_PRIVATE_H__ */

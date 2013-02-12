@@ -25,6 +25,8 @@
 #include "unity-gtk-menu-shell.h"
 #include "unity-gtk-menu-item-private.h"
 
+G_BEGIN_DECLS
+
 UnityGtkMenuItem * unity_gtk_menu_shell_get_item              (UnityGtkMenuShell *shell,
                                                                guint              index)  G_GNUC_INTERNAL;
 
@@ -40,5 +42,7 @@ void               unity_gtk_menu_shell_print                 (UnityGtkMenuShell
                                                                guint              indent) G_GNUC_INTERNAL;
 
 gboolean           unity_gtk_menu_shell_is_debug              (void)                      G_GNUC_INTERNAL;
+
+G_END_DECLS
 
 #endif /* __UNITY_GTK_MENU_SHELL_PRIVATE_H__ */

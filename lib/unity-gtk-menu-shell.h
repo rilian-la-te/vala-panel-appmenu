@@ -23,6 +23,8 @@
 
 #include <gtk/gtk.h>
 
+G_BEGIN_DECLS
+
 typedef struct _UnityGtkMenuShell UnityGtkMenuShell;
 typedef GMenuModelClass           UnityGtkMenuShellClass;
 
@@ -33,7 +35,11 @@ typedef GMenuModelClass           UnityGtkMenuShellClass;
 #define UNITY_GTK_IS_MENU_SHELL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), UNITY_GTK_TYPE_MENU_SHELL))
 #define UNITY_GTK_MENU_SHELL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_MENU_SHELL, UnityGtkMenuShellClass))
 
+G_END_DECLS
+
 #include "unity-gtk-action-group.h"
+
+G_BEGIN_DECLS
 
 /**
  * UnityGtkMenuShell:
@@ -59,5 +65,7 @@ GType               unity_gtk_menu_shell_get_type  (void);
 UnityGtkMenuShell * unity_gtk_menu_shell_new       (GtkMenuShell *menu_shell);
 
 void                unity_gtk_menu_shell_set_debug (gboolean      debug);
+
+G_END_DECLS
 
 #endif /* __UNITY_GTK_MENU_SHELL_H__ */
