@@ -620,7 +620,7 @@ unity_gtk_menu_shell_handle_shell_insert (GtkMenuShell *menu_shell,
   g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (user_data));
 
   if (unity_gtk_menu_shell_is_debug ())
-    g_print ("%s ((%s *) %p, (%s *) %p, %d, (%s *) %p)\n", G_STRFUNC, G_OBJECT_TYPE_NAME (menu_shell), menu_shell, G_OBJECT_TYPE_NAME (child), child, position, G_OBJECT_TYPE_NAME (user_data), user_data);
+    g_print ("%s ((%s *) %p, (%s *) %p \"%s\", %d, (%s *) %p)\n", G_STRFUNC, G_OBJECT_TYPE_NAME (menu_shell), menu_shell, G_OBJECT_TYPE_NAME (child), child, gtk_menu_item_get_label (GTK_MENU_ITEM (child)), position, G_OBJECT_TYPE_NAME (user_data), user_data);
 
   shell = UNITY_GTK_MENU_SHELL (user_data);
   items = shell->items;
