@@ -630,6 +630,9 @@ hijack_menu_bar_class_vtable (GType type)
   guint n;
   guint i;
 
+  /* This fixes lp:1113008. */
+  widget_class->hierarchy_changed = NULL;
+
   if (widget_class->realize == pre_hijacked_menu_bar_realize)
     widget_class->realize = hijacked_menu_bar_realize;
 
