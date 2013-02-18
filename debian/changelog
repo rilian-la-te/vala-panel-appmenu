@@ -2,6 +2,7 @@ unity-gtk-module (0.0.0-0ubuntu16) raring; urgency=low
 
   * src/main.c
     - Don't do anything under GNOME shell.
+    - Blacklist problem apps.
 
  -- William Hua <william.hua@canonical.com>  Mon, 18 Feb 2013 16:15:13 +0000
 
