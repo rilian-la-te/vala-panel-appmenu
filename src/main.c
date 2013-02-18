@@ -47,6 +47,7 @@ struct _WindowData
 struct _MenuShellData
 {
   GtkWindow *window;
+  gulong     settings_notify_gtk_shell_shows_menubar_handler_id;
 };
 
 static void (* pre_hijacked_window_realize)                          (GtkWidget      *widget);
@@ -340,7 +341,7 @@ gtk_window_get_window_data (GtkWindow *window)
 
 static void
 gtk_window_disconnect_menu_shell (GtkWindow    *window,
-                              GtkMenuShell *menu_shell)
+                                  GtkMenuShell *menu_shell)
 {
   WindowData *window_data;
   MenuShellData *menu_shell_data;
@@ -383,7 +384,7 @@ gtk_window_disconnect_menu_shell (GtkWindow    *window,
 
 static void
 gtk_window_connect_menu_shell (GtkWindow    *window,
-                           GtkMenuShell *menu_shell)
+                               GtkMenuShell *menu_shell)
 {
   MenuShellData *menu_shell_data;
 
@@ -423,6 +424,31 @@ gtk_window_connect_menu_shell (GtkWindow    *window,
 
       menu_shell_data->window = window;
     }
+}
+
+static gboolean
+gtk_widget_shell_shows_menubar (GtkWidget *widget)
+{
+  GtkSettings *settings;
+  gboolean shell_shows_menubar;
+
+  g_return_val_if_fail (GTK_IS_WIDGET (widget), FALSE);
+
+  settings = gtk_widget_get_settings (widget);
+
+  g_return_val_if_fail (GTK_IS_SETTINGS (settings), FALSE);
+
+  g_object_get (settings, "gtk-shell-shows-menubar", &shell_shows_menubar, NULL);
+
+  return shell_shows_menubar;
+}
+
+static void
+gtk_settings_handle_gtk_shell_shows_menubar (GObject    *object,
+                                             GParamSpec *pspec,
+                                             gpointer    user_data)
+{
+  gtk_widget_queue_resize (user_data);
 }
 
 static void
@@ -467,6 +493,8 @@ static void
 hijacked_menu_bar_realize (GtkWidget *widget)
 {
   GtkWidget *window;
+  GtkSettings *settings;
+  MenuShellData *menu_shell_data;
 
   g_return_if_fail (GTK_IS_MENU_BAR (widget));
 
@@ -477,6 +505,10 @@ hijacked_menu_bar_realize (GtkWidget *widget)
 
   if (GTK_IS_WINDOW (window))
     gtk_window_connect_menu_shell (GTK_WINDOW (window), GTK_MENU_SHELL (widget));
+
+  settings = gtk_widget_get_settings (widget);
+  menu_shell_data = gtk_menu_shell_get_menu_shell_data (GTK_MENU_SHELL (widget));
+  menu_shell_data->settings_notify_gtk_shell_shows_menubar_handler_id = g_signal_connect (settings, "notify::gtk-shell-shows-menubar", G_CALLBACK (gtk_settings_handle_gtk_shell_shows_menubar), widget);
 }
 
 static void
@@ -491,6 +523,12 @@ hijacked_menu_bar_unrealize (GtkWidget *widget)
 
   menu_shell_data = gtk_menu_shell_get_menu_shell_data (GTK_MENU_SHELL (widget));
 
+  if (menu_shell_data->settings_notify_gtk_shell_shows_menubar_handler_id)
+    {
+      g_signal_handler_disconnect (gtk_widget_get_settings (widget), menu_shell_data->settings_notify_gtk_shell_shows_menubar_handler_id);
+      menu_shell_data->settings_notify_gtk_shell_shows_menubar_handler_id = 0;
+    }
+
   if (menu_shell_data->window != NULL)
     gtk_window_disconnect_menu_shell (menu_shell_data->window, GTK_MENU_SHELL (widget));
 }
@@ -504,22 +542,27 @@ hijacked_menu_bar_size_allocate (GtkWidget     *widget,
 
   g_return_if_fail (GTK_IS_MENU_BAR (widget));
 
-  /*
-   * We manually assign an empty allocation to the menu bar to
-   * prevent the container from attempting to draw it at all.
-   */
-  if (pre_hijacked_widget_size_allocate != NULL)
-    (* pre_hijacked_widget_size_allocate) (widget, &zero);
+  if (gtk_widget_shell_shows_menubar (widget))
+    {
+      /*
+       * We manually assign an empty allocation to the menu bar to
+       * prevent the container from attempting to draw it at all.
+       */
+      if (pre_hijacked_widget_size_allocate != NULL)
+        (* pre_hijacked_widget_size_allocate) (widget, &zero);
 
-  /*
-   * Then we move the GdkWindow belonging to the menu bar outside of
-   * the clipping rectangle of the parent window so that we can't
-   * see it.
-   */
-  window = gtk_widget_get_window (widget);
+      /*
+       * Then we move the GdkWindow belonging to the menu bar outside of
+       * the clipping rectangle of the parent window so that we can't
+       * see it.
+       */
+      window = gtk_widget_get_window (widget);
 
-  if (window != NULL)
-    gdk_window_move_resize (window, -1, -1, 1, 1);
+      if (window != NULL)
+        gdk_window_move_resize (window, -1, -1, 1, 1);
+    }
+  else if (pre_hijacked_menu_bar_size_allocate != NULL)
+    (* pre_hijacked_menu_bar_size_allocate) (widget, allocation);
 }
 
 #if GTK_MAJOR_VERSION == 2
@@ -532,8 +575,11 @@ hijacked_menu_bar_size_request (GtkWidget      *widget,
   if (pre_hijacked_menu_bar_size_request != NULL)
     (* pre_hijacked_menu_bar_size_request) (widget, requisition);
 
-  requisition->width = 0;
-  requisition->height = 0;
+  if (gtk_widget_shell_shows_menubar (widget))
+    {
+      requisition->width = 0;
+      requisition->height = 0;
+    }
 }
 #elif GTK_MAJOR_VERSION == 3
 static void
@@ -546,8 +592,11 @@ hijacked_menu_bar_get_preferred_width (GtkWidget *widget,
   if (pre_hijacked_menu_bar_get_preferred_width != NULL)
     (* pre_hijacked_menu_bar_get_preferred_width) (widget, minimum_width, natural_width);
 
-  *minimum_width = 0;
-  *natural_width = 0;
+  if (gtk_widget_shell_shows_menubar (widget))
+    {
+      *minimum_width = 0;
+      *natural_width = 0;
+    }
 }
 
 static void
@@ -560,8 +609,11 @@ hijacked_menu_bar_get_preferred_height (GtkWidget *widget,
   if (pre_hijacked_menu_bar_get_preferred_height != NULL)
     (* pre_hijacked_menu_bar_get_preferred_height) (widget, minimum_height, natural_height);
 
-  *minimum_height = 0;
-  *natural_height = 0;
+  if (gtk_widget_shell_shows_menubar (widget))
+    {
+      *minimum_height = 0;
+      *natural_height = 0;
+    }
 }
 
 static void
@@ -575,8 +627,11 @@ hijacked_menu_bar_get_preferred_width_for_height (GtkWidget *widget,
   if (pre_hijacked_menu_bar_get_preferred_width_for_height != NULL)
     (* pre_hijacked_menu_bar_get_preferred_width_for_height) (widget, height, minimum_width, natural_width);
 
-  *minimum_width = 0;
-  *natural_width = 0;
+  if (gtk_widget_shell_shows_menubar (widget))
+    {
+      *minimum_width = 0;
+      *natural_width = 0;
+    }
 }
 
 static void
@@ -590,8 +645,11 @@ hijacked_menu_bar_get_preferred_height_for_width (GtkWidget *widget,
   if (pre_hijacked_menu_bar_get_preferred_height_for_width != NULL)
     (* pre_hijacked_menu_bar_get_preferred_height_for_width) (widget, width, minimum_height, natural_height);
 
-  *minimum_height = 0;
-  *natural_height = 0;
+  if (gtk_widget_shell_shows_menubar (widget))
+    {
+      *minimum_height = 0;
+      *natural_height = 0;
+    }
 }
 #endif
 
