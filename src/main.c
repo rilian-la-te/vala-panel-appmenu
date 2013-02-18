@@ -91,6 +91,18 @@ static void (* pre_hijacked_menu_bar_get_preferred_height_for_width) (GtkWidget 
                                                                       gint           *natural_height);
 #endif
 
+static gboolean
+is_blacklisted (const gchar *name)
+{
+  return g_strcmp0 (name, "Eclipse") == 0 ||
+         g_strcmp0 (name, "emacs") == 0 ||
+         g_strcmp0 (name, "emacs23") == 0 ||
+         g_strcmp0 (name, "emacs23-lucid") == 0 ||
+         g_strcmp0 (name, "emacs24") == 0 ||
+         g_strcmp0 (name, "emacs24-lucid") == 0 ||
+         g_strcmp0 (name, "glade") == 0;
+}
+
 static gchar *
 gtk_widget_get_x11_property_string (GtkWidget   *widget,
                                     const gchar *name)
@@ -728,39 +740,42 @@ hijack_menu_bar_class_vtable (GType type)
 void
 gtk_module_init (void)
 {
-  GtkWidgetClass *widget_class;
+  if (!is_blacklisted (g_get_prgname ()))
+    {
+      GtkWidgetClass *widget_class;
 
-  unity_gtk_menu_shell_set_debug (g_getenv ("UNITY_GTK_MENU_SHELL_DEBUG") != NULL);
-  unity_gtk_action_group_set_debug (g_getenv ("UNITY_GTK_ACTION_GROUP_DEBUG") != NULL);
+      unity_gtk_menu_shell_set_debug (g_getenv ("UNITY_GTK_MENU_SHELL_DEBUG") != NULL);
+      unity_gtk_action_group_set_debug (g_getenv ("UNITY_GTK_ACTION_GROUP_DEBUG") != NULL);
 
-  /* store the base GtkWidget size_allocate vfunc */
-  widget_class = g_type_class_ref (GTK_TYPE_WIDGET);
-  pre_hijacked_widget_size_allocate = widget_class->size_allocate;
+      /* store the base GtkWidget size_allocate vfunc */
+      widget_class = g_type_class_ref (GTK_TYPE_WIDGET);
+      pre_hijacked_widget_size_allocate = widget_class->size_allocate;
 
 #if GTK_MAJOR_VERSION == 3
-  /* store the base GtkApplicationWindow realize vfunc */
-  widget_class = g_type_class_ref (GTK_TYPE_APPLICATION_WINDOW);
-  pre_hijacked_application_window_realize = widget_class->realize;
+      /* store the base GtkApplicationWindow realize vfunc */
+      widget_class = g_type_class_ref (GTK_TYPE_APPLICATION_WINDOW);
+      pre_hijacked_application_window_realize = widget_class->realize;
 #endif
 
-  /* intercept window realize vcalls on GtkWindow */
-  widget_class = g_type_class_ref (GTK_TYPE_WINDOW);
-  pre_hijacked_window_realize = widget_class->realize;
-  pre_hijacked_window_unrealize = widget_class->unrealize;
-  hijack_window_class_vtable (GTK_TYPE_WINDOW);
+      /* intercept window realize vcalls on GtkWindow */
+      widget_class = g_type_class_ref (GTK_TYPE_WINDOW);
+      pre_hijacked_window_realize = widget_class->realize;
+      pre_hijacked_window_unrealize = widget_class->unrealize;
+      hijack_window_class_vtable (GTK_TYPE_WINDOW);
 
-  /* intercept size request and allocate vcalls on GtkMenuBar (for hiding) */
-  widget_class = g_type_class_ref (GTK_TYPE_MENU_BAR);
-  pre_hijacked_menu_bar_realize = widget_class->realize;
-  pre_hijacked_menu_bar_unrealize = widget_class->unrealize;
-  pre_hijacked_menu_bar_size_allocate = widget_class->size_allocate;
+      /* intercept size request and allocate vcalls on GtkMenuBar (for hiding) */
+      widget_class = g_type_class_ref (GTK_TYPE_MENU_BAR);
+      pre_hijacked_menu_bar_realize = widget_class->realize;
+      pre_hijacked_menu_bar_unrealize = widget_class->unrealize;
+      pre_hijacked_menu_bar_size_allocate = widget_class->size_allocate;
 #if GTK_MAJOR_VERSION == 2
-  pre_hijacked_menu_bar_size_request = widget_class->size_request;
+      pre_hijacked_menu_bar_size_request = widget_class->size_request;
 #elif GTK_MAJOR_VERSION == 3
-  pre_hijacked_menu_bar_get_preferred_width = widget_class->get_preferred_width;
-  pre_hijacked_menu_bar_get_preferred_height = widget_class->get_preferred_height;
-  pre_hijacked_menu_bar_get_preferred_width_for_height = widget_class->get_preferred_width_for_height;
-  pre_hijacked_menu_bar_get_preferred_height_for_width = widget_class->get_preferred_height_for_width;
+      pre_hijacked_menu_bar_get_preferred_width = widget_class->get_preferred_width;
+      pre_hijacked_menu_bar_get_preferred_height = widget_class->get_preferred_height;
+      pre_hijacked_menu_bar_get_preferred_width_for_height = widget_class->get_preferred_width_for_height;
+      pre_hijacked_menu_bar_get_preferred_height_for_width = widget_class->get_preferred_height_for_width;
 #endif
-  hijack_menu_bar_class_vtable (GTK_TYPE_MENU_BAR);
+      hijack_menu_bar_class_vtable (GTK_TYPE_MENU_BAR);
+    }
 }
