@@ -739,7 +739,7 @@ hijack_menu_bar_class_vtable (GType type)
 void
 gtk_module_init (void)
 {
-  if (!is_blacklisted (g_get_prgname ()))
+  if (g_getenv ("NO_UNITY_GTK_MODULE") == NULL && !is_blacklisted (g_get_prgname ()))
     {
       GtkWidgetClass *widget_class;
 
