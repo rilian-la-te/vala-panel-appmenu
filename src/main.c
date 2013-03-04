@@ -106,6 +106,7 @@ static gboolean
 is_true (const gchar *value)
 {
   return value != NULL &&
+         value[0] != '\0' &&
          g_ascii_strcasecmp (value, "0") != 0 &&
          g_ascii_strcasecmp (value, "no") != 0 &&
          g_ascii_strcasecmp (value, "off") != 0 &&
@@ -749,7 +750,9 @@ hijack_menu_bar_class_vtable (GType type)
 void
 gtk_module_init (void)
 {
-  if (is_true (g_getenv ("UBUNTU_MENUPROXY")) && !is_blacklisted (g_get_prgname ()))
+  const gchar *proxy = g_getenv ("UBUNTU_MENUPROXY");
+
+  if ((proxy == NULL || is_true (proxy)) && !is_blacklisted (g_get_prgname ()))
     {
       GtkWidgetClass *widget_class;
 
