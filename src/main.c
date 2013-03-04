@@ -102,6 +102,16 @@ is_blacklisted (const gchar *name)
          g_strcmp0 (name, "glade") == 0;
 }
 
+static gboolean
+is_true (const gchar *value)
+{
+  return value != NULL &&
+         g_ascii_strcasecmp (value, "0") != 0 &&
+         g_ascii_strcasecmp (value, "no") != 0 &&
+         g_ascii_strcasecmp (value, "off") != 0 &&
+         g_ascii_strcasecmp (value, "false") != 0;
+}
+
 static gchar *
 gtk_widget_get_x11_property_string (GtkWidget   *widget,
                                     const gchar *name)
@@ -739,12 +749,12 @@ hijack_menu_bar_class_vtable (GType type)
 void
 gtk_module_init (void)
 {
-  if (g_getenv ("NO_UNITY_GTK_MODULE") == NULL && !is_blacklisted (g_get_prgname ()))
+  if (is_true (g_getenv ("UBUNTU_MENUPROXY")) && !is_blacklisted (g_get_prgname ()))
     {
       GtkWidgetClass *widget_class;
 
-      unity_gtk_menu_shell_set_debug (g_getenv ("UNITY_GTK_MENU_SHELL_DEBUG") != NULL);
-      unity_gtk_action_group_set_debug (g_getenv ("UNITY_GTK_ACTION_GROUP_DEBUG") != NULL);
+      unity_gtk_menu_shell_set_debug (is_true (g_getenv ("UNITY_GTK_MENU_SHELL_DEBUG")));
+      unity_gtk_action_group_set_debug (is_true (g_getenv ("UNITY_GTK_ACTION_GROUP_DEBUG")));
 
       /* store the base GtkWidget size_allocate vfunc */
       widget_class = g_type_class_ref (GTK_TYPE_WIDGET);
