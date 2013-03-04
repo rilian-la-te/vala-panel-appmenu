@@ -4,6 +4,7 @@
 *.log
 *.m4
 *.pc
+*.pyc
 *.stamp
 *.substvars
 .deps
