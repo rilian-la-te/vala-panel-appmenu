@@ -22,12 +22,14 @@ class GeditTestCase(unity.tests.UnityTestCase, autopilot.introspection.gtk.GtkIn
     def setUp(self):
         super(GeditTestCase, self).setUp()
 
-        self.app = self.launch_test_application('gedit')
         registry = pyatspi.registry.Registry()
         self.desktop = registry.getDesktop(0)
 
     def test_file_new(self):
         """Test if menu item insertion works."""
+        self.app = self.launch_test_application('gedit')
+        time.sleep(0.2)
+
         # Open and close the Documents menu
         panel = self.unity.panels.get_active_panel()
         menu = panel.menus.get_menu_by_label('_Documents')
@@ -71,6 +73,9 @@ class GeditTestCase(unity.tests.UnityTestCase, autopilot.introspection.gtk.GtkIn
 
     def test_file_close(self):
         """Test if menu item removal works."""
+        self.app = self.launch_test_application('gedit')
+        time.sleep(0.2)
+
         # Open and close the Documents menu
         panel = self.unity.panels.get_active_panel()
         menu = panel.menus.get_menu_by_label('_Documents')
@@ -109,6 +114,9 @@ class GeditTestCase(unity.tests.UnityTestCase, autopilot.introspection.gtk.GtkIn
 
     def test_file_quit(self):
         """Test if menu item activation works."""
+        self.app = self.launch_test_application('gedit')
+        time.sleep(0.2)
+
         # Activate File > Quit
         panel = self.unity.panels.get_active_panel()
         menu = panel.menus.get_menu_by_label('_File')
@@ -121,14 +129,13 @@ class GeditTestCase(unity.tests.UnityTestCase, autopilot.introspection.gtk.GtkIn
 
     def test_edit_undo(self):
         """Test if menu item sensitivity works."""
-        gedit = pyatspi.utils.findDescendant(self.desktop, lambda a: a.name == 'gedit' and a.get_role_name() == 'application', True)
-        tab = pyatspi.utils.findDescendant(gedit, lambda a: a.name == 'Untitled Document 1' and a.get_role_name() == 'page tab', True)
-        text = pyatspi.utils.findDescendant(tab, lambda a: a.get_role_name() == 'text', True)
-        geometry = text.get_component().get_extents(pyatspi.DESKTOP_COORDS)
-        self.mouse.move(int(geometry.x + 0.5 * geometry.width), int(geometry.y + 0.5 * geometry.height))
-        self.mouse.click()
-        self.keyboard.type('hello')
+        self.app = self.start_app_window('Text Editor')
+        time.sleep(0.2)
 
+        # Hi!
+        self.keyboard.type('hi')
+
+        # Assert that Undo is sensitive
         panel = pyatspi.utils.findDescendant(self.desktop, lambda a: a.name == 'unity-panel-service' and a.get_role_name() == 'application', True)
         menubar = panel[0]
         edit_item = menubar[1]
@@ -137,20 +144,25 @@ class GeditTestCase(unity.tests.UnityTestCase, autopilot.introspection.gtk.GtkIn
         self.assertTrue(undo_item.name == 'Undo')
         self.assertTrue(undo_item.get_state_set().contains(pyatspi.STATE_SENSITIVE))
 
+        # Activate Edit > Undo
         panel = self.unity.panels.get_active_panel()
         menu = panel.menus.get_menu_by_label('_Edit')
         menu.mouse_click()
-
         self.keyboard.press_and_release('Down')
         self.keyboard.press_and_release('Enter')
 
+        # Open and close the Edit menu
         menu.mouse_click()
         menu.mouse_click()
 
+        # Assert that Undo is insensitive
         self.assertFalse(undo_item.get_state_set().contains(pyatspi.STATE_SENSITIVE))
 
     def test_view_toolbar(self):
         """Test if check menu item activation works."""
+        self.app = self.launch_test_application('gedit')
+        time.sleep(0.2)
+
         # Assert that View > Toolbar matches the visibility of the tool bar
         panel = pyatspi.utils.findDescendant(self.desktop, lambda a: a.name == 'unity-panel-service' and a.get_role_name() == 'application', True)
         menubar = panel[0]
@@ -191,3 +203,63 @@ class GeditTestCase(unity.tests.UnityTestCase, autopilot.introspection.gtk.GtkIn
         self.assertTrue(checked == visible)
         self.assertTrue(toolbar.visible == visible)
         self.assertTrue(toolbar_item.get_state_set().contains(pyatspi.STATE_CHECKED) == checked)
+
+    def test_documents_untitled_document(self):
+        """Test if radio menu item activation works."""
+        self.app = self.launch_test_application('gedit')
+        time.sleep(0.2)
+
+        # Open and close the Documents menu
+        panel = self.unity.panels.get_active_panel()
+        menu = panel.menus.get_menu_by_label('_Documents')
+        menu.mouse_click()
+        menu.mouse_click()
+
+        # Assert that Untitled Document 1 is checked
+        panel = pyatspi.utils.findDescendant(self.desktop, lambda a: a.name == 'unity-panel-service' and a.get_role_name() == 'application', True)
+        menubar = panel[0]
+        documents_item = menubar[5]
+        documents_menu = documents_item[0]
+        untitled_document_1_item = documents_menu[-1]
+        self.assertTrue(untitled_document_1_item.name == 'Untitled Document 1')
+        self.assertTrue(untitled_document_1_item.get_state_set().contains(pyatspi.STATE_CHECKED))
+
+        # Activate File > New
+        panel = self.unity.panels.get_active_panel()
+        menu = panel.menus.get_menu_by_label('_File')
+        menu.mouse_click()
+        self.keyboard.press_and_release('Down')
+        self.keyboard.press_and_release('Enter')
+
+        # Open and close the Documents menu
+        menu = panel.menus.get_menu_by_label('_Documents')
+        menu.mouse_click()
+        menu.mouse_click()
+
+        # Assert that two documents are open
+        tabs = self.app.select_many('GeditTab')
+        self.assertTrue(len(tabs) == 2)
+        self.assertTrue(tabs[0].name == 'Untitled Document 1')
+        self.assertTrue(tabs[1].name == 'Untitled Document 2')
+
+        # Assert that Untitled Document 2 is checked
+        untitled_document_1_item = documents_menu[-2]
+        untitled_document_2_item = documents_menu[-1]
+        self.assertTrue(untitled_document_1_item.name == 'Untitled Document 1')
+        self.assertTrue(untitled_document_2_item.name == 'Untitled Document 2')
+        self.assertFalse(untitled_document_1_item.get_state_set().contains(pyatspi.STATE_CHECKED))
+        self.assertTrue(untitled_document_2_item.get_state_set().contains(pyatspi.STATE_CHECKED))
+
+        # Activate Documents > Untitled Document 1
+        menu.mouse_click()
+        self.keyboard.press_and_release('Up')
+        self.keyboard.press_and_release('Up')
+        self.keyboard.press_and_release('Enter')
+
+        # Open and close the Documents menu
+        menu.mouse_click()
+        menu.mouse_click()
+
+        # Assert that Untitled Document 1 is checked
+        self.assertTrue(untitled_document_1_item.get_state_set().contains(pyatspi.STATE_CHECKED))
+        self.assertFalse(untitled_document_2_item.get_state_set().contains(pyatspi.STATE_CHECKED))
