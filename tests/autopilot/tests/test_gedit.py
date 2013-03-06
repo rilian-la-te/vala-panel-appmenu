@@ -72,6 +72,52 @@ class GeditTestCase(unity.tests.UnityTestCase, autopilot.introspection.gtk.GtkIn
         self.assertFalse(untitled_document_1_item.get_state_set().contains(pyatspi.STATE_CHECKED))
         self.assertTrue(untitled_document_2_item.get_state_set().contains(pyatspi.STATE_CHECKED))
 
+    def test_file_close(self):
+        """Test if menu item removal works."""
+        panel = self.unity.panels.get_active_panel()
+        time.sleep(2.0)
+        menu = panel.menus.get_menu_by_label('_Documents')
+        time.sleep(2.0)
+        menu.mouse_click()
+        time.sleep(2.0)
+        menu.mouse_click()
+        time.sleep(2.0)
+
+        panel = pyatspi.utils.findAllDescendants(self.desktop, lambda a: a.name == 'unity-panel-service')[0]
+        menubar = panel[0]
+        documents_item = menubar[5]
+        documents_menu = documents_item[0]
+        untitled_document_1_item = documents_menu[-1]
+        self.assertTrue(untitled_document_1_item.name == 'Untitled Document 1')
+        self.assertTrue(untitled_document_1_item.get_state_set().contains(pyatspi.STATE_CHECKED))
+
+        panel = self.unity.panels.get_active_panel()
+        time.sleep(2.0)
+        menu = panel.menus.get_menu_by_label('_File')
+        time.sleep(2.0)
+        menu.mouse_click()
+        time.sleep(2.0)
+
+        self.keyboard.press_and_release('Up')
+        time.sleep(2.0)
+        self.keyboard.press_and_release('Up')
+        time.sleep(2.0)
+        self.keyboard.press_and_release('Enter')
+        time.sleep(2.0)
+
+        menu = panel.menus.get_menu_by_label('_Documents')
+        time.sleep(2.0)
+        menu.mouse_click()
+        time.sleep(2.0)
+        menu.mouse_click()
+        time.sleep(2.0)
+
+        tabs = self.app.select_many('GeditTab')
+        self.assertFalse(tabs)
+
+        move_to_new_window_item = documents_menu[-1]
+        self.assertTrue(move_to_new_window_item.name == 'Move to New Window')
+
     def test_file_quit(self):
         """Test if menu item activation works."""
         panel = self.unity.panels.get_active_panel()
