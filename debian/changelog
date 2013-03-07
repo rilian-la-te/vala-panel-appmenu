@@ -1,3 +1,10 @@
+unity-gtk-module (0.0.0-0ubuntu17) raring; urgency=low
+
+  * tests
+    - Add autopilot integration tests.
+
+ -- William Hua <william.hua@canonical.com>  Thu, 07 Mar 2013 16:01:41 -0500
+
 unity-gtk-module (0.0.0-0ubuntu16) raring; urgency=low
 
   * src/main.c
