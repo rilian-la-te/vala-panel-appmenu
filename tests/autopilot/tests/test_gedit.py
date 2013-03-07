@@ -5,18 +5,6 @@ import pyatspi.utils
 import time
 import unity.tests
 
-def inspect(node):
-    print '"%s" - %s' % (node.name, node.get_role_name())
-
-    for child in node:
-        print '  "%s" - %s' % (child.name, child.get_role_name())
-
-def introspect(node, depth=0):
-    print '%s"%s" - %s' % (depth * ' ', node.name, node.get_role_name())
-
-    for child in node:
-        introspect(child, depth + 2)
-
 class GeditTestCase(unity.tests.UnityTestCase, autopilot.introspection.gtk.GtkIntrospectionTestMixin):
 
     def setUp(self):
