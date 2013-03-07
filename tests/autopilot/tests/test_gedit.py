@@ -263,3 +263,46 @@ class GeditTestCase(unity.tests.UnityTestCase, autopilot.introspection.gtk.GtkIn
         # Assert that Untitled Document 1 is checked
         self.assertTrue(untitled_document_1_item.get_state_set().contains(pyatspi.STATE_CHECKED))
         self.assertFalse(untitled_document_2_item.get_state_set().contains(pyatspi.STATE_CHECKED))
+
+    def test_ctrl_n(self):
+        """Test if menu item insertion works."""
+        self.app = self.launch_test_application('gedit')
+        time.sleep(0.2)
+
+        # Open and close the Documents menu
+        panel = self.unity.panels.get_active_panel()
+        menu = panel.menus.get_menu_by_label('_Documents')
+        menu.mouse_click()
+        menu.mouse_click()
+
+        # Assert that Untitled Document 1 is checked
+        panel = pyatspi.utils.findDescendant(self.desktop, lambda a: a.name == 'unity-panel-service' and a.get_role_name() == 'application', True)
+        menubar = panel[0]
+        documents_item = menubar[5]
+        documents_menu = documents_item[0]
+        untitled_document_1_item = documents_menu[-1]
+        self.assertTrue(untitled_document_1_item.name == 'Untitled Document 1')
+        self.assertTrue(untitled_document_1_item.get_state_set().contains(pyatspi.STATE_CHECKED))
+
+        # Activate File > New
+        self.keyboard.press_and_release('Ctrl+n')
+
+        # Open and close the Documents menu
+        panel = self.unity.panels.get_active_panel()
+        menu = panel.menus.get_menu_by_label('_Documents')
+        menu.mouse_click()
+        menu.mouse_click()
+
+        # Assert that two documents are open
+        tabs = self.app.select_many('GeditTab')
+        self.assertTrue(len(tabs) == 2)
+        self.assertTrue(tabs[0].name == 'Untitled Document 1')
+        self.assertTrue(tabs[1].name == 'Untitled Document 2')
+
+        # Assert that Untitled Document 2 is checked
+        untitled_document_1_item = documents_menu[-2]
+        untitled_document_2_item = documents_menu[-1]
+        self.assertTrue(untitled_document_1_item.name == 'Untitled Document 1')
+        self.assertTrue(untitled_document_2_item.name == 'Untitled Document 2')
+        self.assertFalse(untitled_document_1_item.get_state_set().contains(pyatspi.STATE_CHECKED))
+        self.assertTrue(untitled_document_2_item.get_state_set().contains(pyatspi.STATE_CHECKED))
