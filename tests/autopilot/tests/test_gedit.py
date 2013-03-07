@@ -1,5 +1,6 @@
 import autopilot.emulators.X11
 import autopilot.introspection.gtk
+import os
 import pyatspi.registry
 import pyatspi.utils
 import time
@@ -12,6 +13,15 @@ class GeditTestCase(unity.tests.UnityTestCase, autopilot.introspection.gtk.GtkIn
 
         registry = pyatspi.registry.Registry()
         self.desktop = registry.getDesktop(0)
+
+        local_module = os.path.abspath('../../src/.libs/libunity-gtk-module.so')
+
+        if os.path.isfile(local_module):
+            modules = [module for module in os.getenv('GTK_MODULES', '').split(':') if module]
+            modules = [module for module in modules if module != 'unity-gtk-module']
+            modules.append(local_module)
+
+            self.patch_environment('GTK_MODULES', ':'.join(modules))
 
     def test_file_new(self):
         """Test if menu item insertion works."""
