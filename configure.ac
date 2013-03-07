@@ -51,6 +51,8 @@ AC_CONFIG_FILES([Makefile
                  docs/reference/Makefile
                  docs/reference/unity-gtk-module/Makefile
                  lib/Makefile
-                 src/Makefile])
+                 src/Makefile
+                 tests/Makefile
+                 tests/autopilot/Makefile])
 
 AC_OUTPUT
