@@ -1,2 +1,3 @@
 TESTS = test.sh
-TESTS_ENVIRONMENT = $(SHELL)
+
+SUBDIRS = tests
