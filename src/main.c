@@ -452,6 +452,7 @@ static gboolean
 gtk_widget_shell_shows_menubar (GtkWidget *widget)
 {
   GtkSettings *settings;
+  GParamSpec *pspec;
   gboolean shell_shows_menubar;
 
   g_return_val_if_fail (GTK_IS_WIDGET (widget), FALSE);
@@ -459,6 +460,11 @@ gtk_widget_shell_shows_menubar (GtkWidget *widget)
   settings = gtk_widget_get_settings (widget);
 
   g_return_val_if_fail (GTK_IS_SETTINGS (settings), FALSE);
+
+  pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (settings), "gtk-shell-shows-menubar");
+
+  g_return_val_if_fail (G_IS_PARAM_SPEC (pspec), FALSE);
+  g_return_val_if_fail (pspec->value_type == G_TYPE_BOOLEAN, FALSE);
 
   g_object_get (settings, "gtk-shell-shows-menubar", &shell_shows_menubar, NULL);
 
