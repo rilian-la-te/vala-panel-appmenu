@@ -4,7 +4,7 @@ Maintainer: William Hua <william.hua@canonical.com>
 Build-Depends: debhelper (>= 8.0.0), dh-autoreconf, gtk-doc-tools, libx11-dev, libgtk2.0-dev, libgtk-3-dev
 Standards-Version: 3.9.3
 Section: libs
-Homepage: https://code.launchpad.net/~attente/+junk/unity-gtk-module
+Homepage: https://code.launchpad.net/unity-gtk-module
 #Vcs-Git: git://git.debian.org/collab-maint/unity-gtk-module.git
 #Vcs-Browser: http://git.debian.org/?p=collab-maint/unity-gtk-module.git;a=summary
 
