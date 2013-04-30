@@ -1,3 +1,14 @@
+unity-gtk-module (0.0.0-0ubuntu18) UNRELEASED; urgency=low
+
+  * Updated a bit the packaging to be similar to other indicators:
+    - use source format v1 and split mode for bzr-builddeb
+    - bump compat mode to 9
+    - update .install files for dh9 and multiarch locations
+    - clean some leftover templates files from dh-make
+    - small extra cosmetic changes
+
+ -- Sebastien Bacher <seb128@ubuntu.com>  Tue, 30 Apr 2013 09:36:49 -0700
+
 unity-gtk-module (0.0.0-0ubuntu17) raring; urgency=low
 
   * tests
