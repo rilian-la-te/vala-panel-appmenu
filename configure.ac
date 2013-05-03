@@ -23,6 +23,8 @@ AC_ARG_WITH([gtk-module-dir], [AS_HELP_STRING([--with-gtk-module-dir=DIR], [GTK+
 AC_ARG_WITH([x11-sysconfdir], [AS_HELP_STRING([--with-x11-sysconfdir=DIR], [X11 configuration directory [default=$sysconfdir]])], [], [with_x11_sysconfdir=$sysconfdir])
 AC_ARG_WITH([x-session-dir], [AS_HELP_STRING([--with-x-session-dir=DIR], [Xsession.d directory [default=$with_x11_sysconfdir/X11/Xsession.d]])], [], [with_x_session_dir=$with_x11_sysconfdir/X11/Xsession.d])
 
+AM_PATH_PYTHON
+
 AC_SUBST([GTK_VERSION], [$with_gtk])
 AC_SUBST([GTK_MODULE_DIR], [$with_gtk_module_dir])
 AC_SUBST([X_SESSION_DIR], [$with_x_session_dir])
