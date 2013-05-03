@@ -6,6 +6,20 @@ import pyatspi.utils
 import time
 import unity.tests
 
+def print_accessible(root, level=0):
+    print level * ' ', root
+
+    for node in root:
+        print_accessible(node, level + 1)
+
+def get_panel_accessible(root):
+    is_panel = lambda a: a.name == 'unity-panel-service' and a.get_role_name() == 'application'
+    return pyatspi.utils.findDescendant(root, is_panel, True)
+
+def get_app_menu_accessible(root):
+    is_app_menu = lambda a: len(a) > 0 and a[0].name == 'File' and a[0].get_role_name() == 'label'
+    return pyatspi.utils.findDescendant(root, is_app_menu, True)
+
 class GeditTestCase(unity.tests.UnityTestCase, autopilot.introspection.gtk.GtkIntrospectionTestMixin):
 
     def setUp(self):
@@ -35,9 +49,9 @@ class GeditTestCase(unity.tests.UnityTestCase, autopilot.introspection.gtk.GtkIn
         menu.mouse_click()
 
         # Assert that Untitled Document 1 is checked
-        panel = pyatspi.utils.findDescendant(self.desktop, lambda a: a.name == 'unity-panel-service' and a.get_role_name() == 'application', True)
-        menubar = panel[0]
-        documents_item = menubar[5]
+        panel = get_panel_accessible(self.desktop)
+        app_menu = get_app_menu_accessible(panel)
+        documents_item = app_menu[5]
         documents_menu = documents_item[0]
         untitled_document_1_item = documents_menu[-1]
         self.assertTrue(untitled_document_1_item.name == 'Untitled Document 1')
@@ -81,9 +95,9 @@ class GeditTestCase(unity.tests.UnityTestCase, autopilot.introspection.gtk.GtkIn
         menu.mouse_click()
 
         # Assert that Untitled Document 1 is checked
-        panel = pyatspi.utils.findDescendant(self.desktop, lambda a: a.name == 'unity-panel-service' and a.get_role_name() == 'application', True)
-        menubar = panel[0]
-        documents_item = menubar[5]
+        panel = get_panel_accessible(self.desktop)
+        app_menu = get_app_menu_accessible(panel)
+        documents_item = app_menu[5]
         documents_menu = documents_item[0]
         untitled_document_1_item = documents_menu[-1]
         self.assertTrue(untitled_document_1_item.name == 'Untitled Document 1')
@@ -128,15 +142,15 @@ class GeditTestCase(unity.tests.UnityTestCase, autopilot.introspection.gtk.GtkIn
     def test_edit_undo(self):
         """Test if menu item sensitivity works."""
         self.app = self.start_app_window('Text Editor')
-        time.sleep(0.2)
+        time.sleep(2.2)
 
         # Hi!
         self.keyboard.type('hi')
 
         # Assert that Undo is sensitive
-        panel = pyatspi.utils.findDescendant(self.desktop, lambda a: a.name == 'unity-panel-service' and a.get_role_name() == 'application', True)
-        menubar = panel[0]
-        edit_item = menubar[1]
+        panel = get_panel_accessible(self.desktop)
+        app_menu = get_app_menu_accessible(panel)
+        edit_item = app_menu[1]
         edit_menu = edit_item[0]
         undo_item = edit_menu[0]
         self.assertTrue(undo_item.name == 'Undo')
@@ -162,9 +176,9 @@ class GeditTestCase(unity.tests.UnityTestCase, autopilot.introspection.gtk.GtkIn
         time.sleep(0.2)
 
         # Assert that View > Toolbar matches the visibility of the tool bar
-        panel = pyatspi.utils.findDescendant(self.desktop, lambda a: a.name == 'unity-panel-service' and a.get_role_name() == 'application', True)
-        menubar = panel[0]
-        view_item = menubar[2]
+        panel = get_panel_accessible(self.desktop)
+        app_menu = get_app_menu_accessible(panel)
+        view_item = app_menu[2]
         view_menu = view_item[0]
         toolbar_item = view_menu[0]
         checked = toolbar_item.get_state_set().contains(pyatspi.STATE_CHECKED)
@@ -214,9 +228,9 @@ class GeditTestCase(unity.tests.UnityTestCase, autopilot.introspection.gtk.GtkIn
         menu.mouse_click()
 
         # Assert that Untitled Document 1 is checked
-        panel = pyatspi.utils.findDescendant(self.desktop, lambda a: a.name == 'unity-panel-service' and a.get_role_name() == 'application', True)
-        menubar = panel[0]
-        documents_item = menubar[5]
+        panel = get_panel_accessible(self.desktop)
+        app_menu = get_app_menu_accessible(panel)
+        documents_item = app_menu[5]
         documents_menu = documents_item[0]
         untitled_document_1_item = documents_menu[-1]
         self.assertTrue(untitled_document_1_item.name == 'Untitled Document 1')
@@ -274,9 +288,9 @@ class GeditTestCase(unity.tests.UnityTestCase, autopilot.introspection.gtk.GtkIn
         menu.mouse_click()
 
         # Assert that Untitled Document 1 is checked
-        panel = pyatspi.utils.findDescendant(self.desktop, lambda a: a.name == 'unity-panel-service' and a.get_role_name() == 'application', True)
-        menubar = panel[0]
-        documents_item = menubar[5]
+        panel = get_panel_accessible(self.desktop)
+        app_menu = get_app_menu_accessible(panel)
+        documents_item = app_menu[5]
         documents_menu = documents_item[0]
         untitled_document_1_item = documents_menu[-1]
         self.assertTrue(untitled_document_1_item.name == 'Untitled Document 1')
