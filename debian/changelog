@@ -13,6 +13,7 @@ unity-gtk-module (0.0.0-0ubuntu18) UNRELEASED; urgency=low
     - Added the unity-gtk-module-autopilot package
   * Added debian/unity-gtk-module-autopilot.install
   * Changed the build system a bit to enable installation of autopilot tests
+  * Automatic snapshot from revision 279 (bootstrap)
 
  -- Sebastien Bacher <seb128@ubuntu.com>  Tue, 30 Apr 2013 09:36:49 -0700
 
