@@ -28,14 +28,18 @@ class GeditTestCase(unity.tests.UnityTestCase, autopilot.introspection.gtk.GtkIn
         registry = pyatspi.registry.Registry()
         self.desktop = registry.getDesktop(0)
 
-        local_module = os.path.abspath('../../src/.libs/libunity-gtk-module.so')
+        module_name = 'unity-gtk-module'
 
-        if os.path.isfile(local_module):
+        if os.path.isfile(module_name):
             modules = [module for module in os.getenv('GTK_MODULES', '').split(':') if module]
             modules = [module for module in modules if module != 'unity-gtk-module']
-            modules.append(local_module)
+            modules.append(module_name)
 
             self.patch_environment('GTK_MODULES', ':'.join(modules))
+
+        # This is needed on systems other than the EN locale
+        os.putenv("LC_ALL", "C")
+        self.addCleanup(os.unsetenv, "LC_ALL")
 
     def test_file_new(self):
         """Test if menu item insertion works."""
