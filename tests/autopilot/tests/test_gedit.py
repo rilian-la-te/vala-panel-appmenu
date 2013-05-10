@@ -1,4 +1,3 @@
-import autopilot.emulators.X11
 import autopilot.introspection.gtk
 import os
 import pyatspi.registry
@@ -40,7 +39,7 @@ def get_accessible_index(root, node):
 
     return -1
 
-class GeditTestCase(unity.tests.UnityTestCase, autopilot.introspection.gtk.GtkIntrospectionTestMixin):
+class GeditTestCase(unity.tests.UnityTestCase):
 
     def setUp(self):
         super(GeditTestCase, self).setUp()
@@ -160,11 +159,11 @@ class GeditTestCase(unity.tests.UnityTestCase, autopilot.introspection.gtk.GtkIn
         self.keyboard.press_and_release('Enter')
 
         # Assert that the application quit
-        self.assertFalse(self.app_is_running('Text Editor'))
+        self.assertFalse(self.process_manager.app_is_running('Text Editor'))
 
     def test_edit_undo(self):
         """Test if menu item sensitivity works."""
-        self.app = self.start_app_window('Text Editor')
+        self.app = self.process_manager.start_app_window('Text Editor')
         time.sleep(2.2)
 
         # Hi!
