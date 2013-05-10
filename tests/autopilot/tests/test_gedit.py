@@ -11,13 +11,33 @@ def print_accessible(root, level=0):
     for node in root:
         print_accessible(node, level + 1)
 
+def get_accessible_with_name_and_role(root, name, role):
+    is_accessible = lambda a: a.name == name and a.get_role_name() == role
+    return pyatspi.utils.findDescendant(root, is_accessible, True);
+
 def get_panel_accessible(root):
-    is_panel = lambda a: a.name == 'unity-panel-service' and a.get_role_name() == 'application'
-    return pyatspi.utils.findDescendant(root, is_panel, True)
+    return get_accessible_with_name_and_role(root, 'unity-panel-service', 'application')
 
 def get_app_menu_accessible(root):
     is_app_menu = lambda a: len(a) > 0 and a[0].name == 'File' and a[0].get_role_name() == 'label'
     return pyatspi.utils.findDescendant(root, is_app_menu, True)
+
+def get_label_accessible_with_name(root, name):
+    return get_accessible_with_name_and_role(root, name, 'label')
+
+def get_submenu_accessible(root):
+    return root[0]
+
+def get_menu_item_accessible_with_name(root, name):
+    is_menu_item = lambda a: a.name == name and a.get_role_name() in ('menu item', 'check menu item', 'radio menu item')
+    return pyatspi.utils.findDescendant(root, is_menu_item, True);
+
+def get_accessible_index(root, node):
+    for i in xrange(len(root)):
+        if root[i] == node:
+            return i
+
+    return -1
 
 class GeditTestCase(unity.tests.UnityTestCase):
 
@@ -54,10 +74,10 @@ class GeditTestCase(unity.tests.UnityTestCase):
         # Assert that Untitled Document 1 is checked
         panel = get_panel_accessible(self.desktop)
         app_menu = get_app_menu_accessible(panel)
-        documents_item = app_menu[5]
-        documents_menu = documents_item[0]
-        untitled_document_1_item = documents_menu[-1]
-        self.assertTrue(untitled_document_1_item.name == 'Untitled Document 1')
+        documents_item = get_label_accessible_with_name(app_menu, 'Documents')
+        documents_menu = get_submenu_accessible(documents_item)
+        untitled_document_1_item = get_menu_item_accessible_with_name(documents_menu, 'Untitled Document 1')
+        untitled_document_1_index = get_accessible_index(documents_menu, untitled_document_1_item)
         self.assertTrue(untitled_document_1_item.get_state_set().contains(pyatspi.STATE_CHECKED))
 
         # Activate File > New
@@ -79,8 +99,8 @@ class GeditTestCase(unity.tests.UnityTestCase):
         self.assertTrue(tabs[1].name == 'Untitled Document 2')
 
         # Assert that Untitled Document 2 is checked
-        untitled_document_1_item = documents_menu[-2]
-        untitled_document_2_item = documents_menu[-1]
+        untitled_document_1_item = documents_menu[untitled_document_1_index]
+        untitled_document_2_item = documents_menu[untitled_document_1_index + 1]
         self.assertTrue(untitled_document_1_item.name == 'Untitled Document 1')
         self.assertTrue(untitled_document_2_item.name == 'Untitled Document 2')
         self.assertFalse(untitled_document_1_item.get_state_set().contains(pyatspi.STATE_CHECKED))
@@ -100,10 +120,9 @@ class GeditTestCase(unity.tests.UnityTestCase):
         # Assert that Untitled Document 1 is checked
         panel = get_panel_accessible(self.desktop)
         app_menu = get_app_menu_accessible(panel)
-        documents_item = app_menu[5]
-        documents_menu = documents_item[0]
-        untitled_document_1_item = documents_menu[-1]
-        self.assertTrue(untitled_document_1_item.name == 'Untitled Document 1')
+        documents_item = get_label_accessible_with_name(app_menu, 'Documents')
+        documents_menu = get_submenu_accessible(documents_item)
+        untitled_document_1_item = get_menu_item_accessible_with_name(documents_menu, 'Untitled Document 1')
         self.assertTrue(untitled_document_1_item.get_state_set().contains(pyatspi.STATE_CHECKED))
 
         # Activate File > Close
@@ -124,8 +143,8 @@ class GeditTestCase(unity.tests.UnityTestCase):
         self.assertFalse(tabs)
 
         # Assert that Untitled Document 1 was removed
-        move_to_new_window_item = documents_menu[-1]
-        self.assertTrue(move_to_new_window_item.name == 'Move to New Window')
+        untitled_document_1_item = get_menu_item_accessible_with_name(documents_menu, 'Untitled Document 1')
+        self.assertFalse(untitled_document_1_item)
 
     def test_file_quit(self):
         """Test if menu item activation works."""
@@ -153,10 +172,9 @@ class GeditTestCase(unity.tests.UnityTestCase):
         # Assert that Undo is sensitive
         panel = get_panel_accessible(self.desktop)
         app_menu = get_app_menu_accessible(panel)
-        edit_item = app_menu[1]
-        edit_menu = edit_item[0]
-        undo_item = edit_menu[0]
-        self.assertTrue(undo_item.name == 'Undo')
+        edit_item = get_label_accessible_with_name(app_menu, 'Edit')
+        edit_menu = get_submenu_accessible(edit_item)
+        undo_item = get_menu_item_accessible_with_name(edit_menu, 'Undo')
         self.assertTrue(undo_item.get_state_set().contains(pyatspi.STATE_SENSITIVE))
 
         # Activate Edit > Undo
@@ -181,9 +199,9 @@ class GeditTestCase(unity.tests.UnityTestCase):
         # Assert that View > Toolbar matches the visibility of the tool bar
         panel = get_panel_accessible(self.desktop)
         app_menu = get_app_menu_accessible(panel)
-        view_item = app_menu[2]
-        view_menu = view_item[0]
-        toolbar_item = view_menu[0]
+        view_item = get_label_accessible_with_name(app_menu, 'View')
+        view_menu = get_submenu_accessible(view_item)
+        toolbar_item = get_menu_item_accessible_with_name(view_menu, 'Toolbar')
         checked = toolbar_item.get_state_set().contains(pyatspi.STATE_CHECKED)
         toolbar = self.app.select_many('GtkToolbar')[0]
         visible = toolbar.visible
@@ -233,10 +251,10 @@ class GeditTestCase(unity.tests.UnityTestCase):
         # Assert that Untitled Document 1 is checked
         panel = get_panel_accessible(self.desktop)
         app_menu = get_app_menu_accessible(panel)
-        documents_item = app_menu[5]
-        documents_menu = documents_item[0]
-        untitled_document_1_item = documents_menu[-1]
-        self.assertTrue(untitled_document_1_item.name == 'Untitled Document 1')
+        documents_item = get_label_accessible_with_name(app_menu, 'Documents')
+        documents_menu = get_submenu_accessible(documents_item)
+        untitled_document_1_item = get_menu_item_accessible_with_name(documents_menu, 'Untitled Document 1')
+        untitled_document_1_index = get_accessible_index(documents_menu, untitled_document_1_item)
         self.assertTrue(untitled_document_1_item.get_state_set().contains(pyatspi.STATE_CHECKED))
 
         # Activate File > New
@@ -258,8 +276,8 @@ class GeditTestCase(unity.tests.UnityTestCase):
         self.assertTrue(tabs[1].name == 'Untitled Document 2')
 
         # Assert that Untitled Document 2 is checked
-        untitled_document_1_item = documents_menu[-2]
-        untitled_document_2_item = documents_menu[-1]
+        untitled_document_1_item = documents_menu[untitled_document_1_index]
+        untitled_document_2_item = documents_menu[untitled_document_1_index + 1]
         self.assertTrue(untitled_document_1_item.name == 'Untitled Document 1')
         self.assertTrue(untitled_document_2_item.name == 'Untitled Document 2')
         self.assertFalse(untitled_document_1_item.get_state_set().contains(pyatspi.STATE_CHECKED))
@@ -293,10 +311,10 @@ class GeditTestCase(unity.tests.UnityTestCase):
         # Assert that Untitled Document 1 is checked
         panel = get_panel_accessible(self.desktop)
         app_menu = get_app_menu_accessible(panel)
-        documents_item = app_menu[5]
-        documents_menu = documents_item[0]
-        untitled_document_1_item = documents_menu[-1]
-        self.assertTrue(untitled_document_1_item.name == 'Untitled Document 1')
+        documents_item = get_label_accessible_with_name(app_menu, 'Documents')
+        documents_menu = get_submenu_accessible(documents_item)
+        untitled_document_1_item = get_menu_item_accessible_with_name(documents_menu, 'Untitled Document 1')
+        untitled_document_1_index = get_accessible_index(documents_menu, untitled_document_1_item)
         self.assertTrue(untitled_document_1_item.get_state_set().contains(pyatspi.STATE_CHECKED))
 
         # Activate File > New
@@ -315,8 +333,8 @@ class GeditTestCase(unity.tests.UnityTestCase):
         self.assertTrue(tabs[1].name == 'Untitled Document 2')
 
         # Assert that Untitled Document 2 is checked
-        untitled_document_1_item = documents_menu[-2]
-        untitled_document_2_item = documents_menu[-1]
+        untitled_document_1_item = documents_menu[untitled_document_1_index]
+        untitled_document_2_item = documents_menu[untitled_document_1_index + 1]
         self.assertTrue(untitled_document_1_item.name == 'Untitled Document 1')
         self.assertTrue(untitled_document_2_item.name == 'Untitled Document 2')
         self.assertFalse(untitled_document_1_item.get_state_set().contains(pyatspi.STATE_CHECKED))
