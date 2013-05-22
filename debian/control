@@ -63,6 +63,9 @@ Depends: ${shlibs:Depends},
          ${misc:Depends},
          unity-gtk-module-common (>= ${source:Version}),
          libunity-gtk2-parser0 (>= ${binary:Version}),
+Provides: appmenu-gtk
+Conflicts: appmenu-gtk
+Replaces: appmenu-gtk
 Description: GtkMenuShell D-Bus exporter
  This GTK+ 2 module exports GtkMenuShells over D-Bus.
 
@@ -95,6 +98,9 @@ Depends: ${shlibs:Depends},
          ${misc:Depends},
          unity-gtk-module-common (>= ${source:Version}),
          libunity-gtk3-parser0 (>= ${binary:Version}),
+Provides: appmenu-gtk3
+Conflicts: appmenu-gtk3
+Replaces: appmenu-gtk3
 Description: GtkMenuShell D-Bus exporter
  This GTK+ 3 module exports GtkMenuShells over D-Bus.
 
