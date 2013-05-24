@@ -1,4 +1,4 @@
-unity-gtk-module (0.0.0-0ubuntu18) UNRELEASED; urgency=low
+unity-gtk-module (0.0.0daily13.05.23.1-0ubuntu1) saucy; urgency=low
 
   [ Sebastien Bacher ]
   * Updated a bit the packaging to be similar to other indicators:
@@ -16,7 +16,21 @@ unity-gtk-module (0.0.0-0ubuntu18) UNRELEASED; urgency=low
   * Changed the build system a bit to enable installation of autopilot tests
   * Automatic snapshot from revision 279 (bootstrap)
 
- -- Sebastien Bacher <seb128@ubuntu.com>  Tue, 30 Apr 2013 09:36:49 -0700
+  [ William Hua ]
+  * Don't assume the app menu is first in the panel.
+  * Don't assume any particular menu structure in autopilot tests.
+
+  [ Łukasz 'sil2100' Zemczak ]
+  * Add locale independency and use the globally installed unity-gtk-
+    module
+  * Fix a few things that changed with autopilot 1.3.
+    GtkIntrospectionTestMixin is no longer necessary, the X11 emulator
+    as well. Process related operations moved to self.process_manager.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 285
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 23 May 2013 16:59:18 +0000
 
 unity-gtk-module (0.0.0-0ubuntu17) raring; urgency=low
 
