@@ -19,8 +19,7 @@ Vcs-Browser: https://bazaar.launchpad.net/~indicator-applet-developers/unity-gtk
 Package: libunity-gtk-parser-dev-common
 Section: libdevel
 Architecture: all
-Depends: ${shlibs:Depends},
-         ${misc:Depends},
+Depends: ${misc:Depends},
 Description: Common files for GtkMenuShell to GMenuModel parser
  This library converts GtkMenuShells into GMenuModels.
  .
@@ -28,8 +27,7 @@ Description: Common files for GtkMenuShell to GMenuModel parser
 
 Package: unity-gtk-module-common
 Architecture: all
-Depends: ${shlibs:Depends},
-         ${misc:Depends},
+Depends: ${misc:Depends},
 Description: Common files for GtkMenuShell D-Bus exporter
  This GTK+ module exports GtkMenuShells over D-Bus.
  .
@@ -37,7 +35,7 @@ Description: Common files for GtkMenuShell D-Bus exporter
 
 Package: libunity-gtk2-parser0
 Architecture: any
-Pre-Depends: multiarch-support,
+Pre-Depends: ${misc:Pre-Depends},
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          libgtk2.0-0 (>= 2.24.0),
@@ -47,8 +45,7 @@ Description: GtkMenuShell to GMenuModel parser
 Package: libunity-gtk2-parser-dev
 Section: libdevel
 Architecture: any
-Depends: ${shlibs:Depends},
-         ${misc:Depends},
+Depends: ${misc:Depends},
          libgtk2.0-dev (>= 2.24.0),
          libunity-gtk-parser-dev-common (>= ${source:Version}),
          libunity-gtk2-parser0 (= ${binary:Version}),
@@ -59,6 +56,7 @@ Description: GtkMenuShell to GMenuModel parser
 
 Package: unity-gtk2-module
 Architecture: any
+Pre-Depends: ${misc:Pre-Depends},
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          unity-gtk-module-common (>= ${source:Version}),
@@ -72,7 +70,7 @@ Description: GtkMenuShell D-Bus exporter
 Package: libunity-gtk3-parser0
 Section: libs
 Architecture: any
-Pre-Depends: multiarch-support,
+Pre-Depends: ${misc:Pre-Depends},
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          libgtk-3-0 (>= 3.2.0),
@@ -82,8 +80,7 @@ Description: GtkMenuShell to GMenuModel parser
 Package: libunity-gtk3-parser-dev
 Section: libdevel
 Architecture: any
-Depends: ${shlibs:Depends},
-         ${misc:Depends},
+Depends: ${misc:Depends},
          libgtk-3-dev (>= 3.2.0),
          libunity-gtk-parser-dev-common (>= ${source:Version}),
          libunity-gtk3-parser0 (= ${binary:Version}),
@@ -94,6 +91,7 @@ Description: GtkMenuShell to GMenuModel parser
 
 Package: unity-gtk3-module
 Architecture: any
+Pre-Depends: ${misc:Pre-Depends},
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          unity-gtk-module-common (>= ${source:Version}),
