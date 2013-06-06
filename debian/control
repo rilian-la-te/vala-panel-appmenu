@@ -107,6 +107,8 @@ Architecture: all
 Depends: ${misc:Depends},
          unity-gtk3-module (>= ${source:Version}),
          libautopilot-gtk,
+         python-pyatspi,
+         python-autopilot,
 Description: GtkMenuShell D-Bus Autopilot tests
  This package provides autopilot integration tests for the unity-gtk-module
  package.
