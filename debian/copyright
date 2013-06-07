@@ -3,12 +3,11 @@ Upstream-Name: unity-gtk-module
 Source: https://code.launchpad.net/unity-gtk-module
 
 Files: *
-Copyright: 2012 Ryan Lortie <desrt@desrt.ca>
-           2012 William Hua <william.hua@canonical.com>
+Copyright: 2012 Canonical Ltd.
 License: LGPL-3.0
 
 Files: debian/*
-Copyright: 2012 William Hua <william.hua@canonical.com>
+Copyright: 2012 Canonical Ltd.
 License: LGPL-3.0
 
 License: LGPL-3.0
