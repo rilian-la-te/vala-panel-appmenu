@@ -1,3 +1,17 @@
+unity-gtk-module (0.0.0daily13.06.07-0ubuntu1) saucy; urgency=low
+
+  [ Michael Terry ]
+  * Clean up all debuild warnings about substvars.
+
+  [ Didier Roche ]
+  * add missing python-autopilot and python-pyatspi dependencies on the
+    autopilot package
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 288
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 07 Jun 2013 02:02:23 +0000
+
 unity-gtk-module (0.0.0daily13.05.23.1-0ubuntu1) saucy; urgency=low
 
   [ Sebastien Bacher ]
