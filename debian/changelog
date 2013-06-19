@@ -1,3 +1,14 @@
+unity-gtk-module (0.0.0daily13.06.19-0ubuntu1) saucy; urgency=low
+
+  [ William Hua ]
+  * Revise debian/copyright since the work was done with Canonical's
+    resources.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 290
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 19 Jun 2013 02:01:38 +0000
+
 unity-gtk-module (0.0.0daily13.06.07-0ubuntu1) saucy; urgency=low
 
   [ Michael Terry ]
