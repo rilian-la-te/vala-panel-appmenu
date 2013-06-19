@@ -163,7 +163,7 @@ class GeditTestCase(unity.tests.UnityTestCase):
 
     def test_edit_undo(self):
         """Test if menu item sensitivity works."""
-        self.app = self.process_manager.start_app_window('Text Editor')
+        self.app = self.launch_test_application('gedit')
         time.sleep(2.2)
 
         # Hi!
