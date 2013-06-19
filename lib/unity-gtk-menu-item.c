@@ -24,6 +24,201 @@ G_DEFINE_TYPE (UnityGtkMenuItem,
                unity_gtk_menu_item,
                G_TYPE_OBJECT);
 
+static GIcon *
+gtk_image_get_icon (GtkImage *image)
+{
+  GIcon *icon = NULL;
+
+  g_return_val_if_fail (GTK_IS_IMAGE (image), NULL);
+
+  switch (gtk_image_get_storage_type (image))
+    {
+    case GTK_IMAGE_GICON:
+        {
+          gtk_image_get_gicon (image, &icon, NULL);
+
+          if (icon != NULL)
+            g_object_ref (icon);
+        }
+
+      break;
+
+    case GTK_IMAGE_ICON_NAME:
+        {
+          const gchar *name = NULL;
+
+          gtk_image_get_icon_name (image, &name, NULL);
+
+          if (name != NULL)
+            icon = G_ICON (g_themed_icon_new_with_default_fallbacks (name));
+        }
+
+      break;
+
+    case GTK_IMAGE_PIXBUF:
+        {
+          GdkPixbuf *pixbuf = gtk_image_get_pixbuf (image);
+
+          if (pixbuf != NULL)
+            icon = g_object_ref (pixbuf);
+        }
+
+      break;
+
+    case GTK_IMAGE_ANIMATION:
+        {
+          GdkPixbufAnimation *animation = gtk_image_get_animation (image);
+
+          if (animation != NULL)
+            {
+              GdkPixbuf *pixbuf = gdk_pixbuf_animation_get_static_image (animation);
+
+              if (pixbuf != NULL)
+                icon = g_object_ref (pixbuf);
+            }
+        }
+
+      break;
+
+    case GTK_IMAGE_STOCK:
+#if GTK_MAJOR_VERSION == 2
+        {
+          gchar *stock = NULL;
+          GtkIconSize size = GTK_ICON_SIZE_INVALID;
+
+          gtk_image_get_stock (image, &stock, &size);
+
+          if (stock != NULL)
+            {
+              GdkPixbuf *pixbuf = gtk_widget_render_icon (GTK_WIDGET (image), stock, size, NULL);
+
+              if (pixbuf != NULL)
+                icon = G_ICON (pixbuf);
+            }
+        }
+#elif GTK_MAJOR_VERSION == 3
+        {
+          GtkStyleContext *context = gtk_widget_get_style_context (GTK_WIDGET (image));
+
+          if (context != NULL)
+            {
+              gchar *stock = NULL;
+              GtkIconSize size = GTK_ICON_SIZE_INVALID;
+
+              gtk_image_get_stock (image, &stock, &size);
+
+              if (stock != NULL)
+                {
+                  GtkIconSet *set = gtk_style_context_lookup_icon_set (context, stock);
+
+                  if (set != NULL)
+                    {
+                      GdkPixbuf *pixbuf = gtk_icon_set_render_icon_pixbuf (set, context, size);
+
+                      if (pixbuf != NULL)
+                        icon = G_ICON (pixbuf);
+                    }
+                }
+            }
+        }
+#endif
+
+      break;
+
+    case GTK_IMAGE_ICON_SET:
+#if GTK_MAJOR_VERSION == 2
+        {
+          GtkIconSet *set = NULL;
+          GtkIconSize size = GTK_ICON_SIZE_INVALID;
+
+          gtk_image_get_icon_set (image, &set, &size);
+
+          if (set != NULL)
+            {
+              GtkStyle *style = gtk_widget_get_style (GTK_WIDGET (image));
+              GtkTextDirection direction = gtk_widget_get_direction (GTK_WIDGET (image));
+              GtkStateType state = gtk_widget_get_state (GTK_WIDGET (image));
+              GdkPixbuf *pixbuf = gtk_icon_set_render_icon (set, style, direction, state, size, GTK_WIDGET (image), NULL);
+
+              if (pixbuf != NULL)
+                icon = G_ICON (pixbuf);
+            }
+        }
+#elif GTK_MAJOR_VERSION == 3
+        {
+          GtkStyleContext *context = gtk_widget_get_style_context (GTK_WIDGET (image));
+
+          if (context != NULL)
+            {
+              GtkIconSet *set = NULL;
+              GtkIconSize size = GTK_ICON_SIZE_INVALID;
+
+              gtk_image_get_icon_set (image, &set, &size);
+
+              if (set != NULL)
+                {
+                  GdkPixbuf *pixbuf = gtk_icon_set_render_icon_pixbuf (set, context, size);
+
+                  if (pixbuf != NULL)
+                    icon = G_ICON (pixbuf);
+                }
+            }
+        }
+#endif
+
+      break;
+
+#if GTK_MAJOR_VERSION == 2
+    case GTK_IMAGE_IMAGE:
+        {
+          GdkImage *gdk_image = NULL;
+
+          gtk_image_get_image (image, &gdk_image, NULL);
+
+          if (gdk_image != NULL)
+            {
+              GdkColormap *colourmap = gtk_widget_get_colormap (GTK_WIDGET (image));
+              GdkPixbuf *pixbuf = gdk_pixbuf_get_from_image (NULL, gdk_image, colourmap, 0, 0, 0, 0, gdk_image->width, gdk_image->height);
+
+              if (pixbuf != NULL)
+                icon = G_ICON (pixbuf);
+            }
+        }
+
+      break;
+
+    case GTK_IMAGE_PIXMAP:
+        {
+          GdkPixmap *pixmap = NULL;
+
+          gtk_image_get_pixmap (image, &pixmap, NULL);
+
+          if (pixmap != NULL)
+            {
+              GdkPixbuf *pixbuf;
+              GdkColormap *colourmap;
+              gint width = 0;
+              gint height = 0;
+
+              gdk_pixmap_get_size (pixmap, &width, &height);
+              colourmap = gtk_widget_get_colormap (GTK_WIDGET (image));
+              pixbuf = gdk_pixbuf_get_from_drawable (NULL, pixmap, colourmap, 0, 0, 0, 0, width, height);
+
+              if (pixbuf != NULL)
+                icon = G_ICON (pixbuf);
+            }
+        }
+
+      break;
+#endif
+
+    default:
+      break;
+    }
+
+  return icon;
+}
+
 static void
 unity_gtk_menu_item_handle_item_notify (GObject    *object,
                                         GParamSpec *pspec,
@@ -205,6 +400,24 @@ unity_gtk_menu_item_get_label (UnityGtkMenuItem *item)
     label = gtk_menu_item_get_nth_label (item->menu_item, 0);
 
   return label != NULL && label[0] != '\0' ? label : NULL;
+}
+
+GIcon *
+unity_gtk_menu_item_get_icon (UnityGtkMenuItem *item)
+{
+  GIcon *icon = NULL;
+
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), NULL);
+
+  if (GTK_IS_IMAGE_MENU_ITEM (item->menu_item))
+    {
+      GtkWidget *image = gtk_image_menu_item_get_image (GTK_IMAGE_MENU_ITEM (item->menu_item));
+
+      if (GTK_IS_IMAGE (image))
+        icon = gtk_image_get_icon (GTK_IMAGE (image));
+    }
+
+  return icon;
 }
 
 gboolean

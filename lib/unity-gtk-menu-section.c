@@ -95,6 +95,7 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
   GSequenceIter *iter;
   guint index;
   const gchar *label;
+  GIcon *icon;
   UnityGtkAction *action;
 
   g_return_if_fail (UNITY_GTK_IS_MENU_SECTION (model));
@@ -109,12 +110,19 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
   index = GPOINTER_TO_UINT (g_sequence_get (iter));
   item = unity_gtk_menu_shell_get_item (parent_shell, index);
   label = unity_gtk_menu_item_get_label (item);
+  icon = unity_gtk_menu_item_get_icon (item);
   action = item->action;
 
   *attributes = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, (GDestroyNotify) g_variant_unref);
 
   if (label != NULL)
     g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_LABEL, g_variant_ref_sink (g_variant_new_string (label)));
+
+  if (icon != NULL)
+    {
+      g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_ICON, g_icon_serialize (icon));
+      g_object_unref (icon);
+    }
 
   if (action != NULL && action->name != NULL)
     {
