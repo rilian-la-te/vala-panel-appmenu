@@ -1,3 +1,16 @@
+unity-gtk-module (0.0.0+13.10.20130628-0ubuntu1) saucy; urgency=low
+
+  [ William Hua ]
+  * Workaround for crash in unity-panel-service. The Edit Undo test
+    didn't work due to the bug LP #1063212 in unity-panel-service. This
+    should avoid it entirely. (LP: #1063212)
+  * Export menu item icons.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 293
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 28 Jun 2013 02:02:20 +0000
+
 unity-gtk-module (0.0.0daily13.06.19-0ubuntu1) saucy; urgency=low
 
   [ William Hua ]
