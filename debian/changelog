@@ -1,3 +1,16 @@
+unity-gtk-module (0.0.0+13.10.20130702-0ubuntu1) saucy; urgency=low
+
+  [ Iain Lane ]
+  * 80unity-gtk-module: Don't do anything if the files aren't installed.
+    Per Debian policy, we can remove the packages but not purge them. In
+    that case we should not add the modules to GTK_MODULES - if they are
+    there then gtk prints a warning.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 295
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 02 Jul 2013 02:01:53 +0000
+
 unity-gtk-module (0.0.0+13.10.20130628-0ubuntu1) saucy; urgency=low
 
   [ William Hua ]
