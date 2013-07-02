@@ -524,29 +524,31 @@ typedef struct _UnityGtkSearch UnityGtkSearch;
 
 struct _UnityGtkSearch
 {
-  GtkLabel *label;
-  guint     index;
+  GType    type;
+  guint    index;
+  GObject *object;
 };
 
 static void
-gtk_widget_get_nth_label (GtkWidget *widget,
-                          gpointer   data)
+g_object_get_nth_object (GObject  *object,
+                         gpointer  data)
 {
   UnityGtkSearch *search = data;
 
-  g_return_if_fail (GTK_IS_WIDGET (widget));
+  g_return_if_fail (G_IS_OBJECT (object));
 
-  if (search->label == NULL)
+  if (search->object == NULL)
     {
-      if (GTK_IS_LABEL (widget))
+      if (g_type_is_a (G_OBJECT_TYPE (object), search->type))
         {
           if (search->index == 0)
-            search->label = GTK_LABEL (widget);
+            search->object = object;
           else
             search->index--;
         }
-      else if (GTK_IS_CONTAINER (widget))
-        gtk_container_forall (GTK_CONTAINER (widget), gtk_widget_get_nth_label, data);
+
+      if (search->object == NULL && GTK_IS_CONTAINER (object))
+        gtk_container_forall (GTK_CONTAINER (object), (GtkCallback) g_object_get_nth_object, data);
     }
 }
 
@@ -559,13 +561,14 @@ gtk_menu_item_get_nth_label (GtkMenuItem *menu_item,
 
   g_return_val_if_fail (GTK_IS_MENU_ITEM (menu_item), NULL);
 
-  search.label = NULL;
+  search.type = GTK_TYPE_LABEL;
   search.index = index;
+  search.object = NULL;
 
-  gtk_widget_get_nth_label (GTK_WIDGET (menu_item), &search);
+  g_object_get_nth_object (G_OBJECT (menu_item), &search);
 
-  if (search.label != NULL)
-    label = gtk_label_get_label (search.label);
+  if (search.object != NULL)
+    label = gtk_label_get_label (GTK_LABEL (search.object));
 
   return label != NULL && label[0] != '\0' ? label : NULL;
 }
