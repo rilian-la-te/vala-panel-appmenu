@@ -1,7 +1,7 @@
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = unity-gtk$(GTK_VERSION)-parser.pc
 
-xsessiondir = $(X_SESSION_DIR)
-dist_xsession_DATA = 80unity-gtk-module
+upstart_jobdir = $(datadir)/upstart/sessions/
+dist_upstart_job_DATA = unity-gtk-module.conf
 
-EXTRA_DIST = $(dist_xsession_DATA)
+EXTRA_DIST = $(dist_upstart_job_DATA)
