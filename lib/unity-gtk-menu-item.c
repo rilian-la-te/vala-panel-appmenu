@@ -24,6 +24,76 @@ G_DEFINE_TYPE (UnityGtkMenuItem,
                unity_gtk_menu_item,
                G_TYPE_OBJECT);
 
+typedef struct _UnityGtkSearch UnityGtkSearch;
+
+struct _UnityGtkSearch
+{
+  GType    type;
+  guint    index;
+  GObject *object;
+};
+
+static void
+g_object_get_nth_object (GObject  *object,
+                         gpointer  data)
+{
+  UnityGtkSearch *search = data;
+
+  g_return_if_fail (G_IS_OBJECT (object));
+
+  if (search->object == NULL)
+    {
+      if (g_type_is_a (G_OBJECT_TYPE (object), search->type))
+        {
+          if (search->index == 0)
+            search->object = object;
+          else
+            search->index--;
+        }
+
+      if (search->object == NULL && GTK_IS_CONTAINER (object))
+        gtk_container_forall (GTK_CONTAINER (object), (GtkCallback) g_object_get_nth_object, data);
+    }
+}
+
+const gchar *
+gtk_menu_item_get_nth_label (GtkMenuItem *menu_item,
+                             guint        index)
+{
+  UnityGtkSearch search;
+  const gchar *label = NULL;
+
+  g_return_val_if_fail (GTK_IS_MENU_ITEM (menu_item), NULL);
+
+  search.type = GTK_TYPE_LABEL;
+  search.index = index;
+  search.object = NULL;
+
+  g_object_get_nth_object (G_OBJECT (menu_item), &search);
+
+  if (search.object != NULL)
+    label = gtk_label_get_label (GTK_LABEL (search.object));
+
+  return label != NULL && label[0] != '\0' ? label : NULL;
+}
+
+static GtkImage *
+gtk_menu_item_get_nth_image (GtkMenuItem *menu_item,
+                             guint        index)
+{
+  UnityGtkSearch search;
+
+  g_return_val_if_fail (GTK_IS_MENU_ITEM (menu_item), NULL);
+
+  search.type = GTK_TYPE_IMAGE;
+  search.index = index;
+  search.object = NULL;
+
+  g_object_get_nth_object (G_OBJECT (menu_item), &search);
+
+  return search.object != NULL ? GTK_IMAGE (search.object) : NULL;
+}
+
 static GIcon *
 gtk_image_get_icon (GtkImage *image)
 {
@@ -409,12 +479,12 @@ unity_gtk_menu_item_get_icon (UnityGtkMenuItem *item)
 
   g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), NULL);
 
-  if (GTK_IS_IMAGE_MENU_ITEM (item->menu_item))
+  if (item->menu_item != NULL && !GTK_IS_IMAGE_MENU_ITEM (item->menu_item))
     {
-      GtkWidget *image = gtk_image_menu_item_get_image (GTK_IMAGE_MENU_ITEM (item->menu_item));
+      GtkImage *image = gtk_menu_item_get_nth_image (item->menu_item, 0);
 
-      if (GTK_IS_IMAGE (image))
-        icon = gtk_image_get_icon (GTK_IMAGE (image));
+      if (image != NULL)
+        icon = gtk_image_get_icon (image);
     }
 
   return icon;
@@ -518,54 +588,4 @@ unity_gtk_menu_item_print (UnityGtkMenuItem *item,
     g_print ("%sNULL\n", space);
 
   g_free (space);
-}
-
-typedef struct _UnityGtkSearch UnityGtkSearch;
-
-struct _UnityGtkSearch
-{
-  GtkLabel *label;
-  guint     index;
-};
-
-static void
-gtk_widget_get_nth_label (GtkWidget *widget,
-                          gpointer   data)
-{
-  UnityGtkSearch *search = data;
-
-  g_return_if_fail (GTK_IS_WIDGET (widget));
-
-  if (search->label == NULL)
-    {
-      if (GTK_IS_LABEL (widget))
-        {
-          if (search->index == 0)
-            search->label = GTK_LABEL (widget);
-          else
-            search->index--;
-        }
-      else if (GTK_IS_CONTAINER (widget))
-        gtk_container_forall (GTK_CONTAINER (widget), gtk_widget_get_nth_label, data);
-    }
-}
-
-const gchar *
-gtk_menu_item_get_nth_label (GtkMenuItem *menu_item,
-                             guint        index)
-{
-  UnityGtkSearch search;
-  const gchar *label = NULL;
-
-  g_return_val_if_fail (GTK_IS_MENU_ITEM (menu_item), NULL);
-
-  search.label = NULL;
-  search.index = index;
-
-  gtk_widget_get_nth_label (GTK_WIDGET (menu_item), &search);
-
-  if (search.label != NULL)
-    label = gtk_label_get_label (search.label);
-
-  return label != NULL && label[0] != '\0' ? label : NULL;
 }
