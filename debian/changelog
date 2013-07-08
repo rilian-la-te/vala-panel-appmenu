@@ -1,3 +1,15 @@
+unity-gtk-module (0.0.0+13.10.20130708-0ubuntu1) saucy; urgency=low
+
+  [ William Hua ]
+  * We no longer export verb icons in the menus. Only export potential
+    noun icons that would appear in a GtkImage of a non-
+    GtkImageMenuItem. (LP: #1196998)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 297
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 08 Jul 2013 02:01:36 +0000
+
 unity-gtk-module (0.0.0+13.10.20130702-0ubuntu1) saucy; urgency=low
 
   [ Iain Lane ]
