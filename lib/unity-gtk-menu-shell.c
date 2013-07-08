@@ -121,19 +121,22 @@ unity_gtk_menu_shell_get_items (UnityGtkMenuShell *shell)
 
   if (shell->items == NULL)
     {
+      GList *children;
       GList *iter;
       guint i;
 
       g_return_val_if_fail (shell->menu_shell != NULL, NULL);
 
       shell->items = g_ptr_array_new_with_free_func (g_object_unref);
-      iter = gtk_container_get_children (GTK_CONTAINER (shell->menu_shell));
+      children = gtk_container_get_children (GTK_CONTAINER (shell->menu_shell));
 
-      for (i = 0; iter != NULL; i++)
+      for (iter = children, i = 0; iter != NULL; i++)
         {
           g_ptr_array_add (shell->items, unity_gtk_menu_item_new (iter->data, shell, i));
           iter = g_list_next (iter);
         }
+
+      g_list_free (children);
     }
 
   return shell->items;
