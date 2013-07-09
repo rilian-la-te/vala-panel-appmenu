@@ -466,6 +466,22 @@ unity_gtk_menu_item_get_label (UnityGtkMenuItem *item)
 
   label = gtk_menu_item_get_label (item->menu_item);
 
+  if (label != NULL && label[0] != '\0')
+    {
+      if (GTK_IS_IMAGE_MENU_ITEM (item->menu_item))
+        {
+          GtkImageMenuItem *image_menu_item = GTK_IMAGE_MENU_ITEM (item->menu_item);
+
+          if (gtk_image_menu_item_get_use_stock (image_menu_item))
+            {
+              GtkStockItem stock_item;
+
+              if (gtk_stock_lookup (label, &stock_item))
+                label = stock_item.label;
+            }
+        }
+    }
+
   if (label == NULL || label[0] == '\0')
     label = gtk_menu_item_get_nth_label (item->menu_item, 0);
 
