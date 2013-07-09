@@ -1,3 +1,14 @@
+unity-gtk-module (0.0.0+13.10.20130709-0ubuntu1) saucy; urgency=low
+
+  [ Charles Kerr ]
+  * in lib/unity-gtk-menu-shell.c's unity_gtk_menu_shell_get_items(),
+    plug a GList leak. (LP: #1199123)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 299
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 09 Jul 2013 02:02:48 +0000
+
 unity-gtk-module (0.0.0+13.10.20130708-0ubuntu1) saucy; urgency=low
 
   [ William Hua ]
