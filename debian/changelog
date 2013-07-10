@@ -1,3 +1,13 @@
+unity-gtk-module (0.0.0+13.10.20130710-0ubuntu1) saucy; urgency=low
+
+  [ William Hua ]
+  * Handle GtkImageMenuItems with stock ids. (LP: #1195365)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 301
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 10 Jul 2013 06:43:49 +0000
+
 unity-gtk-module (0.0.0+13.10.20130709-0ubuntu1) saucy; urgency=low
 
   [ Charles Kerr ]
