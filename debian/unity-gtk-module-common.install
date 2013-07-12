@@ -1,1 +1,1 @@
-etc/X11/Xsession.d/*
+usr/share/upstart/sessions/*
