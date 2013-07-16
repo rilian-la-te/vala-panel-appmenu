@@ -1,3 +1,17 @@
+unity-gtk-module (0.0.0+13.10.20130716.1-0ubuntu1) saucy; urgency=low
+
+  [ Ted Gould ]
+  * Converts from using Xsession to using Upstart.
+
+  [ Łukasz 'sil2100' Zemczak ]
+  * Make sure to use dpkg-maintscript-helper and dh_builddeb to remove
+    the old obsolete Xsession conffile.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 304
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 16 Jul 2013 12:34:49 +0000
+
 unity-gtk-module (0.0.0+13.10.20130710-0ubuntu1) saucy; urgency=low
 
   [ William Hua ]
