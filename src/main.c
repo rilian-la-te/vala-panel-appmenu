@@ -101,6 +101,8 @@ is_blacklisted (const gchar *name)
          g_strcmp0 (name, "emacs23-lucid") == 0 ||
          g_strcmp0 (name, "emacs24") == 0 ||
          g_strcmp0 (name, "emacs24-lucid") == 0 ||
+         g_strcmp0 (name, "freeciv") == 0 ||
+         g_strcmp0 (name, "freeciv-gtk2") == 0 ||
          g_strcmp0 (name, "glade") == 0 ||
          g_strcmp0 (name, "acroread") == 0 ||
          g_strcmp0 (name, "gwyddion") == 0;
