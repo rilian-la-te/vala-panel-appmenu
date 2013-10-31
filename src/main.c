@@ -90,6 +90,8 @@ static void (* pre_hijacked_menu_bar_get_preferred_height_for_width) (GtkWidget 
                                                                       gint           *natural_height);
 #endif
 
+/* Crude blacklist to avoid patching innocent apps.
+   Use xprop | grep CLASS to find the name to use */
 static gboolean
 is_blacklisted (const gchar *name)
 {
@@ -100,6 +102,7 @@ is_blacklisted (const gchar *name)
          g_strcmp0 (name, "emacs24") == 0 ||
          g_strcmp0 (name, "emacs24-lucid") == 0 ||
          g_strcmp0 (name, "glade") == 0 ||
+         g_strcmp0 (name, "acroread") == 0 ||
          g_strcmp0 (name, "gwyddion") == 0;
 }
 
