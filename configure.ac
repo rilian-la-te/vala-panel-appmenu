@@ -23,6 +23,8 @@ AC_ARG_WITH([gtk-module-dir], [AS_HELP_STRING([--with-gtk-module-dir=DIR], [GTK+
 
 AM_PATH_PYTHON
 
+GLIB_GSETTINGS
+
 AC_SUBST([GTK_VERSION], [$with_gtk])
 AC_SUBST([GTK_MODULE_DIR], [$with_gtk_module_dir])
 
