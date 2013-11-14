@@ -32,7 +32,7 @@ Depends: ${misc:Depends},
 Description: Common files for GtkMenuShell D-Bus exporter
  This GTK+ module exports GtkMenuShells over D-Bus.
  .
- This package contains common Xsession.d scripts.
+ This package contains common data files.
 
 Package: libunity-gtk2-parser0
 Architecture: any
