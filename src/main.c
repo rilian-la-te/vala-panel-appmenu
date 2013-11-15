@@ -115,12 +115,46 @@ static void (* pre_hijacked_menu_bar_get_preferred_height_for_width) (GtkWidget 
 #endif
 
 static gboolean
-is_blacklisted (const gchar *name)
+is_string_in_array (const gchar *string,
+                    GVariant    *array)
+{
+  GVariantIter iter;
+  const gchar *element;
+
+  g_return_val_if_fail (array != NULL, FALSE);
+  g_return_val_if_fail (g_variant_is_of_type (array, G_VARIANT_TYPE ("as")), FALSE);
+
+  g_variant_iter_init (&iter, array);
+  while (g_variant_iter_next (&iter, "&s", &element))
+    {
+      if (g_strcmp0 (element, string) == 0)
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
+is_listed (const gchar *name,
+           const gchar *key)
 {
   GSettings *settings;
-  GVariant *variant;
-  GVariantIter iter;
-  const gchar *value;
+  GVariant *array;
+  gboolean listed;
+
+  settings = g_settings_new (UNITY_GTK_MODULE_SCHEMA);
+  array = g_settings_get_value (settings, key);
+  listed = is_string_in_array (name, array);
+
+  g_variant_unref (array);
+  g_object_unref (settings);
+
+  return listed;
+}
+
+static gboolean
+is_blacklisted (const gchar *name)
+{
   guint n;
   guint i;
 
@@ -129,38 +163,10 @@ is_blacklisted (const gchar *name)
   for (i = 0; i < n; i++)
     {
       if (g_strcmp0 (name, BLACKLIST[i]) == 0)
-        {
-          settings = g_settings_new (UNITY_GTK_MODULE_SCHEMA);
-          variant = g_settings_get_value (settings, WHITELIST_KEY);
-
-          g_variant_iter_init (&iter, variant);
-          while (g_variant_iter_next (&iter, "&s", &value))
-            {
-              if (g_strcmp0 (name, value) == 0)
-                return FALSE;
-            }
-
-          g_variant_unref (variant);
-          g_object_unref (settings);
-
-          return TRUE;
-        }
+        return !is_listed (name, WHITELIST_KEY);
     }
 
-  settings = g_settings_new (UNITY_GTK_MODULE_SCHEMA);
-  variant = g_settings_get_value (settings, BLACKLIST_KEY);
-
-  g_variant_iter_init (&iter, variant);
-  while (g_variant_iter_next (&iter, "&s", &value))
-    {
-      if (g_strcmp0 (name, value) == 0)
-        return TRUE;
-    }
-
-  g_variant_unref (variant);
-  g_object_unref (settings);
-
-  return FALSE;
+  return is_listed (name, BLACKLIST_KEY);
 }
 
 static gboolean
