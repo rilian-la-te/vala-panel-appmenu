@@ -21,6 +21,30 @@
 #include <gdk/gdkx.h>
 #include "unity-gtk-parser.h"
 
+/*
+ * Default list of apps which should not be patched.
+ * Use xprop | grep CLASS to find the name to use.
+ */
+static const char * const BLACKLIST[] =
+{
+  "Eclipse",
+  "acroread",
+  "emacs",
+  "emacs23",
+  "emacs23-lucid",
+  "emacs24",
+  "emacs24-lucid",
+  "freeciv",
+  "freeciv-gtk2",
+  "glade",
+  "gwyddion",
+  NULL
+};
+
+#define UNITY_GTK_MODULE_SCHEMA "com.canonical.unity-gtk-module"
+#define BLACKLIST_KEY           "blacklist"
+#define WHITELIST_KEY           "whitelist"
+
 #define _GTK_UNIQUE_BUS_NAME     "_GTK_UNIQUE_BUS_NAME"
 #define _UNITY_OBJECT_PATH       "_UNITY_OBJECT_PATH"
 #define _GTK_MENUBAR_OBJECT_PATH "_GTK_MENUBAR_OBJECT_PATH"
@@ -90,22 +114,59 @@ static void (* pre_hijacked_menu_bar_get_preferred_height_for_width) (GtkWidget 
                                                                       gint           *natural_height);
 #endif
 
-/* Crude blacklist to avoid patching innocent apps.
-   Use xprop | grep CLASS to find the name to use */
+static gboolean
+is_string_in_array (const gchar *string,
+                    GVariant    *array)
+{
+  GVariantIter iter;
+  const gchar *element;
+
+  g_return_val_if_fail (array != NULL, FALSE);
+  g_return_val_if_fail (g_variant_is_of_type (array, G_VARIANT_TYPE ("as")), FALSE);
+
+  g_variant_iter_init (&iter, array);
+  while (g_variant_iter_next (&iter, "&s", &element))
+    {
+      if (g_strcmp0 (element, string) == 0)
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
+is_listed (const gchar *name,
+           const gchar *key)
+{
+  GSettings *settings;
+  GVariant *array;
+  gboolean listed;
+
+  settings = g_settings_new (UNITY_GTK_MODULE_SCHEMA);
+  array = g_settings_get_value (settings, key);
+  listed = is_string_in_array (name, array);
+
+  g_variant_unref (array);
+  g_object_unref (settings);
+
+  return listed;
+}
+
 static gboolean
 is_blacklisted (const gchar *name)
 {
-  return g_strcmp0 (name, "Eclipse") == 0 ||
-         g_strcmp0 (name, "emacs") == 0 ||
-         g_strcmp0 (name, "emacs23") == 0 ||
-         g_strcmp0 (name, "emacs23-lucid") == 0 ||
-         g_strcmp0 (name, "emacs24") == 0 ||
-         g_strcmp0 (name, "emacs24-lucid") == 0 ||
-         g_strcmp0 (name, "freeciv") == 0 ||
-         g_strcmp0 (name, "freeciv-gtk2") == 0 ||
-         g_strcmp0 (name, "glade") == 0 ||
-         g_strcmp0 (name, "acroread") == 0 ||
-         g_strcmp0 (name, "gwyddion") == 0;
+  guint n;
+  guint i;
+
+  n = sizeof (BLACKLIST) / sizeof (const char *);
+
+  for (i = 0; i < n; i++)
+    {
+      if (g_strcmp0 (name, BLACKLIST[i]) == 0)
+        return !is_listed (name, WHITELIST_KEY);
+    }
+
+  return is_listed (name, BLACKLIST_KEY);
 }
 
 static gboolean
