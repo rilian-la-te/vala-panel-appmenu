@@ -1,3 +1,21 @@
+unity-gtk-module (0.0.0+14.04.20131125-0ubuntu1) trusty; urgency=low
+
+  [ Charles Kerr ]
+  * Add acroread to the blacklist. (LP: #664647)
+
+  [ William Hua ]
+  * Freeciv uses multiple menu bars in its UI. When unity-gtk-module
+    tries to export its menus, it becomes really cramped in the global
+    menu to the point of being unusable. It's better to allow Freeciv to
+    keep its menus where they are in this case. (LP: #1242937)
+  * Add a GSettings schema that allows the user to set a blacklist and
+    whitelist for unity-gtk-module (LP: #1243413). (LP: #1243413)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 308
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 25 Nov 2013 03:55:07 +0000
+
 unity-gtk-module (0.0.0+13.10.20130716.1-0ubuntu1) saucy; urgency=low
 
   [ Ted Gould ]
