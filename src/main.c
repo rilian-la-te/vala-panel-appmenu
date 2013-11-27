@@ -613,9 +613,6 @@ hijacked_menu_bar_unrealize (GtkWidget *widget)
 
   g_return_if_fail (GTK_IS_MENU_BAR (widget));
 
-  if (pre_hijacked_menu_bar_unrealize != NULL)
-    (* pre_hijacked_menu_bar_unrealize) (widget);
-
   menu_shell_data = gtk_menu_shell_get_menu_shell_data (GTK_MENU_SHELL (widget));
 
   if (menu_shell_data->settings_notify_gtk_shell_shows_menubar_handler_id)
@@ -626,6 +623,9 @@ hijacked_menu_bar_unrealize (GtkWidget *widget)
 
   if (menu_shell_data->window != NULL)
     gtk_window_disconnect_menu_shell (menu_shell_data->window, GTK_MENU_SHELL (widget));
+
+  if (pre_hijacked_menu_bar_unrealize != NULL)
+    (* pre_hijacked_menu_bar_unrealize) (widget);
 }
 
 static void
