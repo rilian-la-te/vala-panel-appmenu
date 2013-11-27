@@ -903,7 +903,7 @@ unity_gtk_action_group_disconnect_item (UnityGtkActionGroup *group,
 
   g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (group));
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
-  g_warn_if_fail (item->parent_shell != NULL && item->parent_shell->action_group == group);
+  g_warn_if_fail (item->parent_shell != NULL);
 
   action = item->action;
 
@@ -1027,7 +1027,7 @@ unity_gtk_action_group_disconnect_shell (UnityGtkActionGroup *group,
 
   g_return_if_fail (UNITY_GTK_IS_ACTION_GROUP (group));
   g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
-  g_warn_if_fail (shell->action_group == group);
+  g_warn_if_fail (shell->action_group == NULL || shell->action_group == group);
 
   visible_indices = shell->visible_indices;
 
