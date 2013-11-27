@@ -7,7 +7,6 @@ Build-Depends: debhelper (>= 9),
                libx11-dev,
                libgtk2.0-dev,
                libgtk-3-dev,
-Pre-Depends: dpkg (>= 1.15.7.2),
 Standards-Version: 3.9.4
 Section: libs
 Homepage: https://code.launchpad.net/unity-gtk-module
@@ -20,32 +19,41 @@ Vcs-Browser: https://bazaar.launchpad.net/~indicator-applet-developers/unity-gtk
 Package: libunity-gtk-parser-dev-common
 Section: libdevel
 Architecture: all
+Multi-Arch: foreign
 Depends: ${misc:Depends},
 Description: Common files for GtkMenuShell to GMenuModel parser
  This library converts GtkMenuShells into GMenuModels.
  .
  This package contains common headers and documentation.
 
-Package: unity-gtk-module-common
-Architecture: all
-Depends: ${misc:Depends},
-Description: Common files for GtkMenuShell D-Bus exporter
- This GTK+ module exports GtkMenuShells over D-Bus.
- .
- This package contains common data files.
-
 Package: libunity-gtk2-parser0
+Section: libs
 Architecture: any
+Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends},
+             dpkg (>= 1.15.7.2),
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          libgtk2.0-0 (>= 2.24.0),
 Description: GtkMenuShell to GMenuModel parser
  This library converts GtkMenuShells into GMenuModels.
 
+Package: libunity-gtk3-parser0
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends},
+             dpkg (>= 1.15.7.2),
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         libgtk-3-0 (>= 3.2.0),
+Description: GtkMenuShell to GMenuModel parser
+ This library converts GtkMenuShells into GMenuModels.
+
 Package: libunity-gtk2-parser-dev
 Section: libdevel
 Architecture: any
+Multi-Arch: same
 Depends: ${misc:Depends},
          libgtk2.0-dev (>= 2.24.0),
          libunity-gtk-parser-dev-common (>= ${source:Version}),
@@ -55,9 +63,35 @@ Description: GtkMenuShell to GMenuModel parser
  .
  This package contains pkg-config files and libraries.
 
-Package: unity-gtk2-module
+Package: libunity-gtk3-parser-dev
+Section: libdevel
 Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends},
+         libgtk-3-dev (>= 3.2.0),
+         libunity-gtk-parser-dev-common (>= ${source:Version}),
+         libunity-gtk3-parser0 (= ${binary:Version}),
+Description: GtkMenuShell to GMenuModel parser
+ This library converts GtkMenuShells into GMenuModels.
+ .
+ This package contains pkg-config files and libraries.
+
+Package: unity-gtk-module-common
+Section: libs
+Architecture: all
+Multi-Arch: foreign
+Depends: ${misc:Depends},
+Description: Common files for GtkMenuShell D-Bus exporter
+ This GTK+ module exports GtkMenuShells over D-Bus.
+ .
+ This package contains common data files.
+
+Package: unity-gtk2-module
+Section: libs
+Architecture: any
+Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends},
+             dpkg (>= 1.15.7.2),
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          unity-gtk-module-common (>= ${source:Version}),
@@ -68,31 +102,12 @@ Replaces: appmenu-gtk
 Description: GtkMenuShell D-Bus exporter
  This GTK+ 2 module exports GtkMenuShells over D-Bus.
 
-Package: libunity-gtk3-parser0
+Package: unity-gtk3-module
 Section: libs
 Architecture: any
+Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends},
-Depends: ${shlibs:Depends},
-         ${misc:Depends},
-         libgtk-3-0 (>= 3.2.0),
-Description: GtkMenuShell to GMenuModel parser
- This library converts GtkMenuShells into GMenuModels.
-
-Package: libunity-gtk3-parser-dev
-Section: libdevel
-Architecture: any
-Depends: ${misc:Depends},
-         libgtk-3-dev (>= 3.2.0),
-         libunity-gtk-parser-dev-common (>= ${source:Version}),
-         libunity-gtk3-parser0 (= ${binary:Version}),
-Description: GtkMenuShell to GMenuModel parser
- This library converts GtkMenuShells into GMenuModels.
- .
- This package contains pkg-config files and libraries.
-
-Package: unity-gtk3-module
-Architecture: any
-Pre-Depends: ${misc:Pre-Depends},
+             dpkg (>= 1.15.7.2),
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          unity-gtk-module-common (>= ${source:Version}),
@@ -104,7 +119,9 @@ Description: GtkMenuShell D-Bus exporter
  This GTK+ 3 module exports GtkMenuShells over D-Bus.
 
 Package: unity-gtk-module-autopilot
+Section: libs
 Architecture: all
+Multi-Arch: foreign
 Depends: ${misc:Depends},
          unity-gtk3-module (>= ${source:Version}),
          libautopilot-gtk,
