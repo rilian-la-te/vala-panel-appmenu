@@ -394,8 +394,8 @@ unity_gtk_action_group_activate_action (GActionGroup *action_group,
               name = g_variant_get_string (parameter, NULL);
               item = g_hash_table_lookup (action->items_by_name, name);
 
-              if (item != NULL && item->menu_item != NULL)
-                gtk_menu_item_activate (item->menu_item);
+              if (item != NULL)
+                unity_gtk_menu_item_activate (item);
 
               g_action_group_action_state_changed (G_ACTION_GROUP (group), action->name, parameter);
             }
@@ -406,8 +406,7 @@ unity_gtk_action_group_activate_action (GActionGroup *action_group,
               else
                 g_warn_if_fail (parameter == NULL);
 
-              if (action->item->menu_item != NULL)
-                gtk_menu_item_activate (action->item->menu_item);
+              unity_gtk_menu_item_activate (action->item);
             }
 
           return;

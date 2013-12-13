@@ -37,6 +37,9 @@ void               unity_gtk_menu_shell_handle_item_notify    (UnityGtkMenuShell
                                                                UnityGtkMenuItem  *item,
                                                                GParamSpec        *pspec)  G_GNUC_INTERNAL;
 
+void               unity_gtk_menu_shell_activate_item         (UnityGtkMenuShell *shell,
+                                                               UnityGtkMenuItem  *item)   G_GNUC_INTERNAL;
+
 void               unity_gtk_menu_shell_print                 (UnityGtkMenuShell *shell,
                                                                guint              indent) G_GNUC_INTERNAL;
 

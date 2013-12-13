@@ -84,6 +84,8 @@ gboolean            unity_gtk_menu_item_is_radio          (UnityGtkMenuItem  *it
 
 gboolean            unity_gtk_menu_item_get_draw_as_radio (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
 
+void                unity_gtk_menu_item_activate          (UnityGtkMenuItem  *item)         G_GNUC_INTERNAL;
+
 void                unity_gtk_menu_item_print             (UnityGtkMenuItem  *item,
                                                            guint              indent)       G_GNUC_INTERNAL;
 

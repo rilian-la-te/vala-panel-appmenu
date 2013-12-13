@@ -425,8 +425,13 @@ unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem *item)
         {
           UnityGtkMenuShell *parent_shell = item->parent_shell;
 
-          if (parent_shell != NULL && parent_shell->action_group != NULL)
-            unity_gtk_action_group_connect_shell (parent_shell->action_group, item->child_shell);
+          if (parent_shell != NULL)
+            {
+              if (parent_shell->action_group != NULL)
+                unity_gtk_action_group_connect_shell (parent_shell->action_group, item->child_shell);
+            }
+          else
+            g_warn_if_reached ();
         }
     }
 
@@ -560,6 +565,15 @@ unity_gtk_menu_item_get_draw_as_radio (UnityGtkMenuItem *item)
   g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
 
   return GTK_IS_CHECK_MENU_ITEM (item->menu_item) && gtk_check_menu_item_get_draw_as_radio (GTK_CHECK_MENU_ITEM (item->menu_item));
+}
+
+void
+unity_gtk_menu_item_activate (UnityGtkMenuItem *item)
+{
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+  g_return_if_fail (item->parent_shell != NULL);
+
+  unity_gtk_menu_shell_activate_item (item->parent_shell, item);
 }
 
 void

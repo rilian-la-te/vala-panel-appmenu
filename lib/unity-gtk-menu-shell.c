@@ -972,6 +972,22 @@ unity_gtk_menu_shell_handle_item_notify (UnityGtkMenuShell *shell,
 }
 
 void
+unity_gtk_menu_shell_activate_item (UnityGtkMenuShell *shell,
+                                    UnityGtkMenuItem  *item)
+{
+  g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+
+  if (item->menu_item != NULL)
+    {
+      if (GTK_IS_MENU (shell->menu_shell))
+        gtk_menu_set_active (GTK_MENU (shell->menu_shell), item->item_index);
+
+      gtk_menu_item_activate (item->menu_item);
+    }
+}
+
+void
 unity_gtk_menu_shell_print (UnityGtkMenuShell *shell,
                             guint              indent)
 {
