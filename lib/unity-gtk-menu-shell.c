@@ -93,27 +93,6 @@ g_sequence_search_inf_uint (GSequence *sequence,
   return !g_sequence_iter_is_end (iter) && g_sequence_get_uint (iter) <= i ? iter : NULL;
 }
 
-static void
-g_ptr_array_insert (GPtrArray *ptr_array,
-                    gpointer   data,
-                    gint       i)
-{
-  guint j;
-
-  g_return_if_fail (ptr_array != NULL);
-  g_warn_if_fail (-1 <= i && i <= ptr_array->len);
-
-  if (i < 0 || i > ptr_array->len)
-    i = ptr_array->len;
-
-  g_ptr_array_add (ptr_array, NULL);
-
-  for (j = ptr_array->len - 1; j > i; j--)
-    ptr_array->pdata[j] = g_ptr_array_index (ptr_array, j - 1);
-
-  ptr_array->pdata[j] = data;
-}
-
 static GPtrArray *
 unity_gtk_menu_shell_get_items (UnityGtkMenuShell *shell)
 {
@@ -221,7 +200,7 @@ unity_gtk_menu_shell_show_item (UnityGtkMenuShell *shell,
                       guint removed = g_menu_model_get_n_items (G_MENU_MODEL (new_section));
                       guint i;
 
-                      g_ptr_array_insert (sections, new_section, section_index + 1);
+                      g_ptr_array_insert (sections, section_index + 1, new_section);
 
                       for (i = section_index + 2; i < sections->len; i++)
                         UNITY_GTK_MENU_SECTION (g_ptr_array_index (sections, i))->section_index = i;
@@ -640,7 +619,7 @@ unity_gtk_menu_shell_handle_shell_insert (GtkMenuShell *menu_shell,
 
       menu_item = GTK_MENU_ITEM (child);
       item = unity_gtk_menu_item_new (menu_item, shell, position);
-      g_ptr_array_insert (items, item, position);
+      g_ptr_array_insert (items, position, item);
 
       for (i = position + 1; i < items->len; i++)
         UNITY_GTK_MENU_ITEM (g_ptr_array_index (items, i))->item_index = i;
