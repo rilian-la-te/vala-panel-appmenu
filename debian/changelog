@@ -1,3 +1,33 @@
+unity-gtk-module (0.0.0+14.04.20140213.2-0ubuntu1) trusty; urgency=low
+
+  [ William Hua ]
+  * Fix regression on GtkRecentChooserMenus. (LP: #1243974). (LP:
+    #1243974)
+  * Use Multi-Arch: foreign in debian/control.
+  * Relax the preconditions for disconnecting action groups from shells.
+    (LP: #1198471) If we have this situation: Menu A (action group G)
+    Menu B (action group G) Menu C (action group G) <- about to be
+    destroyed Menu D (action group G) Menu E (action group G) and Menu C
+    is destroyed, we get: Menu A (action group G) Menu B (action group
+    G) Menu C (no action group) Menu D (no action group) Menu E (no
+    action group) So when Menu A is disconnected from G, this causes the
+    warnings from LP: #1198471. One thing we could have tried was just
+    removing the tree rooted at Menu C, but then that would break
+    removing the entire tree rooted at Menu A. Also, we'd have to end up
+    doing this by having the Menu C unref itself. It's really easiest to
+    treat it as a dead sub-tree that will be finalized when the entire
+    tree is finalized. Let's relax the preconditions on the
+    unity_gtk_action_group_disconnect_item and
+    unity_gtk_action_group_disconnect_shell functions, and allow the
+    case where the shell's action group is already set to NULL. (LP:
+    #1198471)
+  * Remove our g_ptr_array_insert (), it's added in GLib 2.40.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 313
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 13 Feb 2014 18:05:57 +0000
+
 unity-gtk-module (0.0.0+14.04.20131125-0ubuntu1) trusty; urgency=low
 
   [ Charles Kerr ]
