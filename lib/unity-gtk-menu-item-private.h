@@ -48,11 +48,14 @@ struct _UnityGtkMenuItem
   /*< private >*/
   GtkMenuItem       *menu_item;
   gulong             menu_item_notify_handler_id;
+  GtkSettings       *settings;
+  gulong             settings_notify_handler_id;
   UnityGtkMenuShell *parent_shell;
   UnityGtkMenuShell *child_shell;
   guchar             child_shell_valid : 1;
   guint              item_index;
   UnityGtkAction    *action;
+  gchar             *label;
 };
 
 GType               unity_gtk_menu_item_get_type          (void)                            G_GNUC_INTERNAL;
