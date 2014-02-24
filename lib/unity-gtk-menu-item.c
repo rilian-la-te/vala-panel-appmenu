@@ -544,23 +544,21 @@ g_strdup_no_mnemonics (const gchar *str)
 {
   if (str != NULL)
     {
-      GString *string;
-      const gchar *ptr;
-      gunichar unichar;
+      gchar *string;
+      gchar *out;
+      const gchar *in;
       gboolean underscore;
 
-      string = g_string_sized_new (strlen (str) + 1);
-
-      ptr = str;
-      unichar = g_utf8_get_char_validated (ptr, -1);
+      string = g_malloc (strlen (str) + 1);
+      out = string;
       underscore = FALSE;
 
-      while (unichar && unichar != (gunichar) -1 && unichar != (gunichar) -2)
+      for (in = str; *in != '\0'; in++)
         {
-          if (unichar != '_')
+          if (*in != '_')
             {
               underscore = FALSE;
-              g_string_append_unichar (string, unichar);
+              *out++ = *in;
             }
           else
             {
@@ -570,19 +568,19 @@ g_strdup_no_mnemonics (const gchar *str)
                 {
                   /* double underscores are not accelerator markers */
                   underscore = FALSE;
-                  g_string_append (string, "__");
+                  *out++ = '_';
+                  *out++ = '_';
                 }
             }
-
-          ptr = g_utf8_next_char (ptr);
-          unichar = g_utf8_get_char_validated (ptr, -1);
         }
 
       /* trailing underscores are not accelerator markers */
       if (underscore)
-        g_string_append_c (string, '_');
+        *out++ = '_';
 
-      return g_string_free (string, FALSE);
+      *out++ = '\0';
+
+      return string;
     }
 
   return NULL;
