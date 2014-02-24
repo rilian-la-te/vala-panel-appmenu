@@ -300,6 +300,7 @@ unity_gtk_menu_item_handle_item_notify (GObject    *object,
   UnityGtkMenuItem *item;
   UnityGtkMenuShell *parent_shell;
   GObject *menu_item;
+  const gchar *name;
 
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (user_data));
 
@@ -313,13 +314,15 @@ unity_gtk_menu_item_handle_item_notify (GObject    *object,
   if (label_name == NULL)
     label_name = g_intern_static_string ("label");
 
-  if (g_param_spec_get_name (pspec) == label_name)
+  name = g_param_spec_get_name (pspec);
+
+  if (name == label_name)
     {
       g_free (item->label);
       item->label = NULL;
     }
 
-  unity_gtk_menu_shell_handle_item_notify (parent_shell, item, pspec);
+  unity_gtk_menu_shell_handle_item_notify (parent_shell, item, name);
 }
 
 static void
@@ -329,7 +332,6 @@ unity_gtk_menu_item_handle_settings_notify (GObject    *object,
 {
   UnityGtkMenuItem *item;
   UnityGtkMenuShell *parent_shell;
-  GObjectClass *object_class;
   GObject *settings;
 
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (user_data));
@@ -344,10 +346,7 @@ unity_gtk_menu_item_handle_settings_notify (GObject    *object,
   g_free (item->label);
   item->label = NULL;
 
-  object_class = g_type_class_ref (GTK_TYPE_MENU_ITEM);
-  pspec = g_object_class_find_property (object_class, "label");
-  unity_gtk_menu_shell_handle_item_notify (parent_shell, item, pspec);
-  g_type_class_unref (object_class);
+  unity_gtk_menu_shell_handle_item_notify (parent_shell, item, "label");
 }
 
 static void

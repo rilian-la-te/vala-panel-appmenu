@@ -27,23 +27,23 @@
 G_BEGIN_DECLS
 
 UnityGtkMenuItem * unity_gtk_menu_shell_get_item              (UnityGtkMenuShell *shell,
-                                                               guint              index)  G_GNUC_INTERNAL;
+                                                               guint              index)    G_GNUC_INTERNAL;
 
-GSequence *        unity_gtk_menu_shell_get_visible_indices   (UnityGtkMenuShell *shell)  G_GNUC_INTERNAL;
+GSequence *        unity_gtk_menu_shell_get_visible_indices   (UnityGtkMenuShell *shell)    G_GNUC_INTERNAL;
 
-GSequence *        unity_gtk_menu_shell_get_separator_indices (UnityGtkMenuShell *shell)  G_GNUC_INTERNAL;
+GSequence *        unity_gtk_menu_shell_get_separator_indices (UnityGtkMenuShell *shell)    G_GNUC_INTERNAL;
 
 void               unity_gtk_menu_shell_handle_item_notify    (UnityGtkMenuShell *shell,
                                                                UnityGtkMenuItem  *item,
-                                                               GParamSpec        *pspec)  G_GNUC_INTERNAL;
+                                                               const gchar       *property) G_GNUC_INTERNAL;
 
 void               unity_gtk_menu_shell_activate_item         (UnityGtkMenuShell *shell,
-                                                               UnityGtkMenuItem  *item)   G_GNUC_INTERNAL;
+                                                               UnityGtkMenuItem  *item)     G_GNUC_INTERNAL;
 
 void               unity_gtk_menu_shell_print                 (UnityGtkMenuShell *shell,
-                                                               guint              indent) G_GNUC_INTERNAL;
+                                                               guint              indent)   G_GNUC_INTERNAL;
 
-gboolean           unity_gtk_menu_shell_is_debug              (void)                      G_GNUC_INTERNAL;
+gboolean           unity_gtk_menu_shell_is_debug              (void)                        G_GNUC_INTERNAL;
 
 G_END_DECLS
 
