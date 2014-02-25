@@ -326,30 +326,6 @@ unity_gtk_menu_item_handle_item_notify (GObject    *object,
 }
 
 static void
-unity_gtk_menu_item_handle_settings_notify (GObject    *object,
-                                            GParamSpec *pspec,
-                                            gpointer    user_data)
-{
-  UnityGtkMenuItem *item;
-  UnityGtkMenuShell *parent_shell;
-  GObject *settings;
-
-  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (user_data));
-
-  item = UNITY_GTK_MENU_ITEM (user_data);
-  parent_shell = item->parent_shell;
-  settings = G_OBJECT (item->settings);
-
-  g_return_if_fail (parent_shell != NULL);
-  g_warn_if_fail (object == settings);
-
-  g_free (item->label);
-  item->label = NULL;
-
-  unity_gtk_menu_shell_handle_item_notify (parent_shell, item, "label");
-}
-
-static void
 unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
                                    GtkMenuItem      *menu_item)
 {
@@ -357,15 +333,7 @@ unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
 
   if (menu_item != item->menu_item)
     {
-      GtkSettings *settings = item->settings;
       UnityGtkMenuShell *child_shell = item->child_shell;
-
-      if (item->settings_notify_handler_id)
-        {
-          g_warn_if_fail (settings != NULL);
-          g_signal_handler_disconnect (settings, item->settings_notify_handler_id);
-          item->settings_notify_handler_id = 0;
-        }
 
       if (item->menu_item_notify_handler_id)
         {
@@ -381,26 +349,11 @@ unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
           g_object_unref (child_shell);
         }
 
-      if (settings != NULL)
-        {
-          item->settings = NULL;
-          g_object_unref (settings);
-        }
-
       item->child_shell_valid = FALSE;
       item->menu_item = menu_item;
 
       if (menu_item != NULL)
-        {
-          settings = gtk_widget_get_settings (GTK_WIDGET (menu_item));
-          item->menu_item_notify_handler_id = g_signal_connect (menu_item, "notify", G_CALLBACK (unity_gtk_menu_item_handle_item_notify), item);
-
-          if (settings != NULL)
-            {
-              item->settings = g_object_ref (settings);
-              item->settings_notify_handler_id = g_signal_connect (settings, "notify::gtk-enable-mnemonics", G_CALLBACK (unity_gtk_menu_item_handle_settings_notify), item);
-            }
-        }
+        item->menu_item_notify_handler_id = g_signal_connect (menu_item, "notify", G_CALLBACK (unity_gtk_menu_item_handle_item_notify), item);
     }
 }
 
@@ -494,7 +447,7 @@ unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem *item)
           GtkWidget *submenu = gtk_menu_item_get_submenu (menu_item);
 
           if (submenu != NULL)
-            item->child_shell = unity_gtk_menu_shell_new (GTK_MENU_SHELL (submenu));
+            item->child_shell = unity_gtk_menu_shell_new_internal (GTK_MENU_SHELL (submenu));
         }
 
       item->child_shell_valid = TRUE;
@@ -617,12 +570,7 @@ unity_gtk_menu_item_get_label (UnityGtkMenuItem *item)
 
       if (label != NULL && label[0] != '\0')
         {
-          gboolean mnemonics = TRUE;
-
-          if (item->settings != NULL)
-            g_object_get (item->settings, "gtk-enable-mnemonics", &mnemonics, NULL);
-
-          if (mnemonics)
+          if (item->parent_shell == NULL || item->parent_shell->has_mnemonics)
             item->label = g_strdup (label);
           else
             item->label = g_strdup_no_mnemonics (label);
