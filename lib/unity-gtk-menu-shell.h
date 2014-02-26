@@ -52,7 +52,6 @@ struct _UnityGtkMenuShell
   /*< private >*/
   GtkMenuShell        *menu_shell;
   gulong               menu_shell_insert_handler_id;
-  gboolean             has_parent;
   gboolean             has_mnemonics;
   GPtrArray           *items;
   GPtrArray           *sections;
