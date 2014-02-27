@@ -435,7 +435,21 @@ static void
 unity_gtk_menu_shell_handle_item_label (UnityGtkMenuShell *shell,
                                         UnityGtkMenuItem  *item)
 {
+  g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+  g_warn_if_fail (item->parent_shell == shell);
+
+  g_free (item->label);
+  item->label = NULL;
+
   unity_gtk_menu_shell_update_item (shell, item);
+}
+
+static void
+unity_gtk_menu_shell_handle_item_use_underline (UnityGtkMenuShell *shell,
+                                                UnityGtkMenuItem  *item)
+{
+  unity_gtk_menu_shell_handle_item_label (shell, item);
 }
 
 static void
@@ -899,17 +913,18 @@ unity_gtk_menu_shell_get_separator_indices (UnityGtkMenuShell *shell)
 void
 unity_gtk_menu_shell_handle_item_notify (UnityGtkMenuShell *shell,
                                          UnityGtkMenuItem  *item,
-                                         GParamSpec        *pspec)
+                                         const gchar       *property)
 {
   static const gchar *visible_name;
   static const gchar *sensitive_name;
   static const gchar *label_name;
+  static const gchar *use_underline_name;
   static const gchar *accel_path_name;
   static const gchar *active_name;
   static const gchar *parent_name;
   static const gchar *submenu_name;
 
-  const gchar *pspec_name;
+  const gchar *name;
 
   g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
@@ -920,6 +935,8 @@ unity_gtk_menu_shell_handle_item_notify (UnityGtkMenuShell *shell,
     sensitive_name = g_intern_static_string ("sensitive");
   if (label_name == NULL)
     label_name = g_intern_static_string ("label");
+  if (use_underline_name == NULL)
+    use_underline_name = g_intern_static_string ("use-underline");
   if (accel_path_name == NULL)
     accel_path_name = g_intern_static_string ("accel-path");
   if (active_name == NULL)
@@ -929,24 +946,26 @@ unity_gtk_menu_shell_handle_item_notify (UnityGtkMenuShell *shell,
   if (submenu_name == NULL)
     submenu_name = g_intern_static_string ("submenu");
 
-  pspec_name = g_param_spec_get_name (pspec);
+  name = g_intern_string (property);
 
   if (unity_gtk_menu_shell_is_debug ())
-    g_print ("%s ((%s *) %p, (%s *) %p { \"%s\" }, %s)\n", G_STRFUNC, G_OBJECT_TYPE_NAME (shell), shell, G_OBJECT_TYPE_NAME (item), item, unity_gtk_menu_item_get_label (item), pspec_name);
+    g_print ("%s ((%s *) %p, (%s *) %p { \"%s\" }, %s)\n", G_STRFUNC, G_OBJECT_TYPE_NAME (shell), shell, G_OBJECT_TYPE_NAME (item), item, unity_gtk_menu_item_get_label (item), name);
 
-  if (pspec_name == visible_name)
+  if (name == visible_name)
     unity_gtk_menu_shell_handle_item_visible (shell, item);
-  else if (pspec_name == sensitive_name)
+  else if (name == sensitive_name)
     unity_gtk_menu_shell_handle_item_sensitive (shell, item);
-  else if (pspec_name == label_name)
+  else if (name == label_name)
     unity_gtk_menu_shell_handle_item_label (shell, item);
-  else if (pspec_name == accel_path_name)
+  else if (name == use_underline_name)
+    unity_gtk_menu_shell_handle_item_use_underline (shell, item);
+  else if (name == accel_path_name)
     unity_gtk_menu_shell_handle_item_accel_path (shell, item);
-  else if (pspec_name == active_name)
+  else if (name == active_name)
     unity_gtk_menu_shell_handle_item_active (shell, item);
-  else if (pspec_name == parent_name)
+  else if (name == parent_name)
     unity_gtk_menu_shell_handle_item_parent (shell, item);
-  else if (pspec_name == submenu_name)
+  else if (name == submenu_name)
     unity_gtk_menu_shell_handle_item_submenu (shell, item);
 }
 
