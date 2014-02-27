@@ -295,12 +295,9 @@ unity_gtk_menu_item_handle_item_notify (GObject    *object,
                                         GParamSpec *pspec,
                                         gpointer    user_data)
 {
-  static const gchar *label_name;
-
   UnityGtkMenuItem *item;
   UnityGtkMenuShell *parent_shell;
   GObject *menu_item;
-  const gchar *name;
 
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (user_data));
 
@@ -311,18 +308,7 @@ unity_gtk_menu_item_handle_item_notify (GObject    *object,
   g_return_if_fail (parent_shell != NULL);
   g_warn_if_fail (object == menu_item);
 
-  if (label_name == NULL)
-    label_name = g_intern_static_string ("label");
-
-  name = g_param_spec_get_name (pspec);
-
-  if (name == label_name)
-    {
-      g_free (item->label);
-      item->label = NULL;
-    }
-
-  unity_gtk_menu_shell_handle_item_notify (parent_shell, item, name);
+  unity_gtk_menu_shell_handle_item_notify (parent_shell, item, g_param_spec_get_name (pspec));
 }
 
 static void

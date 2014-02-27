@@ -438,6 +438,13 @@ static void
 unity_gtk_menu_shell_handle_item_label (UnityGtkMenuShell *shell,
                                         UnityGtkMenuItem  *item)
 {
+  g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+  g_warn_if_fail (item->parent_shell == shell);
+
+  g_free (item->label);
+  item->label = NULL;
+
   unity_gtk_menu_shell_update_item (shell, item);
 }
 
@@ -672,14 +679,7 @@ unity_gtk_menu_shell_set_has_mnemonics (UnityGtkMenuShell *shell,
           guint i;
 
           for (i = 0; i < shell->items->len; i++)
-            {
-              UnityGtkMenuItem *item = g_ptr_array_index (shell->items, i);
-
-              g_free (item->label);
-              item->label = NULL;
-
-              unity_gtk_menu_shell_handle_item_label (shell, item);
-            }
+            unity_gtk_menu_shell_handle_item_label (shell, g_ptr_array_index (shell->items, i));
         }
     }
 }
