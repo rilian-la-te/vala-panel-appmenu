@@ -93,6 +93,16 @@ g_sequence_search_inf_uint (GSequence *sequence,
   return !g_sequence_iter_is_end (iter) && g_sequence_get_uint (iter) <= i ? iter : NULL;
 }
 
+static gboolean
+gtk_menu_item_handle_idle_activate (gpointer user_data)
+{
+  g_return_val_if_fail (GTK_IS_MENU_ITEM (user_data), G_SOURCE_REMOVE);
+
+  gtk_menu_item_activate (user_data);
+
+  return G_SOURCE_REMOVE;
+}
+
 static GPtrArray *
 unity_gtk_menu_shell_get_items (UnityGtkMenuShell *shell)
 {
@@ -962,7 +972,10 @@ unity_gtk_menu_shell_activate_item (UnityGtkMenuShell *shell,
       if (GTK_IS_MENU (shell->menu_shell))
         gtk_menu_set_active (GTK_MENU (shell->menu_shell), item->item_index);
 
-      gtk_menu_item_activate (item->menu_item);
+      gdk_threads_add_idle_full (G_PRIORITY_DEFAULT_IDLE,
+                                 gtk_menu_item_handle_idle_activate,
+                                 g_object_ref (item->menu_item),
+                                 g_object_unref);
     }
 }
 
