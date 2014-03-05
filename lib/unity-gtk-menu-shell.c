@@ -40,9 +40,6 @@ G_DEFINE_TYPE (UnityGtkMenuShell,
                unity_gtk_menu_shell,
                G_TYPE_MENU_MODEL);
 
-/* list of top-level menu shells */
-static GSList *unity_gtk_menu_shell_list;
-
 static gboolean unity_gtk_menu_shell_debug;
 
 static gint
@@ -692,57 +689,18 @@ unity_gtk_menu_shell_handle_settings_notify (GObject    *object,
   static const gchar *gtk_enable_mnemonics_name;
 
   g_return_if_fail (GTK_IS_SETTINGS (object));
-  g_return_if_fail (unity_gtk_menu_shell_list != NULL);
+  g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (user_data));
 
   if (gtk_enable_mnemonics_name == NULL)
     gtk_enable_mnemonics_name = g_intern_static_string ("gtk-enable-mnemonics");
 
   if (g_param_spec_get_name (pspec) == gtk_enable_mnemonics_name)
     {
-      GSList *shells;
       gboolean has_mnemonics;
 
       g_object_get (GTK_SETTINGS (object), "gtk-enable-mnemonics", &has_mnemonics, NULL);
 
-      for (shells = unity_gtk_menu_shell_list; shells != NULL; shells = g_slist_next (shells))
-        unity_gtk_menu_shell_set_has_mnemonics (UNITY_GTK_MENU_SHELL (shells->data), has_mnemonics);
-    }
-}
-
-static void
-unity_gtk_menu_shell_register (UnityGtkMenuShell *shell)
-{
-  GtkSettings *settings;
-  gboolean has_mnemonics;
-
-  g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
-
-  settings = gtk_settings_get_default ();
-
-  g_return_if_fail (settings != NULL);
-
-  if (unity_gtk_menu_shell_list == NULL)
-    g_signal_connect (settings, "notify::gtk-enable-mnemonics", G_CALLBACK (unity_gtk_menu_shell_handle_settings_notify), NULL);
-
-  g_object_get (settings, "gtk-enable-mnemonics", &has_mnemonics, NULL);
-  unity_gtk_menu_shell_set_has_mnemonics (shell, has_mnemonics);
-  unity_gtk_menu_shell_list = g_slist_prepend (unity_gtk_menu_shell_list, shell);
-}
-
-static void
-unity_gtk_menu_shell_unregister (UnityGtkMenuShell *shell)
-{
-  g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
-  g_return_if_fail (unity_gtk_menu_shell_list != NULL);
-
-  unity_gtk_menu_shell_list = g_slist_remove (unity_gtk_menu_shell_list, shell);
-
-  if (unity_gtk_menu_shell_list == NULL)
-    {
-      GtkSettings *settings = gtk_settings_get_default ();
-
-      if (settings != NULL)
-        g_signal_handlers_disconnect_by_func (settings, unity_gtk_menu_shell_handle_settings_notify, NULL);
+      unity_gtk_menu_shell_set_has_mnemonics (UNITY_GTK_MENU_SHELL (user_data), has_mnemonics);
     }
 }
 
@@ -817,20 +775,23 @@ unity_gtk_menu_shell_clear_menu_shell (UnityGtkMenuShell *shell)
   shell->menu_shell_insert_handler_id = 0;
 
   unity_gtk_menu_shell_set_menu_shell (shell, NULL);
-  unity_gtk_menu_shell_unregister (shell);
 }
 
 static void
 unity_gtk_menu_shell_dispose (GObject *object)
 {
   UnityGtkMenuShell *shell;
+  GtkSettings *settings;
 
   g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (object));
 
   shell = UNITY_GTK_MENU_SHELL (object);
+  settings = gtk_settings_get_default ();
 
   unity_gtk_menu_shell_set_menu_shell (shell, NULL);
-  unity_gtk_menu_shell_unregister (shell);
+
+  if (settings != NULL)
+    g_signal_handlers_disconnect_by_func (settings, unity_gtk_menu_shell_handle_settings_notify, shell);
 
   G_OBJECT_CLASS (unity_gtk_menu_shell_parent_class)->dispose (object);
 }
@@ -917,8 +878,14 @@ UnityGtkMenuShell *
 unity_gtk_menu_shell_new (GtkMenuShell *menu_shell)
 {
   UnityGtkMenuShell *shell = g_object_new (UNITY_GTK_TYPE_MENU_SHELL, NULL);
+  GtkSettings *settings = gtk_settings_get_default ();
 
-  unity_gtk_menu_shell_register (shell);
+  if (settings != NULL)
+    {
+      g_signal_connect (settings, "notify::gtk-enable-mnemonics", G_CALLBACK (unity_gtk_menu_shell_handle_settings_notify), shell);
+      g_object_get (settings, "gtk-enable-mnemonics", &shell->has_mnemonics, NULL);
+    }
+
   unity_gtk_menu_shell_set_menu_shell (shell, menu_shell);
 
   return shell;
