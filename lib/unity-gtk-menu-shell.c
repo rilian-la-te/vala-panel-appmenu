@@ -686,22 +686,14 @@ unity_gtk_menu_shell_handle_settings_notify (GObject    *object,
                                              GParamSpec *pspec,
                                              gpointer    user_data)
 {
-  static const gchar *gtk_enable_mnemonics_name;
+  gboolean has_mnemonics;
 
   g_return_if_fail (GTK_IS_SETTINGS (object));
   g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (user_data));
 
-  if (gtk_enable_mnemonics_name == NULL)
-    gtk_enable_mnemonics_name = g_intern_static_string ("gtk-enable-mnemonics");
+  g_object_get (GTK_SETTINGS (object), "gtk-enable-mnemonics", &has_mnemonics, NULL);
 
-  if (g_param_spec_get_name (pspec) == gtk_enable_mnemonics_name)
-    {
-      gboolean has_mnemonics;
-
-      g_object_get (GTK_SETTINGS (object), "gtk-enable-mnemonics", &has_mnemonics, NULL);
-
-      unity_gtk_menu_shell_set_has_mnemonics (UNITY_GTK_MENU_SHELL (user_data), has_mnemonics);
-    }
+  unity_gtk_menu_shell_set_has_mnemonics (UNITY_GTK_MENU_SHELL (user_data), has_mnemonics);
 }
 
 static void unity_gtk_menu_shell_clear_menu_shell (UnityGtkMenuShell *shell);
