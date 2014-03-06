@@ -53,6 +53,7 @@ struct _UnityGtkMenuItem
   guchar             child_shell_valid : 1;
   guint              item_index;
   UnityGtkAction    *action;
+  gchar             *label;
 };
 
 GType               unity_gtk_menu_item_get_type          (void)                            G_GNUC_INTERNAL;
