@@ -93,6 +93,16 @@ g_sequence_search_inf_uint (GSequence *sequence,
   return !g_sequence_iter_is_end (iter) && g_sequence_get_uint (iter) <= i ? iter : NULL;
 }
 
+static gboolean
+gtk_menu_item_handle_idle_activate (gpointer user_data)
+{
+  g_return_val_if_fail (GTK_IS_MENU_ITEM (user_data), G_SOURCE_REMOVE);
+
+  gtk_menu_item_activate (user_data);
+
+  return G_SOURCE_REMOVE;
+}
+
 static GPtrArray *
 unity_gtk_menu_shell_get_items (UnityGtkMenuShell *shell)
 {
@@ -1027,7 +1037,24 @@ unity_gtk_menu_shell_activate_item (UnityGtkMenuShell *shell,
       if (GTK_IS_MENU (shell->menu_shell))
         gtk_menu_set_active (GTK_MENU (shell->menu_shell), item->item_index);
 
-      gtk_menu_item_activate (item->menu_item);
+      /*
+       * We dispatch the menu item activation in an idle to fix LP: #1258669.
+       *
+       * We get a deadlock when the menu item is activated if something like
+       * gtk_dialog_run () is called. gtk_dialog_run () releases the GDK lock
+       * just before starting its own main loop, and tries to re-acquire it
+       * once it terminates. For whatever reason, a direct call to
+       * gtk_menu_item_activate () here causes the GDK lock to be acquired
+       * before gtk_dialog_run () tries to acquire it, whereas dispatching it
+       * using gdk_threads_add_idle_full () seems to cleanly acquire the lock
+       * once only at the beginning, preventing the deadlock.
+       *
+       * Suspicion is that this was executing during the main context
+       * iteration of gtk_main_iteration (), which grabs the GDK lock
+       * immediately after. But it's still not clear how that's possible....
+       */
+
+      gdk_threads_add_idle_full (G_PRIORITY_DEFAULT_IDLE, gtk_menu_item_handle_idle_activate, g_object_ref (item->menu_item), g_object_unref);
     }
 }
 
