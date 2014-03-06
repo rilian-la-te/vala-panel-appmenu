@@ -19,6 +19,7 @@
 
 #include "unity-gtk-menu-item-private.h"
 #include "unity-gtk-action-group-private.h"
+#include <string.h>
 
 G_DEFINE_TYPE (UnityGtkMenuItem,
                unity_gtk_menu_item,
@@ -307,7 +308,7 @@ unity_gtk_menu_item_handle_item_notify (GObject    *object,
   g_return_if_fail (parent_shell != NULL);
   g_warn_if_fail (object == menu_item);
 
-  unity_gtk_menu_shell_handle_item_notify (parent_shell, item, pspec);
+  unity_gtk_menu_shell_handle_item_notify (parent_shell, item, g_param_spec_get_name (pspec));
 }
 
 static void
@@ -368,11 +369,27 @@ unity_gtk_menu_item_dispose (GObject *object)
 }
 
 static void
+unity_gtk_menu_item_finalize (GObject *object)
+{
+  UnityGtkMenuItem *item;
+
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (object));
+
+  item = UNITY_GTK_MENU_ITEM (object);
+
+  g_free (item->label);
+  item->label = NULL;
+
+  G_OBJECT_CLASS (unity_gtk_menu_item_parent_class)->finalize (object);
+}
+
+static void
 unity_gtk_menu_item_class_init (UnityGtkMenuItemClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = unity_gtk_menu_item_dispose;
+  object_class->finalize = unity_gtk_menu_item_finalize;
 }
 
 static void
@@ -416,7 +433,7 @@ unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem *item)
           GtkWidget *submenu = gtk_menu_item_get_submenu (menu_item);
 
           if (submenu != NULL)
-            item->child_shell = unity_gtk_menu_shell_new (GTK_MENU_SHELL (submenu));
+            item->child_shell = unity_gtk_menu_shell_new_internal (GTK_MENU_SHELL (submenu));
         }
 
       item->child_shell_valid = TRUE;
@@ -461,36 +478,92 @@ unity_gtk_menu_item_set_action (UnityGtkMenuItem *item,
     }
 }
 
+static gchar *
+g_strdup_no_mnemonics (const gchar *str)
+{
+  if (str != NULL)
+    {
+      gchar *string;
+      gchar *out;
+      const gchar *in;
+      gboolean underscore;
+
+      string = g_malloc (strlen (str) + 1);
+      out = string;
+      underscore = FALSE;
+
+      for (in = str; *in != '\0'; in++)
+        {
+          if (*in != '_')
+            {
+              underscore = FALSE;
+              *out++ = *in;
+            }
+          else
+            {
+              if (!underscore)
+                underscore = TRUE;
+              else
+                {
+                  /* double underscores are not accelerator markers */
+                  underscore = FALSE;
+                  *out++ = '_';
+                  *out++ = '_';
+                }
+            }
+        }
+
+      /* trailing underscores are not accelerator markers */
+      if (underscore)
+        *out++ = '_';
+
+      *out++ = '\0';
+
+      return string;
+    }
+
+  return NULL;
+}
+
 const gchar *
 unity_gtk_menu_item_get_label (UnityGtkMenuItem *item)
 {
-  const gchar *label;
-
   g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), NULL);
   g_return_val_if_fail (item->menu_item != NULL, NULL);
 
-  label = gtk_menu_item_get_label (item->menu_item);
-
-  if (label != NULL && label[0] != '\0')
+  if (item->label == NULL)
     {
-      if (GTK_IS_IMAGE_MENU_ITEM (item->menu_item))
+      const gchar *label = gtk_menu_item_get_label (item->menu_item);
+
+      if (label != NULL && label[0] != '\0')
         {
-          GtkImageMenuItem *image_menu_item = GTK_IMAGE_MENU_ITEM (item->menu_item);
-
-          if (gtk_image_menu_item_get_use_stock (image_menu_item))
+          if (GTK_IS_IMAGE_MENU_ITEM (item->menu_item))
             {
-              GtkStockItem stock_item;
+              GtkImageMenuItem *image_menu_item = GTK_IMAGE_MENU_ITEM (item->menu_item);
 
-              if (gtk_stock_lookup (label, &stock_item))
-                label = stock_item.label;
+              if (gtk_image_menu_item_get_use_stock (image_menu_item))
+                {
+                  GtkStockItem stock_item;
+
+                  if (gtk_stock_lookup (label, &stock_item))
+                    label = stock_item.label;
+                }
             }
+        }
+
+      if (label == NULL || label[0] == '\0')
+        label = gtk_menu_item_get_nth_label (item->menu_item, 0);
+
+      if (label != NULL && label[0] != '\0')
+        {
+          if (item->parent_shell == NULL || item->parent_shell->has_mnemonics)
+            item->label = g_strdup (label);
+          else
+            item->label = g_strdup_no_mnemonics (label);
         }
     }
 
-  if (label == NULL || label[0] == '\0')
-    label = gtk_menu_item_get_nth_label (item->menu_item, 0);
-
-  return label != NULL && label[0] != '\0' ? label : NULL;
+  return item->label;
 }
 
 GIcon *
