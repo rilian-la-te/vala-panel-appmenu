@@ -433,7 +433,7 @@ unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem *item)
           GtkWidget *submenu = gtk_menu_item_get_submenu (menu_item);
 
           if (submenu != NULL)
-            item->child_shell = unity_gtk_menu_shell_new (GTK_MENU_SHELL (submenu));
+            item->child_shell = unity_gtk_menu_shell_new_internal (GTK_MENU_SHELL (submenu));
         }
 
       item->child_shell_valid = TRUE;
@@ -476,6 +476,53 @@ unity_gtk_menu_item_set_action (UnityGtkMenuItem *item,
       if (action != NULL)
         item->action = g_object_ref (action);
     }
+}
+
+static gchar *
+g_strdup_no_mnemonics (const gchar *str)
+{
+  if (str != NULL)
+    {
+      gchar *string;
+      gchar *out;
+      const gchar *in;
+      gboolean underscore;
+
+      string = g_malloc (strlen (str) + 1);
+      out = string;
+      underscore = FALSE;
+
+      for (in = str; *in != '\0'; in++)
+        {
+          if (*in != '_')
+            {
+              underscore = FALSE;
+              *out++ = *in;
+            }
+          else
+            {
+              if (!underscore)
+                underscore = TRUE;
+              else
+                {
+                  /* double underscores are not accelerator markers */
+                  underscore = FALSE;
+                  *out++ = '_';
+                  *out++ = '_';
+                }
+            }
+        }
+
+      /* trailing underscores are not accelerator markers */
+      if (underscore)
+        *out++ = '_';
+
+      *out++ = '\0';
+
+      return string;
+    }
+
+  return NULL;
 }
 
 static gchar *
@@ -545,7 +592,12 @@ unity_gtk_menu_item_get_label (UnityGtkMenuItem *item)
       if (label != NULL && label[0] != '\0')
         {
           if (gtk_menu_item_get_use_underline (item->menu_item))
-            item->label = g_strdup (label);
+            {
+              if (item->parent_shell == NULL || item->parent_shell->has_mnemonics)
+                item->label = g_strdup (label);
+              else
+                item->label = g_strdup_no_mnemonics (label);
+            }
           else
             item->label = g_strdup_escape_underscores (label);
         }

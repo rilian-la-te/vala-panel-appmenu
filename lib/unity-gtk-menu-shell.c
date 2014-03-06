@@ -93,6 +93,16 @@ g_sequence_search_inf_uint (GSequence *sequence,
   return !g_sequence_iter_is_end (iter) && g_sequence_get_uint (iter) <= i ? iter : NULL;
 }
 
+static gboolean
+gtk_menu_item_handle_idle_activate (gpointer user_data)
+{
+  g_return_val_if_fail (GTK_IS_MENU_ITEM (user_data), G_SOURCE_REMOVE);
+
+  gtk_menu_item_activate (user_data);
+
+  return G_SOURCE_REMOVE;
+}
+
 static GPtrArray *
 unity_gtk_menu_shell_get_items (UnityGtkMenuShell *shell)
 {
@@ -668,6 +678,41 @@ unity_gtk_menu_shell_handle_shell_insert (GtkMenuShell *menu_shell,
     }
 }
 
+static void
+unity_gtk_menu_shell_set_has_mnemonics (UnityGtkMenuShell *shell,
+                                        gboolean           has_mnemonics)
+{
+  g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
+
+  if (has_mnemonics != shell->has_mnemonics)
+    {
+      shell->has_mnemonics = has_mnemonics;
+
+      if (shell->items != NULL)
+        {
+          guint i;
+
+          for (i = 0; i < shell->items->len; i++)
+            unity_gtk_menu_shell_handle_item_label (shell, g_ptr_array_index (shell->items, i));
+        }
+    }
+}
+
+static void
+unity_gtk_menu_shell_handle_settings_notify (GObject    *object,
+                                             GParamSpec *pspec,
+                                             gpointer    user_data)
+{
+  gboolean has_mnemonics;
+
+  g_return_if_fail (GTK_IS_SETTINGS (object));
+  g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (user_data));
+
+  g_object_get (GTK_SETTINGS (object), "gtk-enable-mnemonics", &has_mnemonics, NULL);
+
+  unity_gtk_menu_shell_set_has_mnemonics (UNITY_GTK_MENU_SHELL (user_data), has_mnemonics);
+}
+
 static void unity_gtk_menu_shell_clear_menu_shell (UnityGtkMenuShell *shell);
 
 static void
@@ -745,12 +790,17 @@ static void
 unity_gtk_menu_shell_dispose (GObject *object)
 {
   UnityGtkMenuShell *shell;
+  GtkSettings *settings;
 
   g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (object));
 
   shell = UNITY_GTK_MENU_SHELL (object);
+  settings = gtk_settings_get_default ();
 
   unity_gtk_menu_shell_set_menu_shell (shell, NULL);
+
+  if (settings != NULL)
+    g_signal_handlers_disconnect_by_func (settings, unity_gtk_menu_shell_handle_settings_notify, shell);
 
   G_OBJECT_CLASS (unity_gtk_menu_shell_parent_class)->dispose (object);
 }
@@ -820,6 +870,7 @@ unity_gtk_menu_shell_class_init (UnityGtkMenuShellClass *klass)
 static void
 unity_gtk_menu_shell_init (UnityGtkMenuShell *self)
 {
+  self->has_mnemonics = TRUE;
 }
 
 /**
@@ -834,6 +885,23 @@ unity_gtk_menu_shell_init (UnityGtkMenuShell *self)
  */
 UnityGtkMenuShell *
 unity_gtk_menu_shell_new (GtkMenuShell *menu_shell)
+{
+  UnityGtkMenuShell *shell = g_object_new (UNITY_GTK_TYPE_MENU_SHELL, NULL);
+  GtkSettings *settings = gtk_settings_get_default ();
+
+  if (settings != NULL)
+    {
+      g_signal_connect (settings, "notify::gtk-enable-mnemonics", G_CALLBACK (unity_gtk_menu_shell_handle_settings_notify), shell);
+      g_object_get (settings, "gtk-enable-mnemonics", &shell->has_mnemonics, NULL);
+    }
+
+  unity_gtk_menu_shell_set_menu_shell (shell, menu_shell);
+
+  return shell;
+}
+
+UnityGtkMenuShell *
+unity_gtk_menu_shell_new_internal (GtkMenuShell *menu_shell)
 {
   UnityGtkMenuShell *shell = g_object_new (UNITY_GTK_TYPE_MENU_SHELL, NULL);
 
@@ -981,7 +1049,24 @@ unity_gtk_menu_shell_activate_item (UnityGtkMenuShell *shell,
       if (GTK_IS_MENU (shell->menu_shell))
         gtk_menu_set_active (GTK_MENU (shell->menu_shell), item->item_index);
 
-      gtk_menu_item_activate (item->menu_item);
+      /*
+       * We dispatch the menu item activation in an idle to fix LP: #1258669.
+       *
+       * We get a deadlock when the menu item is activated if something like
+       * gtk_dialog_run () is called. gtk_dialog_run () releases the GDK lock
+       * just before starting its own main loop, and tries to re-acquire it
+       * once it terminates. For whatever reason, a direct call to
+       * gtk_menu_item_activate () here causes the GDK lock to be acquired
+       * before gtk_dialog_run () tries to acquire it, whereas dispatching it
+       * using gdk_threads_add_idle_full () seems to cleanly acquire the lock
+       * once only at the beginning, preventing the deadlock.
+       *
+       * Suspicion is that this was executing during the main context
+       * iteration of gtk_main_iteration (), which grabs the GDK lock
+       * immediately after. But it's still not clear how that's possible....
+       */
+
+      gdk_threads_add_idle_full (G_PRIORITY_DEFAULT_IDLE, gtk_menu_item_handle_idle_activate, g_object_ref (item->menu_item), g_object_unref);
     }
 }
 
