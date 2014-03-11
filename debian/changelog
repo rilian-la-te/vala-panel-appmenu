@@ -1,3 +1,15 @@
+unity-gtk-module (0.0.0+14.04.20140311-0ubuntu1) trusty; urgency=low
+
+  [ CI bot ]
+  * Release trunk to the archive
+
+  [ William Hua ]
+  * Filter out mnemonics when the gtk-enable-mnemonics setting is
+    cleared. Workaround for LP: #1282782. (LP: #1282782)
+  * Dispatch gtk_menu_item_activate () in a GDK idle. (LP: #1258669)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 11 Mar 2014 12:38:16 +0000
+
 unity-gtk-module (0.0.0+14.04.20140213.2-0ubuntu1) trusty; urgency=low
 
   [ William Hua ]
