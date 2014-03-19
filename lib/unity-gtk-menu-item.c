@@ -525,6 +525,41 @@ g_strdup_no_mnemonics (const gchar *str)
   return NULL;
 }
 
+static gchar *
+g_strdup_escape_underscores (const gchar *str)
+{
+  if (str != NULL)
+    {
+      gchar *string;
+      gchar *out;
+      const gchar *in;
+      guint underscores;
+
+      underscores = 0;
+
+      for (in = strchr (str, '_'); in != NULL; in = strchr (in + 1, '_'))
+        underscores++;
+
+      if (underscores == 0)
+        return g_strdup (str);
+
+      string = g_malloc (strlen (str) + underscores + 1);
+      out = string;
+
+      for (in = str; *in != '\0'; in++)
+        {
+          *out++ = *in;
+
+          if (*in == '_')
+            *out++ = '_';
+        }
+
+      return string;
+    }
+
+  return NULL;
+}
+
 const gchar *
 unity_gtk_menu_item_get_label (UnityGtkMenuItem *item)
 {
@@ -556,10 +591,15 @@ unity_gtk_menu_item_get_label (UnityGtkMenuItem *item)
 
       if (label != NULL && label[0] != '\0')
         {
-          if (item->parent_shell == NULL || item->parent_shell->has_mnemonics)
-            item->label = g_strdup (label);
+          if (gtk_menu_item_get_use_underline (item->menu_item))
+            {
+              if (item->parent_shell == NULL || item->parent_shell->has_mnemonics)
+                item->label = g_strdup (label);
+              else
+                item->label = g_strdup_no_mnemonics (label);
+            }
           else
-            item->label = g_strdup_no_mnemonics (label);
+            item->label = g_strdup_escape_underscores (label);
         }
     }
 

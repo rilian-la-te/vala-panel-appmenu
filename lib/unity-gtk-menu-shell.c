@@ -456,6 +456,13 @@ unity_gtk_menu_shell_handle_item_label (UnityGtkMenuShell *shell,
 }
 
 static void
+unity_gtk_menu_shell_handle_item_use_underline (UnityGtkMenuShell *shell,
+                                                UnityGtkMenuItem  *item)
+{
+  unity_gtk_menu_shell_handle_item_label (shell, item);
+}
+
+static void
 unity_gtk_menu_shell_handle_item_accel_path (UnityGtkMenuShell *shell,
                                              UnityGtkMenuItem  *item)
 {
@@ -979,6 +986,7 @@ unity_gtk_menu_shell_handle_item_notify (UnityGtkMenuShell *shell,
   static const gchar *visible_name;
   static const gchar *sensitive_name;
   static const gchar *label_name;
+  static const gchar *use_underline_name;
   static const gchar *accel_path_name;
   static const gchar *active_name;
   static const gchar *parent_name;
@@ -995,6 +1003,8 @@ unity_gtk_menu_shell_handle_item_notify (UnityGtkMenuShell *shell,
     sensitive_name = g_intern_static_string ("sensitive");
   if (label_name == NULL)
     label_name = g_intern_static_string ("label");
+  if (use_underline_name == NULL)
+    use_underline_name = g_intern_static_string ("use-underline");
   if (accel_path_name == NULL)
     accel_path_name = g_intern_static_string ("accel-path");
   if (active_name == NULL)
@@ -1015,6 +1025,8 @@ unity_gtk_menu_shell_handle_item_notify (UnityGtkMenuShell *shell,
     unity_gtk_menu_shell_handle_item_sensitive (shell, item);
   else if (name == label_name)
     unity_gtk_menu_shell_handle_item_label (shell, item);
+  else if (name == use_underline_name)
+    unity_gtk_menu_shell_handle_item_use_underline (shell, item);
   else if (name == accel_path_name)
     unity_gtk_menu_shell_handle_item_accel_path (shell, item);
   else if (name == active_name)
