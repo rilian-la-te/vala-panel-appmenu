@@ -1,3 +1,10 @@
+unity-gtk-module (0.0.0+14.04.20140319-0ubuntu1) trusty; urgency=low
+
+  [ William Hua ]
+  * Watch use-underline property on GtkMenuItems. (LP: #1260777)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 19 Mar 2014 09:04:02 +0000
+
 unity-gtk-module (0.0.0+14.04.20140311-0ubuntu1) trusty; urgency=low
 
   [ CI bot ]
