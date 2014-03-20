@@ -58,8 +58,8 @@ g_object_get_nth_object (GObject  *object,
 }
 
 const gchar *
-gtk_menu_item_get_nth_label (GtkMenuItem *menu_item,
-                             guint        index)
+gtk_menu_item_get_nth_label_label (GtkMenuItem *menu_item,
+                                   guint        index)
 {
   UnityGtkSearch search;
   const gchar *label = NULL;
@@ -583,7 +583,7 @@ unity_gtk_menu_item_get_label (UnityGtkMenuItem *item)
         }
 
       if (label == NULL || label[0] == '\0')
-        label = gtk_menu_item_get_nth_label (item->menu_item, 0);
+        label = gtk_menu_item_get_nth_label_label (item->menu_item, 0);
 
       if (label != NULL && label[0] != '\0')
         {

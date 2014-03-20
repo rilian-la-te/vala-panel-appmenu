@@ -89,7 +89,7 @@ void                unity_gtk_menu_item_activate          (UnityGtkMenuItem  *it
 void                unity_gtk_menu_item_print             (UnityGtkMenuItem  *item,
                                                            guint              indent)       G_GNUC_INTERNAL;
 
-const gchar *       gtk_menu_item_get_nth_label           (GtkMenuItem       *menu_item,
+const gchar *       gtk_menu_item_get_nth_label_label     (GtkMenuItem       *menu_item,
                                                            guint              index)        G_GNUC_INTERNAL;
 
 G_END_DECLS
