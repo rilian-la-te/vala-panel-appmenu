@@ -57,9 +57,9 @@ g_object_get_nth_object (GObject  *object,
     }
 }
 
-const gchar *
-gtk_menu_item_get_nth_label_label (GtkMenuItem *menu_item,
-                                   guint        index)
+static GtkLabel *
+gtk_menu_item_get_nth_label (GtkMenuItem *menu_item,
+                             guint        index)
 {
   UnityGtkSearch search;
   const gchar *label = NULL;
@@ -72,10 +72,25 @@ gtk_menu_item_get_nth_label_label (GtkMenuItem *menu_item,
 
   g_object_get_nth_object (G_OBJECT (menu_item), &search);
 
-  if (search.object != NULL)
-    label = gtk_label_get_label (GTK_LABEL (search.object));
+  return search.object != NULL ? GTK_LABEL (search.object) : NULL;
+}
 
-  return label != NULL && label[0] != '\0' ? label : NULL;
+const gchar *
+gtk_menu_item_get_nth_label_label (GtkMenuItem *menu_item,
+                                   guint        index)
+{
+  GtkLabel *label;
+  const gchar *label_label;
+
+  g_return_val_if_fail (GTK_IS_MENU_ITEM (menu_item), NULL);
+
+  label = gtk_menu_item_get_nth_label (menu_item, index);
+  label_label = NULL;
+
+  if (label != NULL)
+    label_label = gtk_label_get_label (label);
+
+  return label_label != NULL && label_label[0] != '\0' ? label_label : NULL;
 }
 
 static GtkImage *
