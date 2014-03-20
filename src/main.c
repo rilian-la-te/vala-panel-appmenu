@@ -521,8 +521,6 @@ gtk_widget_shell_shows_menubar (GtkWidget *widget)
   GParamSpec *pspec;
   gboolean shell_shows_menubar;
 
-  return FALSE;
-
   g_return_val_if_fail (GTK_IS_WIDGET (widget), FALSE);
 
   settings = gtk_widget_get_settings (widget);
