@@ -62,7 +62,6 @@ gtk_menu_item_get_nth_label (GtkMenuItem *menu_item,
                              guint        index)
 {
   UnityGtkSearch search;
-  const gchar *label = NULL;
 
   g_return_val_if_fail (GTK_IS_MENU_ITEM (menu_item), NULL);
 
