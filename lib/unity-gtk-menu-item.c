@@ -375,8 +375,6 @@ unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
 
       if (item->menu_item != NULL)
         {
-          /* ensure label is available */
-          gtk_menu_item_get_label (menu_item);
           label = gtk_menu_item_get_nth_label (item->menu_item, 0);
 
           if (label != NULL)
