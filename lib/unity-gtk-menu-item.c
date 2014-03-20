@@ -321,12 +321,8 @@ unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
     {
       UnityGtkMenuShell *child_shell = item->child_shell;
 
-      if (item->menu_item_notify_handler_id)
-        {
-          g_warn_if_fail (item->menu_item != NULL);
-          g_signal_handler_disconnect (item->menu_item, item->menu_item_notify_handler_id);
-          item->menu_item_notify_handler_id = 0;
-        }
+      if (item->menu_item != NULL)
+        g_signal_handlers_disconnect_by_data (item->menu_item, item);
 
       if (child_shell != NULL)
         {
@@ -339,7 +335,7 @@ unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
       item->menu_item = menu_item;
 
       if (menu_item != NULL)
-        item->menu_item_notify_handler_id = g_signal_connect (menu_item, "notify", G_CALLBACK (unity_gtk_menu_item_handle_item_notify), item);
+        g_signal_connect (menu_item, "notify", G_CALLBACK (unity_gtk_menu_item_handle_item_notify), item);
     }
 }
 
@@ -709,9 +705,7 @@ unity_gtk_menu_item_print (UnityGtkMenuItem *item,
         g_print ("%s%u (%s *) %p\n", space, item->item_index, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (item)), item);
 
       if (item->menu_item != NULL)
-        g_print ("%s  %lu (%s *) %p\n", space, item->menu_item_notify_handler_id, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (item->menu_item)), item->menu_item);
-      else if (item->menu_item_notify_handler_id)
-        g_print ("%s  %lu\n", space, item->menu_item_notify_handler_id);
+        g_print ("%s  (%s *) %p\n", space, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (item->menu_item)), item->menu_item);
 
       if (item->parent_shell != NULL)
         g_print ("%s  (%s *) %p\n", space, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (item->parent_shell)), item->parent_shell);

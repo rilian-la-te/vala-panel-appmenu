@@ -731,12 +731,8 @@ unity_gtk_menu_shell_set_menu_shell (UnityGtkMenuShell *shell,
       if (shell->action_group != NULL)
         unity_gtk_action_group_disconnect_shell (shell->action_group, shell);
 
-      if (shell->menu_shell_insert_handler_id)
-        {
-          g_assert (shell->menu_shell != NULL);
-          g_signal_handler_disconnect (shell->menu_shell, shell->menu_shell_insert_handler_id);
-          shell->menu_shell_insert_handler_id = 0;
-        }
+      if (shell->menu_shell != NULL)
+        g_signal_handlers_disconnect_by_data (shell->menu_shell, shell);
 
       if (separator_indices != NULL)
         {
@@ -771,7 +767,7 @@ unity_gtk_menu_shell_set_menu_shell (UnityGtkMenuShell *shell,
         {
           g_object_set_qdata_full (G_OBJECT (menu_shell), menu_shell_quark (), shell, (GDestroyNotify) unity_gtk_menu_shell_clear_menu_shell);
 
-          shell->menu_shell_insert_handler_id = g_signal_connect (menu_shell, "insert", G_CALLBACK (unity_gtk_menu_shell_handle_shell_insert), shell);
+          g_signal_connect (menu_shell, "insert", G_CALLBACK (unity_gtk_menu_shell_handle_shell_insert), shell);
         }
     }
 }
@@ -780,8 +776,6 @@ static void
 unity_gtk_menu_shell_clear_menu_shell (UnityGtkMenuShell *shell)
 {
   g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
-
-  shell->menu_shell_insert_handler_id = 0;
 
   unity_gtk_menu_shell_set_menu_shell (shell, NULL);
 }
@@ -800,7 +794,7 @@ unity_gtk_menu_shell_dispose (GObject *object)
   unity_gtk_menu_shell_set_menu_shell (shell, NULL);
 
   if (settings != NULL)
-    g_signal_handlers_disconnect_by_func (settings, unity_gtk_menu_shell_handle_settings_notify, shell);
+    g_signal_handlers_disconnect_by_data (settings, shell);
 
   G_OBJECT_CLASS (unity_gtk_menu_shell_parent_class)->dispose (object);
 }
@@ -1085,9 +1079,7 @@ unity_gtk_menu_shell_print (UnityGtkMenuShell *shell,
       g_print ("%s(%s *) %p\n", space, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (shell)), shell);
 
       if (shell->menu_shell != NULL)
-        g_print ("%s  %lu (%s *) %p\n", space, shell->menu_shell_insert_handler_id, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (shell->menu_shell)), shell->menu_shell);
-      else if (shell->menu_shell_insert_handler_id)
-        g_print ("%s  %lu\n", space, shell->menu_shell_insert_handler_id);
+        g_print ("%s  (%s *) %p\n", space, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (shell->menu_shell)), shell->menu_shell);
 
       if (shell->items != NULL)
         {
