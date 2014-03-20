@@ -70,7 +70,6 @@ struct _WindowData
 struct _MenuShellData
 {
   GtkWindow *window;
-  gulong     settings_notify_gtk_shell_shows_menubar_handler_id;
 };
 
 static void (* pre_hijacked_window_realize)                          (GtkWidget      *widget);
@@ -603,23 +602,22 @@ hijacked_menu_bar_realize (GtkWidget *widget)
 
   settings = gtk_widget_get_settings (widget);
   menu_shell_data = gtk_menu_shell_get_menu_shell_data (GTK_MENU_SHELL (widget));
-  menu_shell_data->settings_notify_gtk_shell_shows_menubar_handler_id = g_signal_connect (settings, "notify::gtk-shell-shows-menubar", G_CALLBACK (gtk_settings_handle_gtk_shell_shows_menubar), widget);
+  g_signal_connect (settings, "notify::gtk-shell-shows-menubar", G_CALLBACK (gtk_settings_handle_gtk_shell_shows_menubar), widget);
 }
 
 static void
 hijacked_menu_bar_unrealize (GtkWidget *widget)
 {
+  GtkSettings *settings;
   MenuShellData *menu_shell_data;
 
   g_return_if_fail (GTK_IS_MENU_BAR (widget));
 
+  settings = gtk_widget_get_settings (widget);
   menu_shell_data = gtk_menu_shell_get_menu_shell_data (GTK_MENU_SHELL (widget));
 
-  if (menu_shell_data->settings_notify_gtk_shell_shows_menubar_handler_id)
-    {
-      g_signal_handler_disconnect (gtk_widget_get_settings (widget), menu_shell_data->settings_notify_gtk_shell_shows_menubar_handler_id);
-      menu_shell_data->settings_notify_gtk_shell_shows_menubar_handler_id = 0;
-    }
+  if (settings != NULL)
+    g_signal_handlers_disconnect_by_data (settings, widget);
 
   if (menu_shell_data->window != NULL)
     gtk_window_disconnect_menu_shell (menu_shell_data->window, GTK_MENU_SHELL (widget));
