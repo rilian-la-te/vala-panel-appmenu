@@ -403,6 +403,10 @@ unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
 
           if (label != NULL)
             g_signal_connect (label, "notify", G_CALLBACK (unity_gtk_menu_item_handle_label_notify), item);
+
+          /* LP: #1208019 */
+          if (gtk_menu_item_get_submenu (menu_item) != NULL)
+            g_signal_emit_by_name (gtk_menu_item_get_submenu (menu_item), "show");
         }
     }
 }
