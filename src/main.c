@@ -588,7 +588,6 @@ hijacked_menu_bar_realize (GtkWidget *widget)
 {
   GtkWidget *window;
   GtkSettings *settings;
-  MenuShellData *menu_shell_data;
 
   g_return_if_fail (GTK_IS_MENU_BAR (widget));
 
@@ -601,7 +600,6 @@ hijacked_menu_bar_realize (GtkWidget *widget)
     gtk_window_connect_menu_shell (GTK_WINDOW (window), GTK_MENU_SHELL (widget));
 
   settings = gtk_widget_get_settings (widget);
-  menu_shell_data = gtk_menu_shell_get_menu_shell_data (GTK_MENU_SHELL (widget));
   g_signal_connect (settings, "notify::gtk-shell-shows-menubar", G_CALLBACK (gtk_settings_handle_gtk_shell_shows_menubar), widget);
 }
 
