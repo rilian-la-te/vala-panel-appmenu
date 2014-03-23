@@ -554,6 +554,8 @@ g_strdup_escape_underscores (const gchar *str)
             *out++ = '_';
         }
 
+      *out++ = '\0';
+
       return string;
     }
 
