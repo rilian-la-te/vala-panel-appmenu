@@ -309,9 +309,12 @@ unity_gtk_menu_item_handle_item_notify (GObject    *object,
                                         GParamSpec *pspec,
                                         gpointer    user_data)
 {
+  static const gchar *use_underline_name;
+
   UnityGtkMenuItem *item;
   UnityGtkMenuShell *parent_shell;
   GObject *menu_item;
+  const gchar *name;
 
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (user_data));
 
@@ -322,13 +325,48 @@ unity_gtk_menu_item_handle_item_notify (GObject    *object,
   g_return_if_fail (parent_shell != NULL);
   g_warn_if_fail (object == menu_item);
 
-  unity_gtk_menu_shell_handle_item_notify (parent_shell, item, g_param_spec_get_name (pspec));
+  if (use_underline_name == NULL)
+    use_underline_name = g_intern_static_string ("use-underline");
+
+  name = g_param_spec_get_name (pspec);
+
+  if (name != use_underline_name)
+    unity_gtk_menu_shell_handle_item_notify (parent_shell, item, name);
+}
+
+static void
+unity_gtk_menu_item_handle_label_notify (GObject    *object,
+                                         GParamSpec *pspec,
+                                         gpointer    user_data)
+{
+  static const gchar *use_underline_name;
+
+  UnityGtkMenuItem *item;
+  UnityGtkMenuShell *parent_shell;
+  const gchar *name;
+
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (user_data));
+
+  item = UNITY_GTK_MENU_ITEM (user_data);
+  parent_shell = item->parent_shell;
+
+  g_return_if_fail (parent_shell != NULL);
+
+  if (use_underline_name == NULL)
+    use_underline_name = g_intern_static_string ("use-underline");
+
+  name = g_param_spec_get_name (pspec);
+
+  if (name == use_underline_name)
+    unity_gtk_menu_shell_handle_item_notify (parent_shell, item, name);
 }
 
 static void
 unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
                                    GtkMenuItem      *menu_item)
 {
+  GtkLabel *label;
+
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
 
   if (menu_item != item->menu_item)
@@ -336,7 +374,14 @@ unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
       UnityGtkMenuShell *child_shell = item->child_shell;
 
       if (item->menu_item != NULL)
-        g_signal_handlers_disconnect_by_data (item->menu_item, item);
+        {
+          label = gtk_menu_item_get_nth_label (item->menu_item, 0);
+
+          if (label != NULL)
+            g_signal_handlers_disconnect_by_data (label, item);
+
+          g_signal_handlers_disconnect_by_data (item->menu_item, item);
+        }
 
       if (child_shell != NULL)
         {
@@ -349,7 +394,16 @@ unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
       item->menu_item = menu_item;
 
       if (menu_item != NULL)
-        g_signal_connect (menu_item, "notify", G_CALLBACK (unity_gtk_menu_item_handle_item_notify), item);
+        {
+          g_signal_connect (menu_item, "notify", G_CALLBACK (unity_gtk_menu_item_handle_item_notify), item);
+
+          /* ensure label is available */
+          gtk_menu_item_get_label (menu_item);
+          label = gtk_menu_item_get_nth_label (menu_item, 0);
+
+          if (label != NULL)
+            g_signal_connect (label, "notify", G_CALLBACK (unity_gtk_menu_item_handle_label_notify), item);
+        }
     }
 }
 
@@ -580,9 +634,9 @@ unity_gtk_menu_item_get_label (UnityGtkMenuItem *item)
 
   if (item->label == NULL)
     {
-      const gchar *label = gtk_menu_item_get_label (item->menu_item);
+      const gchar *label_label = gtk_menu_item_get_label (item->menu_item);
 
-      if (label != NULL && label[0] != '\0')
+      if (label_label != NULL && label_label[0] != '\0')
         {
           if (GTK_IS_IMAGE_MENU_ITEM (item->menu_item))
             {
@@ -592,26 +646,28 @@ unity_gtk_menu_item_get_label (UnityGtkMenuItem *item)
                 {
                   GtkStockItem stock_item;
 
-                  if (gtk_stock_lookup (label, &stock_item))
-                    label = stock_item.label;
+                  if (gtk_stock_lookup (label_label, &stock_item))
+                    label_label = stock_item.label;
                 }
             }
         }
 
-      if (label == NULL || label[0] == '\0')
-        label = gtk_menu_item_get_nth_label_label (item->menu_item, 0);
+      if (label_label == NULL || label_label[0] == '\0')
+        label_label = gtk_menu_item_get_nth_label_label (item->menu_item, 0);
 
-      if (label != NULL && label[0] != '\0')
+      if (label_label != NULL && label_label[0] != '\0')
         {
-          if (gtk_menu_item_get_use_underline (item->menu_item))
+          GtkLabel *label = gtk_menu_item_get_nth_label (item->menu_item, 0);
+
+          if (gtk_label_get_use_underline (label))
             {
               if (item->parent_shell == NULL || item->parent_shell->has_mnemonics)
-                item->label = g_strdup (label);
+                item->label = g_strdup (label_label);
               else
-                item->label = g_strdup_no_mnemonics (label);
+                item->label = g_strdup_no_mnemonics (label_label);
             }
           else
-            item->label = g_strdup_escape_underscores (label);
+            item->label = g_strdup_escape_underscores (label_label);
         }
     }
 
