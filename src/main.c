@@ -27,7 +27,6 @@
  */
 static const char * const BLACKLIST[] =
 {
-  "Eclipse",
   "acroread",
   "emacs",
   "emacs23",

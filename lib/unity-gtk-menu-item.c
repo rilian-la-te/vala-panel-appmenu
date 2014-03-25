@@ -309,6 +309,7 @@ unity_gtk_menu_item_handle_item_notify (GObject    *object,
                                         GParamSpec *pspec,
                                         gpointer    user_data)
 {
+  static const gchar *label_name;
   static const gchar *use_underline_name;
 
   UnityGtkMenuItem *item;
@@ -325,12 +326,14 @@ unity_gtk_menu_item_handle_item_notify (GObject    *object,
   g_return_if_fail (parent_shell != NULL);
   g_warn_if_fail (object == menu_item);
 
+  if (label_name == NULL)
+    label_name = g_intern_static_string ("label");
   if (use_underline_name == NULL)
     use_underline_name = g_intern_static_string ("use-underline");
 
   name = g_param_spec_get_name (pspec);
 
-  if (name != use_underline_name)
+  if (name != label_name && name != use_underline_name)
     unity_gtk_menu_shell_handle_item_notify (parent_shell, item, name);
 }
 
@@ -339,6 +342,7 @@ unity_gtk_menu_item_handle_label_notify (GObject    *object,
                                          GParamSpec *pspec,
                                          gpointer    user_data)
 {
+  static const gchar *label_name;
   static const gchar *use_underline_name;
 
   UnityGtkMenuItem *item;
@@ -352,12 +356,14 @@ unity_gtk_menu_item_handle_label_notify (GObject    *object,
 
   g_return_if_fail (parent_shell != NULL);
 
+  if (label_name == NULL)
+    label_name = g_intern_static_string ("label");
   if (use_underline_name == NULL)
     use_underline_name = g_intern_static_string ("use-underline");
 
   name = g_param_spec_get_name (pspec);
 
-  if (name == use_underline_name)
+  if (name == label_name || name == use_underline_name)
     unity_gtk_menu_shell_handle_item_notify (parent_shell, item, name);
 }
 
@@ -403,6 +409,10 @@ unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
 
           if (label != NULL)
             g_signal_connect (label, "notify", G_CALLBACK (unity_gtk_menu_item_handle_label_notify), item);
+
+          /* LP: #1208019 */
+          if (gtk_menu_item_get_submenu (menu_item) != NULL)
+            g_signal_emit_by_name (gtk_menu_item_get_submenu (menu_item), "show");
         }
     }
 }
