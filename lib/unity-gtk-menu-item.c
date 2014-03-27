@@ -326,9 +326,9 @@ unity_gtk_menu_item_handle_item_notify (GObject    *object,
   g_return_if_fail (parent_shell != NULL);
   g_warn_if_fail (object == menu_item);
 
-  if (label_name == NULL)
+  if (G_UNLIKELY (label_name == NULL))
     label_name = g_intern_static_string ("label");
-  if (use_underline_name == NULL)
+  if (G_UNLIKELY (use_underline_name == NULL))
     use_underline_name = g_intern_static_string ("use-underline");
 
   name = g_param_spec_get_name (pspec);
@@ -356,9 +356,9 @@ unity_gtk_menu_item_handle_label_notify (GObject    *object,
 
   g_return_if_fail (parent_shell != NULL);
 
-  if (label_name == NULL)
+  if (G_UNLIKELY (label_name == NULL))
     label_name = g_intern_static_string ("label");
-  if (use_underline_name == NULL)
+  if (G_UNLIKELY (use_underline_name == NULL))
     use_underline_name = g_intern_static_string ("use-underline");
 
   name = g_param_spec_get_name (pspec);
