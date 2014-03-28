@@ -51,10 +51,6 @@ struct _UnityGtkActionGroup
 
   /*< private >*/
   GActionGroup *old_group;
-  gulong        old_group_action_added_handler_id;
-  gulong        old_group_action_removed_handler_id;
-  gulong        old_group_action_enabled_changed_handler_id;
-  gulong        old_group_action_state_changed_handler_id;
   GHashTable   *actions_by_name;
   GHashTable   *names_by_radio_menu_item;
 };

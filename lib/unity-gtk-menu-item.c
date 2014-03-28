@@ -57,12 +57,11 @@ g_object_get_nth_object (GObject  *object,
     }
 }
 
-const gchar *
+static GtkLabel *
 gtk_menu_item_get_nth_label (GtkMenuItem *menu_item,
                              guint        index)
 {
   UnityGtkSearch search;
-  const gchar *label = NULL;
 
   g_return_val_if_fail (GTK_IS_MENU_ITEM (menu_item), NULL);
 
@@ -72,10 +71,25 @@ gtk_menu_item_get_nth_label (GtkMenuItem *menu_item,
 
   g_object_get_nth_object (G_OBJECT (menu_item), &search);
 
-  if (search.object != NULL)
-    label = gtk_label_get_label (GTK_LABEL (search.object));
+  return search.object != NULL ? GTK_LABEL (search.object) : NULL;
+}
 
-  return label != NULL && label[0] != '\0' ? label : NULL;
+const gchar *
+gtk_menu_item_get_nth_label_label (GtkMenuItem *menu_item,
+                                   guint        index)
+{
+  GtkLabel *label;
+  const gchar *label_label;
+
+  g_return_val_if_fail (GTK_IS_MENU_ITEM (menu_item), NULL);
+
+  label = gtk_menu_item_get_nth_label (menu_item, index);
+  label_label = NULL;
+
+  if (label != NULL)
+    label_label = gtk_label_get_label (label);
+
+  return label_label != NULL && label_label[0] != '\0' ? label_label : NULL;
 }
 
 static GtkImage *
@@ -295,9 +309,12 @@ unity_gtk_menu_item_handle_item_notify (GObject    *object,
                                         GParamSpec *pspec,
                                         gpointer    user_data)
 {
+  static const gchar *label_name;
+
   UnityGtkMenuItem *item;
   UnityGtkMenuShell *parent_shell;
   GObject *menu_item;
+  const gchar *name;
 
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (user_data));
 
@@ -308,24 +325,62 @@ unity_gtk_menu_item_handle_item_notify (GObject    *object,
   g_return_if_fail (parent_shell != NULL);
   g_warn_if_fail (object == menu_item);
 
-  unity_gtk_menu_shell_handle_item_notify (parent_shell, item, g_param_spec_get_name (pspec));
+  if (label_name == NULL)
+    label_name = g_intern_static_string ("label");
+
+  name = g_param_spec_get_name (pspec);
+
+  if (name != label_name)
+    unity_gtk_menu_shell_handle_item_notify (parent_shell, item, name);
+}
+
+static void
+unity_gtk_menu_item_handle_label_notify (GObject    *object,
+                                         GParamSpec *pspec,
+                                         gpointer    user_data)
+{
+  static const gchar *label_name;
+
+  UnityGtkMenuItem *item;
+  UnityGtkMenuShell *parent_shell;
+  const gchar *name;
+
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (user_data));
+
+  item = UNITY_GTK_MENU_ITEM (user_data);
+  parent_shell = item->parent_shell;
+
+  g_return_if_fail (parent_shell != NULL);
+
+  if (label_name == NULL)
+    label_name = g_intern_static_string ("label");
+
+  name = g_param_spec_get_name (pspec);
+
+  if (name == label_name)
+    unity_gtk_menu_shell_handle_item_notify (parent_shell, item, name);
 }
 
 static void
 unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
                                    GtkMenuItem      *menu_item)
 {
+  GtkLabel *label;
+
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
 
   if (menu_item != item->menu_item)
     {
       UnityGtkMenuShell *child_shell = item->child_shell;
 
-      if (item->menu_item_notify_handler_id)
+      if (item->menu_item != NULL)
         {
-          g_warn_if_fail (item->menu_item != NULL);
-          g_signal_handler_disconnect (item->menu_item, item->menu_item_notify_handler_id);
-          item->menu_item_notify_handler_id = 0;
+          label = gtk_menu_item_get_nth_label (item->menu_item, 0);
+
+          if (label != NULL)
+            g_signal_handlers_disconnect_by_data (label, item);
+
+          g_signal_handlers_disconnect_by_data (item->menu_item, item);
         }
 
       if (child_shell != NULL)
@@ -339,7 +394,20 @@ unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
       item->menu_item = menu_item;
 
       if (menu_item != NULL)
-        item->menu_item_notify_handler_id = g_signal_connect (menu_item, "notify", G_CALLBACK (unity_gtk_menu_item_handle_item_notify), item);
+        {
+          g_signal_connect (menu_item, "notify", G_CALLBACK (unity_gtk_menu_item_handle_item_notify), item);
+
+          /* ensure label is available */
+          gtk_menu_item_get_label (menu_item);
+          label = gtk_menu_item_get_nth_label (menu_item, 0);
+
+          if (label != NULL)
+            g_signal_connect (label, "notify", G_CALLBACK (unity_gtk_menu_item_handle_label_notify), item);
+
+          /* LP: #1208019 */
+          if (gtk_menu_item_get_submenu (menu_item) != NULL)
+            g_signal_emit_by_name (gtk_menu_item_get_submenu (menu_item), "show");
+        }
     }
 }
 
@@ -587,7 +655,7 @@ unity_gtk_menu_item_get_label (UnityGtkMenuItem *item)
         }
 
       if (label == NULL || label[0] == '\0')
-        label = gtk_menu_item_get_nth_label (item->menu_item, 0);
+        label = gtk_menu_item_get_nth_label_label (item->menu_item, 0);
 
       if (label != NULL && label[0] != '\0')
         {
@@ -709,9 +777,7 @@ unity_gtk_menu_item_print (UnityGtkMenuItem *item,
         g_print ("%s%u (%s *) %p\n", space, item->item_index, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (item)), item);
 
       if (item->menu_item != NULL)
-        g_print ("%s  %lu (%s *) %p\n", space, item->menu_item_notify_handler_id, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (item->menu_item)), item->menu_item);
-      else if (item->menu_item_notify_handler_id)
-        g_print ("%s  %lu\n", space, item->menu_item_notify_handler_id);
+        g_print ("%s  (%s *) %p\n", space, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (item->menu_item)), item->menu_item);
 
       if (item->parent_shell != NULL)
         g_print ("%s  (%s *) %p\n", space, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (item->parent_shell)), item->parent_shell);

@@ -120,38 +120,13 @@ unity_gtk_action_group_set_old_group (UnityGtkActionGroup *group,
 
   if (old_group != old_old_group)
     {
-      if (group->old_group_action_state_changed_handler_id)
-        {
-          g_assert (old_old_group != NULL);
-          g_signal_handler_disconnect (old_old_group, group->old_group_action_state_changed_handler_id);
-          group->old_group_action_state_changed_handler_id = 0;
-        }
-
-      if (group->old_group_action_enabled_changed_handler_id)
-        {
-          g_assert (old_old_group != NULL);
-          g_signal_handler_disconnect (old_old_group, group->old_group_action_enabled_changed_handler_id);
-          group->old_group_action_enabled_changed_handler_id = 0;
-        }
-
-      if (group->old_group_action_removed_handler_id)
-        {
-          g_assert (old_old_group != NULL);
-          g_signal_handler_disconnect (old_old_group, group->old_group_action_removed_handler_id);
-          group->old_group_action_removed_handler_id = 0;
-        }
-
-      if (group->old_group_action_added_handler_id)
-        {
-          g_assert (old_old_group != NULL);
-          g_signal_handler_disconnect (old_old_group, group->old_group_action_added_handler_id);
-          group->old_group_action_added_handler_id = 0;
-        }
-
       if (old_old_group != NULL)
         {
-          gchar **names = g_action_group_list_actions (old_old_group);
+          gchar **names;
 
+          g_signal_handlers_disconnect_by_data (old_old_group, group);
+
+          names = g_action_group_list_actions (old_old_group);
           group->old_group = NULL;
           g_object_unref (old_old_group);
 
@@ -171,10 +146,10 @@ unity_gtk_action_group_set_old_group (UnityGtkActionGroup *group,
           gchar **names = g_action_group_list_actions (old_group);
 
           group->old_group = g_object_ref (old_group);
-          group->old_group_action_added_handler_id = g_signal_connect (old_group, "action-added", G_CALLBACK (unity_gtk_action_group_handle_group_action_added), group);
-          group->old_group_action_removed_handler_id = g_signal_connect (old_group, "action-removed", G_CALLBACK (unity_gtk_action_group_handle_group_action_removed), group);
-          group->old_group_action_enabled_changed_handler_id = g_signal_connect (old_group, "action-enabled-changed", G_CALLBACK (unity_gtk_action_group_handle_group_action_enabled_changed), group);
-          group->old_group_action_state_changed_handler_id = g_signal_connect (old_group, "action-state-changed", G_CALLBACK (unity_gtk_action_group_handle_group_action_state_changed), group);
+          g_signal_connect (old_group, "action-added", G_CALLBACK (unity_gtk_action_group_handle_group_action_added), group);
+          g_signal_connect (old_group, "action-removed", G_CALLBACK (unity_gtk_action_group_handle_group_action_removed), group);
+          g_signal_connect (old_group, "action-enabled-changed", G_CALLBACK (unity_gtk_action_group_handle_group_action_enabled_changed), group);
+          g_signal_connect (old_group, "action-state-changed", G_CALLBACK (unity_gtk_action_group_handle_group_action_state_changed), group);
 
           if (names != NULL)
             {
@@ -672,7 +647,7 @@ unity_gtk_action_group_get_action_name (UnityGtkActionGroup *group,
     name = gtk_menu_item_get_label (menu_item);
 
   if (name == NULL || name[0] == '\0')
-    name = gtk_menu_item_get_nth_label (menu_item, 0);
+    name = gtk_menu_item_get_nth_label_label (menu_item, 0);
 
   if (name != NULL && name[0] == '\0')
     name = NULL;

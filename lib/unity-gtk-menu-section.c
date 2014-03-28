@@ -166,7 +166,7 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
         }
 
       if (accel_name == NULL)
-        accel_name = g_strdup (gtk_menu_item_get_nth_label (item->menu_item, 1));
+        accel_name = g_strdup (gtk_menu_item_get_nth_label_label (item->menu_item, 1));
 
       if (accel_name != NULL)
         g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_ACCEL, g_variant_ref_sink (g_variant_new_string (accel_name)));
