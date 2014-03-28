@@ -1,3 +1,15 @@
+unity-gtk-module (0.0.0+14.04.20140328-0ubuntu1) trusty; urgency=low
+
+  [ CI bot ]
+  * Stop using signal handler ids. Use
+    g_signal_handlers_disconnect_by_data () instead.
+
+  [ William Hua ]
+  * Fix Eclipse and DBeaver menus. (LP: #1208019)
+  * Watch use-underline on label instead of menu item. (LP: #1294947)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 28 Mar 2014 10:54:34 +0000
+
 unity-gtk-module (0.0.0+14.04.20140319-0ubuntu1) trusty; urgency=low
 
   [ William Hua ]
