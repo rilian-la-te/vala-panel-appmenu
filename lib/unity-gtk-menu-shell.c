@@ -991,21 +991,21 @@ unity_gtk_menu_shell_handle_item_notify (UnityGtkMenuShell *shell,
   g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
 
-  if (visible_name == NULL)
+  if (G_UNLIKELY (visible_name == NULL))
     visible_name = g_intern_static_string ("visible");
-  if (sensitive_name == NULL)
+  if (G_UNLIKELY (sensitive_name == NULL))
     sensitive_name = g_intern_static_string ("sensitive");
-  if (label_name == NULL)
+  if (G_UNLIKELY (label_name == NULL))
     label_name = g_intern_static_string ("label");
-  if (use_underline_name == NULL)
+  if (G_UNLIKELY (use_underline_name == NULL))
     use_underline_name = g_intern_static_string ("use-underline");
-  if (accel_path_name == NULL)
+  if (G_UNLIKELY (accel_path_name == NULL))
     accel_path_name = g_intern_static_string ("accel-path");
-  if (active_name == NULL)
+  if (G_UNLIKELY (active_name == NULL))
     active_name = g_intern_static_string ("active");
-  if (parent_name == NULL)
+  if (G_UNLIKELY (parent_name == NULL))
     parent_name = g_intern_static_string ("parent");
-  if (submenu_name == NULL)
+  if (G_UNLIKELY (submenu_name == NULL))
     submenu_name = g_intern_static_string ("submenu");
 
   name = g_intern_string (property);

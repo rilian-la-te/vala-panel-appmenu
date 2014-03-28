@@ -310,6 +310,7 @@ unity_gtk_menu_item_handle_item_notify (GObject    *object,
                                         gpointer    user_data)
 {
   static const gchar *label_name;
+  static const gchar *use_underline_name;
 
   UnityGtkMenuItem *item;
   UnityGtkMenuShell *parent_shell;
@@ -325,12 +326,14 @@ unity_gtk_menu_item_handle_item_notify (GObject    *object,
   g_return_if_fail (parent_shell != NULL);
   g_warn_if_fail (object == menu_item);
 
-  if (label_name == NULL)
+  if (G_UNLIKELY (label_name == NULL))
     label_name = g_intern_static_string ("label");
+  if (G_UNLIKELY (use_underline_name == NULL))
+    use_underline_name = g_intern_static_string ("use-underline");
 
   name = g_param_spec_get_name (pspec);
 
-  if (name != label_name)
+  if (name != label_name && name != use_underline_name)
     unity_gtk_menu_shell_handle_item_notify (parent_shell, item, name);
 }
 
@@ -340,6 +343,7 @@ unity_gtk_menu_item_handle_label_notify (GObject    *object,
                                          gpointer    user_data)
 {
   static const gchar *label_name;
+  static const gchar *use_underline_name;
 
   UnityGtkMenuItem *item;
   UnityGtkMenuShell *parent_shell;
@@ -352,12 +356,14 @@ unity_gtk_menu_item_handle_label_notify (GObject    *object,
 
   g_return_if_fail (parent_shell != NULL);
 
-  if (label_name == NULL)
+  if (G_UNLIKELY (label_name == NULL))
     label_name = g_intern_static_string ("label");
+  if (G_UNLIKELY (use_underline_name == NULL))
+    use_underline_name = g_intern_static_string ("use-underline");
 
   name = g_param_spec_get_name (pspec);
 
-  if (name == label_name)
+  if (name == label_name || name == use_underline_name)
     unity_gtk_menu_shell_handle_item_notify (parent_shell, item, name);
 }
 
@@ -622,6 +628,8 @@ g_strdup_escape_underscores (const gchar *str)
             *out++ = '_';
         }
 
+      *out++ = '\0';
+
       return string;
     }
 
@@ -636,9 +644,9 @@ unity_gtk_menu_item_get_label (UnityGtkMenuItem *item)
 
   if (item->label == NULL)
     {
-      const gchar *label = gtk_menu_item_get_label (item->menu_item);
+      const gchar *label_label = gtk_menu_item_get_label (item->menu_item);
 
-      if (label != NULL && label[0] != '\0')
+      if (label_label != NULL && label_label[0] != '\0')
         {
           if (GTK_IS_IMAGE_MENU_ITEM (item->menu_item))
             {
@@ -648,26 +656,28 @@ unity_gtk_menu_item_get_label (UnityGtkMenuItem *item)
                 {
                   GtkStockItem stock_item;
 
-                  if (gtk_stock_lookup (label, &stock_item))
-                    label = stock_item.label;
+                  if (gtk_stock_lookup (label_label, &stock_item))
+                    label_label = stock_item.label;
                 }
             }
         }
 
-      if (label == NULL || label[0] == '\0')
-        label = gtk_menu_item_get_nth_label_label (item->menu_item, 0);
+      if (label_label == NULL || label_label[0] == '\0')
+        label_label = gtk_menu_item_get_nth_label_label (item->menu_item, 0);
 
-      if (label != NULL && label[0] != '\0')
+      if (label_label != NULL && label_label[0] != '\0')
         {
-          if (gtk_menu_item_get_use_underline (item->menu_item))
+          GtkLabel *label = gtk_menu_item_get_nth_label (item->menu_item, 0);
+
+          if (gtk_label_get_use_underline (label))
             {
               if (item->parent_shell == NULL || item->parent_shell->has_mnemonics)
-                item->label = g_strdup (label);
+                item->label = g_strdup (label_label);
               else
-                item->label = g_strdup_no_mnemonics (label);
+                item->label = g_strdup_no_mnemonics (label_label);
             }
           else
-            item->label = g_strdup_escape_underscores (label);
+            item->label = g_strdup_escape_underscores (label_label);
         }
     }
 
