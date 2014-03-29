@@ -368,6 +368,23 @@ unity_gtk_menu_item_handle_label_notify (GObject    *object,
 }
 
 static void
+unity_gtk_menu_item_handle_accel_closures_changed (GtkWidget *widget,
+                                                   gpointer   user_data)
+{
+  UnityGtkMenuItem *item;
+  UnityGtkMenuShell *parent_shell;
+
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (user_data));
+
+  item = UNITY_GTK_MENU_ITEM (user_data);
+  parent_shell = item->parent_shell;
+
+  g_return_if_fail (parent_shell != NULL);
+
+  unity_gtk_menu_shell_handle_item_notify (parent_shell, item, "accel-path");
+}
+
+static void
 unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
                                    GtkMenuItem      *menu_item)
 {
@@ -409,6 +426,8 @@ unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
 
           if (label != NULL)
             g_signal_connect (label, "notify", G_CALLBACK (unity_gtk_menu_item_handle_label_notify), item);
+
+          g_signal_connect (menu_item, "accel-closures-changed", G_CALLBACK (unity_gtk_menu_item_handle_accel_closures_changed), item);
 
           /* LP: #1208019 */
           if (gtk_menu_item_get_submenu (menu_item) != NULL)

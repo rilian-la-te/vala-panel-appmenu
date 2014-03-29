@@ -35,6 +35,14 @@ g_uintcmp (gconstpointer a,
   return GPOINTER_TO_INT (a) - GPOINTER_TO_INT (b);
 }
 
+static gboolean
+g_closure_equal (GtkAccelKey *key,
+                 GClosure    *closure,
+                 gpointer     data)
+{
+  return closure == data;
+}
+
 static void
 unity_gtk_menu_section_set_parent_shell (UnityGtkMenuSection *section,
                                          UnityGtkMenuShell   *parent_shell)
@@ -163,6 +171,28 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
 
           if (gtk_accel_map_lookup_entry (accel_path, &accel_key))
             accel_name = gtk_accelerator_name (accel_key.accel_key, accel_key.accel_mods);
+        }
+
+      if (accel_name == NULL)
+        {
+          GList *closures = gtk_widget_list_accel_closures (GTK_WIDGET (item->menu_item));
+          GList *iter;
+
+          for (iter = closures; iter != NULL && accel_name == NULL; iter = g_list_next (iter))
+            {
+              GClosure *closure = iter->data;
+              GtkAccelGroup *accel_group = gtk_accel_group_from_accel_closure (closure);
+
+              if (accel_group != NULL)
+                {
+                  GtkAccelKey *accel_key = gtk_accel_group_find (accel_group, g_closure_equal, closure);
+
+                  if (accel_key != NULL)
+                    accel_name = gtk_accelerator_name (accel_key->accel_key, accel_key->accel_mods);
+                }
+            }
+
+          g_list_free (closures);
         }
 
       if (accel_name == NULL)
