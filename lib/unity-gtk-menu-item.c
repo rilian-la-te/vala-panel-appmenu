@@ -57,7 +57,7 @@ g_object_get_nth_object (GObject  *object,
     }
 }
 
-static GtkLabel *
+GtkLabel *
 gtk_menu_item_get_nth_label (GtkMenuItem *menu_item,
                              guint        index)
 {

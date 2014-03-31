@@ -23,6 +23,10 @@
 #define G_MENU_ATTRIBUTE_ACCEL "accel"
 #endif
 
+#ifndef G_MENU_ATTRIBUTE_ACCEL_TEXT
+#define G_MENU_ATTRIBUTE_ACCEL_TEXT "x-canonical-accel"
+#endif
+
 G_DEFINE_TYPE (UnityGtkMenuSection,
                unity_gtk_menu_section,
                G_TYPE_MENU_MODEL);
@@ -195,11 +199,28 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
           g_list_free (closures);
         }
 
-      if (accel_name == NULL)
-        accel_name = g_strdup (gtk_menu_item_get_nth_label_label (item->menu_item, 1));
-
       if (accel_name != NULL)
         g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_ACCEL, g_variant_ref_sink (g_variant_new_string (accel_name)));
+      else
+        {
+#if GTK_MAJOR_VERSION == 2
+          /* LP: #1208019 */
+          GtkLabel *accel_label = gtk_menu_item_get_nth_label (item->menu_item, 0);
+
+          if (GTK_IS_ACCEL_LABEL (accel_label))
+            {
+              /* Eclipse uses private API. */
+              if (GTK_ACCEL_LABEL (accel_label)->accel_string != NULL)
+                accel_name = g_strdup (GTK_ACCEL_LABEL (accel_label)->accel_string);
+            }
+#endif
+
+          if (accel_name == NULL)
+            accel_name = g_strdup (gtk_menu_item_get_nth_label_label (item->menu_item, 1));
+
+          if (accel_name != NULL)
+            g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_ACCEL_TEXT, g_variant_ref_sink (g_variant_new_string (accel_name)));
+        }
 
       g_free (accel_name);
     }
