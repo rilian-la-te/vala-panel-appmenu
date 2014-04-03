@@ -23,6 +23,10 @@
 #define G_MENU_ATTRIBUTE_ACCEL "accel"
 #endif
 
+#ifndef G_MENU_ATTRIBUTE_ACCEL_TEXT
+#define G_MENU_ATTRIBUTE_ACCEL_TEXT "x-canonical-accel"
+#endif
+
 G_DEFINE_TYPE (UnityGtkMenuSection,
                unity_gtk_menu_section,
                G_TYPE_MENU_MODEL);
@@ -33,6 +37,14 @@ g_uintcmp (gconstpointer a,
            gpointer      user_data)
 {
   return GPOINTER_TO_INT (a) - GPOINTER_TO_INT (b);
+}
+
+static gboolean
+g_closure_equal (GtkAccelKey *key,
+                 GClosure    *closure,
+                 gpointer     data)
+{
+  return closure == data;
 }
 
 static void
@@ -166,10 +178,49 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
         }
 
       if (accel_name == NULL)
-        accel_name = g_strdup (gtk_menu_item_get_nth_label_label (item->menu_item, 1));
+        {
+          GList *closures = gtk_widget_list_accel_closures (GTK_WIDGET (item->menu_item));
+          GList *iter;
+
+          for (iter = closures; iter != NULL && accel_name == NULL; iter = g_list_next (iter))
+            {
+              GClosure *closure = iter->data;
+              GtkAccelGroup *accel_group = gtk_accel_group_from_accel_closure (closure);
+
+              if (accel_group != NULL)
+                {
+                  GtkAccelKey *accel_key = gtk_accel_group_find (accel_group, g_closure_equal, closure);
+
+                  if (accel_key != NULL)
+                    accel_name = gtk_accelerator_name (accel_key->accel_key, accel_key->accel_mods);
+                }
+            }
+
+          g_list_free (closures);
+        }
 
       if (accel_name != NULL)
         g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_ACCEL, g_variant_ref_sink (g_variant_new_string (accel_name)));
+      else
+        {
+#if GTK_MAJOR_VERSION == 2
+          /* LP: #1208019 */
+          GtkLabel *accel_label = gtk_menu_item_get_nth_label (item->menu_item, 0);
+
+          if (GTK_IS_ACCEL_LABEL (accel_label))
+            {
+              /* Eclipse uses private API. */
+              if (GTK_ACCEL_LABEL (accel_label)->accel_string != NULL)
+                accel_name = g_strdup (GTK_ACCEL_LABEL (accel_label)->accel_string);
+            }
+#endif
+
+          if (accel_name == NULL)
+            accel_name = g_strdup (gtk_menu_item_get_nth_label_label (item->menu_item, 1));
+
+          if (accel_name != NULL)
+            g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_ACCEL_TEXT, g_variant_ref_sink (g_variant_new_string (accel_name)));
+        }
 
       g_free (accel_name);
     }
