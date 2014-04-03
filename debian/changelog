@@ -1,3 +1,11 @@
+unity-gtk-module (0.0.0+14.04.20140403-0ubuntu1) trusty; urgency=low
+
+  [ William Hua ]
+  * Forward original accelerator text for Eclipse, Inkscape, Emacs. (LP:
+    #1208019)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 03 Apr 2014 17:12:49 +0000
+
 unity-gtk-module (0.0.0+14.04.20140328-0ubuntu1) trusty; urgency=low
 
   [ CI bot ]
