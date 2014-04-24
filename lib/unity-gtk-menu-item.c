@@ -533,7 +533,25 @@ unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem *item)
             {
               item->child_shell = unity_gtk_menu_shell_new_internal (GTK_MENU_SHELL (submenu));
 
-              /* LP: #1208019 */
+              /*
+               * Some applications like Eclipse populate their menus lazily,
+               * i.e. when the user opens them. This is problematic for us
+               * since we can't detect when the menu is opened in Unity. So we
+               * can emit the show signal manually, which should force those
+               * programs to load their menu contents eagerly. Note that
+               * emitting this signal doesn't actually cause the menu to open.
+               *
+               * We defer signal emission to an idle because Eclipse sometimes
+               * doesn't have the menu items ready immediately. The Source and
+               * Refactor menus don't work in particular. My guess is that the
+               * data for those menus is getting generated in a signal handler
+               * for GtkMenuShell's insert, but that handler is getting called
+               * just after this one. So emitting it directly here wouldn't
+               * help at all since the data isn't ready at this point.
+               * Deferring to an idle ensures that the data is ready.
+               *
+               * See LP: #1208019 for more information.
+               */
               g_idle_add_full (G_PRIORITY_DEFAULT_IDLE, g_signal_emit_show, g_object_ref (submenu), g_object_unref);
             }
         }
