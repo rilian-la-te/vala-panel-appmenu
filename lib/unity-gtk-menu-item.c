@@ -34,6 +34,14 @@ struct _UnityGtkSearch
   GObject *object;
 };
 
+static gboolean
+g_signal_emit_show (gpointer user_data)
+{
+  g_signal_emit_by_name (user_data, "show");
+
+  return G_SOURCE_REMOVE;
+}
+
 static void
 g_object_get_nth_object (GObject  *object,
                          gpointer  data)
@@ -428,10 +436,6 @@ unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
             g_signal_connect (label, "notify", G_CALLBACK (unity_gtk_menu_item_handle_label_notify), item);
 
           g_signal_connect (menu_item, "accel-closures-changed", G_CALLBACK (unity_gtk_menu_item_handle_accel_closures_changed), item);
-
-          /* LP: #1208019 */
-          if (gtk_menu_item_get_submenu (menu_item) != NULL)
-            g_signal_emit_by_name (gtk_menu_item_get_submenu (menu_item), "show");
         }
     }
 }
@@ -526,7 +530,12 @@ unity_gtk_menu_item_get_child_shell (UnityGtkMenuItem *item)
           GtkWidget *submenu = gtk_menu_item_get_submenu (menu_item);
 
           if (submenu != NULL)
-            item->child_shell = unity_gtk_menu_shell_new_internal (GTK_MENU_SHELL (submenu));
+            {
+              item->child_shell = unity_gtk_menu_shell_new_internal (GTK_MENU_SHELL (submenu));
+
+              /* LP: #1208019 */
+              g_idle_add_full (G_PRIORITY_DEFAULT_IDLE, g_signal_emit_show, g_object_ref (submenu), g_object_unref);
+            }
         }
 
       item->child_shell_valid = TRUE;
