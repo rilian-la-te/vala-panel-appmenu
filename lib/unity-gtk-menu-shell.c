@@ -582,6 +582,13 @@ unity_gtk_menu_shell_handle_item_submenu (UnityGtkMenuShell *shell,
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
   g_warn_if_fail (item->parent_shell == shell);
 
+  if (shell->action_group != NULL)
+    {
+      /* If a submenu was added or removed, we need to update the submenu action. */
+      unity_gtk_action_group_disconnect_item (shell->action_group, item);
+      unity_gtk_action_group_connect_item (shell->action_group, item);
+    }
+
   if (item->child_shell_valid)
     {
       GtkMenuShell *old_submenu = item->child_shell != NULL ? item->child_shell->menu_shell : NULL;

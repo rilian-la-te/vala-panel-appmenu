@@ -41,6 +41,7 @@ unity_gtk_action_dispose (GObject *object)
     }
 
   unity_gtk_action_set_item (action, NULL);
+  unity_gtk_action_set_subname (action, NULL);
   unity_gtk_action_set_name (action, NULL);
 
   G_OBJECT_CLASS (unity_gtk_action_parent_class)->dispose (object);
@@ -93,6 +94,16 @@ unity_gtk_action_set_name (UnityGtkAction *action,
 }
 
 void
+unity_gtk_action_set_subname (UnityGtkAction *action,
+                              const gchar    *subname)
+{
+  g_return_if_fail (UNITY_GTK_IS_ACTION (action));
+
+  g_free (action->subname);
+  action->subname = g_strdup (subname);
+}
+
+void
 unity_gtk_action_set_item (UnityGtkAction   *action,
                            UnityGtkMenuItem *item)
 {
@@ -131,6 +142,9 @@ unity_gtk_action_print (UnityGtkAction *action,
 
       if (action->name != NULL)
         g_print ("%s  \"%s\"\n", space, action->name);
+
+      if (action->subname != NULL)
+        g_print ("%s  \"%s\"\n", space, action->subname);
 
       if (action->item != NULL)
         g_print ("%s  (%s *) %p\n", space, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (action->item)), action->item);
