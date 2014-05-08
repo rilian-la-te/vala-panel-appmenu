@@ -939,7 +939,6 @@ unity_gtk_action_group_connect_item (UnityGtkActionGroup *group,
                 g_warn_if_reached ();
 
               g_action_group_action_added (G_ACTION_GROUP (group), new_action->subname);
-              g_print ("add '%s'\n", new_action->subname);
             }
         }
     }
@@ -993,7 +992,6 @@ unity_gtk_action_group_disconnect_item (UnityGtkActionGroup *group,
                             g_warn_if_reached ();
 
                           g_action_group_action_removed (G_ACTION_GROUP (group), action->subname);
-                          g_print ("remove '%s'\n", action->subname);
                         }
 
                       if (group->actions_by_name != NULL)
@@ -1021,7 +1019,6 @@ unity_gtk_action_group_disconnect_item (UnityGtkActionGroup *group,
                 g_warn_if_reached ();
 
               g_action_group_action_removed (G_ACTION_GROUP (group), action->subname);
-              g_print ("remove '%s'\n", action->subname);
             }
 
           if (group->actions_by_name != NULL)
