@@ -42,6 +42,14 @@ G_DEFINE_TYPE_WITH_CODE (UnityGtkActionGroup,
 
 static gboolean unity_gtk_action_group_debug;
 
+static gboolean
+g_signal_emit_hide (gpointer user_data)
+{
+  g_signal_emit_by_name (user_data, "hide");
+
+  return G_SOURCE_REMOVE;
+}
+
 static void
 unity_gtk_action_group_handle_group_action_added (GActionGroup *action_group,
                                                   gchar        *action_name,
@@ -333,7 +341,10 @@ unity_gtk_action_group_really_change_action_state (GActionGroup *action_group,
 
               g_return_if_fail (submenu != NULL);
 
-              g_signal_emit_by_name (submenu, g_variant_get_boolean (value) ? "show" : "hide");
+              if (g_variant_get_boolean (value))
+                g_signal_emit_by_name (submenu, "show");
+              else
+                g_idle_add_full (G_PRIORITY_DEFAULT_IDLE, g_signal_emit_hide, g_object_ref (submenu), g_object_unref);
 
               return;
             }
