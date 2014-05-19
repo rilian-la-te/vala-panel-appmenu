@@ -428,6 +428,14 @@ unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
             g_signal_connect (label, "notify", G_CALLBACK (unity_gtk_menu_item_handle_label_notify), item);
 
           g_signal_connect (menu_item, "accel-closures-changed", G_CALLBACK (unity_gtk_menu_item_handle_accel_closures_changed), item);
+
+          /*
+           * LP: #1208019: We do this because Eclipse sets menu item
+           * accelerators using private API, and there's no way for us to
+           * detect when they change.
+           */
+          if (gtk_menu_item_get_submenu (menu_item) != NULL)
+            g_signal_emit_by_name (gtk_menu_item_get_submenu (menu_item), "show");
         }
     }
 }
