@@ -52,6 +52,8 @@ struct _UnityGtkMenuItem
   guchar             child_shell_valid : 1;
   guint              item_index;
   UnityGtkAction    *action;
+  GtkLabel          *first_label;
+  GtkLabel          *second_label;
   gchar             *label_label;
 };
 

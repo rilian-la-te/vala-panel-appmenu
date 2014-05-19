@@ -368,6 +368,75 @@ unity_gtk_menu_item_handle_label_notify (GObject    *object,
 }
 
 static void
+unity_gtk_menu_item_disconnect_labels (UnityGtkMenuItem *item)
+{
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
+
+  if (item->second_label != NULL)
+    {
+      g_signal_handlers_disconnect_by_data (item->second_label, item);
+      item->second_label = NULL;
+    }
+
+  if (item->first_label != NULL)
+    {
+      g_signal_handlers_disconnect_by_data (item->first_label, item);
+      item->first_label = NULL;
+    }
+}
+
+static gboolean
+unity_gtk_menu_item_connect_labels (UnityGtkMenuItem *item)
+{
+  GtkLabel *first_label = NULL;
+  GtkLabel *second_label = NULL;
+
+  g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), FALSE);
+
+  if (item->menu_item != NULL)
+    {
+      /* ensure label is available */
+      gtk_menu_item_get_label (item->menu_item);
+
+      first_label = gtk_menu_item_get_nth_label (item->menu_item, 0);
+      second_label = gtk_menu_item_get_nth_label (item->menu_item, 1);
+    }
+
+  if (first_label != item->first_label || second_label != item->second_label)
+    {
+      unity_gtk_menu_item_disconnect_labels (item);
+
+      item->first_label = first_label;
+      item->second_label = second_label;
+
+      if (item->first_label != NULL)
+        g_signal_connect (item->first_label, "notify", G_CALLBACK (unity_gtk_menu_item_handle_label_notify), item);
+      if (item->second_label != NULL)
+        g_signal_connect (item->second_label, "notify", G_CALLBACK (unity_gtk_menu_item_handle_label_notify), item);
+
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+static void
+unity_gtk_menu_item_handle_add_or_remove (GtkContainer *container,
+                                          GtkWidget    *widget,
+                                          gpointer      user_data)
+{
+  UnityGtkMenuItem *item;
+
+  g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (user_data));
+
+  item = UNITY_GTK_MENU_ITEM (user_data);
+
+  /* just ignore the case when parent_shell is NULL */
+  if (item->parent_shell != NULL && unity_gtk_menu_item_connect_labels (item))
+    unity_gtk_menu_shell_handle_item_notify (item->parent_shell, item, "label");
+}
+
+static void
 unity_gtk_menu_item_handle_accel_closures_changed (GtkWidget *widget,
                                                    gpointer   user_data)
 {
@@ -388,23 +457,16 @@ static void
 unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
                                    GtkMenuItem      *menu_item)
 {
-  GtkLabel *label;
-
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
 
   if (menu_item != item->menu_item)
     {
       UnityGtkMenuShell *child_shell = item->child_shell;
 
+      unity_gtk_menu_item_disconnect_labels (item);
+
       if (item->menu_item != NULL)
-        {
-          label = gtk_menu_item_get_nth_label (item->menu_item, 0);
-
-          if (label != NULL)
-            g_signal_handlers_disconnect_by_data (label, item);
-
-          g_signal_handlers_disconnect_by_data (item->menu_item, item);
-        }
+        g_signal_handlers_disconnect_by_data (item->menu_item, item);
 
       if (child_shell != NULL)
         {
@@ -419,14 +481,8 @@ unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
       if (menu_item != NULL)
         {
           g_signal_connect (menu_item, "notify", G_CALLBACK (unity_gtk_menu_item_handle_item_notify), item);
-
-          /* ensure label is available */
-          gtk_menu_item_get_label (menu_item);
-          label = gtk_menu_item_get_nth_label (menu_item, 0);
-
-          if (label != NULL)
-            g_signal_connect (label, "notify", G_CALLBACK (unity_gtk_menu_item_handle_label_notify), item);
-
+          g_signal_connect (menu_item, "add", G_CALLBACK (unity_gtk_menu_item_handle_add_or_remove), item);
+          g_signal_connect (menu_item, "remove", G_CALLBACK (unity_gtk_menu_item_handle_add_or_remove), item);
           g_signal_connect (menu_item, "accel-closures-changed", G_CALLBACK (unity_gtk_menu_item_handle_accel_closures_changed), item);
 
           /*
@@ -437,6 +493,8 @@ unity_gtk_menu_item_set_menu_item (UnityGtkMenuItem *item,
           if (gtk_menu_item_get_submenu (menu_item) != NULL)
             g_signal_emit_by_name (gtk_menu_item_get_submenu (menu_item), "show");
         }
+
+      unity_gtk_menu_item_connect_labels (item);
     }
 }
 
