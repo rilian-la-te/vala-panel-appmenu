@@ -474,8 +474,8 @@ unity_gtk_menu_item_finalize (GObject *object)
 
   item = UNITY_GTK_MENU_ITEM (object);
 
-  g_free (item->label);
-  item->label = NULL;
+  g_free (item->label_label);
+  item->label_label = NULL;
 
   G_OBJECT_CLASS (unity_gtk_menu_item_parent_class)->finalize (object);
 }
@@ -665,7 +665,7 @@ unity_gtk_menu_item_get_label (UnityGtkMenuItem *item)
   g_return_val_if_fail (UNITY_GTK_IS_MENU_ITEM (item), NULL);
   g_return_val_if_fail (item->menu_item != NULL, NULL);
 
-  if (item->label == NULL)
+  if (item->label_label == NULL)
     {
       const gchar *label_label = gtk_menu_item_get_label (item->menu_item);
 
@@ -695,16 +695,16 @@ unity_gtk_menu_item_get_label (UnityGtkMenuItem *item)
           if (gtk_label_get_use_underline (label))
             {
               if (item->parent_shell == NULL || item->parent_shell->has_mnemonics)
-                item->label = g_strdup (label_label);
+                item->label_label = g_strdup (label_label);
               else
-                item->label = g_strdup_no_mnemonics (label_label);
+                item->label_label = g_strdup_no_mnemonics (label_label);
             }
           else
-            item->label = g_strdup_escape_underscores (label_label);
+            item->label_label = g_strdup_escape_underscores (label_label);
         }
     }
 
-  return item->label;
+  return item->label_label;
 }
 
 GIcon *

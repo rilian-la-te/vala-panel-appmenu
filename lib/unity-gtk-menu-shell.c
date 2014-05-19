@@ -449,8 +449,8 @@ unity_gtk_menu_shell_handle_item_label (UnityGtkMenuShell *shell,
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
   g_warn_if_fail (item->parent_shell == shell);
 
-  g_free (item->label);
-  item->label = NULL;
+  g_free (item->label_label);
+  item->label_label = NULL;
 
   unity_gtk_menu_shell_update_item (shell, item);
 }
