@@ -777,6 +777,18 @@ unity_gtk_action_group_get_state_name (UnityGtkActionGroup *group,
                 }
             }
         }
+
+      if (name == NULL)
+        {
+          /*
+           * We tried to find a good name for this radio menu item state, but
+           * the application wasn't nice enough to give us one, either by label
+           * or by action. So we have to pick a bad name which is unique for
+           * any given UnityGtkMenuItem.
+           */
+
+          name = g_strdup_printf ("%p", item);
+        }
     }
 
   return name;
