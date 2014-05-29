@@ -198,7 +198,9 @@ gtk_widget_get_x11_property_string (GtkWidget   *widget,
   window = gtk_widget_get_window (widget);
   display = gdk_window_get_display (window);
 
+#if GTK_MAJOR_VERSION == 3
   g_return_val_if_fail (GDK_IS_X11_DISPLAY (display), NULL);
+#endif
 
   xdisplay = GDK_DISPLAY_XDISPLAY (display);
   xwindow = GDK_WINDOW_XID (window);
@@ -259,7 +261,9 @@ gtk_widget_set_x11_property_string (GtkWidget   *widget,
   window = gtk_widget_get_window (widget);
   display = gdk_window_get_display (window);
 
+#if GTK_MAJOR_VERSION == 3
   g_return_if_fail (GDK_IS_X11_DISPLAY (display));
+#endif
 
   xdisplay = GDK_DISPLAY_XDISPLAY (display);
   xwindow = GDK_WINDOW_XID (window);
