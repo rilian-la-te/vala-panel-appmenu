@@ -820,6 +820,12 @@ gtk_module_init (void)
 {
   const gchar *proxy = g_getenv ("UBUNTU_MENUPROXY");
 
+  /* We only support X11 */
+#if GTK_MAJOR_VERSION == 3
+  if (!GDK_IS_X11_DISPLAY (gdk_display_get_default ()))
+    return;
+#endif
+
   if ((proxy == NULL || is_true (proxy)) && !is_blacklisted (g_get_prgname ()))
     {
       GtkWidgetClass *widget_class;
