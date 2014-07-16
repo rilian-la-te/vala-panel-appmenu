@@ -1,3 +1,13 @@
+unity-gtk-module (0.0.0+14.10.20140716-0ubuntu1) utopic; urgency=low
+
+  [ William Hua ]
+  * Make up a bad state name if we can't infer a good name from a radio
+    menu item's label or action. (LP: #1313184)
+  * Forward show and hide signals to GTK+ menus. (LP: #1208019)
+  * Disable unity-gtk-module on non-Unity desktops. (LP: #1307657)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 16 Jul 2014 16:45:42 +0000
+
 unity-gtk-module (0.0.0+14.10.20140618-0ubuntu1) utopic; urgency=low
 
   [ Robert Ancell ]
