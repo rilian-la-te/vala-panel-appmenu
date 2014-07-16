@@ -46,25 +46,29 @@ struct _UnityGtkAction
 
   /*< private >*/
   gchar            *name;
+  gchar            *subname;
   UnityGtkMenuItem *item;
   GHashTable       *items_by_name;
 };
 
-GType            unity_gtk_action_get_type  (void)                     G_GNUC_INTERNAL;
+GType            unity_gtk_action_get_type    (void)                      G_GNUC_INTERNAL;
 
-UnityGtkAction * unity_gtk_action_new       (const gchar      *name,
-                                             UnityGtkMenuItem *item)   G_GNUC_INTERNAL;
+UnityGtkAction * unity_gtk_action_new         (const gchar      *name,
+                                               UnityGtkMenuItem *item)    G_GNUC_INTERNAL;
 
-UnityGtkAction * unity_gtk_action_new_radio (const gchar      *name)   G_GNUC_INTERNAL;
+UnityGtkAction * unity_gtk_action_new_radio   (const gchar      *name)    G_GNUC_INTERNAL;
 
-void             unity_gtk_action_set_name  (UnityGtkAction   *action,
-                                             const gchar      *name)   G_GNUC_INTERNAL;
+void             unity_gtk_action_set_name    (UnityGtkAction   *action,
+                                               const gchar      *name)    G_GNUC_INTERNAL;
 
-void             unity_gtk_action_set_item  (UnityGtkAction   *action,
-                                             UnityGtkMenuItem *item)   G_GNUC_INTERNAL;
+void             unity_gtk_action_set_subname (UnityGtkAction   *action,
+                                               const gchar      *subname) G_GNUC_INTERNAL;
 
-void             unity_gtk_action_print     (UnityGtkAction   *action,
-                                             guint             indent) G_GNUC_INTERNAL;
+void             unity_gtk_action_set_item    (UnityGtkAction   *action,
+                                               UnityGtkMenuItem *item)    G_GNUC_INTERNAL;
+
+void             unity_gtk_action_print       (UnityGtkAction   *action,
+                                               guint             indent)  G_GNUC_INTERNAL;
 
 G_END_DECLS
 

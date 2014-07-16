@@ -449,8 +449,8 @@ unity_gtk_menu_shell_handle_item_label (UnityGtkMenuShell *shell,
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
   g_warn_if_fail (item->parent_shell == shell);
 
-  g_free (item->label);
-  item->label = NULL;
+  g_free (item->label_label);
+  item->label_label = NULL;
 
   unity_gtk_menu_shell_update_item (shell, item);
 }
@@ -581,6 +581,13 @@ unity_gtk_menu_shell_handle_item_submenu (UnityGtkMenuShell *shell,
   g_return_if_fail (UNITY_GTK_IS_MENU_SHELL (shell));
   g_return_if_fail (UNITY_GTK_IS_MENU_ITEM (item));
   g_warn_if_fail (item->parent_shell == shell);
+
+  if (shell->action_group != NULL)
+    {
+      /* If a submenu was added or removed, we need to update the submenu action. */
+      unity_gtk_action_group_disconnect_item (shell->action_group, item);
+      unity_gtk_action_group_connect_item (shell->action_group, item);
+    }
 
   if (item->child_shell_valid)
     {

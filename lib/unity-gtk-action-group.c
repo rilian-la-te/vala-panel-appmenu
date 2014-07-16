@@ -42,6 +42,14 @@ G_DEFINE_TYPE_WITH_CODE (UnityGtkActionGroup,
 
 static gboolean unity_gtk_action_group_debug;
 
+static gboolean
+g_signal_emit_hide (gpointer user_data)
+{
+  g_signal_emit_by_name (user_data, "hide");
+
+  return G_SOURCE_REMOVE;
+}
+
 static void
 unity_gtk_action_group_handle_group_action_added (GActionGroup *action_group,
                                                   gchar        *action_name,
@@ -272,54 +280,79 @@ unity_gtk_action_group_really_change_action_state (GActionGroup *action_group,
 
       if (action != NULL)
         {
-          if (action->items_by_name != NULL)
+          if (g_strcmp0 (name, action->name) == 0)
             {
-              if (value != NULL)
+              if (action->items_by_name != NULL)
                 {
-                  const gchar *name;
-                  UnityGtkMenuItem *item;
-
-                  g_return_if_fail (g_variant_is_of_type (value, G_VARIANT_TYPE_STRING));
-
-                  name = g_variant_get_string (value, NULL);
-                  item = g_hash_table_lookup (action->items_by_name, name);
-
-                  if (item == NULL || !unity_gtk_menu_item_is_check (item))
+                  if (value != NULL)
                     {
-                      g_warn_if_reached ();
+                      const gchar *name;
+                      UnityGtkMenuItem *item;
 
-                      value = NULL;
+                      g_return_if_fail (g_variant_is_of_type (value, G_VARIANT_TYPE_STRING));
+
+                      name = g_variant_get_string (value, NULL);
+                      item = g_hash_table_lookup (action->items_by_name, name);
+
+                      if (item == NULL || !unity_gtk_menu_item_is_check (item))
+                        {
+                          g_warn_if_reached ();
+
+                          value = NULL;
+                        }
+                      else
+                        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item->menu_item), TRUE);
                     }
-                  else
-                    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item->menu_item), TRUE);
-                }
 
-              if (value == NULL)
+                  if (value == NULL)
+                    {
+                      GHashTableIter iter;
+                      gpointer value;
+
+                      g_hash_table_iter_init (&iter, action->items_by_name);
+                      while (g_hash_table_iter_next (&iter, NULL, &value))
+                        {
+                          UnityGtkMenuItem *item = value;
+
+                          if (unity_gtk_menu_item_is_check (item))
+                            gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item->menu_item), FALSE);
+                        }
+                    }
+                }
+              else if (action->item != NULL && unity_gtk_menu_item_is_check (action->item))
                 {
-                  GHashTableIter iter;
-                  gpointer value;
+                  g_return_if_fail (value != NULL && g_variant_is_of_type (value, G_VARIANT_TYPE_BOOLEAN));
 
-                  g_hash_table_iter_init (&iter, action->items_by_name);
-                  while (g_hash_table_iter_next (&iter, NULL, &value))
-                    {
-                      UnityGtkMenuItem *item = value;
-
-                      if (unity_gtk_menu_item_is_check (item))
-                        gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (item->menu_item), FALSE);
-                    }
+                  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (action->item->menu_item), g_variant_get_boolean (value));
                 }
+              else
+                g_warn_if_fail (value == NULL);
+
+              return;
             }
-          else if (action->item != NULL && unity_gtk_menu_item_is_check (action->item))
+          else if (g_strcmp0 (name, action->subname) == 0)
             {
-              g_return_if_fail (value != NULL && g_variant_is_of_type (value, G_VARIANT_TYPE_BOOLEAN));
+              GtkWidget *submenu;
 
-              gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (action->item->menu_item), g_variant_get_boolean (value));
+              g_return_if_fail (value != NULL && g_variant_is_of_type (value, G_VARIANT_TYPE_BOOLEAN));
+              g_return_if_fail (action->item != NULL && action->item->menu_item != NULL);
+
+              submenu = gtk_menu_item_get_submenu (action->item->menu_item);
+
+              g_return_if_fail (submenu != NULL);
+
+              if (g_variant_get_boolean (value))
+                g_signal_emit_by_name (submenu, "show");
+              else
+                g_idle_add_full (G_PRIORITY_DEFAULT_IDLE, g_signal_emit_hide, g_object_ref (submenu), g_object_unref);
+
+              return;
             }
           else
-            g_warn_if_fail (value == NULL);
-
-          return;
+            g_warn_if_reached ();
         }
+      else
+        g_warn_if_reached ();
     }
   else
     g_warn_if_reached ();
@@ -359,33 +392,40 @@ unity_gtk_action_group_activate_action (GActionGroup *action_group,
 
       if (action != NULL)
         {
-          if (action->items_by_name != NULL)
+          if (g_strcmp0 (name, action->name) == 0)
             {
-              const gchar *name;
-              UnityGtkMenuItem *item;
+              if (action->items_by_name != NULL)
+                {
+                  const gchar *name;
+                  UnityGtkMenuItem *item;
 
-              g_return_if_fail (parameter != NULL && g_variant_is_of_type (parameter, G_VARIANT_TYPE_STRING));
+                  g_return_if_fail (parameter != NULL && g_variant_is_of_type (parameter, G_VARIANT_TYPE_STRING));
 
-              name = g_variant_get_string (parameter, NULL);
-              item = g_hash_table_lookup (action->items_by_name, name);
+                  name = g_variant_get_string (parameter, NULL);
+                  item = g_hash_table_lookup (action->items_by_name, name);
 
-              if (item != NULL)
-                unity_gtk_menu_item_activate (item);
+                  if (item != NULL)
+                    unity_gtk_menu_item_activate (item);
 
-              g_action_group_action_state_changed (G_ACTION_GROUP (group), action->name, parameter);
+                  g_action_group_action_state_changed (G_ACTION_GROUP (group), action->name, parameter);
+                }
+              else if (action->item != NULL)
+                {
+                  if (unity_gtk_menu_item_get_draw_as_radio (action->item))
+                    g_warn_if_fail (g_variant_is_of_type (parameter, G_VARIANT_TYPE_STRING));
+                  else
+                    g_warn_if_fail (parameter == NULL);
+
+                  unity_gtk_menu_item_activate (action->item);
+                }
+
+              return;
             }
-          else if (action->item != NULL)
-            {
-              if (unity_gtk_menu_item_get_draw_as_radio (action->item))
-                g_warn_if_fail (g_variant_is_of_type (parameter, G_VARIANT_TYPE_STRING));
-              else
-                g_warn_if_fail (parameter == NULL);
-
-              unity_gtk_menu_item_activate (action->item);
-            }
-
-          return;
+          else
+            g_warn_if_reached ();
         }
+      else
+        g_warn_if_reached ();
     }
   else
     g_warn_if_reached ();
@@ -419,111 +459,142 @@ unity_gtk_action_group_query_action (GActionGroup        *action_group,
 
       if (action != NULL)
         {
-          if (enabled != NULL)
+          if (g_strcmp0 (name, action->name) == 0)
             {
-              if (action->items_by_name != NULL)
+              if (enabled != NULL)
                 {
-                  GHashTableIter iter;
-                  gpointer value;
+                  if (action->items_by_name != NULL)
+                    {
+                      GHashTableIter iter;
+                      gpointer value;
 
-                  *enabled = FALSE;
+                      *enabled = FALSE;
 
-                  g_hash_table_iter_init (&iter, action->items_by_name);
-                  while (!*enabled && g_hash_table_iter_next (&iter, NULL, &value))
-                    *enabled = unity_gtk_menu_item_is_sensitive (value);
+                      g_hash_table_iter_init (&iter, action->items_by_name);
+                      while (!*enabled && g_hash_table_iter_next (&iter, NULL, &value))
+                        *enabled = unity_gtk_menu_item_is_sensitive (value);
+                    }
+                  else
+                    *enabled = action->item != NULL && unity_gtk_menu_item_is_sensitive (action->item);
                 }
-              else
-                *enabled = action->item != NULL && unity_gtk_menu_item_is_sensitive (action->item);
-            }
 
-          if (parameter_type != NULL)
+              if (parameter_type != NULL)
+                {
+                  if (action->items_by_name != NULL || (action->item != NULL && unity_gtk_menu_item_get_draw_as_radio (action->item)))
+                    *parameter_type = G_VARIANT_TYPE_STRING;
+                  else
+                    *parameter_type = NULL;
+                }
+
+              if (state_type != NULL)
+                {
+                  if (action->items_by_name != NULL || (action->item != NULL && unity_gtk_menu_item_get_draw_as_radio (action->item)))
+                    *state_type = G_VARIANT_TYPE_STRING;
+                  else if (action->item != NULL && unity_gtk_menu_item_is_check (action->item))
+                    *state_type = G_VARIANT_TYPE_BOOLEAN;
+                  else
+                    *state_type = NULL;
+                }
+
+              if (state_hint != NULL)
+                {
+                  if (action->items_by_name != NULL)
+                    {
+                      GVariantBuilder builder;
+                      GHashTableIter iter;
+                      gpointer key;
+
+                      g_variant_builder_init (&builder, G_VARIANT_TYPE_ARRAY);
+
+                      g_hash_table_iter_init (&iter, action->items_by_name);
+                      while (g_hash_table_iter_next (&iter, &key, NULL))
+                        g_variant_builder_add (&builder, "s", key);
+
+                      *state_hint = g_variant_ref_sink (g_variant_builder_end (&builder));
+                    }
+                  else if (action->item != NULL && unity_gtk_menu_item_is_check (action->item))
+                    {
+                      GVariantBuilder builder;
+
+                      if (unity_gtk_menu_item_get_draw_as_radio (action->item))
+                        {
+                          g_variant_builder_init (&builder, G_VARIANT_TYPE_ARRAY);
+                          g_variant_builder_add (&builder, "s", action->name);
+                          *state_hint = g_variant_ref_sink (g_variant_builder_end (&builder));
+                        }
+                      else
+                        {
+                          g_variant_builder_init (&builder, G_VARIANT_TYPE_TUPLE);
+                          g_variant_builder_add (&builder, "b", FALSE);
+                          g_variant_builder_add (&builder, "b", TRUE);
+                          *state_hint = g_variant_ref_sink (g_variant_builder_end (&builder));
+                        }
+                    }
+                  else
+                    *state_hint = NULL;
+                }
+
+              if (state != NULL)
+                {
+                  if (action->items_by_name != NULL)
+                    {
+                      GHashTableIter iter;
+                      gpointer key;
+                      gpointer value;
+
+                      *state = NULL;
+
+                      g_hash_table_iter_init (&iter, action->items_by_name);
+                      while (*state == NULL && g_hash_table_iter_next (&iter, &key, &value))
+                        if (unity_gtk_menu_item_is_active (value))
+                          *state = g_variant_ref_sink (g_variant_new_string (key));
+                    }
+                  else if (action->item != NULL && unity_gtk_menu_item_is_check (action->item))
+                    {
+                      if (unity_gtk_menu_item_get_draw_as_radio (action->item))
+                        {
+                          if (unity_gtk_menu_item_is_active (action->item))
+                            *state = g_variant_ref_sink (g_variant_new_string (action->name));
+                          else
+                            *state = g_variant_ref_sink (g_variant_new_string (""));
+                        }
+                      else
+                        *state = g_variant_ref_sink (g_variant_new_boolean (unity_gtk_menu_item_is_active (action->item)));
+                    }
+                  else
+                    *state = NULL;
+                }
+
+              return TRUE;
+            }
+          else if (g_strcmp0 (name, action->subname) == 0)
             {
-              if (action->items_by_name != NULL || (action->item != NULL && unity_gtk_menu_item_get_draw_as_radio (action->item)))
-                *parameter_type = G_VARIANT_TYPE_STRING;
-              else
+              if (enabled != NULL)
+                *enabled = TRUE;
+
+              if (parameter_type != NULL)
                 *parameter_type = NULL;
-            }
 
-          if (state_type != NULL)
-            {
-              if (action->items_by_name != NULL || (action->item != NULL && unity_gtk_menu_item_get_draw_as_radio (action->item)))
-                *state_type = G_VARIANT_TYPE_STRING;
-              else if (action->item != NULL && unity_gtk_menu_item_is_check (action->item))
+              if (state_type != NULL)
                 *state_type = G_VARIANT_TYPE_BOOLEAN;
-              else
-                *state_type = NULL;
-            }
 
-          if (state_hint != NULL)
-            {
-              if (action->items_by_name != NULL)
+              if (state_hint != NULL)
                 {
                   GVariantBuilder builder;
-                  GHashTableIter iter;
-                  gpointer key;
 
-                  g_variant_builder_init (&builder, G_VARIANT_TYPE_ARRAY);
-
-                  g_hash_table_iter_init (&iter, action->items_by_name);
-                  while (g_hash_table_iter_next (&iter, &key, NULL))
-                    g_variant_builder_add (&builder, "s", key);
-
+                  g_variant_builder_init (&builder, G_VARIANT_TYPE_TUPLE);
+                  g_variant_builder_add (&builder, "b", FALSE);
+                  g_variant_builder_add (&builder, "b", TRUE);
                   *state_hint = g_variant_ref_sink (g_variant_builder_end (&builder));
                 }
-              else if (action->item != NULL && unity_gtk_menu_item_is_check (action->item))
-                {
-                  GVariantBuilder builder;
 
-                  if (unity_gtk_menu_item_get_draw_as_radio (action->item))
-                    {
-                      g_variant_builder_init (&builder, G_VARIANT_TYPE_ARRAY);
-                      g_variant_builder_add (&builder, "s", action->name);
-                      *state_hint = g_variant_ref_sink (g_variant_builder_end (&builder));
-                    }
-                  else
-                    {
-                      g_variant_builder_init (&builder, G_VARIANT_TYPE_TUPLE);
-                      g_variant_builder_add (&builder, "b", FALSE);
-                      g_variant_builder_add (&builder, "b", TRUE);
-                      *state_hint = g_variant_ref_sink (g_variant_builder_end (&builder));
-                    }
-                }
-              else
-                *state_hint = NULL;
+              if (state != NULL)
+                *state = g_variant_ref_sink (g_variant_new_boolean (TRUE));
+
+              return TRUE;
             }
-
-          if (state != NULL)
-            {
-              if (action->items_by_name != NULL)
-                {
-                  GHashTableIter iter;
-                  gpointer key;
-                  gpointer value;
-
-                  *state = NULL;
-
-                  g_hash_table_iter_init (&iter, action->items_by_name);
-                  while (*state == NULL && g_hash_table_iter_next (&iter, &key, &value))
-                    if (unity_gtk_menu_item_is_active (value))
-                      *state = g_variant_ref_sink (g_variant_new_string (key));
-                }
-              else if (action->item != NULL && unity_gtk_menu_item_is_check (action->item))
-                {
-                  if (unity_gtk_menu_item_get_draw_as_radio (action->item))
-                    {
-                      if (unity_gtk_menu_item_is_active (action->item))
-                        *state = g_variant_ref_sink (g_variant_new_string (action->name));
-                      else
-                        *state = g_variant_ref_sink (g_variant_new_string (""));
-                    }
-                  else
-                    *state = g_variant_ref_sink (g_variant_new_boolean (unity_gtk_menu_item_is_active (action->item)));
-                }
-              else
-                *state = NULL;
-            }
-
-          return TRUE;
+          else
+            g_warn_if_reached ();
         }
     }
   else
@@ -877,6 +948,21 @@ unity_gtk_action_group_connect_item (UnityGtkActionGroup *group,
             g_warn_if_reached ();
 
           g_action_group_action_added (G_ACTION_GROUP (group), new_action->name);
+
+          /* Add a new submenu action so we can detect opening and closing. */
+          if (item->menu_item != NULL && gtk_menu_item_get_submenu (item->menu_item) != NULL)
+            {
+              gchar *subname = unity_gtk_action_group_get_action_name (group, item);
+              unity_gtk_action_set_subname (new_action, subname);
+              g_free (subname);
+
+              if (group->actions_by_name != NULL)
+                g_hash_table_insert (group->actions_by_name, new_action->subname, g_object_ref (new_action));
+              else
+                g_warn_if_reached ();
+
+              g_action_group_action_added (G_ACTION_GROUP (group), new_action->subname);
+            }
         }
     }
 }
@@ -920,6 +1006,17 @@ unity_gtk_action_group_disconnect_item (UnityGtkActionGroup *group,
 
                   if (g_hash_table_size (action->items_by_name) == 0)
                     {
+                      /* Remove the submenu action used to detect opening and closing. */
+                      if (action->subname != NULL)
+                        {
+                          if (group->actions_by_name != NULL)
+                            g_hash_table_remove (group->actions_by_name, action->subname);
+                          else
+                            g_warn_if_reached ();
+
+                          g_action_group_action_removed (G_ACTION_GROUP (group), action->subname);
+                        }
+
                       if (group->actions_by_name != NULL)
                         g_hash_table_remove (group->actions_by_name, action->name);
                       else
@@ -936,6 +1033,17 @@ unity_gtk_action_group_disconnect_item (UnityGtkActionGroup *group,
         }
       else
         {
+          /* Remove the submenu action used to detect opening and closing. */
+          if (action->subname != NULL)
+            {
+              if (group->actions_by_name != NULL)
+                g_hash_table_remove (group->actions_by_name, action->subname);
+              else
+                g_warn_if_reached ();
+
+              g_action_group_action_removed (G_ACTION_GROUP (group), action->subname);
+            }
+
           if (group->actions_by_name != NULL)
             g_hash_table_remove (group->actions_by_name, action->name);
           else

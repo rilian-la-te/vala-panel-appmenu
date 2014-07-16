@@ -27,6 +27,10 @@
 #define G_MENU_ATTRIBUTE_ACCEL_TEXT "x-canonical-accel"
 #endif
 
+#ifndef G_MENU_ATTRIBUTE_SUBMENU_ACTION
+#define G_MENU_ATTRIBUTE_SUBMENU_ACTION "submenu-action"
+#endif
+
 G_DEFINE_TYPE (UnityGtkMenuSection,
                unity_gtk_menu_section,
                G_TYPE_MENU_MODEL);
@@ -136,32 +140,43 @@ unity_gtk_menu_section_get_item_attributes (GMenuModel  *model,
       g_object_unref (icon);
     }
 
-  if (action != NULL && action->name != NULL)
+  if (action != NULL)
     {
-      gchar *name = g_strdup_printf ("unity.%s", action->name);
-      GVariant *variant = g_variant_ref_sink (g_variant_new_string (name));
-
-      g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_ACTION, variant);
-
-      if (action->items_by_name != NULL)
+      if (action->name != NULL)
         {
-          GHashTableIter iter;
-          gpointer key;
-          gpointer value;
-          const gchar *target = NULL;
+          gchar *name = g_strdup_printf ("unity.%s", action->name);
+          GVariant *variant = g_variant_ref_sink (g_variant_new_string (name));
 
-          g_hash_table_iter_init (&iter, action->items_by_name);
-          while (target == NULL && g_hash_table_iter_next (&iter, &key, &value))
-            if (value == item)
-              target = key;
+          g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_ACTION, variant);
 
-          if (target != NULL)
-            g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_TARGET, g_variant_ref_sink (g_variant_new_string (target)));
+          if (action->items_by_name != NULL)
+            {
+              GHashTableIter iter;
+              gpointer key;
+              gpointer value;
+              const gchar *target = NULL;
+
+              g_hash_table_iter_init (&iter, action->items_by_name);
+              while (target == NULL && g_hash_table_iter_next (&iter, &key, &value))
+                if (value == item)
+                  target = key;
+
+              if (target != NULL)
+                g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_TARGET, g_variant_ref_sink (g_variant_new_string (target)));
+            }
+          else if (unity_gtk_menu_item_get_draw_as_radio (item))
+            g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_TARGET, g_variant_ref_sink (g_variant_new_string (action->name)));
+
+          g_free (name);
         }
-      else if (unity_gtk_menu_item_get_draw_as_radio (item))
-        g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_TARGET, g_variant_ref_sink (g_variant_new_string (action->name)));
 
-      g_free (name);
+      if (action->subname != NULL)
+        {
+          gchar *subname = g_strdup_printf ("unity.%s", action->subname);
+          GVariant *variant = g_variant_ref_sink (g_variant_new_string (subname));
+          g_hash_table_insert (*attributes, G_MENU_ATTRIBUTE_SUBMENU_ACTION, variant);
+          g_free (subname);
+        }
     }
 
   if (item->menu_item != NULL)
