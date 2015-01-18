@@ -1,3 +1,11 @@
+unity-gtk-module (0.0.0+15.04.20150118-0ubuntu1) vivid; urgency=low
+
+  [ Dmitry Shachnev ]
+  * Support multiple desktop names in $XDG_CURRENT_DESKTOP. (LP:
+    #1383382)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Sun, 18 Jan 2015 09:59:10 +0000
+
 unity-gtk-module (0.0.0+14.10.20140716-0ubuntu2) vivid; urgency=medium
 
   * No change rebuild to get debug symbols on all architectures.
