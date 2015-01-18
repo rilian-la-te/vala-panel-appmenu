@@ -1,3 +1,9 @@
+unity-gtk-module (0.0.0+14.10.20140716-0ubuntu2) vivid; urgency=medium
+
+  * No change rebuild to get debug symbols on all architectures.
+
+ -- Brian Murray <brian@ubuntu.com>  Mon, 17 Nov 2014 09:59:59 -0800
+
 unity-gtk-module (0.0.0+14.10.20140716-0ubuntu1) utopic; urgency=low
 
   [ William Hua ]
