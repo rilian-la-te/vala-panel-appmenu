@@ -1,0 +1,3 @@
+[submodule "cmake"]
+	path = cmake
+	url = git://github.com/rilian-la-te/cmake-vala.git
