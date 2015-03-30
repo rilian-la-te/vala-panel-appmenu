@@ -44,14 +44,16 @@ pkg_check_modules (CORE REQUIRED
   gio-2.0>=2.40
   gio-unix-2.0>=2.40
   gthread-2.0>=2.40
-  gmodule-2.0>=2.40)
+  gmodule-2.0>=2.40
+  libbamf3)
 
 set(CORE_PACKAGES
   gtk+-3.0
   glib-2.0
   gio-2.0
   gio-unix-2.0
-  gmodule-2.0)
+  gmodule-2.0
+  posix)
 
 set(PACKGAGE_CFLAGS ${CORE_CFLAGS})
 set(PACKAGE_LINK_DIRS ${CORE_LIBRARY_DIRS})
@@ -67,8 +69,6 @@ include_directories(${CMAKE_BINARY_DIR}/lib)
 
 #set requred variables
 set(TARGET_GLIB ${GLIB_VERSION_MAJOR}.${GLIB_VERSION_MINOR})
-
-ADD_SUBDIRECTORY(data)
 ADD_SUBDIRECTORY(lib)
 ADD_SUBDIRECTORY(xfce4-panel)
 ADD_SUBDIRECTORY(vala-panel)
