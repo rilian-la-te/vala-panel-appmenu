@@ -45,7 +45,8 @@ pkg_check_modules (CORE REQUIRED
   gio-unix-2.0>=2.40
   gthread-2.0>=2.40
   gmodule-2.0>=2.40
-  libbamf3)
+  libbamf3>=0.5.0
+  libwnck-3.0>=3.12.0)
 
 set(CORE_PACKAGES
   gtk+-3.0
@@ -69,6 +70,20 @@ include_directories(${CMAKE_BINARY_DIR}/lib)
 
 #set requred variables
 set(TARGET_GLIB ${GLIB_VERSION_MAJOR}.${GLIB_VERSION_MINOR})
+
+#set build options
+option(ENABLE_XFCE "Enable Xfce Panel Applet" ON)
+if (ENABLE_XFCE)
+    pkg_check_modules(XFCE libxfce4panel-2.0 libxfconf-0)
+    if (NOT(XFCE_FOUND))
+        set(ENABLE_XFCE OFF)
+    endif()
+endif()
+if (ENABLE_XFCE)
+    set(XFCE_PACKAGES libxfce4panel-2.0 libxfconf-0)
+    set(XFCE_SOURCES xfce4-plugin-appmenu.vala)
+endif()
+
 ADD_SUBDIRECTORY(lib)
-ADD_SUBDIRECTORY(xfce4-panel)
-ADD_SUBDIRECTORY(vala-panel)
+add_subdirectory(data)
+add_subdirectory(po)

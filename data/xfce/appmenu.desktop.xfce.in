@@ -1,0 +1,8 @@
+[Xfce Panel]
+Type=X-XFCE-PanelPlugin
+Encoding=UTF-8
+Name=AppMenu Plugin
+Comment=Display AppMenu (Global Menu);
+Icon=applications-system
+X-XFCE-Module=appmenu
+X-XFCE-API=2.0

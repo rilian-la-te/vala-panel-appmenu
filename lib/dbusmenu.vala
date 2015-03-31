@@ -425,7 +425,7 @@ namespace DBusMenu
     {
         private static const string[] allowed_properties = {"visible","enabled","label","type",
                                                 "children-display","toggle-type",
-                                                "toggle-state","icon-name","icon-data","accessible-desc"};
+                                                "toggle-state","icon-name","icon-data","accessible-desc","x-valapanel-icon-size"};
         public Item item
         {get; protected set;}
         private bool has_indicator;
@@ -507,9 +507,6 @@ namespace DBusMenu
                     break;
                 case "shortcut":
                 /* FIXME: Accels support*/
-                    break;
-                case "x-valapanel-icon-size":
-                    image.set_pixel_size(val.get_int32());
                     break;
             }
             if(activate_handler > 0)
@@ -765,6 +762,165 @@ namespace DBusMenu
             return true;
         }
     }
+    public class GtkMenuBarItem : Gtk.MenuItem, GtkItemIface
+    {
+        private static const string[] allowed_properties = {"visible","enabled","label","type",
+                                                "children-display", "x-valapanel-icon-size",
+                                                "icon-name","icon-data","accessible-desc"};
+        public Item item
+        {get; protected set;}
+        private Box box;
+        private Image image;
+        private new Label label;
+        private ulong activate_handler;
+        private bool is_themed_icon;
+        public GtkMenuBarItem(Item item)
+        {
+            is_themed_icon = false;
+            this.item = item;
+            box = new Box(Orientation.HORIZONTAL, 5);
+            image = new Image();
+            label = new Label(null);
+            box.add(image);
+            box.add(label);
+            this.add(box);
+            this.show_all();
+            this.init();
+            item.property_changed.connect(on_prop_changed_cb);
+            item.child_added.connect(on_child_added_cb);
+            item.child_removed.connect(on_child_removed_cb);
+            item.child_moved.connect(on_child_moved_cb);
+            activate_handler = this.activate.connect(on_toggled_cb);
+            this.select.connect(on_select_cb);
+            this.deselect.connect(on_deselect_cb);
+            this.set_accessible_role(Atk.Role.MENU_ITEM);
+            this.notify["visible"].connect(()=>{this.visible=item.get_bool_property("visible");});
+        }
+        private void init()
+        {
+            foreach (var prop in allowed_properties)
+                on_prop_changed_cb(prop,item.get_variant_property(prop));
+        }
+        private void on_prop_changed_cb(string name, Variant? val)
+        {
+            if(activate_handler > 0)
+                SignalHandler.block(this,activate_handler);
+            switch (name)
+            {
+                case "visible":
+                    this.visible = val.get_boolean();
+                    break;
+                case "enabled":
+                    this.sensitive = val.get_boolean();
+                    break;
+                case "label":
+                    label.set_text_with_mnemonic(val.get_string());
+                    break;
+                case "children-display":
+                    if (val != null && val.get_string() == "submenu")
+                    {
+                        this.submenu = new Gtk.Menu();
+                        this.submenu.insert.connect(on_child_insert_cb);
+                        foreach(var item in this.item.get_children())
+                            submenu.add(GtkClient.new_item(item));
+                    }
+                    else
+                        this.submenu = null;
+                    break;
+                case "accessible-desc":
+                    this.set_tooltip_text(val != null ? val.get_string() : null);
+                    break;
+                case "icon-name":
+                case "icon-data":
+                    update_icon(val);
+                    break;
+                case "shortcut":
+                /* FIXME: Accels support*/
+                    break;
+                case "x-valapanel-icon-size":
+                    image.set_pixel_size(val != null ? val.get_int32() : 16);
+                    break;
+            }
+            if(activate_handler > 0)
+                SignalHandler.unblock(this,activate_handler);
+        }
+        private void update_icon(Variant? val)
+        {
+            if (val == null)
+            {
+                var icon = image.gicon;
+                if (icon == null)
+                    image.hide();
+                else if (!(icon is ThemedIcon && is_themed_icon))
+                    is_themed_icon = false;
+                return;
+            }
+            Icon? icon = null;
+            if (val.get_type_string() == "s")
+            {
+                is_themed_icon = true;
+                icon = new ThemedIcon.with_default_fallbacks(val.get_string()+"-symbolic");
+            }
+            else if (!is_themed_icon && val.get_type_string() == "ay")
+                icon = new BytesIcon(val.get_data_as_bytes());
+            else
+                return;
+            image.set_from_gicon(icon,IconSize.MENU);
+            image.show();
+        }
+        private void on_child_added_cb(int id,Item item)
+        {
+            if (this.submenu != null)
+                this.submenu.append (GtkClient.new_item(item));
+            else
+            {
+                stderr.printf("Adding new item to item without submenu! Creating new submenu...\n");
+                this.submenu = new Gtk.Menu();
+                this.submenu.append (GtkClient.new_item(item));
+            }
+        }
+        private void on_child_removed_cb(int id, Item item)
+        {
+            if (this.submenu != null)
+                foreach(var ch in this.submenu.get_children())
+                    if ((ch as GtkItemIface).item == item)
+                        ch.destroy();
+            else
+                stderr.printf("Cannot remove a child from item without submenu!\n");
+        }
+        private void on_child_moved_cb(int oldpos, int newpos, Item item)
+        {
+            if (this.submenu != null)
+                foreach(var ch in this.submenu.get_children())
+                    if ((ch as GtkItemIface).item == item)
+                        this.submenu.reorder_child(ch,newpos);
+            else
+                stderr.printf("Cannot move a child of item with has no children!\n");
+        }
+        private void on_toggled_cb()
+        {
+            item.handle_event("clicked",new Variant.int32(0),get_current_event_time());
+        }
+        private void on_select_cb()
+        {
+            if (this.submenu != null)
+            {
+                item.handle_event("opened",null,0);
+                item.request_about_to_show();
+            }
+        }
+        private void on_deselect_cb()
+        {
+            if (this.submenu != null)
+                item.handle_event("closed",null,0);
+        }
+        private void on_child_insert_cb(Widget w, int pos)
+        {
+            var ch = w as GtkItemIface;
+            this.submenu.reorder_child(w,item.get_child_position(ch.item.id));
+            this.submenu.queue_resize();
+        }
+    }
     public class GtkClient : Client
     {
         private Gtk.MenuShell root_menu;
@@ -775,6 +931,12 @@ namespace DBusMenu
             else if (item.get_string_property("type") == "slider")
                 return new GtkSliderItem(item);
             return new GtkMainItem(item);
+        }
+        private static Gtk.MenuItem new_menubar_item(Item item)
+        {
+            if (item.get_string_property("type") == "separator")
+                return new GtkSeparatorItem(item);
+            return new GtkMenuBarItem(item);
         }
         public GtkClient(string object_name, string object_path)
         {
@@ -793,7 +955,7 @@ namespace DBusMenu
             get_root_item().child_moved.connect(on_child_moved_cb);
             get_root_item().child_removed.connect(on_child_removed_cb);
             foreach(var ch in get_root_item().get_children())
-                root_menu.append(new_item(ch) as Gtk.MenuItem);
+                on_child_added_cb(ch.id,ch);
             foreach(var path in iface.icon_theme_path)
                 IconTheme.get_default().append_search_path(path);
             root_menu.show();
@@ -810,7 +972,12 @@ namespace DBusMenu
         }
         private void on_child_added_cb(int id, Item item)
         {
-            root_menu.insert(new_item(item),get_root_item().get_child_position(item.id));
+            Gtk.MenuItem menuitem;
+            if (this.root_menu is Gtk.MenuBar)
+                menuitem = new_menubar_item(item);
+            else
+                menuitem = new_item(item);
+            root_menu.insert(menuitem,get_root_item().get_child_position(item.id));
         }
         private void on_child_moved_cb(int oldpos, int newpos, Item item)
         {

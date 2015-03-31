@@ -3,43 +3,20 @@ using Gtk;
 
 namespace Appmenu
 {
-    public class MenuWidgetMenumodel : MenuWidget
+    internal class MenuWidgetMenumodel : MenuWidget
     {
-        private Gtk.MenuBar? appmenu = null;
-        private Gtk.MenuBar? menubar = null;
         private GLib.ActionGroup? appmenu_actions = null;
         private GLib.ActionGroup? menubar_actions = null;
         private GLib.ActionGroup? unity_actions = null;
-        public MenuWidgetMenumodel(uint xid) throws IOError
+        public MenuWidgetMenumodel(Bamf.Application? app,Bamf.Window window) throws IOError
         {
-            this.window_id = xid;
-            var window = (Xcb.Window) this.window_id;
-            var disp = Gdk.Display.get_default() as Gdk.X11.Display;
-            unowned Xcb.Connection conn = ((X.xcb.Display)disp.get_xdisplay()).connection;
-            var gtk_unique_atom_cookie = conn.intern_atom(false,(char[])"_GTK_UNIQUE_BUS_NAME".data);
-            var app_menu_atom_cookie = conn.intern_atom(false,(char[]) "_GTK_APP_MENU_OBJECT_PATH".data);
-            var menubar_atom_cookie = conn.intern_atom(false,(char[]) "_GTK_MENUBAR_OBJECT_PATH".data);
-            var application_atom_cookie = conn.intern_atom(false,(char[]) "_GTK_APPLICATION_OBJECT_PATH".data);
-            var window_atom_cookie = conn.intern_atom(false,(char[]) "_GTK_WINDOW_OBJECT_PATH".data);
-            var unity_atom_cookie = conn.intern_atom(false,(char[]) "_UNITY_OBJECT_PATH".data);
-            var gtk_unique_atom = gtk_unique_atom_cookie.reply(conn).atom;
-            var app_menu_atom = app_menu_atom_cookie.reply(conn).atom;
-            var menubar_atom = menubar_atom_cookie.reply(conn).atom;
-            var application_atom = application_atom_cookie.reply(conn).atom;
-            var window_atom = window_atom_cookie.reply(conn).atom;
-            var unity_atom = unity_atom_cookie.reply(conn).atom;
-            var gtk_unique_cookie = window.get_property(conn,false,gtk_unique_atom,Xcb.AtomType.STRING,0,0);
-            var app_menu_cookie = window.get_property(conn,false,app_menu_atom,Xcb.AtomType.STRING,0,0);
-            var menubar_cookie = window.get_property(conn,false,menubar_atom,Xcb.AtomType.STRING,0,0);
-            var application_cookie = window.get_property(conn,false,application_atom,Xcb.AtomType.STRING,0,0);
-            var window_cookie = window.get_property(conn,false,window_atom,Xcb.AtomType.STRING,0,0);
-            var unity_cookie = window.get_property(conn,false,unity_atom,Xcb.AtomType.STRING,0,0);
-            var gtk_unique_bus_name = (string)gtk_unique_cookie.reply(conn).value;
-            var app_menu_path = (string)app_menu_cookie.reply(conn).value;
-            var menubar_path = (string)menubar_cookie.reply(conn).value;
-            var application_path = (string)application_cookie.reply(conn).value;
-            var window_path = (string)window_cookie.reply(conn).value;
-            var unity_path = (string)unity_cookie.reply(conn).value;
+            this.window_id = window.get_xid();
+            var gtk_unique_bus_name = window.get_utf8_prop("_GTK_UNIQUE_BUS_NAME");
+            var app_menu_path = window.get_utf8_prop("_GTK_APP_MENU_OBJECT_PATH");
+            var menubar_path = window.get_utf8_prop("_GTK_MENUBAR_OBJECT_PATH");
+            var application_path = window.get_utf8_prop("_GTK_APPLICATION_OBJECT_PATH");
+            var window_path = window.get_utf8_prop("_GTK_WINDOW_OBJECT_PATH");
+            var unity_path = window.get_utf8_prop("_UNITY_OBJECT_PATH");
             var dbusconn = Bus.get_sync(BusType.SESSION);
             if (application_path != null)
                 appmenu_actions = DBusActionGroup.get(dbusconn,gtk_unique_bus_name,application_path);
@@ -47,8 +24,27 @@ namespace Appmenu
                 unity_actions = DBusActionGroup.get(dbusconn,gtk_unique_bus_name,unity_path);
             if (window_path != null)
                 menubar_actions = DBusActionGroup.get(dbusconn,gtk_unique_bus_name,window_path);
+            string? name = null;
+            if (app != null)
+            {
+                var desktop_file = app.get_desktop_file();
+                if (desktop_file != null)
+                    name = new DesktopAppInfo.from_filename(desktop_file).get_name();
+            }
+            if (name == null)
+                name = window.get_name();
+            if (name == null)
+                name = _("Application");
             if (app_menu_path != null)
-                appmenu = new Gtk.MenuBar.from_model(DBusMenuModel.get(dbusconn,gtk_unique_bus_name,app_menu_path));
+            {
+                this.appmenu = new Gtk.MenuBar();
+                var root_item = new Gtk.MenuItem.with_label(name);
+                var appmenu_menu = new Gtk.Menu.from_model(DBusMenuModel.get(dbusconn,gtk_unique_bus_name,app_menu_path));
+                root_item.submenu = appmenu_menu;
+                appmenu.add(root_item);
+            }
+            else if (app != null)
+                this.appmenu = new BamfAppmenu(app);
             if (menubar_path != null)
                 menubar = new Gtk.MenuBar.from_model(DBusMenuModel.get(dbusconn,gtk_unique_bus_name,menubar_path));
             if (appmenu_actions != null)

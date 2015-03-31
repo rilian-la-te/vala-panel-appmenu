@@ -1,5 +1,4 @@
 using GLib;
-using Wnck;
 
 namespace Appmenu
 {
@@ -10,12 +9,25 @@ namespace Appmenu
     public abstract class MenuWidget: Gtk.Box
     {
         public uint window_id {get; protected set construct;}
+        public Gtk.MenuBar menubar {get; protected set construct;}
+        public Gtk.MenuBar appmenu {get; protected set construct;}
+    }
+    internal class AnyMenuWidget : MenuWidget
+    {
+        public AnyMenuWidget(Bamf.Application app, Bamf.Window window)
+        {
+            this.window_id = window.get_xid();
+            this.appmenu = new BamfAppmenu(app);
+            this.add(appmenu);
+            this.show_all();
+        }
     }
     [DBus (name = "com.canonical.AppMenu.Registrar")]
     public class Registrar : Object
     {
         private HashTable<uint,MenuWidget> menus;
-        private Wnck.Screen screen;
+        private GenericSet<uint> desktop_menus;
+        private Bamf.Matcher matcher;
         private ulong active_handler;
         private ulong open_handler;
         private ulong close_handler;
@@ -30,23 +42,28 @@ namespace Appmenu
         construct
         {
             menus = new HashTable<uint,MenuWidget>(direct_hash,direct_equal);
-            screen = Wnck.Screen.get_default();
-            active_handler = screen.active_window_changed.connect(on_active_window_changed);
-            open_handler = screen.window_opened.connect(on_window_opened);
-            close_handler = screen.window_closed.connect(on_window_closed);
+            desktop_menus = new GenericSet<uint>(direct_hash,direct_equal);
+            matcher = Bamf.Matcher.get_default();
+            active_handler = matcher.active_window_changed.connect(on_active_window_changed);
+            open_handler = matcher.view_opened.connect(on_window_opened);
+            close_handler = matcher.view_closed.connect(on_window_closed);
+            on_active_window_changed(matcher.get_active_window(),null);
         }
         ~Registrar()
         {
-            screen.disconnect(active_handler);
-            screen.disconnect(open_handler);
-            screen.disconnect(close_handler);
+            matcher.disconnect(active_handler);
+            matcher.disconnect(open_handler);
+            matcher.disconnect(close_handler);
         }
         public void register_window(uint window_id, ObjectPath menu_object_path, BusName sender)
         {
-            MenuWidget menu = new MenuWidgetDbusmenu(window_id,sender,menu_object_path);
+            Bamf.Application app = matcher.get_application_for_xid(window_id);
+            MenuWidget menu = new MenuWidgetDbusmenu(window_id,sender,menu_object_path,app);
             if (menus.contains(window_id))
                 unregister_window(window_id);
             menus.insert(window_id,menu);
+            if (window_id == matcher.get_active_window().get_xid())
+                this.active_menu = menu;
             window_registered(window_id,sender,menu_object_path);
         }
         public void unregister_window(uint window_id)
@@ -54,9 +71,11 @@ namespace Appmenu
             var menu = menus.lookup(window_id);
             if (menu == null)
                 return;
-            if (this.active_menu==menu)
+            if (this.active_menu == menu)
                 this.active_menu = show_dummy_menu();
+            desktop_menus.remove(window_id);
             menus.remove(window_id);
+            menu.destroy();
             window_unregistered(window_id);
         }
         public void get_menu_for_window(uint window, out string service, out ObjectPath path) throws DBusError
@@ -91,21 +110,77 @@ namespace Appmenu
             });
             menus = builder.end();
         }
-        private Gtk.MenuBar? show_dummy_menu()
+        private MenuWidget? show_dummy_menu()
         {
-            return null;
+            MenuWidget? menu = null;
+            if (desktop_menus.length > 0)
+            {
+                desktop_menus.foreach((k)=>{
+                    menu = menus.lookup(k);
+                    if (menu != null)
+                        return;
+                });
+            }
+            return menu;
         }
-        private void on_window_opened(Window window)
+        private void on_window_opened(Bamf.View view)
         {
+            if(view is Bamf.Window)
+            {
+                var window = view as Bamf.Window;
+                if (window.get_type() == Bamf.WindowType.DESKTOP)
+                {
+                    desktop_menus.add(window.get_xid());
+                }
+            }
 
         }
-        private void on_window_closed(.Window window)
+        private void on_window_closed(Bamf.View view)
         {
-
+            if (view is Bamf.Window)
+                unregister_window((view as Bamf.Window).get_xid());
         }
-        private void on_active_window_changed(Window prev)
+        private void on_active_window_changed(Bamf.Window? prev, Bamf.Window? next)
         {
-            this.active_menu = menus.lookup((uint)screen.get_active_window().get_xid());
+            this.active_menu = lookup_menu(next != null ? next : matcher.get_active_window());
+        }
+        private MenuWidget lookup_menu(Bamf.Window window)
+        {
+            MenuWidget? menu = null;
+            uint xid = 0;
+            while (window != null && menu == null)
+            {
+                xid = window.get_xid();
+                menu = menus.lookup(xid);
+                /* First look to see if we can get these from the
+                   GMenuModel access */
+                if (menu == null)
+                {
+                    var uniquename = window.get_utf8_prop ("_GTK_UNIQUE_BUS_NAME");
+                    if (uniquename != null)
+                    {
+                        try {
+                            Bamf.Application app = matcher.get_application_for_window(window);
+                            menu = new MenuWidgetMenumodel(app,window);
+                            menus.insert(xid,menu);
+                            return menu;
+                        } catch (Error e) {
+                            stderr.printf("%s\n",e.message);
+                        }
+                    }
+                }
+                if (menu == null)
+                {
+                    debug("Looking for parent window on XID %u", xid);
+                    window = window.get_transient();
+                }
+            }
+            if (menu == null)
+            {
+                Bamf.Application app = matcher.get_application_for_window(window);
+                menu = new AnyMenuWidget(app,window);
+            }
+            return menu;
         }
     }
 }

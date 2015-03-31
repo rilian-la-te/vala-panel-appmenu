@@ -1,21 +1,24 @@
 INCLUDE(GResource)
-vala_precompile(VALA_C libappmenu
+vala_precompile(VALA_C appmenu
+    appmenu-bamf.vala
     registrar.vala
     dbusmenu.vala
+    menubar.vala
     menu-widget-dbusmenu.vala
     menu-widget-menumodel.vala
     ${CMAKE_BINARY_DIR}/vapi/config.vala
+    ${XFCE_SOURCES}
 PACKAGES
     ${CORE_PACKAGES}
     libbamf3
+    libwnck-3.0
+    ${XFCE_PACKAGES}
 OPTIONS
     --vapidir=${CMAKE_SOURCE_DIR}/vapi
     --vapidir=${CMAKE_BINARY_DIR}/vapi
     --target-glib=2.40
     --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
     --thread
-GENERATE_VAPI
-    appmenu
 )
 
 add_definitions(-DWNCK_I_KNOW_THIS_IS_UNSTABLE)
@@ -25,20 +28,19 @@ add_definitions(-DWNCK_I_KNOW_THIS_IS_UNSTABLE)
 #####
 
 # Build library for plugins and application
-set (LIBS ${CORE_LIBRARIES} -lm)
-set (LIB_PATHS ${CORE_LIBRARY_DIRS})
-include_directories (${CORE_INCLUDE_DIRS})
+set (LIBS ${CORE_LIBRARIES} ${XFCE_LIBRALIES} -lm)
+set (LIB_PATHS ${CORE_LIBRARY_DIRS} ${XFCE_LIBRARY_DIRS})
+include_directories (${CORE_INCLUDE_DIRS} ${XFCE_INCLUDE_DIRS})
 link_directories (${LIB_PATHS})
 
 set (LIB_FILES ${VALA_C})
 
-add_library (libappmenu STATIC
+add_library (appmenu SHARED
     ${LIB_FILES}
     ${GLIB_RESOURCES_LIB}
 )
 
-target_link_libraries (libappmenu ${LIBS})
+target_link_libraries (appmenu ${LIBS})
 
-set_target_properties (libappmenu PROPERTIES
-    VERSION 0.0
-    SOVERSION 0)
+# Install plugin stuffs
+install(TARGETS appmenu DESTINATION lib/xfce4/panel/plugins)
