@@ -142,7 +142,11 @@ namespace Appmenu
         }
         private void on_active_window_changed(Bamf.Window? prev, Bamf.Window? next)
         {
+            if (this.active_menu != null)
+                this.active_menu.hide();
             this.active_menu = lookup_menu(next != null ? next : matcher.get_active_window());
+            if (this.active_menu != null)
+                this.active_menu.show();
         }
         private MenuWidget lookup_menu(Bamf.Window window)
         {

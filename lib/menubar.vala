@@ -37,6 +37,8 @@ namespace Appmenu
         }
         public ActiveMenu()
         {
+            Gtk.Settings.get_default().gtk_shell_shows_app_menu = false;
+            Gtk.Settings.get_default().gtk_shell_shows_menubar = false;
             Bus.own_name(BusType.SESSION, REG_IFACE, BusNameOwnerFlags.NONE,
                         on_bus_aquired,
                         ()=>{},
