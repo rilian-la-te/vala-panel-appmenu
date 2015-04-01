@@ -14,7 +14,7 @@ makedepends=('cmake' 'vala')
 optdepends=('gtk2-ubuntu: for hiding gtk2 menus'
             'unity-gtk-module: for gtk2/gtk3 menus'
             'gtk2-appmenu: for gtk2 menus, alternate way'
-            'gtk3-appmenu: for gtk2 menus, alternate way'
+            'gtk3-appmenu: for gtk3 menus, alternate way'
             'appmenu-qt: for qt4 menus'
             'appmenu-qt5: for qt5 menus')
 source=("git://github.com/rilian-la-te/${_pkgname}.git"
