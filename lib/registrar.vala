@@ -10,17 +10,7 @@ namespace Appmenu
     {
         public uint window_id {get; protected set construct;}
         public Gtk.MenuBar menubar {get; protected set construct;}
-        public Gtk.MenuBar appmenu {get; protected set construct;}
-    }
-    internal class AnyMenuWidget : MenuWidget
-    {
-        public AnyMenuWidget(Bamf.Application app, Bamf.Window window)
-        {
-            this.window_id = window.get_xid();
-            this.appmenu = new BamfAppmenu(app);
-            this.add(appmenu);
-            this.show_all();
-        }
+        public Gtk.MenuBar appmenu {get; internal set construct;}
     }
     [DBus (name = "com.canonical.AppMenu.Registrar")]
     public class Registrar : Object
@@ -34,7 +24,7 @@ namespace Appmenu
         public signal void window_registered(uint window_id, string service, ObjectPath path);
         public signal void window_unregistered(uint window_id);
         [DBus (visible = false)]
-        public Gtk.Widget? active_menu {get; private set;}
+        public MenuWidget? active_menu {get; private set;}
         public Registrar()
         {
             Object();
@@ -48,6 +38,10 @@ namespace Appmenu
             open_handler = matcher.view_opened.connect(on_window_opened);
             close_handler = matcher.view_closed.connect(on_window_closed);
             on_active_window_changed(matcher.get_active_window(),null);
+            foreach (var window in matcher.get_windows())
+                on_window_opened(window);
+            foreach (var app in matcher.get_running_applications())
+                on_window_opened(app);
         }
         ~Registrar()
         {
@@ -127,13 +121,32 @@ namespace Appmenu
         {
             if(view is Bamf.Window)
             {
-                var window = view as Bamf.Window;
+                unowned Bamf.Window window = view as Bamf.Window;
                 if (window.get_type() == Bamf.WindowType.DESKTOP)
                 {
+                    menus.insert(window.get_xid(),lookup_menu(window));
                     desktop_menus.add(window.get_xid());
                 }
             }
-
+            /* Appmenu hack, because BAMF does not always send a correct Application
+             * DBusMenu registration always happened BEFORE a BAMF register application.
+             * For Chromium we need different hack - it is not working by some reason.
+             */
+            if(view is Bamf.Application)
+            {
+                unowned Bamf.Application app = view as Bamf.Application;
+                foreach (var window in app.get_windows())
+                {
+                    var menu = menus.lookup(window.get_xid());
+                    if (menu != null && menu.appmenu == null)
+                    {
+                        menu.appmenu = new BamfAppmenu(app);
+                        menu.add(menu.appmenu);
+                        menu.reorder_child(menu.appmenu,0);
+                        menu.appmenu.show();
+                    }
+                }
+            }
         }
         private void on_window_closed(Bamf.View view)
         {
@@ -144,11 +157,12 @@ namespace Appmenu
         {
             if (this.active_menu != null)
                 this.active_menu.hide();
-            this.active_menu = lookup_menu(next != null ? next : matcher.get_active_window());
+            unowned Bamf.Window win = next != null ? next : matcher.get_active_window();
+            this.active_menu = lookup_menu(win);
             if (this.active_menu != null)
                 this.active_menu.show();
         }
-        private MenuWidget lookup_menu(Bamf.Window window)
+        private MenuWidget lookup_menu(Bamf.Window? window)
         {
             MenuWidget? menu = null;
             uint xid = 0;
@@ -180,10 +194,7 @@ namespace Appmenu
                 }
             }
             if (menu == null)
-            {
-                Bamf.Application app = matcher.get_application_for_window(window);
-                menu = new AnyMenuWidget(app,window);
-            }
+                menu = show_dummy_menu();
             return menu;
         }
     }

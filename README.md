@@ -9,6 +9,7 @@ This is Global Menu for using in Vala Panel and xfce4-panel. unity-gtk-module is
  * GLib (>= 2.40.0)
  * GTK+ (>= 3.12.0)
  * valac (>= 0.24.0)
+ * libbamf (>=0.5.0)
 
 Author
 ===
