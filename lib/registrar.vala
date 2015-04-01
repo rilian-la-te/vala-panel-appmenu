@@ -131,9 +131,9 @@ namespace Appmenu
             if(view is Bamf.Window)
             {
                 unowned Bamf.Window window = view as Bamf.Window;
-                if (window.get_type() == Bamf.WindowType.DESKTOP)
+                if (window.get_window_type() == Bamf.WindowType.DESKTOP)
                 {
-                    menus.insert(window.get_xid(),lookup_menu(window));
+                    lookup_menu(window);
                     desktop_menus.add(window.get_xid());
                 }
             }
@@ -178,13 +178,12 @@ namespace Appmenu
                     var uniquename = window.get_utf8_prop ("_GTK_UNIQUE_BUS_NAME");
                     if (uniquename != null)
                     {
-                        try {
+                        if (window.get_window_type() == Bamf.WindowType.DESKTOP)
+                            menu = new MenuWidgetDesktop(app,window);
+                        else
                             menu = new MenuWidgetMenumodel(app,window);
-                            menus.insert(xid,menu);
-                            return menu;
-                        } catch (Error e) {
-                            stderr.printf("%s\n",e.message);
-                        }
+                        menus.insert(xid,menu);
+                        return menu;
                     }
                 }
                 if (menu == null)

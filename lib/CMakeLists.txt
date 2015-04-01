@@ -1,6 +1,7 @@
 INCLUDE(GResource)
 vala_precompile(VALA_C appmenu
     appmenu-bamf.vala
+    appmenu-desktop.vala
     registrar.vala
     dbusmenu.vala
     menubar.vala
@@ -26,6 +27,11 @@ add_definitions(-DWNCK_I_KNOW_THIS_IS_UNSTABLE)
 #####
 # Core Library
 #####
+INCLUDE(GResource)
+glib_compile_resources(RESOURCES
+    source
+        libappmenu.gresource.xml
+)
 
 # Build library for plugins and application
 set (LIBS ${CORE_LIBRARIES} ${XFCE_LIBRALIES} -lm)
@@ -37,7 +43,7 @@ set (LIB_FILES ${VALA_C})
 
 add_library (appmenu SHARED
     ${LIB_FILES}
-    ${GLIB_RESOURCES_LIB}
+    ${RESOURCES}
 )
 
 target_link_libraries (appmenu ${LIBS})

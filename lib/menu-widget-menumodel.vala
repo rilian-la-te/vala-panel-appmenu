@@ -8,7 +8,7 @@ namespace Appmenu
         private GLib.ActionGroup? appmenu_actions = null;
         private GLib.ActionGroup? menubar_actions = null;
         private GLib.ActionGroup? unity_actions = null;
-        public MenuWidgetMenumodel(Bamf.Application? app,Bamf.Window window) throws IOError
+        public MenuWidgetMenumodel(Bamf.Application? app,Bamf.Window window)
         {
             this.window_id = window.get_xid();
             var gtk_unique_bus_name = window.get_utf8_prop("_GTK_UNIQUE_BUS_NAME");
@@ -17,7 +17,12 @@ namespace Appmenu
             var application_path = window.get_utf8_prop("_GTK_APPLICATION_OBJECT_PATH");
             var window_path = window.get_utf8_prop("_GTK_WINDOW_OBJECT_PATH");
             var unity_path = window.get_utf8_prop("_UNITY_OBJECT_PATH");
-            var dbusconn = Bus.get_sync(BusType.SESSION);
+            DBusConnection? dbusconn = null;
+            try {
+                dbusconn = Bus.get_sync(BusType.SESSION);
+            } catch (Error e) {
+                stderr.printf("%s\n",e.message);
+            }
             if (application_path != null)
                 appmenu_actions = DBusActionGroup.get(dbusconn,gtk_unique_bus_name,application_path);
             if (unity_path != null)
@@ -37,11 +42,9 @@ namespace Appmenu
                 name = _("Application");
             if (app_menu_path != null)
             {
-                this.appmenu = new Gtk.MenuBar();
-                var root_item = new Gtk.MenuItem.with_label(name);
-                var appmenu_menu = new Gtk.Menu.from_model(DBusMenuModel.get(dbusconn,gtk_unique_bus_name,app_menu_path));
-                root_item.submenu = appmenu_menu;
-                appmenu.add(root_item);
+                var menu = new GLib.Menu();
+                menu.append_submenu(name,DBusMenuModel.get(dbusconn,gtk_unique_bus_name,app_menu_path));
+                this.appmenu = new Gtk.MenuBar.from_model(menu);
             }
             else if (app != null)
                 this.appmenu = new BamfAppmenu(app);
