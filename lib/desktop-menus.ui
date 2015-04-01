@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <menu id="appmenu">
-    <section id="apps">
-        <item>
-          <attribute name="label" translatable="yes">File Manager</attribute>
-          <attribute name="action">menu.launch-command</attribute>
-          <attribute name="target">'xdg-open /'</attribute>
-        </item>
-    </section>
     <section>
         <item>
           <attribute name="label" translatable="yes">Desktop Settings</attribute>

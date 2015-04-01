@@ -149,6 +149,8 @@ namespace Appmenu
             } catch (Error e) {
                 stderr.printf("%s\n",e.message);
             }
+            if (files_menu.get_n_items() == 0)
+                files_menu.append(_("No files"),"ls.this-shold-not-be-reached");
             action.set_state(new Variant.boolean(true));
         }
     }
