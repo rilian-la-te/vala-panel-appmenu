@@ -269,6 +269,12 @@ namespace DBusMenu
         / we try to save us from multiple kinds of race conditions by always requesting a full layout */
         private async void layout_update()
         {
+            /* Sanity check: Version can be 0 only if dbusmenu iface is not loaded yet*/
+            if (iface.version < 1)
+            {
+                yield layout_update();
+                return;
+            }
             layout_update_required = false;
             layout_update_in_progress = true;
             string[] props = {"type", "children-display"};
@@ -276,7 +282,10 @@ namespace DBusMenu
             Variant layout;
             try{
                 iface.get_layout(0,-1,props,out rev, out layout);
-            } catch (Error e) {stderr.printf("Cannot update layout. Error: %s",e.message); return;}
+            } catch (Error e) {
+                debug("Cannot update layout. Error: %s\n Yielding another update...\n",e.message);
+                return;
+            }
             parse_layout(rev,layout);
             clean_items();
             if (layout_update_required)
@@ -559,7 +568,7 @@ namespace DBusMenu
                 this.submenu.append (GtkClient.new_item(item));
             else
             {
-                stderr.printf("Adding new item to item without submenu! Creating new submenu...\n");
+                debug("Adding new item to item without submenu! Creating new submenu...\n");
                 this.submenu = new Gtk.Menu();
                 this.submenu.append (GtkClient.new_item(item));
             }
@@ -571,7 +580,7 @@ namespace DBusMenu
                     if ((ch as GtkItemIface).item == item)
                         ch.destroy();
             else
-                stderr.printf("Cannot remove a child from item without submenu!\n");
+                debug("Cannot remove a child from item without submenu!\n");
         }
         private void on_child_moved_cb(int oldpos, int newpos, Item item)
         {
@@ -580,7 +589,7 @@ namespace DBusMenu
                     if ((ch as GtkItemIface).item == item)
                         this.submenu.reorder_child(ch,newpos);
             else
-                stderr.printf("Cannot move a child of item with has no children!\n");
+                debug("Cannot move a child of item with has no children!\n");
         }
         private void on_toggled_cb()
         {
@@ -874,7 +883,7 @@ namespace DBusMenu
                 this.submenu.append (GtkClient.new_item(item));
             else
             {
-                stderr.printf("Adding new item to item without submenu! Creating new submenu...\n");
+                debug("Adding new item to item without submenu! Creating new submenu...\n");
                 this.submenu = new Gtk.Menu();
                 this.submenu.append (GtkClient.new_item(item));
             }
@@ -886,7 +895,7 @@ namespace DBusMenu
                     if ((ch as GtkItemIface).item == item)
                         ch.destroy();
             else
-                stderr.printf("Cannot remove a child from item without submenu!\n");
+               debug("Cannot remove a child from item without submenu!\n");
         }
         private void on_child_moved_cb(int oldpos, int newpos, Item item)
         {
@@ -895,7 +904,7 @@ namespace DBusMenu
                     if ((ch as GtkItemIface).item == item)
                         this.submenu.reorder_child(ch,newpos);
             else
-                stderr.printf("Cannot move a child of item with has no children!\n");
+                debug("Cannot move a child of item with has no children!\n");
         }
         private void on_toggled_cb()
         {

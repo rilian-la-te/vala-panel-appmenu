@@ -34,9 +34,9 @@ namespace Appmenu
             var info = new DesktopAppInfo.from_filename(desktop_file);
             var submenu = new GLib.Menu();
             var section = new GLib.Menu();
-            section.append(_("New window..."),"conf.new-window");
-            section.append(_("Close this window"),"conf.close-this");
-            section.append(_("Close all"),"conf.close-all");
+            section.append(_("New Window..."),"conf.new-window");
+            section.append(_("Close This"),"conf.close-this");
+            section.append(_("Close All"),"conf.close-all");
             submenu.append_section(null,section);
             section = new GLib.Menu();
             foreach(var action in info.list_actions())
@@ -68,8 +68,10 @@ namespace Appmenu
         }
         ~BamfAppmenu()
         {
-            app.disconnect(adding_handler);
-            app.disconnect(removing_handler);
+            if (SignalHandler.is_connected(app,adding_handler))
+                app.disconnect(adding_handler);
+            if (SignalHandler.is_connected(app,removing_handler))
+                app.disconnect(removing_handler);
         }
         private void on_window_added(Bamf.Window window)
         {

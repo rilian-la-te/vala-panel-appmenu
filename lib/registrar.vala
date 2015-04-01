@@ -127,6 +127,21 @@ namespace Appmenu
                     menus.insert(window.get_xid(),lookup_menu(window));
                     desktop_menus.add(window.get_xid());
                 }
+                /* Chromium hack, because BAMF does not always send a correct Application
+                * DBusMenu registration always happened BEFORE a BAMF register application.
+                */
+                var menu = menus.lookup(window.get_xid());
+                if (menu != null && menu.appmenu == null)
+                {
+                    var app = matcher.get_application_for_window(window);
+                    if (app != null)
+                    {
+                        menu.appmenu = new BamfAppmenu(app);
+                        menu.add(menu.appmenu);
+                        menu.reorder_child(menu.appmenu,0);
+                        menu.appmenu.show();
+                    }
+                }
             }
             /* Appmenu hack, because BAMF does not always send a correct Application
              * DBusMenu registration always happened BEFORE a BAMF register application.
