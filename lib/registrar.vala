@@ -12,6 +12,15 @@ namespace Appmenu
         public Gtk.MenuBar menubar {get; protected set construct;}
         public Gtk.MenuBar appmenu {get; internal set construct;}
     }
+    public class MenuWidgetAny : MenuWidget
+    {
+        public MenuWidgetAny(Bamf.Application app)
+        {
+            appmenu = new BamfAppmenu(app);
+            this.add(appmenu);
+            this.show_all();
+        }
+    }
     [DBus (name = "com.canonical.AppMenu.Registrar")]
     public class Registrar : Object
     {
@@ -127,40 +136,6 @@ namespace Appmenu
                     menus.insert(window.get_xid(),lookup_menu(window));
                     desktop_menus.add(window.get_xid());
                 }
-                /* Chromium hack, because BAMF does not always send a correct Application
-                * DBusMenu registration always happened BEFORE a BAMF register application.
-                */
-                var menu = menus.lookup(window.get_xid());
-                if (menu != null && menu.appmenu == null)
-                {
-                    var app = matcher.get_application_for_window(window);
-                    if (app != null)
-                    {
-                        menu.appmenu = new BamfAppmenu(app);
-                        menu.add(menu.appmenu);
-                        menu.reorder_child(menu.appmenu,0);
-                        menu.appmenu.show();
-                    }
-                }
-            }
-            /* Appmenu hack, because BAMF does not always send a correct Application
-             * DBusMenu registration always happened BEFORE a BAMF register application.
-             * For Chromium we need different hack - it is not working by some reason.
-             */
-            if(view is Bamf.Application)
-            {
-                unowned Bamf.Application app = view as Bamf.Application;
-                foreach (var window in app.get_windows())
-                {
-                    var menu = menus.lookup(window.get_xid());
-                    if (menu != null && menu.appmenu == null)
-                    {
-                        menu.appmenu = new BamfAppmenu(app);
-                        menu.add(menu.appmenu);
-                        menu.reorder_child(menu.appmenu,0);
-                        menu.appmenu.show();
-                    }
-                }
             }
         }
         private void on_window_closed(Bamf.View view)
@@ -185,6 +160,17 @@ namespace Appmenu
             {
                 xid = window.get_xid();
                 menu = menus.lookup(xid);
+                var app = matcher.get_application_for_window(window);
+                /* Appmenu hack, because BAMF does not always send a correct Application
+                * DBusMenu registration always happened BEFORE a BAMF register application.
+                */
+                if (menu != null && menu.appmenu == null && app != null)
+                {
+                    menu.appmenu = new BamfAppmenu(app);
+                    menu.add(menu.appmenu);
+                    menu.reorder_child(menu.appmenu,0);
+                    menu.appmenu.show();
+                }
                 /* First look to see if we can get these from the
                    GMenuModel access */
                 if (menu == null)
@@ -193,7 +179,6 @@ namespace Appmenu
                     if (uniquename != null)
                     {
                         try {
-                            Bamf.Application app = matcher.get_application_for_window(window);
                             menu = new MenuWidgetMenumodel(app,window);
                             menus.insert(xid,menu);
                             return menu;
@@ -205,6 +190,11 @@ namespace Appmenu
                 if (menu == null)
                 {
                     debug("Looking for parent window on XID %u", xid);
+                    if (window.get_transient() == null && app != null)
+                    {
+                        menu = new MenuWidgetAny(app);
+                        menus.insert(window.get_xid(),menu);
+                    }
                     window = window.get_transient();
                 }
             }

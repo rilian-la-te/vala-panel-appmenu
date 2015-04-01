@@ -65,6 +65,7 @@ namespace Appmenu
             menu = new GLib.Menu();
             menu.append_submenu(info.get_name(),submenu);
             this.bind_model(menu,null,true);
+            this.show_all();
         }
         ~BamfAppmenu()
         {
