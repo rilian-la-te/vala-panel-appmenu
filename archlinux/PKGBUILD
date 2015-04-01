@@ -1,0 +1,49 @@
+# Maintainer: rilian-la-te <ria.freelander@gmail.com>
+
+_pkgname=vala-panel-appmenu
+pkgname=${_pkgname}-xfce-git
+_cmakename=cmake-vala
+pkgver=r13.ea17a94
+pkgrel=1
+pkgdesc="AppMenu (Global Menu) plugin for xfce4-panel"
+url="https://github.com/rilian-la-te/vala-panel-appmenu"
+arch=('i686' 'x86_64')
+license=('GPL3')
+depends=('gtk3' 'bamf>=0.5.0' 'xfce4-panel>=4.11.2' 'xfconf' 'libwnck3')
+makedepends=('cmake' 'vala')
+optdepends=('gtk2-ubuntu: for hiding gtk2 menus'
+            'unity-gtk-module: for gtk2/gtk3 menus'
+            'gtk2-appmenu: for gtk2 menus, alternate way'
+            'gtk3-appmenu: for gtk2 menus, alternate way'
+            'appmenu-qt: for qt4 menus'
+            'appmenu-qt5: for qt5 menus')
+source=("git://github.com/rilian-la-te/${_pkgname}.git"
+        "git://github.com/rilian-la-te/${_cmakename}.git")
+sha256sums=('SKIP'
+            'SKIP')
+
+pkgver() {
+  cd "${srcdir}/${_pkgname}"
+  ( set -o pipefail
+    git describe --long --tags 2>/dev/null | sed 's/\([^-]*-g\)/r\1/;s/-/./g' ||
+    printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+  )
+}
+
+prepare() {
+  cd "${srcdir}/${_cmakename}"
+  cp -r . "${srcdir}/${_pkgname}/cmake"
+}
+
+build() {
+  cd "${srcdir}/${_pkgname}"
+  cmake ./ -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_XFCE=ON -DENABLE_VALAPANEL=OFF
+  make
+}
+
+package() {
+  cd "${srcdir}/${_pkgname}"
+  make DESTDIR="${pkgdir}" install
+}
+
+
