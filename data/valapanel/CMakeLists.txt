@@ -1,0 +1,1 @@
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/appmenu.plugin DESTINATION lib/vala-panel/applets/)

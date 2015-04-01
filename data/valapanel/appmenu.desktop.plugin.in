@@ -1,0 +1,5 @@
+[Plugin]
+Module=appmenu
+Name=Global Menu
+Description=Global Menu for Vala Panel
+X-ValaPanel-Once=true

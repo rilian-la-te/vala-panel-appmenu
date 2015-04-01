@@ -1,3 +1,6 @@
 if (ENABLE_XFCE)
     add_subdirectory(xfce)
 endif()
+if (ENABLE_VALAPANEL)
+    add_subdirectory(valapanel)
+endif()
