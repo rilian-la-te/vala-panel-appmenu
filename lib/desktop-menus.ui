@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <menu id="appmenu">
+  <menu id="appmenu-desktop">
     <section>
         <item>
           <attribute name="label" translatable="yes">_Desktop Settings</attribute>
@@ -17,5 +17,30 @@
           <attribute name="label" translatable="yes">_Files</attribute>
           <attribute name="submenu-action">menu.populate-files</attribute>
       </submenu>
+  </menu>
+  <menu id="appmenu-bamf">
+    <section>
+        <item>
+          <attribute name="label" translatable="yes">_New Window...</attribute>
+          <attribute name="action">conf.new-window</attribute>
+          <attribute name="hidden-when">action-missing</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">Close _This</attribute>
+          <attribute name="action">conf.close-this</attribute>
+          <attribute name="hidden-when">action-missing</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">Close _All</attribute>
+          <attribute name="action">conf.close-all</attribute>
+          <attribute name="hidden-when">action-missing</attribute>
+        </item>
+    </section>
+    <section id="desktop-actions">
+    </section>
+    <section id="unity-actions">
+    </section>
+    <section id="active-windows">
+    </section>
   </menu>
 </interface>

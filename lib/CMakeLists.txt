@@ -11,7 +11,7 @@ vala_precompile(VALA_C appmenu
 PACKAGES
     ${CORE_PACKAGES}
     libbamf3
-    libwnck-3.0
+    ${WNCK_PACKAGES}
     ${XFCE_PACKAGES}
 OPTIONS
     --vapidir=${CMAKE_SOURCE_DIR}/vapi
@@ -19,6 +19,7 @@ OPTIONS
     --target-glib=2.40
     --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
     --thread
+    ${WNCK_DEFINE}
 )
 
 add_definitions(-DWNCK_I_KNOW_THIS_IS_UNSTABLE)
@@ -33,9 +34,9 @@ glib_compile_resources(RESOURCES
 )
 
 # Build library for plugins and application
-set (LIBS ${CORE_LIBRARIES} ${XFCE_LIBRALIES} -lm)
-set (LIB_PATHS ${CORE_LIBRARY_DIRS} ${XFCE_LIBRARY_DIRS})
-include_directories (${CORE_INCLUDE_DIRS} ${XFCE_INCLUDE_DIRS})
+set (LIBS ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${XFCE_LIBRALIES} -lm)
+set (LIB_PATHS ${CORE_LIBRARY_DIRS} ${WNCK_LIBRARY_DIRS} ${XFCE_LIBRARY_DIRS})
+include_directories (${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${XFCE_INCLUDE_DIRS})
 link_directories (${LIB_PATHS})
 
 set (LIB_FILES ${VALA_C})
@@ -48,4 +49,4 @@ add_library (appmenu SHARED
 target_link_libraries (appmenu ${LIBS})
 
 # Install plugin stuffs
-install(TARGETS appmenu DESTINATION lib/xfce4/panel/plugins)
+install(TARGETS appmenu DESTINATION ${XFCE_LOCATION})

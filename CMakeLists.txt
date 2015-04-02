@@ -45,8 +45,7 @@ pkg_check_modules (CORE REQUIRED
   gio-unix-2.0>=2.40
   gthread-2.0>=2.40
   gmodule-2.0>=2.40
-  libbamf3>=0.5.0
-  libwnck-3.0>=3.12.0)
+  libbamf3>=0.5.0)
 
 set(CORE_PACKAGES
   gtk+-3.0
@@ -72,6 +71,17 @@ include_directories(${CMAKE_BINARY_DIR}/lib)
 set(TARGET_GLIB ${GLIB_VERSION_MAJOR}.${GLIB_VERSION_MINOR})
 
 #set build options
+option(ENABLE_WNCK "Enable libwnck-related functions" ON)
+if (ENABLE_WNCK)
+    pkg_check_modules(WNCK libwnck-3.0>=3.12.0)
+    if (NOT(WNCK_FOUND))
+        set(ENABLE_WNCK OFF)
+    endif()
+endif()
+if (ENABLE_WNCK)
+    set(WNCK_DEFINE -D WNCK)
+    set(WNCK_PACKAGES libwnck-3.0)
+endif()
 option(ENABLE_XFCE "Enable Xfce Panel Integration (Mutually exclusive with Vala Panel)" ON)
 if (ENABLE_XFCE)
     pkg_check_modules(XFCE libxfce4panel-2.0 libxfconf-0)
@@ -83,6 +93,7 @@ if (ENABLE_XFCE)
     set(ENABLE_VALAPANEL OFF)
     set(XFCE_PACKAGES libxfce4panel-2.0 libxfconf-0)
     set(XFCE_SOURCES dbusmenu.vala xfce4-plugin-appmenu.vala)
+    set(XFCE_LOCATION lib/xfce4/panel/plugins)
 endif()
 
 option(ENABLE_VALAPANEL "Enable Vala Panel Integration (Mutually exclusive with Xfce Panel)" OFF)
@@ -96,6 +107,7 @@ if (ENABLE_VALAPANEL)
     set(ENABLE_XFCE OFF)
     set(XFCE_PACKAGES vala-panel libpeas-1.0 vala-dbusmenu)
     set(XFCE_SOURCES valapanel-plugin-appmenu.vala)
+    set(XFCE_LOCATION lib/vala-panel/applets)
 endif()
 ADD_SUBDIRECTORY(lib)
 add_subdirectory(data)

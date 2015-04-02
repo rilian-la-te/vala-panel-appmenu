@@ -26,7 +26,7 @@ namespace Appmenu
             if (appmenu == null || appmenu is BamfAppmenu)
             {
                 var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
-                var gmenu = builder.get_object("appmenu") as GLib.Menu;
+                var gmenu = builder.get_object("appmenu-desktop") as GLib.Menu;
                 var menu = new GLib.Menu();
                 string? name = null;
                 if (app != null)
