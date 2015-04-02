@@ -25,7 +25,6 @@ public class MenuApplet: Applet
 		this.add(layout);
 		show_all();
 	}
-	}
 } // End class
 
 [ModuleInit]
