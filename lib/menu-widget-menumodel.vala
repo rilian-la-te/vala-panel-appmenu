@@ -37,6 +37,8 @@ namespace Appmenu
                     name = new DesktopAppInfo.from_filename(desktop_file).get_name();
             }
             if (name == null)
+                name = app.get_name();
+            if (name == null)
                 name = window.get_name();
             if (name == null)
                 name = _("_Application");

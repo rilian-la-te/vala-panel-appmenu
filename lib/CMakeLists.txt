@@ -3,7 +3,6 @@ vala_precompile(VALA_C appmenu
     appmenu-bamf.vala
     appmenu-desktop.vala
     registrar.vala
-    dbusmenu.vala
     menubar.vala
     menu-widget-dbusmenu.vala
     menu-widget-menumodel.vala

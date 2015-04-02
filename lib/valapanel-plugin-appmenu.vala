@@ -6,25 +6,25 @@ using Appmenu;
 public class AppmenuApplet : AppletPlugin, Peas.ExtensionBase
 {
     public Applet get_applet_widget(ValaPanel.Toplevel toplevel,
-		                            GLib.Settings? settings,
-		                            uint number)
+                                    GLib.Settings? settings,
+                                    uint number)
     {
-        return new MenuApplet(toplevel,settings,number);
+        return new GlobalMenuApplet(toplevel,settings,number);
     }
 }
-public class MenuApplet: Applet
+public class GlobalMenuApplet: Applet
 {
-	Appmenu.ActiveMenu layout;
-	public MenuApplet (Toplevel top, GLib.Settings? settings, uint number)
-	{
-		base(top,settings,number);
-	}
-	public override void create()
-	{
-		layout = new Appmenu.ActiveMenu();
-		this.add(layout);
-		show_all();
-	}
+    Appmenu.ActiveMenu layout;
+    public GlobalMenuApplet (Toplevel top, GLib.Settings? settings, uint number)
+    {
+        base(top,settings,number);
+    }
+    public override void create()
+    {
+        layout = new Appmenu.ActiveMenu();
+        this.add(layout);
+        show_all();
+    }
 } // End class
 
 [ModuleInit]

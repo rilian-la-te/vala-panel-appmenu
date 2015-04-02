@@ -31,7 +31,6 @@ namespace Appmenu
             configurator.add_action_entries(entries,this);
             this.insert_action_group("conf",configurator);
             var desktop_file = app.get_desktop_file();
-            var info = new DesktopAppInfo.from_filename(desktop_file);
             var submenu = new GLib.Menu();
             var section = new GLib.Menu();
             section.append(_("_New Window..."),"conf.new-window");
@@ -39,22 +38,26 @@ namespace Appmenu
             section.append(_("Close _All"),"conf.close-all");
             submenu.append_section(null,section);
             section = new GLib.Menu();
-            foreach(var action in info.list_actions())
-                section.append(info.get_action_name(action),"conf.activate-action('%s')".printf(action));
-            submenu.append_section(null,section);
-            try{
-                section = new GLib.Menu();
-                var keyfile = new KeyFile();
-                keyfile.load_from_file(desktop_file,KeyFileFlags.NONE);
-                var unity_list = keyfile.get_string_list(KeyFileDesktop.GROUP,UNITY_QUICKLISTS_KEY);
-                foreach(var action in unity_list)
-                {
-                    var action_name = keyfile.get_locale_string(UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME.printf(action),KeyFileDesktop.KEY_NAME);
-                    section.append(action_name,"conf.activate-unity-desktop-shortcut('%s')".printf(action));
-                }
+            if (desktop_file != null)
+            {
+                var info = new DesktopAppInfo.from_filename(desktop_file);
+                foreach(var action in info.list_actions())
+                    section.append(info.get_action_name(action),"conf.activate-action('%s')".printf(action));
                 submenu.append_section(null,section);
-            } catch (Error e) {
-                debug("%s\n",e.message);
+                try{
+                    section = new GLib.Menu();
+                    var keyfile = new KeyFile();
+                    keyfile.load_from_file(desktop_file,KeyFileFlags.NONE);
+                    var unity_list = keyfile.get_string_list(KeyFileDesktop.GROUP,UNITY_QUICKLISTS_KEY);
+                    foreach(var action in unity_list)
+                    {
+                        var action_name = keyfile.get_locale_string(UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME.printf(action),KeyFileDesktop.KEY_NAME);
+                        section.append(action_name,"conf.activate-unity-desktop-shortcut('%s')".printf(action));
+                    }
+                    submenu.append_section(null,section);
+                } catch (Error e) {
+                    debug("%s\n",e.message);
+                }
             }
             adding_handler = app.window_added.connect(on_window_added);
             removing_handler = app.window_removed.connect(on_window_removed);
@@ -63,7 +66,7 @@ namespace Appmenu
                 on_window_added(window);
             submenu.append_section(null,window_section);
             menu = new GLib.Menu();
-            menu.append_submenu(info.get_name(),submenu);
+            menu.append_submenu(app.get_name(),submenu);
             this.bind_model(menu,null,true);
             this.show_all();
         }
