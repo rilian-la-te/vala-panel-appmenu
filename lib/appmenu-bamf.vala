@@ -60,7 +60,9 @@ namespace Appmenu
             window_section = builder.get_object("active-windows") as GLib.Menu;
             foreach(var window in app.get_windows())
                 on_window_added(window);
-            this.bind_model(menu,null,true);
+            var gmenu = new GLib.Menu();
+            gmenu.append_submenu(app.get_name(),menu);
+            this.bind_model(gmenu,null,true);
             this.show_all();
         }
         ~BamfAppmenu()
