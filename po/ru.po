@@ -65,11 +65,11 @@ msgstr "applications-system"
 #~ msgid "Application"
 #~ msgstr "Приложение"
 
-#~ msgid "Desktop Settings"
-#~ msgstr "Параметры рабочего стола"
+msgid "Desktop Settings"
+msgstr "Параметры рабочего стола"
 
-#~ msgid "System Settings"
-#~ msgstr "Параметры системы"
+msgid "System Settings"
+msgstr "Параметры системы"
 
-#~ msgid "Files"
-#~ msgstr "Файлы"
+msgid "Files"
+msgstr "Файлы"
