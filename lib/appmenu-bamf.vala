@@ -34,9 +34,9 @@ namespace Appmenu
             var info = new DesktopAppInfo.from_filename(desktop_file);
             var submenu = new GLib.Menu();
             var section = new GLib.Menu();
-            section.append(_("New Window..."),"conf.new-window");
-            section.append(_("Close This"),"conf.close-this");
-            section.append(_("Close All"),"conf.close-all");
+            section.append(_("_New Window..."),"conf.new-window");
+            section.append(_("Close _This"),"conf.close-this");
+            section.append(_("Close _All"),"conf.close-all");
             submenu.append_section(null,section);
             section = new GLib.Menu();
             foreach(var action in info.list_actions())

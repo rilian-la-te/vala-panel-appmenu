@@ -36,7 +36,7 @@ namespace Appmenu
                         name = new DesktopAppInfo.from_filename(desktop_file).get_name();
                 }
                 if (name == null)
-                    name = _("Desktop");
+                    name = _("_Desktop");
                 menu.append_submenu(name,gmenu);
                 appmenu = new Gtk.MenuBar.from_model(menu);
             }

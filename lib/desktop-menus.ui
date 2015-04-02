@@ -3,18 +3,18 @@
   <menu id="appmenu">
     <section>
         <item>
-          <attribute name="label" translatable="yes">Desktop Settings</attribute>
+          <attribute name="label" translatable="yes">_Desktop Settings</attribute>
           <attribute name="action">menu.desktop-settings</attribute>
         </item>
         <item>
-          <attribute name="label" translatable="yes">System Settings</attribute>
+          <attribute name="label" translatable="yes">_System Settings</attribute>
           <attribute name="action">menu.control-center</attribute>
         </item>
     </section>
   </menu>
   <menu id="menubar">
       <submenu id="files">
-          <attribute name="label" translatable="yes">Files</attribute>
+          <attribute name="label" translatable="yes">_Files</attribute>
           <attribute name="submenu-action">menu.populate-files</attribute>
       </submenu>
   </menu>

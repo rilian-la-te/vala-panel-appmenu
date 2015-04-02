@@ -39,7 +39,7 @@ namespace Appmenu
             if (name == null)
                 name = window.get_name();
             if (name == null)
-                name = _("Application");
+                name = _("_Application");
             if (app_menu_path != null)
             {
                 var menu = new GLib.Menu();
