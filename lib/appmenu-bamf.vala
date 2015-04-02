@@ -49,7 +49,7 @@ namespace Appmenu
                 var unity_list = keyfile.get_string_list(KeyFileDesktop.GROUP,UNITY_QUICKLISTS_KEY);
                 foreach(var action in unity_list)
                 {
-                    var action_name = keyfile.get_string(UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME.printf(action),KeyFileDesktop.KEY_NAME);
+                    var action_name = keyfile.get_locale_string(UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME.printf(action),KeyFileDesktop.KEY_NAME);
                     section.append(action_name,"conf.activate-unity-desktop-shortcut('%s')".printf(action));
                 }
                 submenu.append_section(null,section);
