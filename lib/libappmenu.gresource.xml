@@ -3,5 +3,6 @@
 <gresources>
   <gresource prefix="/org/vala-panel/appmenu">
     <file compressed="true" preprocess="xml-stripblanks">desktop-menus.ui</file>
+    <file compressed="true">appmenu.css</file>
   </gresource>
 </gresources>
