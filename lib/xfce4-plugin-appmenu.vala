@@ -9,7 +9,7 @@ public class AppmenuPlugin : Xfce.PanelPlugin {
         GLib.Intl.bindtextdomain(Config.GETTEXT_PACKAGE,Config.LOCALE_DIR);
         GLib.Intl.bind_textdomain_codeset(Config.GETTEXT_PACKAGE,"UTF-8");
         GLib.Intl.textdomain(Config.GETTEXT_PACKAGE);
-        widget = new ActiveMenu();
+        widget = new AppMenuBar();
         add(widget);
         add_action_widget(widget);
         this.width_request = -1;

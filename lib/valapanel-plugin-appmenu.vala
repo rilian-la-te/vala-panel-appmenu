@@ -21,7 +21,7 @@ public class GlobalMenuApplet: Applet
     }
     public override void create()
     {
-        layout = new Appmenu.ActiveMenu();
+        layout = new Appmenu.AppMenuBar();
         this.add(layout);
         show_all();
     }

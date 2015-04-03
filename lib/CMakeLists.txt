@@ -4,6 +4,7 @@ vala_precompile(VALA_C appmenu
     appmenu-desktop.vala
     registrar.vala
     menubar.vala
+    menu-widget.vala
     menu-widget-dbusmenu.vala
     menu-widget-menumodel.vala
     ${CMAKE_BINARY_DIR}/vapi/config.vala

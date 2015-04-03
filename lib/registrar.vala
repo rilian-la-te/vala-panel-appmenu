@@ -6,91 +6,43 @@ namespace Appmenu
     public const string REG_IFACE = "com.canonical.AppMenu.Registrar";
     public const string REG_OBJECT = "/com/canonical/AppMenu/Registrar";
 
-    public abstract class MenuWidget: Gtk.Box
-    {
-        public uint window_id {get; protected set construct;}
-        public Gtk.MenuBar menubar {get; protected set construct;}
-        public Gtk.MenuBar appmenu {get; internal set construct;}
-        private Gtk.CssProvider provider;
-        construct
-        {
-            provider = new Gtk.CssProvider();
-            File ruri = File.new_for_uri("resource://org/vala-panel/appmenu/appmenu.css");
-            try
-            {
-                provider.load_from_file(ruri);
-                this.notify.connect((pspec)=>{
-                    if (pspec.name == "appmenu" && appmenu != null)
-                    {
-                        var context = appmenu.get_style_context();
-                        context.add_provider(provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-                        context.add_class("-vala-panel-appmenu-private");
-                    }
-                    if (pspec.name == "menubar" && menubar != null)
-                    {
-                        var context = menubar.get_style_context();
-                        context.add_provider(provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-                        context.add_class("-vala-panel-appmenu-private");
-                    }
-                });
-            } catch (GLib.Error e) {}
-        }
-    }
-    public class MenuWidgetAny : MenuWidget
-    {
-        public MenuWidgetAny(Bamf.Application app)
-        {
-            appmenu = new BamfAppmenu(app);
-            this.add(appmenu);
-            this.show_all();
-        }
-    }
     [DBus (name = "com.canonical.AppMenu.Registrar")]
-    public class Registrar : Object
+    public interface OuterRegistrar : Object
     {
-        private HashTable<uint,MenuWidget> menus;
-        private GenericSet<uint> desktop_menus;
-        private Bamf.Matcher matcher;
-        private ulong active_handler;
-        private ulong open_handler;
-        private ulong close_handler;
         public signal void window_registered(uint window_id, string service, ObjectPath path);
         public signal void window_unregistered(uint window_id);
-        [DBus (visible = false)]
-        public MenuWidget? active_menu {get; private set;}
-        public Registrar()
+        public abstract void register_window(uint window, ObjectPath menu_object_path) throws Error;
+        public abstract void unregister_window(uint window) throws Error;
+        public abstract void get_menu_for_window(uint window, out string service, out ObjectPath path) throws Error;
+        public abstract void get_menus([DBus (signature="a(uso)")] out Variant menus) throws Error;
+    }
+
+    internal struct DBusAddress
+    {
+        string name;
+        ObjectPath path;
+    }
+
+    [DBus (name = "com.canonical.AppMenu.Registrar")]
+    public class InnerRegistrar : Object
+    {
+        private HashTable<uint,DBusAddress?> menus;
+        public signal void window_registered(uint window_id, string service, ObjectPath path);
+        public signal void window_unregistered(uint window_id);
+        public InnerRegistrar()
         {
             Object();
         }
         construct
         {
-            menus = new HashTable<uint,MenuWidget>(direct_hash,direct_equal);
-            desktop_menus = new GenericSet<uint>(direct_hash,direct_equal);
-            matcher = Bamf.Matcher.get_default();
-            active_handler = matcher.active_window_changed.connect(on_active_window_changed);
-            open_handler = matcher.view_opened.connect(on_window_opened);
-            close_handler = matcher.view_closed.connect(on_window_closed);
-            on_active_window_changed(matcher.get_active_window(),null);
-            foreach (var window in matcher.get_windows())
-                on_window_opened(window);
-            foreach (var app in matcher.get_running_applications())
-                on_window_opened(app);
-        }
-        ~Registrar()
-        {
-            matcher.disconnect(active_handler);
-            matcher.disconnect(open_handler);
-            matcher.disconnect(close_handler);
+            menus = new HashTable<uint,DBusAddress?>(direct_hash,direct_equal);
         }
         public void register_window(uint window_id, ObjectPath menu_object_path, BusName sender)
         {
-            Bamf.Application app = matcher.get_application_for_xid(window_id);
-            MenuWidget menu = new MenuWidgetDbusmenu(window_id,sender,menu_object_path,app);
-            if (menus.contains(window_id))
-                unregister_window(window_id);
-            menus.insert(window_id,menu);
-            if (window_id == matcher.get_active_window().get_xid())
-                this.active_menu = menu;
+            DBusAddress addr = DBusAddress();
+            addr.name = (string)sender;
+            addr.path = menu_object_path;
+            menus.insert(window_id,addr);
             window_registered(window_id,sender,menu_object_path);
         }
         public void unregister_window(uint window_id)
@@ -98,23 +50,16 @@ namespace Appmenu
             var menu = menus.lookup(window_id);
             if (menu == null)
                 return;
-            if (this.active_menu == menu)
-                this.active_menu = show_dummy_menu();
-            desktop_menus.remove(window_id);
             menus.remove(window_id);
-            menu.destroy();
             window_unregistered(window_id);
         }
-        public void get_menu_for_window(uint window, out string service, out ObjectPath path) throws DBusError
+        public void get_menu_for_window(uint window, out string service, out ObjectPath path)
         {
             var menu = menus.lookup(window);
-            if (menu == null)
-                throw new DBusError.INVALID_ARGS("Window not found!");
-            if (menu != null && menu is MenuWidgetDbusmenu)
+            if (menu != null)
             {
-                var menu_dbus = menu as MenuWidgetDbusmenu;
-                service = menu_dbus.object_name;
-                path = menu_dbus.object_path;
+                service = menu.name;
+                path = menu.path;
             }
             else
             {
@@ -126,104 +71,87 @@ namespace Appmenu
         {
             VariantBuilder builder = new VariantBuilder(new VariantType("a(uso)"));
             this.menus.foreach((k,v)=>{
-                try {
-                    string service;
-                    ObjectPath path;
-                    get_menu_for_window(k,out service,out path);
-                    builder.add("(uso)",k,service,path);
-                } catch (Error e) {
-                    stderr.printf("%s\n",e.message);
-                }
+                string service;
+                ObjectPath path;
+                get_menu_for_window(k,out service,out path);
+                builder.add("(uso)",k,service,path);
             });
             menus = builder.end();
         }
-        private MenuWidget? show_dummy_menu()
+    }
+    public class DBusMenuRegistrarProxy: Object
+    {
+        public bool have_registrar {get; private set;}
+        private InnerRegistrar inner_registrar;
+        private OuterRegistrar outer_registrar;
+        private bool is_inner_registrar;
+        private uint owned_name;
+        private uint watched_name;
+        public DBusMenuRegistrarProxy()
         {
-            MenuWidget? menu = null;
-            if (desktop_menus.length > 0)
-            {
-                desktop_menus.foreach((k)=>{
-                    menu = menus.lookup(k);
-                    if (menu != null)
-                        return;
+            Object();
+        }
+        public signal void window_registered(uint window_id, string service, ObjectPath path);
+        public signal void window_unregistered(uint window_id);
+        private void on_bus_aquired(DBusConnection conn)
+        {
+            try {
+                inner_registrar = new InnerRegistrar();
+                conn.register_object (REG_OBJECT, inner_registrar);
+                inner_registrar.window_registered.connect((w,s,p)=>{this.window_registered(w,s,p);});
+                inner_registrar.window_unregistered.connect((w)=>{this.window_unregistered(w);});
+            } catch (IOError e) {
+                stderr.printf ("Could not register service. Waiting for external registrar\n");
+            }
+        }
+        private void create_inner_registrar()
+        {
+            owned_name = Bus.own_name (BusType.SESSION, REG_IFACE, BusNameOwnerFlags.NONE,
+                on_bus_aquired,
+                () => {
+                    have_registrar = true;
+                    is_inner_registrar = true;
+                },
+                () => {
+                    is_inner_registrar = false;
+                    create_outer_registrar();
                 });
+        }
+        private void create_outer_registrar()
+        {
+            try{
+                outer_registrar = Bus.get_proxy_sync(BusType.SESSION,REG_IFACE,REG_OBJECT);
+                watched_name = Bus.watch_name(BusType.SESSION,REG_IFACE,GLib.BusNameWatcherFlags.NONE,
+                                                        () => {
+                                                            inner_registrar = null;
+                                                            is_inner_registrar = false;
+                                                            have_registrar = true;
+                                                            },
+                                                        () => {
+                                                            Bus.unwatch_name(watched_name);
+                                                            is_inner_registrar = true;
+                                                            create_inner_registrar();
+                                                            }
+                                                        );
+                outer_registrar.window_registered.connect((w,s,p)=>{this.window_registered(w,s,p);});
+                outer_registrar.window_unregistered.connect((w)=>{this.window_unregistered(w);});
+            } catch (Error e) {
+                stderr.printf("%s\n",e.message);
+                return;
             }
-            return menu;
         }
-        private void on_window_opened(Bamf.View view)
+        construct
         {
-            if(view is Bamf.Window)
-            {
-                unowned Bamf.Window window = view as Bamf.Window;
-                if (window.get_window_type() == Bamf.WindowType.DESKTOP)
-                {
-                    lookup_menu(window);
-                    desktop_menus.add(window.get_xid());
-                }
-            }
+            is_inner_registrar = true;
+            have_registrar = false;
+            create_inner_registrar();
         }
-        private void on_window_closed(Bamf.View view)
+        ~DBusMenuRegistrarProxy()
         {
-            if (view is Bamf.Window)
-                unregister_window((view as Bamf.Window).get_xid());
-        }
-        private void on_active_window_changed(Bamf.Window? prev, Bamf.Window? next)
-        {
-            if (this.active_menu != null)
-                this.active_menu.hide();
-            unowned Bamf.Window win = next != null ? next : matcher.get_active_window();
-            this.active_menu = lookup_menu(win);
-            if (this.active_menu != null)
-                this.active_menu.show();
-        }
-        private MenuWidget lookup_menu(Bamf.Window? window)
-        {
-            MenuWidget? menu = null;
-            uint xid = 0;
-            while (window != null && menu == null)
-            {
-                xid = window.get_xid();
-                menu = menus.lookup(xid);
-                var app = matcher.get_application_for_window(window);
-                /* Appmenu hack, because BAMF does not always send a correct Application
-                * DBusMenu registration always happened BEFORE a BAMF register application.
-                */
-                if (menu != null && menu.appmenu == null && app != null)
-                {
-                    menu.appmenu = new BamfAppmenu(app);
-                    menu.add(menu.appmenu);
-                    menu.reorder_child(menu.appmenu,0);
-                    menu.appmenu.show();
-                }
-                /* First look to see if we can get these from the
-                   GMenuModel access */
-                if (menu == null)
-                {
-                    var uniquename = window.get_utf8_prop ("_GTK_UNIQUE_BUS_NAME");
-                    if (uniquename != null)
-                    {
-                        if (window.get_window_type() == Bamf.WindowType.DESKTOP)
-                            menu = new MenuWidgetDesktop(app,window);
-                        else
-                            menu = new MenuWidgetMenumodel(app,window);
-                        menus.insert(xid,menu);
-                        return menu;
-                    }
-                }
-                if (menu == null)
-                {
-                    debug("Looking for parent window on XID %u", xid);
-                    if (window.get_transient() == null && app != null)
-                    {
-                        menu = new MenuWidgetAny(app);
-                        menus.insert(window.get_xid(),menu);
-                    }
-                    window = window.get_transient();
-                }
-            }
-            if (menu == null)
-                menu = show_dummy_menu();
-            return menu;
+            if (is_inner_registrar)
+                Bus.unown_name(owned_name);
+            else
+                Bus.unwatch_name(watched_name);
         }
     }
 }
