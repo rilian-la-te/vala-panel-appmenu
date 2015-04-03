@@ -39,14 +39,6 @@ namespace Appmenu
         {
             Gtk.Settings.get_default().gtk_shell_shows_app_menu = false;
             Gtk.Settings.get_default().gtk_shell_shows_menubar = false;
-            var context = this.get_style_context();
-            var provider = new Gtk.CssProvider();
-            File ruri = File.new_for_uri("resource://org/vala-panel/appmenu/appmenu.css");
-            try
-            {
-                provider.load_from_file(ruri);
-                context.add_provider(provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-            } catch (GLib.Error e) {}
             Bus.own_name(BusType.SESSION, REG_IFACE, BusNameOwnerFlags.NONE,
                         on_bus_aquired,
                         ()=>{},
