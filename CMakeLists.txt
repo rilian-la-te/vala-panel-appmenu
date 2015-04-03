@@ -39,7 +39,7 @@ add_definitions(-w) # Disable gcc warnings
 find_package (PkgConfig)
 
 pkg_check_modules (CORE REQUIRED
-  gtk+-3.0>=3.12
+  gtk+-3.0>=3.10
   glib-2.0>=2.40
   gio-2.0>=2.40
   gio-unix-2.0>=2.40
@@ -52,8 +52,7 @@ set(CORE_PACKAGES
   glib-2.0
   gio-2.0
   gio-unix-2.0
-  gmodule-2.0
-  posix)
+  gmodule-2.0)
 
 set(PACKGAGE_CFLAGS ${CORE_CFLAGS})
 set(PACKAGE_LINK_DIRS ${CORE_LIBRARY_DIRS})
@@ -73,7 +72,7 @@ set(TARGET_GLIB ${GLIB_VERSION_MAJOR}.${GLIB_VERSION_MINOR})
 #set build options
 option(ENABLE_WNCK "Enable libwnck-related functions" ON)
 if (ENABLE_WNCK)
-    pkg_check_modules(WNCK libwnck-3.0>=3.12.0)
+    pkg_check_modules(WNCK libwnck-3.0>=3.4.0)
     if (NOT(WNCK_FOUND))
         set(ENABLE_WNCK OFF)
     endif()
