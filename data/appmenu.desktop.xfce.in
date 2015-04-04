@@ -4,6 +4,5 @@ Encoding=UTF-8
 Name=AppMenu Plugin
 Comment=Display AppMenu (Global Menu)
 Icon=applications-system
-X-XFCE-Module=appmenu
-X-XFCE-Unique=SCREEN
+X-XFCE-Module=appmenu-xfce
 X-XFCE-API=2.0

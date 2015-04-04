@@ -1,6 +1,6 @@
 if (ENABLE_XFCE)
-    add_subdirectory(xfce)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/appmenu.desktop DESTINATION share/xfce4/panel/plugins)
 endif()
 if (ENABLE_VALAPANEL)
-    add_subdirectory(valapanel)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/appmenu.plugin DESTINATION lib/vala-panel/applets/)
 endif()

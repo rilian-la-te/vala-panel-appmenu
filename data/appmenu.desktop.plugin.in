@@ -1,5 +1,4 @@
 [Plugin]
-Module=appmenu
+Module=appmenu-valapanel
 Name=AppMenu Plugin
 Description=Display AppMenu (Global Menu)
-X-ValaPanel-Once=true
