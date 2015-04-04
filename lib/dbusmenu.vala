@@ -474,8 +474,8 @@ namespace DBusMenu
             box = new Box(Orientation.HORIZONTAL, 5);
             image = new Image();
             label = new AccelLabel("");
-            box.add(image);
-            box.add(label);
+            box.pack_start(image,false);
+            box.pack_end(label);
             this.add(box);
             this.show_all();
             this.init();
@@ -823,8 +823,8 @@ namespace DBusMenu
             box = new Box(Orientation.HORIZONTAL, 5);
             image = new Image();
             label = new AccelLabel("");
-            box.add(image);
-            box.add(label);
+            box.pack_start(image,false);
+            box.pack_end(label);
             this.add(box);
             this.show_all();
             this.init();
