@@ -429,6 +429,30 @@ namespace DBusMenu
     {
         public abstract Item item
         {get; protected set;}
+        public static void parse_shortcut_variant(Variant shortcut, out uint key, out Gdk.ModifierType modifier)
+        {
+            print("%s\n",shortcut.print(false));
+            key = 0;
+            modifier = 0;
+            VariantIter iter = shortcut.iterator();
+            string str;
+            while(iter.next("s", out str))
+            {
+                if (str == "Control") {
+                    modifier |= Gdk.ModifierType.CONTROL_MASK;
+                } else if (str == "Alt") {
+                    modifier |= Gdk.ModifierType.MOD1_MASK;
+                } else if (str == "Shift") {
+                    modifier |= Gdk.ModifierType.SHIFT_MASK;
+                } else if (str == "Super") {
+                    modifier |= Gdk.ModifierType.SUPER_MASK;
+                } else {
+                    Gdk.ModifierType tempmod;
+                    accelerator_parse(str, out key, out tempmod);
+                }
+            }
+            return;
+        }
     }
     public class GtkMainItem : CheckMenuItem, GtkItemIface
     {
@@ -440,7 +464,7 @@ namespace DBusMenu
         private bool has_indicator;
         private Box box;
         private Image image;
-        private new Label label;
+        private new AccelLabel label;
         private ulong activate_handler;
         private bool is_themed_icon;
         public GtkMainItem(Item item)
@@ -449,7 +473,7 @@ namespace DBusMenu
             this.item = item;
             box = new Box(Orientation.HORIZONTAL, 5);
             image = new Image();
-            label = new Label(null);
+            label = new AccelLabel("");
             box.add(image);
             box.add(label);
             this.add(box);
@@ -515,7 +539,7 @@ namespace DBusMenu
                     update_icon(val);
                     break;
                 case "shortcut":
-                /* FIXME: Accels support*/
+                    update_shortcut(val);
                     break;
             }
             if(activate_handler > 0)
@@ -561,6 +585,15 @@ namespace DBusMenu
             else return;
             image.set_from_gicon(icon,IconSize.MENU);
             image.set_pixel_size(16);
+        }
+        private void update_shortcut(Variant? val)
+        {
+            if (val == null)
+                return;
+            uint key;
+            Gdk.ModifierType mod;
+            parse_shortcut_variant(val, out key, out mod);
+            this.label.set_accel(key,mod);
         }
         private void on_child_added_cb(int id,Item item)
         {
@@ -780,7 +813,7 @@ namespace DBusMenu
         {get; protected set;}
         private Box box;
         private Image image;
-        private new Label label;
+        private new AccelLabel label;
         private ulong activate_handler;
         private bool is_themed_icon;
         public GtkMenuBarItem(Item item)
@@ -789,7 +822,7 @@ namespace DBusMenu
             this.item = item;
             box = new Box(Orientation.HORIZONTAL, 5);
             image = new Image();
-            label = new Label(null);
+            label = new AccelLabel("");
             box.add(image);
             box.add(label);
             this.add(box);
@@ -844,7 +877,7 @@ namespace DBusMenu
                     update_icon(val);
                     break;
                 case "shortcut":
-                /* FIXME: Accels support*/
+                    update_shortcut(val);
                     break;
                 case "x-valapanel-icon-size":
                     image.set_pixel_size(val != null ? val.get_int32() : 16);
@@ -876,6 +909,15 @@ namespace DBusMenu
                 return;
             image.set_from_gicon(icon,IconSize.MENU);
             image.show();
+        }
+        private void update_shortcut(Variant? val)
+        {
+            if (val == null)
+                return;
+            uint key;
+            Gdk.ModifierType mod;
+            parse_shortcut_variant(val, out key, out mod);
+            this.label.set_accel(key,mod);
         }
         private void on_child_added_cb(int id,Item item)
         {
