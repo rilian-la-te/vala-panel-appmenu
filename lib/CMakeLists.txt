@@ -41,6 +41,7 @@ macro(compile_xfce)
         --target-glib=2.40
         --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
         --thread
+        ${WNCK_DEFINE}
     )
 
     # Build library for plugins and application
@@ -81,6 +82,7 @@ macro(compile_valapanel)
         --target-glib=2.40
         --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
         --thread
+        ${WNCK_DEFINE}
     )
 
     # Build library for plugins and application
