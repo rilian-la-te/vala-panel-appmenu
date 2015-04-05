@@ -71,8 +71,8 @@ endif()
 ##########
 macro(compile_valapanel)
     vala_precompile(VALA_C_VALAPANEL appmenu-valapanel
-        ${CORE_VALA_FILES}
         ${VALAPANEL_SOURCES}
+        ${CORE_VALA_FILES}
     PACKAGES
         ${CORE_PACKAGES}
         ${WNCK_PACKAGES}
