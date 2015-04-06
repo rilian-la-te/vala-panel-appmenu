@@ -10,6 +10,7 @@ PACKAGES
     glib-2.0
     gobject-2.0
 OPTIONS
+    --vapidir=${CMAKE_SOURCE_DIR}/vapi
     --target-glib=2.40
     --thread
 GENERATE_VAPI
