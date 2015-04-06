@@ -91,7 +91,7 @@ if (ENABLE_XFCE)
 endif()
 if (ENABLE_XFCE)
     set(XFCE_PACKAGES libxfce4panel-2.0 libxfconf-0)
-    set(XFCE_SOURCES dbusmenu.vala xfce4-plugin-appmenu.vala)
+    set(XFCE_SOURCES xfce4-plugin-appmenu.vala)
     set(XFCE_LOCATION lib/xfce4/panel/plugins)
 endif()
 

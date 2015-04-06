@@ -1,4 +1,29 @@
 #####
+# DBusMenu
+#####
+macro(precompile_dbusmenu)
+vala_precompile(VALA_C_DBUSMENU vala-dbusmenu
+    ${CMAKE_SOURCE_DIR}/dbusmenu/dbusmenu.vala
+PACKAGES
+    gtk+-3.0
+    gio-2.0
+    glib-2.0
+    gobject-2.0
+OPTIONS
+    --target-glib=2.40
+    --thread
+GENERATE_VAPI
+    vala-dbusmenu
+GENERATE_HEADER
+    vala-dbusmenu
+)
+endmacro(precompile_dbusmenu)
+if(NOT EXISTS ${CMAKE_BINARY_DIR}/vapi/vala-dbusmenu.vapi
+   OR ${CMAKE_CURRENT_BINARY_DIR}/vala-dbusmenu_valac.stamp IS_NEWER_THAN ${CMAKE_BINARY_DIR}/vapi/vala-dbusmenu.vapi)
+   precompile_dbusmenu()
+endif()
+add_custom_target(vala-dbusmenu DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/vala-dbusmenu_valac.stamp)
+#####
 # Core Parts (GResource, definitions)
 #####
 add_definitions(-DWNCK_I_KNOW_THIS_IS_UNSTABLE)
@@ -12,32 +37,49 @@ set(CORE_VALA_FILES
     menu-widget-menumodel.vala
 )
 macro(precompile_core)
+    vala_precompile(VALA_C_CORE appmenu-core
+        ${CORE_VALA_FILES}
+    PACKAGES
+        ${CORE_PACKAGES}
+        vala-dbusmenu
+        ${WNCK_PACKAGES}
+    OPTIONS
+        --vapidir=${CMAKE_SOURCE_DIR}/vapi
+        --vapidir=${CMAKE_CURRENT_BINARY_DIR}
+        --target-glib=2.40
+        --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
+        --thread
+        ${WNCK_DEFINE}
+    GENERATE_VAPI
+        vala-panel-appmenu
+    )
     INCLUDE(GResource)
     glib_compile_resources(RESOURCES
         source
             libappmenu.gresource.xml
     )
 endmacro(precompile_core)
-add_custom_target(appmenu-core DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/libappmenu.gresource.c)
 if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/vala-panel-appmenu.vapi
-   OR ${CMAKE_CURRENT_BINARY_DIR}/libappmenu.gresource.c IS_NEWER_THAN ${CMAKE_CURRENT_BINARY_DIR}/libappmenu.gresource.xml)
+   OR ${CMAKE_CURRENT_BINARY_DIR}/appmenu-core_valac.stamp IS_NEWER_THAN ${CMAKE_CURRENT_BINARY_DIR}/vala-panel-appmenu.vapi)
    precompile_core()
 endif()
-
+add_custom_target(appmenu-core DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/libappmenu.gresource.c ${CMAKE_CURRENT_BINARY_DIR}/appmenu-core_valac.stamp)
+add_dependencies(appmenu-core vala-dbusmenu)
 ##########
 # XFCE Part
 ##########
 macro(compile_xfce)
     vala_precompile(VALA_C_XFCE appmenu-xfce
-        ${CORE_VALA_FILES}
         ${CMAKE_BINARY_DIR}/vapi/config.vala
         ${XFCE_SOURCES}
     PACKAGES
         ${CORE_PACKAGES}
+        vala-panel-appmenu
         ${WNCK_PACKAGES}
         ${XFCE_PACKAGES}
     OPTIONS
         --vapidir=${CMAKE_SOURCE_DIR}/vapi
+        --vapidir=${CMAKE_CURRENT_BINARY_DIR}
         --target-glib=2.40
         --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
         --thread
@@ -47,10 +89,10 @@ macro(compile_xfce)
     # Build library for plugins and application
     set (XFCE_LIBS ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${XFCE_LIBRALIES} -lm)
     set (XFCE_LIB_PATHS ${CORE_LIBRARY_DIRS} ${WNCK_LIBRARY_DIRS} ${XFCE_LIBRARY_DIRS})
-    include_directories (${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${XFCE_INCLUDE_DIRS})
+    include_directories (${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${XFCE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
     link_directories (${XFCE_LIB_PATHS})
 
-    set (XFCE_LIB_FILES ${VALA_C_CORE} ${VALA_C_XFCE})
+    set (XFCE_LIB_FILES ${VALA_C_CORE} ${VALA_C_XFCE} ${VALA_C_DBUSMENU})
 
     add_library (appmenu-xfce SHARED
         ${XFCE_LIB_FILES}
@@ -72,13 +114,14 @@ endif()
 macro(compile_valapanel)
     vala_precompile(VALA_C_VALAPANEL appmenu-valapanel
         ${VALAPANEL_SOURCES}
-        ${CORE_VALA_FILES}
     PACKAGES
         ${CORE_PACKAGES}
+        vala-panel-appmenu
         ${WNCK_PACKAGES}
         ${VALAPANEL_PACKAGES}
     OPTIONS
         --vapidir=${CMAKE_SOURCE_DIR}/vapi
+        --vapidir=${CMAKE_CURRENT_BINARY_DIR}
         --target-glib=2.40
         --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
         --thread
@@ -88,7 +131,7 @@ macro(compile_valapanel)
     # Build library for plugins and application
     set (VALAPANEL_LIBS ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${VALAPANEL_LIBRALIES} -lm)
     set (VALAPANEL_LIB_PATHS ${CORE_LIBRARY_DIRS} ${WNCK_LIBRARY_DIRS} ${VALAPANEL_LIBRARY_DIRS})
-    include_directories (${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${VALAPANEL_INCLUDE_DIRS})
+    include_directories (${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${VALAPANEL_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
     link_directories (${VALAPANEL_LIB_PATHS})
 
     set (VALAPANEL_LIB_FILES ${VALA_C_CORE} ${VALA_C_VALAPANEL})

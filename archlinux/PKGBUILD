@@ -3,7 +3,8 @@
 _pkgname=vala-panel-appmenu
 pkgname=${_pkgname}-xfce-git
 _cmakename=cmake-vala
-pkgver=0.1.0
+_dbusmenuname=vala-dbusmenu
+pkgver=0.2.1
 pkgrel=1
 pkgdesc="AppMenu (Global Menu) plugin for xfce4-panel"
 url="https://github.com/rilian-la-te/vala-panel-appmenu"
@@ -18,8 +19,10 @@ optdepends=('gtk2-ubuntu: for hiding gtk2 menus'
             'appmenu-qt: for qt4 menus'
             'appmenu-qt5: for qt5 menus')
 source=("git://github.com/rilian-la-te/${_pkgname}.git"
-        "git://github.com/rilian-la-te/${_cmakename}.git")
+        "git://github.com/rilian-la-te/${_cmakename}.git"
+        "git://github.com/rilian-la-te/${_dbusmenuname}.git")
 sha256sums=('SKIP'
+            'SKIP'
             'SKIP')
 
 pkgver() {
@@ -33,6 +36,8 @@ pkgver() {
 prepare() {
   cd "${srcdir}/${_cmakename}"
   cp -r . "${srcdir}/${_pkgname}/cmake"
+  cd "${srcdir}/${_dbusmenuname}"
+  cp -r . "${srcdir}/${_pkgname}/dbusmenu"
 }
 
 build() {
