@@ -50,13 +50,20 @@ namespace Appmenu
         }
         public void register_menu_window(uint window_id, string sender, ObjectPath menu_object_path)
         {
+            if (window_id != matcher.get_active_window().get_xid())
+                return;
+            var menu = create_dbusmenu(window_id,sender,menu_object_path);
+            replace_menu(menu);
+        }
+        private MenuWidget create_dbusmenu(uint window_id, string sender, ObjectPath menu_object_path)
+        {
             Bamf.Application app = matcher.get_application_for_xid(window_id);
             MenuWidget menu = new MenuWidgetDbusmenu(window_id,sender,menu_object_path,app);
             if (menus.contains(window_id))
                 unregister_menu_window(window_id);
             menus.insert(window_id,menu);
-            if (window_id == matcher.get_active_window().get_xid())
-                replace_menu(menu);
+            return menu;
+
         }
         public void unregister_menu_window(uint window_id)
         {
@@ -126,16 +133,6 @@ namespace Appmenu
                 xid = window.get_xid();
                 menu = menus.lookup(xid);
                 var app = matcher.get_application_for_window(window);
-                /* Appmenu hack, because BAMF does not always send a correct Application
-                * DBusMenu registration always happened BEFORE a BAMF register application.
-                */
-                if (menu != null && menu.appmenu == null && app != null)
-                {
-                    menu.appmenu = new BamfAppmenu(app);
-                    menu.add(menu.appmenu);
-                    menu.reorder_child(menu.appmenu,0);
-                    menu.appmenu.show();
-                }
                 /* First look to see if we can get these from the
                    GMenuModel access */
                 if (menu == null)
@@ -150,6 +147,25 @@ namespace Appmenu
                         menus.insert(xid,menu);
                         return menu;
                     }
+                }
+                if (menu == null)
+                {
+                    string name;
+                    ObjectPath path;
+                    proxy.get_menu_for_window(xid,out name, out path);
+                    /* Check DBusMenu sanity to differ it from MenuModel*/
+                    if (!(name.length <= 0 && path == "/"))
+                        menu = create_dbusmenu(xid,name,path);
+                }
+                /* Appmenu hack, because BAMF does not always send a correct Application
+                * DBusMenu registration always happened BEFORE a BAMF register application.
+                */
+                if (menu != null && menu.appmenu == null && app != null)
+                {
+                    menu.appmenu = new BamfAppmenu(app);
+                    menu.add(menu.appmenu);
+                    menu.reorder_child(menu.appmenu,0);
+                    menu.appmenu.show();
                 }
                 if (menu == null)
                 {

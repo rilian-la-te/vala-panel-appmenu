@@ -37,7 +37,7 @@ namespace Appmenu
         {
             menus = new HashTable<uint,DBusAddress?>(direct_hash,direct_equal);
         }
-        public async void register_window(uint window_id, ObjectPath menu_object_path, BusName sender)
+        public void register_window(uint window_id, ObjectPath menu_object_path, BusName sender)
         {
             DBusAddress addr = DBusAddress();
             addr.name = (string)sender;
@@ -45,7 +45,7 @@ namespace Appmenu
             menus.insert(window_id,addr);
             window_registered(window_id,sender,menu_object_path);
         }
-        public async void unregister_window(uint window_id)
+        public void unregister_window(uint window_id)
         {
             var menu = menus.lookup(window_id);
             if (menu == null)
@@ -65,6 +65,12 @@ namespace Appmenu
             {
                 service = "";
                 path = new ObjectPath("/");
+            }
+            if (!DBusMenu.GtkClient.check(service,path) && menu != null)
+            {
+                service = "";
+                path = new ObjectPath("/");
+                unregister_window(window);
             }
         }
         public void get_menus([DBus (signature="a(uso)")] out Variant menus)
@@ -145,6 +151,17 @@ namespace Appmenu
             is_inner_registrar = true;
             have_registrar = false;
             create_inner_registrar();
+        }
+        public void get_menu_for_window(uint window, out string name, out ObjectPath path)
+        {
+            name = "";
+            path = new ObjectPath("/");
+            if (is_inner_registrar)
+                inner_registrar.get_menu_for_window(window,out name, out path);
+            else
+                try{
+                    outer_registrar.get_menu_for_window(window,out name, out path);
+                } catch (Error e) {stderr.printf("%s\n",e.message);}
         }
         ~DBusMenuRegistrarProxy()
         {
