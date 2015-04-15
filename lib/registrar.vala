@@ -37,7 +37,7 @@ namespace Appmenu
         {
             menus = new HashTable<uint,DBusAddress?>(direct_hash,direct_equal);
         }
-        public void register_window(uint window_id, ObjectPath menu_object_path, BusName sender)
+        public async void register_window(uint window_id, ObjectPath menu_object_path, BusName sender)
         {
             DBusAddress addr = DBusAddress();
             addr.name = (string)sender;
@@ -45,7 +45,7 @@ namespace Appmenu
             menus.insert(window_id,addr);
             window_registered(window_id,sender,menu_object_path);
         }
-        public void unregister_window(uint window_id)
+        public async void unregister_window(uint window_id)
         {
             var menu = menus.lookup(window_id);
             if (menu == null)
