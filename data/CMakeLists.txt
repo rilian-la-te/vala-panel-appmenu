@@ -1,6 +1,6 @@
 if (ENABLE_XFCE)
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/appmenu.desktop DESTINATION share/xfce4/panel/plugins)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/appmenu.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/xfce4/panel/plugins)
 endif()
 if (ENABLE_VALAPANEL)
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/appmenu.plugin DESTINATION lib/vala-panel/applets/)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/appmenu.plugin DESTINATION ${CMAKE_INSTALL_LIBDIR}/vala-panel/applets/)
 endif()
