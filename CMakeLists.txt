@@ -5,12 +5,25 @@ enable_testing ()
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set (DATADIR "${CMAKE_INSTALL_PREFIX}/share/vala-panel")
 set (PKGDATADIR "${DATADIR}")
-set (VERSION "0.1.0")
 set (GETTEXT_PACKAGE "vala-panel-appmenu")
 set (RELEASE_NAME "Vala Panel Application Menu")
 set (PREFIX ${CMAKE_INSTALL_PREFIX})
 set (DOLLAR "$")
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
+#
+# Make a version containing the current version from git.
+#
+
+include(GetGitRevisionDescription)
+git_describe(VERSION_LONG --tags)
+
+#parse the version information into pieces.
+string(REGEX REPLACE "^v*([0-9]+)\\..*" "\\1" VERSION_MAJOR "${VERSION_LONG}")
+string(REGEX REPLACE "^v*[0-9]+\\.([0-9]+).*" "\\1" VERSION_MINOR "${VERSION_LONG}")
+string(REGEX REPLACE "^v*[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" VERSION_PATCH "${VERSION_LONG}")
+string(REGEX REPLACE "^v*[0-9]+\\.[0-9]+\\.[0-9]+(.*)" "\\1" VERSION_SHA1 "${VERSION_LONG}")
+set(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
 # Add 'make dist' command for creating release tarball
 set (CPACK_PACKAGE_VERSION ${VERSION})
