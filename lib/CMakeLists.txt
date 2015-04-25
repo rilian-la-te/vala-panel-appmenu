@@ -99,7 +99,7 @@ if (ENABLE_XFCE)
     link_directories (${CORE_LIBRARY_DIRS} ${WNCK_LIBRARY_DIRS} ${XFCE_LIBRARY_DIRS})
     add_dependencies(appmenu-xfce appmenu-core)
     # Install plugin stuffs
-    install(TARGETS appmenu-xfce DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/xfce4/panel/plugins)
+    install(TARGETS appmenu-xfce DESTINATION ${CMAKE_INSTALL_LIBDIR}/xfce4/panel/plugins)
 endif()
 
 ##########
@@ -138,5 +138,5 @@ if(ENABLE_VALAPANEL)
     target_link_libraries (appmenu-valapanel ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${VALAPANEL_LIBRARIES} m)
     link_directories (${CORE_LIBRARY_DIRS} ${WNCK_LIBRARY_DIRS} ${VALAPANEL_LIBRARY_DIRS})
     # Install plugin stuffs
-    install(TARGETS appmenu-valapanel DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/vala-panel/applets)
+    install(TARGETS appmenu-valapanel DESTINATION ${CMAKE_INSTALL_LIBDIR}/vala-panel/applets)
 endif()
