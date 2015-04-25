@@ -69,18 +69,6 @@ set(CORE_PACKAGES
   gmodule-2.0
   libbamf3)
 
-set(PACKGAGE_CFLAGS ${CORE_CFLAGS})
-set(PACKAGE_LINK_DIRS ${CORE_LIBRARY_DIRS})
-set(PACKAGE_LIBRARIES ${CORE_LIBRARIES})
-
-add_definitions (${CORE_CFLAGS})
-link_libraries (${CORE_LIBRARIES})
-link_directories (${CORE_LIBRARY_DIRS})
-
-
-# Some include paths
-include_directories(${CMAKE_BINARY_DIR}/lib)
-
 #set requred variables
 set(TARGET_GLIB ${GLIB_VERSION_MAJOR}.${GLIB_VERSION_MINOR})
 
@@ -103,11 +91,6 @@ if (ENABLE_XFCE)
         set(ENABLE_XFCE OFF)
     endif()
 endif()
-if (ENABLE_XFCE)
-    set(XFCE_PACKAGES libxfce4panel-2.0 libxfconf-0)
-    set(XFCE_SOURCES xfce4-plugin-appmenu.vala)
-    set(XFCE_LOCATION ${CMAKE_INSTALL_FULL_LIBDIR}/xfce4/panel/plugins)
-endif()
 
 option(ENABLE_VALAPANEL "Enable Vala Panel Integration" ON)
 if (ENABLE_VALAPANEL)
@@ -115,11 +98,6 @@ if (ENABLE_VALAPANEL)
     if (NOT(VALAPANEL_FOUND))
         set(ENABLE_VALAPANEL OFF)
     endif()
-endif()
-if (ENABLE_VALAPANEL)
-    set(VALAPANEL_PACKAGES vala-panel libpeas-1.0 vala-dbusmenu)
-    set(VALAPANEL_SOURCES valapanel-plugin-appmenu.vala)
-    set(VALAPANEL_LOCATION ${CMAKE_INSTALL_FULL_LIBDIR}/vala-panel/applets)
 endif()
 
 ADD_SUBDIRECTORY(lib)

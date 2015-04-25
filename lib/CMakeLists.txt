@@ -69,15 +69,16 @@ add_dependencies(appmenu-core vala-dbusmenu)
 ##########
 # XFCE Part
 ##########
-macro(compile_xfce)
+if (ENABLE_XFCE)
     vala_precompile(VALA_C_XFCE appmenu-xfce
         ${CMAKE_BINARY_DIR}/vapi/config.vala
-        ${XFCE_SOURCES}
+        xfce4-plugin-appmenu.vala
     PACKAGES
         ${CORE_PACKAGES}
         vala-panel-appmenu
         ${WNCK_PACKAGES}
-        ${XFCE_PACKAGES}
+        libxfce4panel-2.0
+        libxfconf-0
     OPTIONS
         --vapidir=${CMAKE_SOURCE_DIR}/vapi
         --vapidir=${CMAKE_CURRENT_BINARY_DIR}
@@ -87,39 +88,31 @@ macro(compile_xfce)
         ${WNCK_DEFINE}
     )
 
-    # Build library for plugins and application
-    set (XFCE_LIBS ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${XFCE_LIBRALIES} -lm)
-    set (XFCE_LIB_PATHS ${CORE_LIBRARY_DIRS} ${WNCK_LIBRARY_DIRS} ${XFCE_LIBRARY_DIRS})
-    include_directories (${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${XFCE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
-    link_directories (${XFCE_LIB_PATHS})
-
     set (XFCE_LIB_FILES ${VALA_C_CORE} ${VALA_C_XFCE} ${VALA_C_DBUSMENU})
-
     add_library (appmenu-xfce SHARED
         ${XFCE_LIB_FILES}
         ${RESOURCES}
     )
-
-    target_link_libraries (appmenu-xfce ${XFCE_LIBS})
+    target_link_libraries (appmenu-xfce ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${XFCE_LIBRALIES} m)
+    target_include_directories (appmenu-xfce PRIVATE ${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${XFCE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
     add_dependencies(appmenu-xfce appmenu-core)
     # Install plugin stuffs
-    install(TARGETS appmenu-xfce DESTINATION ${XFCE_LOCATION})
-endmacro()
-if (ENABLE_XFCE)
-    compile_xfce()
+    install(TARGETS appmenu-xfce DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/xfce4/panel/plugins)
 endif()
 
 ##########
 # ValaPanel Part
 ##########
-macro(compile_valapanel)
+if(ENABLE_VALAPANEL)
     vala_precompile(VALA_C_VALAPANEL appmenu-valapanel
-        ${VALAPANEL_SOURCES}
+        valapanel-plugin-appmenu.vala
     PACKAGES
         ${CORE_PACKAGES}
         vala-panel-appmenu
         ${WNCK_PACKAGES}
-        ${VALAPANEL_PACKAGES}
+        vala-panel
+        libpeas-1.0
+        vala-dbusmenu
     OPTIONS
         --vapidir=${CMAKE_SOURCE_DIR}/vapi
         --vapidir=${CMAKE_CURRENT_BINARY_DIR}
@@ -130,23 +123,15 @@ macro(compile_valapanel)
     )
 
     # Build library for plugins and application
-    set (VALAPANEL_LIBS ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${VALAPANEL_LIBRALIES} -lm)
-    set (VALAPANEL_LIB_PATHS ${CORE_LIBRARY_DIRS} ${WNCK_LIBRARY_DIRS} ${VALAPANEL_LIBRARY_DIRS})
-    include_directories (${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${VALAPANEL_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
-    link_directories (${VALAPANEL_LIB_PATHS})
-
     set (VALAPANEL_LIB_FILES ${VALA_C_CORE} ${VALA_C_VALAPANEL})
 
-    add_library (appmenu-valapanel SHARED
+    add_library (appmenu-valapanel MODULE
         ${VALAPANEL_LIB_FILES}
         ${RESOURCES}
     )
     add_dependencies(appmenu-valapanel appmenu-core)
-    target_link_libraries (appmenu-valapanel ${VALAPANEL_LIBS})
-
+    target_include_directories (appmenu-valapanel PRIVATE ${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${VALAPANEL_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
+    target_link_libraries (appmenu-valapanel ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${VALAPANEL_LIBRALIES} m)
     # Install plugin stuffs
-    install(TARGETS appmenu-valapanel DESTINATION ${VALAPANEL_LOCATION})
-endmacro()
-if(ENABLE_VALAPANEL)
-    compile_valapanel()
+    install(TARGETS appmenu-valapanel DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/vala-panel/applets)
 endif()
