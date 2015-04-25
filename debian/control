@@ -4,14 +4,14 @@ Priority: optional
 Maintainer: Konstantin P. <ria.freelander@gmail.com>
 Build-Depends: debhelper (>= 9), cmake (>= 2.8.0), libpeas-dev (>= 1.2.0), libgtk-3-dev (>= 3.12.0), libvalapanel-dev, xfce4-panel-dev (>= 4.11.2), libxfconf-0-dev, libbamf3-dev (>= 0.5.0), libwnck-3-dev (>= 3.4.0)
 Standards-Version: 3.9.5
-Homepage: https://github.com/rilian-la-te/xfce4-sntray-plugin
-#Vcs-Git: https://github.com/rilian-la-te/xfce4-sntray-plugin.git
-#Vcs-Browser: https://github.com/rilian-la-te/xfce4-sntray-plugin
+Homepage: https://github.com/rilian-la-te/vala-panel-appmenu
+Vcs-Git: https://github.com/rilian-la-te/vala-panel-appmenu.git
+Vcs-Browser: https://github.com/rilian-la-te/vala-panel-appmenu
 
 Package: xfce4-vala-appmenu-plugin
 Section: xfce
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, vala-panel-appmenu-common (= ${binary:Version}), bamfdaemon
+Depends: ${shlibs:Depends}, ${misc:Depends}, vala-panel-appmenu-common (= ${source:Version}), bamfdaemon
 Recommends: unity-gtk3-module, unity-gtk2-module, appmenu-qt, appmenu-qt5
 Description: This package provides Application Menu plugin for xfce4-panel
  This is Application Menu (Global Menu) plugin. It built using Unity protocol and libraries,
@@ -26,7 +26,7 @@ Description: This package provides debug symbols for xfce4-vala-appmenu-plugin
 
 Package: vala-panel-appmenu
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, vala-panel-appmenu-common (= ${binary:Version}), bamfdaemon
+Depends: ${shlibs:Depends}, ${misc:Depends}, vala-panel-appmenu-common (= ${source:Version}), bamfdaemon
 Recommends: unity-gtk3-module, unity-gtk2-module, appmenu-qt, appmenu-qt5
 Description:  This package provides Application Menu plugin for vala-panel
  This is Application Menu (Global Menu) plugin. It built using Unity protocol and libraries,
