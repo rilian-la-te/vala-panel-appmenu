@@ -5,7 +5,7 @@ pkgbase=${_pkgbase}-xfce-git
 pkgname=('vala-panel-appmenu-translations-git' 'vala-panel-appmenu-xfce-git' 'vala-panel-appmenu-valapanel-git')
 _cmakename=cmake-vala
 _dbusmenuname=vala-dbusmenu
-pkgver=0.2.2
+pkgver=0.2.3
 pkgrel=1
 pkgdesc="AppMenu (Global Menu) plugin for xfce4-panel and vala-panel"
 url="https://github.com/rilian-la-te/vala-panel-appmenu"
@@ -36,7 +36,7 @@ prepare() {
 
 build() {
   cd "${srcdir}/${_pkgbase}"
-  cmake ./ -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_XFCE=ON -DENABLE_VALAPANEL=ON
+  cmake ./ -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_XFCE=ON -DENABLE_VALAPANEL=ON -DCMAKE_INSTALL_LIBDIR=lib
   make
 }
 
