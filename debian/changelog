@@ -1,4 +1,10 @@
-vala-panel-appmenu (0.2.4.1-1) unstable; urgency=low
+vala-panel-appmenu (0.2.4.1-1ubuntu1) vivid; urgency=medium
+
+  * Fixed valac builddep
+
+ -- Konstantin <ria.freelander@gmail.com>  Sun, 26 Apr 2015 20:19:47 +0600
+
+vala-panel-appmenu (0.2.4.1-1) vivid; urgency=low
 
   * Initial release
 
