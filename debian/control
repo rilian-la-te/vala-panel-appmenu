@@ -2,8 +2,8 @@ Source: vala-panel-appmenu
 Section: x11
 Priority: optional
 Maintainer: Konstantin P. <ria.freelander@gmail.com>
-Build-Depends: debhelper (>= 9), cmake (>= 2.8.0), libpeas-dev (>= 1.2.0), libgtk-3-dev (>= 3.12.0), libvalapanel-dev, xfce4-panel-dev (>= 4.11.2), libxfconf-0-dev, libbamf3-dev (>= 0.5.0), libwnck-3-dev (>= 3.4.0)
-Standards-Version: 3.9.5
+Build-Depends: debhelper (>= 9), cmake (>= 2.8.0), libpeas-dev (>= 1.2.0), libgtk-3-dev (>= 3.12.0), libvalapanel0-dev, xfce4-panel-dev (>= 4.11.2), libxfconf-0-dev, libbamf3-dev (>= 0.5.0), libwnck-3-dev (>= 3.4.0)
+Standards-Version: 3.9.6
 Homepage: https://github.com/rilian-la-te/vala-panel-appmenu
 Vcs-Git: https://github.com/rilian-la-te/vala-panel-appmenu.git
 Vcs-Browser: https://github.com/rilian-la-te/vala-panel-appmenu
@@ -14,14 +14,18 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, vala-panel-appmenu-common (= ${source:Version}), bamfdaemon
 Recommends: unity-gtk3-module, unity-gtk2-module, appmenu-qt, appmenu-qt5
 Description: This package provides Application Menu plugin for xfce4-panel
- This is Application Menu (Global Menu) plugin. It built using Unity protocol and libraries,
+ This is Application Menu (Global Menu) plugin.
+ It built using Unity protocol and libraries,
  and share all Unity limitations and advancements.
 
 Package: xfce4-vala-appmenu-plugin-dbg
 Architecture: any
+Priority: extra
+Section: debug
 Depends: ${misc:Depends}, xfce4-vala-appmenu-plugin (= ${binary:Version})
 Description: This package provides debug symbols for xfce4-vala-appmenu-plugin
- This is Application Menu (Global Menu) plugin. It built using Unity protocol and libraries,
+ This is Application Menu (Global Menu) plugin.
+ It built using Unity protocol and libraries,
  and share all Unity limitations and advancements.
 
 Package: vala-panel-appmenu
@@ -29,19 +33,24 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, vala-panel-appmenu-common (= ${source:Version}), bamfdaemon
 Recommends: unity-gtk3-module, unity-gtk2-module, appmenu-qt, appmenu-qt5
 Description:  This package provides Application Menu plugin for vala-panel
- This is Application Menu (Global Menu) plugin. It built using Unity protocol and libraries,
+ This is Application Menu (Global Menu) plugin.
+ It built using Unity protocol and libraries,
  and share all Unity limitations and advancements.
 
 Package: vala-panel-appmenu-dbg
 Architecture: any
+Priority: extra
+Section: debug
 Depends: ${misc:Depends}, vala-panel-appmenu (= ${binary:Version})
 Description: This package provides debug symbols for vala-panel-appmenu
- This is Application Menu (Global Menu) plugin. It built using Unity protocol and libraries,
+ This is Application Menu (Global Menu) plugin.
+ It built using Unity protocol and libraries,
  and share all Unity limitations and advancements.
 
 Package: vala-panel-appmenu-common
 Architecture: all
 Depends: ${misc:Depends}
 Description: Common files for Application Menu plugins
- This is Application Menu (Global Menu) plugin. It built using Unity protocol and libraries,
+ This is Application Menu (Global Menu) plugin.
+ It built using Unity protocol and libraries,
  and share all Unity limitations and advancements.
