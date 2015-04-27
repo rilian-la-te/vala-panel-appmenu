@@ -16,6 +16,7 @@ include(FallbackVersion)
 
 # Add 'make dist' command for creating release tarball
 set (CPACK_PACKAGE_VERSION ${VERSION})
+set (CPACK_PACKAGE_RELEASE "1")
 set (CPACK_SOURCE_GENERATOR "TGZ")
 set (CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION}")
 set (CPACK_SOURCE_IGNORE_FILES "/build/;/.git;/.gitignore;~$;${CPACK_SOURCE_IGNORE_FILES}")

@@ -1,3 +1,9 @@
+vala-panel-appmenu (0.2.5-1) vivid; urgency=medium
+
+  * New upstream version
+
+ -- Konstantin <ria.freelander@gmail.com>  Mon, 27 Apr 2015 20:19:47 +0600
+
 vala-panel-appmenu (0.2.4.1-1ubuntu1) vivid; urgency=medium
 
   * Fixed valac builddep
