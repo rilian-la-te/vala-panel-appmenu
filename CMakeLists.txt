@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.8)
 cmake_policy (VERSION 2.8)
-project (vala-panel-appmenu)
+project (vala-panel-appmenu C)
 enable_testing ()
 include(GNUInstallDirs)
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_LIBDIR}")
@@ -11,29 +11,23 @@ set (RELEASE_NAME "Vala Panel Application Menu")
 set (PREFIX ${CMAKE_INSTALL_PREFIX})
 set (DOLLAR "$")
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
-
-#
-# Make a version containing the current version from git.
-#
-
-include(GetGitRevisionDescription)
-git_describe(VERSION_LONG --tags)
-
-#parse the version information into pieces.
-string(REGEX REPLACE "^v*([0-9]+)\\..*" "\\1" VERSION_MAJOR "${VERSION_LONG}")
-string(REGEX REPLACE "^v*[0-9]+\\.([0-9]+).*" "\\1" VERSION_MINOR "${VERSION_LONG}")
-string(REGEX REPLACE "^v*[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" VERSION_PATCH "${VERSION_LONG}")
-string(REGEX REPLACE "^v*[0-9]+\\.[0-9]+\\.[0-9]+(.*)" "\\1" VERSION_SHA1 "${VERSION_LONG}")
-set(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
+include(GitVersion)
+determine_fallback_version(${CMAKE_SOURCE_DIR}/cmake)
+include(FallbackVersion)
 
 # Add 'make dist' command for creating release tarball
 set (CPACK_PACKAGE_VERSION ${VERSION})
 set (CPACK_SOURCE_GENERATOR "TGZ")
 set (CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION}")
-set (CPACK_SOURCE_IGNORE_FILES "/build/;/.gitignore;~$;${CPACK_SOURCE_IGNORE_FILES}")
+set (CPACK_SOURCE_IGNORE_FILES "/build/;/.git;/.gitignore;~$;${CPACK_SOURCE_IGNORE_FILES}")
 
 include (CPack)
 add_custom_target (dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
+#Add RPM build support
+include (UseRPMTools)
+if (RPMTools_FOUND)
+   RPMTools_ADD_RPM_TARGETS(package ${CMAKE_SOURCE_DIR}/rpm/vala-panel-appmenu.spec.in)
+endif(RPMTools_FOUND)
 
 # Configuration
 configure_file (${CMAKE_SOURCE_DIR}/vapi/config.vala.in ${CMAKE_BINARY_DIR}/vapi/config.vala)
@@ -59,7 +53,7 @@ pkg_check_modules (CORE REQUIRED
   gio-unix-2.0>=2.40
   gthread-2.0>=2.40
   gmodule-2.0>=2.40
-  libbamf3>=0.5.0)
+  libbamf3)
 
 set(CORE_PACKAGES
   gtk+-3.0
