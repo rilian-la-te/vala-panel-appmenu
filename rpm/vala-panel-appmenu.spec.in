@@ -18,7 +18,11 @@ BuildRequires: gtk3-devel >= 3.12.0
 BuildRequires: libpeas-devel >= 1.2.0
 BuildRequires: bamf-devel >= 0.2.111
 BuildRequires: xfce4-panel-devel >= 4.11.0
+%if %{defined suse_version}
+BuildRequires: libxfconf-devel
+%else
 BuildRequires: xfconf-devel
+%endif
 BuildRequires: vala-panel-devel
 %if %{defined suse_version}
 BuildRequires: libwnck-devel >= 3.4.0
@@ -70,7 +74,6 @@ set -o monitor
 Group: User Interface/Desktops
 Summary: Translations for @CMAKE_PROJECT_NAME@
 BuildArch: noarch
-Requires: @CMAKE_PROJECT_NAME@ = @CPACK_PACKAGE_VERSION@
 %description lang
 This is a translation files for @CMAKE_PROJECT_NAME@ package.
 %files lang -f %{name}.lang
