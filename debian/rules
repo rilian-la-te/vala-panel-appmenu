@@ -35,6 +35,9 @@ override_dh_strip:
 	dh_strip --package=xfce4-vala-appmenu-plugin --dbg-package=xfce4-vala-appmenu-plugin-dbg
 	dh_strip --package=vala-panel-appmenu --dbg-package=vala-panel-appmenu-dbg
 
+override_dh_makeshlibs:
+	dh_makeshlibs -Xvala-panel -Xxfce4
+
 # debmake generated override targets
 # This is example for Cmake (See http://bugs.debian.org/641051 )
 #override_dh_auto_configure:

@@ -90,7 +90,7 @@ if (ENABLE_XFCE)
     set (XF_CFLAGS ${CORE_CFLAGS} ${WNCK_CFLAGS} ${XFCE_CFLAGS})
     add_definitions(${XF_CFLAGS})
     set (XFCE_LIB_FILES ${VALA_C_CORE} ${VALA_C_XFCE} ${VALA_C_DBUSMENU})
-    add_library (appmenu-xfce SHARED
+    add_library (appmenu-xfce MODULE
         ${XFCE_LIB_FILES}
         ${RESOURCES}
     )
