@@ -7,7 +7,7 @@ License: LGPL-3.0+
 %else
 License: LGPLv3.0+
 %endif
-URL: https://github.com/rilian-la-te/@CMAKE_PROJECT_NAME@
+URL: https://github.com/rilian-la-te/%{name}
 Source: @CPACK_SOURCE_PACKAGE_FILE_NAME@.tar.gz
 Summary: This package provides Application Menu plugin for vala-panel
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -21,7 +21,6 @@ BuildRequires: pkgconfig(libxfce4panel-2.0)
 BuildRequires: pkgconfig(libxfconf-0)
 BuildRequires: pkgconfig(vala-panel)
 BuildRequires: pkgconfig(libwnck-3.0) >= 3.4.0
-Requires: @CMAKE_PROJECT_NAME@-common = @CPACK_PACKAGE_VERSION@
 Requires: bamf-daemon
 Provides: vala-panel-appmenu-plugin
 
@@ -65,16 +64,16 @@ set -o monitor
 
 %package lang
 Group: User Interface/Desktops
-Summary: Translations for @CMAKE_PROJECT_NAME@
+Summary: Translations for %{name}
 Requires: vala-panel-appmenu-plugin
 BuildArch: noarch
 %description lang
-This is a translation files for @CMAKE_PROJECT_NAME@ package.
+This is a translation files for %{name} package.
 %files lang -f %{name}.lang
 %defattr(644,root,root,755)
 
 %package -n xfce4-vala-appmenu-plugin
-Group: User Interface/Desktops
+Group: System/GUI/XFCE
 Summary: This package provides Application Menu plugin for xfce4-panel
 Requires: bamf-daemon
 Provides: vala-panel-appmenu-plugin
