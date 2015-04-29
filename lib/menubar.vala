@@ -63,13 +63,16 @@ namespace Appmenu
         public void unregister_menu_window(uint window_id)
         {
             if ((this.get_child() as MenuWidget).window_id == window_id)
+            {
+                this.get_child().destroy();
                 this.child = show_dummy_menu();
+            }
             desktop_menus.remove(window_id);
         }
         private void replace_menu(MenuWidget menu)
         {
             if (this.get_child() != null)
-                this.remove(this.get_child());
+                this.get_child().destroy();
             this.add(menu);
         }
         private MenuWidget? show_dummy_menu()
