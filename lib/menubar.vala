@@ -5,8 +5,7 @@ namespace Appmenu
     public class AppMenuBar : Gtk.EventBox
     {
         private static DBusMenuRegistrarProxy proxy;
-        private HashTable<uint,MenuWidget> menus;
-        private GenericSet<uint> desktop_menus;
+        private HashTable<uint,Bamf.Window> desktop_menus;
         private Bamf.Matcher matcher;
         private ulong active_handler;
         private ulong open_handler;
@@ -26,8 +25,7 @@ namespace Appmenu
             var gtksettings = this.get_settings();
             gtksettings.gtk_shell_shows_app_menu = false;
             gtksettings.gtk_shell_shows_menubar = false;
-            menus = new HashTable<uint,MenuWidget>(direct_hash,direct_equal);
-            desktop_menus = new GenericSet<uint>(direct_hash,direct_equal);
+            desktop_menus = new HashTable<uint,Bamf.Window>(direct_hash,direct_equal);
             matcher = Bamf.Matcher.get_default();
             registered_handler = proxy.window_registered.connect(register_menu_window);
             unregistered_handler = proxy.window_unregistered.connect(unregister_menu_window);
@@ -59,25 +57,14 @@ namespace Appmenu
         {
             Bamf.Application app = matcher.get_application_for_xid(window_id);
             MenuWidget menu = new MenuWidgetDbusmenu(window_id,sender,menu_object_path,app);
-            if (menus.contains(window_id))
-                unregister_menu_window(window_id);
-            menus.insert(window_id,menu);
             return menu;
 
         }
         public void unregister_menu_window(uint window_id)
         {
-            var menu = menus.lookup(window_id);
-            if (menu == null)
-                return;
-            if (this.get_child() == menu)
-            {
-                this.remove(menu);
+            if ((this.get_child() as MenuWidget).window_id == window_id)
                 this.child = show_dummy_menu();
-            }
             desktop_menus.remove(window_id);
-            menus.remove(window_id);
-            menu.destroy();
         }
         private void replace_menu(MenuWidget menu)
         {
@@ -90,8 +77,8 @@ namespace Appmenu
             MenuWidget? menu = null;
             if (desktop_menus.length > 0)
             {
-                desktop_menus.foreach((k)=>{
-                    menu = menus.lookup(k);
+                desktop_menus.foreach((k,v)=>{
+                    menu = lookup_menu(v);
                     if (menu != null)
                         return;
                 });
@@ -104,10 +91,7 @@ namespace Appmenu
             {
                 unowned Bamf.Window window = view as Bamf.Window;
                 if (window.get_window_type() == Bamf.WindowType.DESKTOP)
-                {
-                    lookup_menu(window);
-                    desktop_menus.add(window.get_xid());
-                }
+                    desktop_menus.insert(window.get_xid(),window);
             }
         }
         private void on_window_closed(Bamf.View view)
@@ -118,7 +102,7 @@ namespace Appmenu
         private void on_active_window_changed(Bamf.Window? prev, Bamf.Window? next)
         {
             if (this.get_child() != null)
-                this.get_child().hide();
+                this.get_child().destroy();
             unowned Bamf.Window win = next != null ? next : matcher.get_active_window();
             replace_menu(lookup_menu(win));
             if (this.get_child() != null)
@@ -131,7 +115,6 @@ namespace Appmenu
             while (window != null && menu == null)
             {
                 xid = window.get_xid();
-                menu = menus.lookup(xid);
                 var app = matcher.get_application_for_window(window);
                 /* First look to see if we can get these from the
                    GMenuModel access */
@@ -144,7 +127,6 @@ namespace Appmenu
                             menu = new MenuWidgetDesktop(app,window);
                         else
                             menu = new MenuWidgetMenumodel(app,window);
-                        menus.insert(xid,menu);
                         return menu;
                     }
                 }
@@ -171,10 +153,7 @@ namespace Appmenu
                 {
                     debug("Looking for parent window on XID %u", xid);
                     if (window.get_transient() == null && app != null)
-                    {
                         menu = new MenuWidgetAny(app);
-                        menus.insert(window.get_xid(),menu);
-                    }
                     window = window.get_transient();
                 }
             }
