@@ -156,6 +156,8 @@ namespace Appmenu
         {
             name = "";
             path = new ObjectPath("/");
+            if (!have_registrar)
+                return;
             if (is_inner_registrar)
                 inner_registrar.get_menu_for_window(window,out name, out path);
             else
