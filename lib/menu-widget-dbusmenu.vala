@@ -16,13 +16,19 @@ namespace Appmenu
             this.object_path = path;
             if (app != null)
                 this.appmenu = new BamfAppmenu(app);
-            client = new DBusMenu.GtkClient(name,(string)path);
-            menubar = new Gtk.MenuBar();
-            client.attach_to_menu(menubar);
             if (this.appmenu != null)
+            {
                 this.add(appmenu);
-            this.add(menubar);
-            menubar.show();
+                appmenu.show();
+            }
+            if (DBusMenu.GtkClient.check(name,(string)path))
+            {
+                client = new DBusMenu.GtkClient(name,(string)path);
+                menubar = new Gtk.MenuBar();
+                client.attach_to_menu(menubar);
+                this.add(menubar);
+                menubar.show();
+            }
             this.show();
         }
     }
