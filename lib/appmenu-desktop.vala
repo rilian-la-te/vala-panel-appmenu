@@ -39,6 +39,7 @@ namespace Appmenu
                     name = _("_Desktop");
                 menu.append_submenu(name,gmenu);
                 appmenu = new Gtk.MenuBar.from_model(menu);
+                menu.freeze();
             }
             this.add(appmenu);
             if ((menubar == null || menubar.get_children() == null))

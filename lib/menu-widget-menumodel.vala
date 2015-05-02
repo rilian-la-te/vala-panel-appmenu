@@ -22,6 +22,7 @@ namespace Appmenu
                 dbusconn = Bus.get_sync(BusType.SESSION);
             } catch (Error e) {
                 stderr.printf("%s\n",e.message);
+                return;
             }
             if (application_path != null)
                 appmenu_actions = DBusActionGroup.get(dbusconn,gtk_unique_bus_name,application_path);
