@@ -32,11 +32,11 @@ namespace Appmenu
             active_handler = matcher.active_window_changed.connect(on_active_window_changed);
             open_handler = matcher.view_opened.connect(on_window_opened);
             close_handler = matcher.view_closed.connect(on_window_closed);
-            on_active_window_changed(matcher.get_active_window(),null);
             foreach (var window in matcher.get_windows())
                 on_window_opened(window);
             foreach (var app in matcher.get_running_applications())
                 on_window_opened(app);
+            on_active_window_changed(matcher.get_active_window(),null);
         }
         ~AppMenuBar()
         {
