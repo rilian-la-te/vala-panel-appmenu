@@ -66,7 +66,7 @@ namespace Appmenu
                 service = "";
                 path = new ObjectPath("/");
             }
-            if (!DBusMenu.GtkClient.check(service,path) && menu != null)
+            if (menu != null && !DBusMenu.GtkClient.check(service,path))
             {
                 service = "";
                 path = new ObjectPath("/");

@@ -41,6 +41,7 @@ namespace Appmenu
                 var info = new DesktopAppInfo.from_filename(desktop_file);
                 foreach(var action in info.list_actions())
                     section.append(info.get_action_name(action),"conf.activate-action('%s')".printf(action));
+                section.freeze();
                 try{
                     section = builder.get_object("unity-actions") as GLib.Menu;
                     var keyfile = new KeyFile();
@@ -51,6 +52,7 @@ namespace Appmenu
                         var action_name = keyfile.get_locale_string(UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME.printf(action),KeyFileDesktop.KEY_NAME);
                         section.append(action_name,"conf.activate-unity-desktop-shortcut('%s')".printf(action));
                     }
+                    section.freeze();
                 } catch (Error e) {
                     debug("%s\n",e.message);
                 }
