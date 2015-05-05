@@ -26,7 +26,7 @@ namespace Appmenu
             if (appmenu == null || appmenu is BamfAppmenu)
             {
                 var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
-                var gmenu = builder.get_object("appmenu-desktop") as GLib.Menu;
+                unowned GLib.Menu gmenu = builder.get_object("appmenu-desktop") as GLib.Menu;
                 var menu = new GLib.Menu();
                 string? name = null;
                 if (app != null)
@@ -46,52 +46,96 @@ namespace Appmenu
             {
                 this.remove(menubar);
                 var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
-                var gmenu = builder.get_object("menubar") as GLib.Menu;
+                unowned GLib.Menu gmenu = builder.get_object("menubar") as GLib.Menu;
                 files_menu = builder.get_object("files") as GLib.Menu;
                 menubar = new Gtk.MenuBar.from_model(gmenu);
             }
             this.add(menubar);
             this.show_all();
         }
-        public void activate_menu_launch_id(SimpleAction action, Variant? param)
+        ~MenuWidgetDesktop()
         {
-            var id = param.get_string();
+            files_menu.unref();
+        }
+        public static AppInfo? get_default_for_uri(string uri)
+        {
+            /* g_file_query_default_handler() calls
+            * g_app_info_get_default_for_uri_scheme() too, but we have to do it
+            * here anyway in case GFile can't parse @uri correctly.
+            */
+            AppInfo? app_info = null;
+            var uri_scheme = Uri.parse_scheme (uri);
+            if (uri_scheme != null && uri_scheme[0] != '\0')
+                app_info = AppInfo.get_default_for_uri_scheme (uri_scheme);
+            if (app_info == null)
+            {
+                var file = File.new_for_uri (uri);
+                try
+                {
+                    app_info = file.query_default_handler (null);
+                } catch (GLib.Error e){}
+            }
+            return app_info;
+        }
+        public static void activate_menu_launch_id(SimpleAction? action, Variant? param)
+        {
+            unowned string id = param.get_string();
             var info = new DesktopAppInfo(id);
             try{
-                info.launch(null,this.get_display().get_app_launch_context());
+                var data = new SpawnData();
+                info.launch_uris_as_manager(null,
+                                             Gdk.Display.get_default().get_app_launch_context(),
+                                             SpawnFlags.SEARCH_PATH,
+                                             data.child_spawn_func,(a,b)=>{});
             } catch (GLib.Error e){stderr.printf("%s\n",e.message);}
         }
 
-        public void activate_menu_launch_command(SimpleAction? action, Variant? param)
+        public static void activate_menu_launch_command(SimpleAction? action, Variant? param)
         {
-            var command = param.get_string();
+            unowned string command = param.get_string();
             try{
-                GLib.AppInfo info = AppInfo.create_from_commandline(command,null,
-                                    AppInfoCreateFlags.SUPPORTS_STARTUP_NOTIFICATION);
-                info.launch(null,this.get_display().get_app_launch_context());
+                var data = new SpawnData();
+                var info = AppInfo.create_from_commandline(command,null,
+                                AppInfoCreateFlags.SUPPORTS_STARTUP_NOTIFICATION) as DesktopAppInfo;
+                info.launch_uris_as_manager(null,
+                                             Gdk.Display.get_default().get_app_launch_context(),
+                                             SpawnFlags.SEARCH_PATH,
+                                             data.child_spawn_func,(a,b)=>{});
             } catch (GLib.Error e){stderr.printf("%s\n",e.message);}
         }
 
-        public void activate_menu_launch_uri(SimpleAction action, Variant? param)
+        public static void activate_menu_launch_uri(SimpleAction? action, Variant? param)
         {
-            var uri = param.get_string();
+            unowned string uri = param.get_string();
             try{
-                GLib.AppInfo.launch_default_for_uri(uri,this.get_display().get_app_launch_context());
+                var data = new SpawnData();
+                var info = get_default_for_uri(uri) as DesktopAppInfo;
+                List<string> uri_l = new List<string>();
+                uri_l.append(uri);
+                info.launch_uris_as_manager(uri_l,
+                                             Gdk.Display.get_default().get_app_launch_context(),
+                                             SpawnFlags.SEARCH_PATH,
+                                             data.child_spawn_func,(a,b)=>{});
             } catch (GLib.Error e){stderr.printf("%s\n",e.message);}
         }
         public void activate_menu_launch_type(SimpleAction action, Variant? param)
         {
-            var type = param.get_string();
+            unowned string type = param.get_string();
             try{
-                var info = GLib.AppInfo.get_default_for_type(type,false);
-                info.launch(null,this.get_display().get_app_launch_context());
+                var data = new SpawnData();
+                var info = GLib.AppInfo.get_default_for_type(type,false) as DesktopAppInfo;
+                info.launch_uris_as_manager(null,
+                                             Gdk.Display.get_default().get_app_launch_context(),
+                                             SpawnFlags.SEARCH_PATH,
+                                             data.child_spawn_func,(a,b)=>{});
             } catch (GLib.Error e){stderr.printf("%s\n",e.message);}
         }
         public void activate_desktop(SimpleAction action, Variant? param)
         {
             try{
-                var desktop = Environment.get_variable("XDG_CURRENT_DESKTOP");
-                AppInfo? info = null;
+                unowned string desktop = Environment.get_variable("XDG_CURRENT_DESKTOP");
+                DesktopAppInfo? info = null;
+                var data = new SpawnData();
                 switch(desktop)
                 {
                     case "XFCE":
@@ -99,22 +143,26 @@ namespace Appmenu
                         break;
                     case "LXDE":
                         info = AppInfo.create_from_commandline("pcmanfm --desktop-pref",null,
-                        AppInfoCreateFlags.SUPPORTS_STARTUP_NOTIFICATION);
+                        AppInfoCreateFlags.SUPPORTS_STARTUP_NOTIFICATION) as DesktopAppInfo;
                         break;
                     default:
                         warning("Unknown desktop environment\n");
                         info = AppInfo.create_from_commandline("gnome-control-center backgrounds",null,
-                        AppInfoCreateFlags.SUPPORTS_STARTUP_NOTIFICATION);
+                        AppInfoCreateFlags.SUPPORTS_STARTUP_NOTIFICATION) as DesktopAppInfo;
                         break;
                 }
-                info.launch(null,this.get_display().get_app_launch_context());
+                info.launch_uris_as_manager(null,
+                                             Gdk.Display.get_default().get_app_launch_context(),
+                                             SpawnFlags.SEARCH_PATH,
+                                             data.child_spawn_func,(a,b)=>{});
             } catch (GLib.Error e){stderr.printf("%s\n",e.message);}
         }
         public void activate_control(SimpleAction action, Variant? param)
         {
             try{
                 var desktop = Environment.get_variable("XDG_CURRENT_DESKTOP");
-                AppInfo? info = null;
+                DesktopAppInfo? info = null;
+                var data = new SpawnData();
                 switch(desktop)
                 {
                     case "XFCE":
@@ -128,7 +176,10 @@ namespace Appmenu
                         info = new DesktopAppInfo("gnome-control-center.desktop");
                         break;
                 }
-                info.launch(null,this.get_display().get_app_launch_context());
+                info.launch_uris_as_manager(null,
+                                             Gdk.Display.get_default().get_app_launch_context(),
+                                             SpawnFlags.SEARCH_PATH,
+                                             data.child_spawn_func,(a,b)=>{});
             } catch (GLib.Error e){stderr.printf("%s\n",e.message);}
         }
         public void state_populate_files(SimpleAction action, Variant? param)

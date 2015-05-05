@@ -47,15 +47,14 @@ namespace Appmenu
         }
         public void unregister_window(uint window_id)
         {
-            var menu = menus.lookup(window_id);
-            if (menu == null)
+            if (!(window_id in menus))
                 return;
             menus.remove(window_id);
             window_unregistered(window_id);
         }
         public void get_menu_for_window(uint window, out string service, out ObjectPath path)
         {
-            var menu = menus.lookup(window);
+            unowned DBusAddress? menu = menus.lookup(window);
             if (menu != null)
             {
                 service = menu.name;
@@ -103,6 +102,7 @@ namespace Appmenu
         {
             try {
                 inner_registrar = new InnerRegistrar();
+                outer_registrar = null;
                 conn.register_object (REG_OBJECT, inner_registrar);
                 inner_registrar.window_registered.connect((w,s,p)=>{this.window_registered(w,s,p);});
                 inner_registrar.window_unregistered.connect((w)=>{this.window_unregistered(w);});

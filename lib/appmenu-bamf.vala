@@ -10,7 +10,6 @@ namespace Appmenu
         private static const string UNITY_QUICKLISTS_TARGET_KEY = "TargetEnvironment";
         private static const string UNITY_QUICKLISTS_TARGET_VALUE = "Unity";
         private Bamf.Application app;
-        private GLib.Menu menu;
         private GLib.Menu window_section;
         private SimpleActionGroup configurator;
         private ulong adding_handler;
@@ -34,12 +33,12 @@ namespace Appmenu
             this.insert_action_group("conf",configurator);
             var desktop_file = app.get_desktop_file();
             var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
-            menu = builder.get_object("appmenu-bamf") as GLib.Menu;
+            unowned GLib.Menu menu = builder.get_object("appmenu-bamf") as GLib.Menu;
             if (desktop_file != null)
             {
-                var section = builder.get_object("desktop-actions") as GLib.Menu;
+                unowned GLib.Menu section = builder.get_object("desktop-actions") as GLib.Menu;
                 var info = new DesktopAppInfo.from_filename(desktop_file);
-                foreach(var action in info.list_actions())
+                foreach(unowned string action in info.list_actions())
                     section.append(info.get_action_name(action),"conf.activate-action('%s')".printf(action));
                 section.freeze();
                 try{
@@ -47,7 +46,7 @@ namespace Appmenu
                     var keyfile = new KeyFile();
                     keyfile.load_from_file(desktop_file,KeyFileFlags.NONE);
                     var unity_list = keyfile.get_string_list(KeyFileDesktop.GROUP,UNITY_QUICKLISTS_KEY);
-                    foreach(var action in unity_list)
+                    foreach(unowned string action in unity_list)
                     {
                         var action_name = keyfile.get_locale_string(UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME.printf(action),KeyFileDesktop.KEY_NAME);
                         section.append(action_name,"conf.activate-unity-desktop-shortcut('%s')".printf(action));
@@ -60,9 +59,10 @@ namespace Appmenu
             adding_handler = app.window_added.connect(on_window_added);
             removing_handler = app.window_removed.connect(on_window_removed);
             window_section = builder.get_object("active-windows") as GLib.Menu;
-            foreach(var window in app.get_windows())
+            foreach(unowned Bamf.Window window in app.get_windows())
                 on_window_added(window);
             var gmenu = new GLib.Menu();
+            menu.freeze();
             gmenu.append_submenu(app.get_name(),menu);
             this.bind_model(gmenu,null,true);
             this.show_all();
@@ -73,6 +73,7 @@ namespace Appmenu
                 app.disconnect(adding_handler);
             if (SignalHandler.is_connected(app,removing_handler))
                 app.disconnect(removing_handler);
+            window_section.unref();
         }
         private void on_window_added(Bamf.Window window)
         {
@@ -94,12 +95,16 @@ namespace Appmenu
         }
         private void activate_new(GLib.SimpleAction action, Variant? param)
         {
-            var desktop_file = app.get_desktop_file();
+            unowned string desktop_file = app.get_desktop_file();
+            var data = new SpawnData();
             if (desktop_file != null)
             {
                 try {
                     var info = new DesktopAppInfo.from_filename(desktop_file);
-                    info.launch(null,this.get_display().get_app_launch_context());
+                    info.launch_uris_as_manager(null,
+                                                this.get_display().get_app_launch_context(),
+                                                SpawnFlags.SEARCH_PATH,
+                                                data.child_spawn_func,(a,b)=>{});
                 } catch (Error e) {
                     stderr.printf("%s\n",e.message);
                 }
@@ -117,16 +122,20 @@ namespace Appmenu
         }
         private void activate_unity(GLib.SimpleAction action, Variant? param)
         {
-            var action_name = param.get_string();
+            unowned string action_name = param.get_string();
             var desktop_file = app.get_desktop_file();
+            var data = new SpawnData();
             if (desktop_file != null)
             {
                 try {
                     var keyfile = new KeyFile();
                     keyfile.load_from_file(desktop_file,KeyFileFlags.NONE);
                     var exec = keyfile.get_string(UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME.printf(action_name),KeyFileDesktop.KEY_EXEC);
-                    var info  = AppInfo.create_from_commandline(exec,null,0);
-                    info.launch(null,this.get_display().get_app_launch_context());
+                    var info  = AppInfo.create_from_commandline(exec,null,0) as DesktopAppInfo;
+                    info.launch_uris_as_manager(null,
+                                                this.get_display().get_app_launch_context(),
+                                                SpawnFlags.SEARCH_PATH,
+                                                data.child_spawn_func,(a,b)=>{});
                 } catch (Error e) {
                     stderr.printf("%s\n",e.message);
                 }
@@ -137,7 +146,6 @@ namespace Appmenu
         private void activate_window(GLib.SimpleAction action, Variant? param)
         {
             var xid = param.get_uint32();
-            Wnck.Screen.get_default ();
             unowned Wnck.Window w = Wnck.Window.@get (xid);
             if (w == null)
             {
@@ -158,7 +166,6 @@ namespace Appmenu
         /* Taken from Plank */
         private void activate_close_all(SimpleAction action, Variant? param)
         {
-            Wnck.Screen.get_default ();
             Array<uint32>? xids = app.get_xids ();
 
             warn_if_fail (xids != null);
@@ -172,8 +179,7 @@ namespace Appmenu
         }
         private void activate_close_this(SimpleAction action, Variant? param)
         {
-            Wnck.Screen.get_default ();
-            var widget = this.get_parent() as MenuWidget;
+            unowned MenuWidget widget = this.get_parent() as MenuWidget;
             unowned Wnck.Window window = Wnck.Window.@get ((ulong)widget.window_id);
             if (window == null)
             {

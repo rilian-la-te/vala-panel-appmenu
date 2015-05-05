@@ -22,7 +22,7 @@ namespace Appmenu
         }
         construct
         {
-            var gtksettings = this.get_settings();
+            unowned Gtk.Settings gtksettings = this.get_settings();
             gtksettings.gtk_shell_shows_app_menu = false;
             gtksettings.gtk_shell_shows_menubar = false;
             desktop_menus = new HashTable<uint,Bamf.Window>(direct_hash,direct_equal);
@@ -32,9 +32,9 @@ namespace Appmenu
             active_handler = matcher.active_window_changed.connect(on_active_window_changed);
             open_handler = matcher.view_opened.connect(on_window_opened);
             close_handler = matcher.view_closed.connect(on_window_closed);
-            foreach (var window in matcher.get_windows())
+            foreach (unowned Bamf.Window window in matcher.get_windows())
                 on_window_opened(window);
-            foreach (var app in matcher.get_running_applications())
+            foreach (unowned Bamf.Application app in matcher.get_running_applications())
                 on_window_opened(app);
             on_active_window_changed(matcher.get_active_window(),null);
         }
@@ -55,7 +55,7 @@ namespace Appmenu
         }
         private MenuWidget create_dbusmenu(uint window_id, string sender, ObjectPath menu_object_path)
         {
-            Bamf.Application app = matcher.get_application_for_xid(window_id);
+            unowned Bamf.Application app = matcher.get_application_for_xid(window_id);
             MenuWidget menu = new MenuWidgetDbusmenu(window_id,sender,menu_object_path,app);
             return menu;
 
@@ -118,7 +118,7 @@ namespace Appmenu
             while (window != null && menu == null)
             {
                 xid = window.get_xid();
-                var app = matcher.get_application_for_window(window);
+                unowned Bamf.Application app = matcher.get_application_for_window(window);
                 /* First look to see if we can get these from the
                    GMenuModel access */
                 if (menu == null)

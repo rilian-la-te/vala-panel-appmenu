@@ -61,7 +61,8 @@ set(CORE_PACKAGES
   gio-2.0
   gio-unix-2.0
   gmodule-2.0
-  libbamf3)
+  libbamf3
+  posix)
 
 #set requred variables
 set(TARGET_GLIB ${GLIB_VERSION_MAJOR}.${GLIB_VERSION_MINOR})
