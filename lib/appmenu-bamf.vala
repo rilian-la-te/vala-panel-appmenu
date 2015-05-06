@@ -73,7 +73,6 @@ namespace Appmenu
                 app.disconnect(adding_handler);
             if (SignalHandler.is_connected(app,removing_handler))
                 app.disconnect(removing_handler);
-            window_section.unref();
         }
         private void on_window_added(Bamf.Window window)
         {

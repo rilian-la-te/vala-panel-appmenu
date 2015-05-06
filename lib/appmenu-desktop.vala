@@ -53,10 +53,6 @@ namespace Appmenu
             this.add(menubar);
             this.show_all();
         }
-        ~MenuWidgetDesktop()
-        {
-            files_menu.unref();
-        }
         public static AppInfo? get_default_for_uri(string uri)
         {
             /* g_file_query_default_handler() calls
