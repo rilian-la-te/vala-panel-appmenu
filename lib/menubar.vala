@@ -5,7 +5,7 @@ namespace Appmenu
     public class AppMenuBar : Gtk.EventBox
     {
         private static DBusMenuRegistrarProxy proxy;
-        private HashTable<uint,Bamf.Window> desktop_menus;
+        private HashTable<uint,unowned Bamf.Window> desktop_menus;
         private Bamf.Matcher matcher;
         private ulong active_handler;
         private ulong open_handler;
@@ -25,7 +25,7 @@ namespace Appmenu
             unowned Gtk.Settings gtksettings = this.get_settings();
             gtksettings.gtk_shell_shows_app_menu = false;
             gtksettings.gtk_shell_shows_menubar = false;
-            desktop_menus = new HashTable<uint,Bamf.Window>(direct_hash,direct_equal);
+            desktop_menus = new HashTable<uint,unowned Bamf.Window>(direct_hash,direct_equal);
             matcher = Bamf.Matcher.get_default();
             registered_handler = proxy.window_registered.connect(register_menu_window);
             unregistered_handler = proxy.window_unregistered.connect(unregister_menu_window);

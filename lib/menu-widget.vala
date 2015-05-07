@@ -20,10 +20,9 @@ namespace Appmenu
         public uint window_id {get; protected set construct;}
         public Gtk.MenuBar menubar {get; protected set construct;}
         public Gtk.MenuBar appmenu {get; internal set construct;}
-        private Gtk.CssProvider provider;
         construct
         {
-            provider = new Gtk.CssProvider();
+            var provider = new Gtk.CssProvider();
             File ruri = File.new_for_uri("resource://org/vala-panel/appmenu/appmenu.css");
             try
             {

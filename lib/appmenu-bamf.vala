@@ -9,9 +9,8 @@ namespace Appmenu
         private static const string UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME = "%s Shortcut Group";
         private static const string UNITY_QUICKLISTS_TARGET_KEY = "TargetEnvironment";
         private static const string UNITY_QUICKLISTS_TARGET_VALUE = "Unity";
-        private Bamf.Application app;
+        private unowned Bamf.Application app;
         private GLib.Menu window_section;
-        private SimpleActionGroup configurator;
         private ulong adding_handler;
         private ulong removing_handler;
         private static const GLib.ActionEntry[] entries =
@@ -28,7 +27,7 @@ namespace Appmenu
         public BamfAppmenu(Bamf.Application app)
         {
             this.app = app;
-            configurator = new SimpleActionGroup();
+            var configurator = new SimpleActionGroup();
             configurator.add_action_entries(entries,this);
             this.insert_action_group("conf",configurator);
             var desktop_file = app.get_desktop_file();
