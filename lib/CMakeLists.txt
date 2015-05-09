@@ -43,6 +43,7 @@ macro(precompile_core)
     PACKAGES
         ${CORE_PACKAGES}
         vala-dbusmenu
+        gio-addons-2.0
         ${WNCK_PACKAGES}
     OPTIONS
         --vapidir=${CMAKE_SOURCE_DIR}/vapi

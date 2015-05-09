@@ -1,3 +1,21 @@
+/*
+ * vala-panel-appmenu
+ * Copyright (C) 2015 Konstantin Pugin <ria.freelander@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 using GLib;
 using Gtk;
 using Appmenu;
@@ -23,9 +41,9 @@ namespace Appmenu
             var group = new SimpleActionGroup();
             group.add_action_entries(menu_entries,this);
             this.insert_action_group("menu",group);
+            var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
             if (appmenu == null || appmenu is BamfAppmenu)
             {
-                var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
                 unowned GLib.Menu gmenu = builder.get_object("appmenu-desktop") as GLib.Menu;
                 var menu = new GLib.Menu();
                 string? name = null;
@@ -45,9 +63,8 @@ namespace Appmenu
             if ((menubar == null || menubar.get_children() == null))
             {
                 this.remove(menubar);
-                var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
-                unowned GLib.Menu gmenu = builder.get_object("menubar") as GLib.Menu;
                 files_menu = builder.get_object("files") as GLib.Menu;
+                unowned GLib.Menu gmenu = builder.get_object("menubar") as GLib.Menu;
                 menubar = new Gtk.MenuBar.from_model(gmenu);
             }
             this.add(menubar);
@@ -198,8 +215,12 @@ namespace Appmenu
                 stderr.printf("%s\n",e.message);
             }
             if (files_menu.get_n_items() == 0)
-                files_menu.append(_("No files"),"ls.this-shold-not-be-reached");
+                files_menu.append(_("No files"),"ls.this-should-not-be-reached");
             action.set_state(new Variant.boolean(true));
+        }
+        ~MenuWidgetDesktop()
+        {
+            files_menu = null;
         }
     }
 }

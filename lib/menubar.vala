@@ -1,3 +1,21 @@
+/*
+ * vala-panel-appmenu
+ * Copyright (C) 2015 Konstantin Pugin <ria.freelander@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 using GLib;
 
 namespace Appmenu
@@ -12,6 +30,11 @@ namespace Appmenu
         private ulong close_handler;
         private ulong registered_handler;
         private ulong unregistered_handler;
+        private MenuWidget menu
+        {
+            get {return this.get_child() as MenuWidget;}
+            set {replace_menu(value);}
+        }
         static construct
         {
             proxy = new DBusMenuRegistrarProxy();
@@ -45,34 +68,39 @@ namespace Appmenu
             matcher.disconnect(active_handler);
             matcher.disconnect(open_handler);
             matcher.disconnect(close_handler);
+            this.get_child().destroy();
         }
         public void register_menu_window(uint window_id, string sender, ObjectPath menu_object_path)
         {
-            if (window_id != matcher.get_active_window().get_xid())
+            if (window_id != matcher.get_active_window().get_xid() || window_id == menu.window_id)
                 return;
-            var menu = create_dbusmenu(window_id,sender,menu_object_path);
-            replace_menu(menu);
+            menu = create_dbusmenu(window_id,sender,menu_object_path);
         }
         private MenuWidget create_dbusmenu(uint window_id, string sender, ObjectPath menu_object_path)
         {
             unowned Bamf.Application app = matcher.get_application_for_xid(window_id);
-            MenuWidget menu = new MenuWidgetDbusmenu(window_id,sender,menu_object_path,app);
-            return menu;
-
+            MenuWidget dbusmenu = new MenuWidgetDbusmenu(window_id,sender,menu_object_path,app);
+            return dbusmenu;
         }
         public void unregister_menu_window(uint window_id)
         {
-            if ((this.get_child() as MenuWidget).window_id == window_id)
+            if (menu.window_id == window_id)
             {
-                this.get_child().destroy();
-                this.child = show_dummy_menu();
+                unowned MenuWidget ch = this.get_child() as MenuWidget;
+                this.remove(ch);
+                ch.destroy();
+                menu = show_dummy_menu();
             }
             desktop_menus.remove(window_id);
         }
         private void replace_menu(MenuWidget menu)
         {
             if (this.get_child() != null)
-                this.get_child().destroy();
+            {
+                unowned MenuWidget ch = this.get_child() as MenuWidget;
+                this.remove(ch);
+                ch.destroy();
+            }
             this.add(menu);
         }
         private MenuWidget? show_dummy_menu()
@@ -104,12 +132,12 @@ namespace Appmenu
         }
         private void on_active_window_changed(Bamf.Window? prev, Bamf.Window? next)
         {
-            if (this.get_child() != null)
-                this.get_child().destroy();
+            if (menu != null)
+                menu.destroy();
             unowned Bamf.Window win = next != null ? next : matcher.get_active_window();
-            replace_menu(lookup_menu(win));
-            if (this.get_child() != null)
-                this.get_child().show();
+            menu = lookup_menu(win);
+            if (menu != null)
+                menu.show();
         }
         private MenuWidget lookup_menu(Bamf.Window? window)
         {
@@ -155,9 +183,9 @@ namespace Appmenu
                 if (menu == null)
                 {
                     debug("Looking for parent window on XID %u", xid);
-                    if (window.get_transient() == null && app != null)
-                        menu = new MenuWidgetAny(app);
                     window = window.get_transient();
+                    if (window == null && app != null)
+                        menu = new MenuWidgetAny(app);
                 }
             }
             if (menu == null)

@@ -1,3 +1,21 @@
+/*
+ * vala-panel-appmenu
+ * Copyright (C) 2015 Konstantin Pugin <ria.freelander@gmail.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 using GLib;
 using Gtk;
 
@@ -11,8 +29,6 @@ namespace Appmenu
         private static const string UNITY_QUICKLISTS_TARGET_VALUE = "Unity";
         private unowned Bamf.Application app;
         private GLib.Menu window_section;
-        private ulong adding_handler;
-        private ulong removing_handler;
         private static const GLib.ActionEntry[] entries =
         {
             {"new-window", activate_new, null, null, null},
@@ -55,8 +71,8 @@ namespace Appmenu
                     debug("%s\n",e.message);
                 }
             }
-            adding_handler = app.window_added.connect(on_window_added);
-            removing_handler = app.window_removed.connect(on_window_removed);
+            app.window_added.connect(on_window_added);
+            app.window_removed.connect(on_window_removed);
             window_section = builder.get_object("active-windows") as GLib.Menu;
             foreach(unowned Bamf.Window window in app.get_windows())
                 on_window_added(window);
@@ -68,10 +84,9 @@ namespace Appmenu
         }
         ~BamfAppmenu()
         {
-            if (SignalHandler.is_connected(app,adding_handler))
-                app.disconnect(adding_handler);
-            if (SignalHandler.is_connected(app,removing_handler))
-                app.disconnect(removing_handler);
+            SignalHandler.disconnect_by_data(app,this);
+            app = null;
+            window_section = null;
         }
         private void on_window_added(Bamf.Window window)
         {
