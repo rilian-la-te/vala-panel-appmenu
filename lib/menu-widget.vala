@@ -61,6 +61,23 @@ namespace Appmenu
                 });
             } catch (GLib.Error e) {}
         }
+        public override void destroy()
+        {
+            if (appmenu != null)
+            {
+                appmenu.destroy();
+                appmenu = null;
+            }
+            if (menubar != null)
+            {
+                menubar.destroy();
+                menubar = null;
+            }
+        }
+        ~MenuWidget()
+        {
+            this.destroy();
+        }
     }
     public class MenuWidgetAny : MenuWidget
     {

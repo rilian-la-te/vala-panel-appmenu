@@ -8,6 +8,7 @@ PACKAGES
     gtk+-3.0
     gio-2.0
     glib-2.0
+    gio-addons-2.0
     gobject-2.0
 OPTIONS
     --vapidir=${CMAKE_SOURCE_DIR}/vapi
