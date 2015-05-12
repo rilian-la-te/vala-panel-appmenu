@@ -32,14 +32,13 @@ public class AppmenuApplet : AppletPlugin, Peas.ExtensionBase
 }
 public class GlobalMenuApplet: Applet
 {
-    Appmenu.AppMenuBar layout;
     public GlobalMenuApplet (Toplevel top, GLib.Settings? settings, uint number)
     {
         base(top,settings,number);
     }
     public override void create()
     {
-        layout = new Appmenu.AppMenuBar();
+        var layout = new Appmenu.AppMenuBar();
         this.add(layout);
         show_all();
     }
