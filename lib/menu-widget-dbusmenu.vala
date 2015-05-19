@@ -33,19 +33,20 @@ namespace Appmenu
             this.object_name = name;
             this.object_path = path;
             if (app != null)
-                this.appmenu = new BamfAppmenu(app);
-            if (this.appmenu != null)
             {
+                var appmenu = new BamfAppmenu(app);
                 this.add(appmenu);
                 appmenu.show();
+                completed_menus |= MenuWidgetCompletionFlags.APPMENU;
             }
             if (DBusMenu.GtkClient.check(name,(string)path))
             {
                 client = new DBusMenu.GtkClient(name,(string)path);
-                menubar = new Gtk.MenuBar();
+                var menubar = new Gtk.MenuBar();
                 client.attach_to_menu(menubar);
                 this.add(menubar);
                 menubar.show();
+                completed_menus |= MenuWidgetCompletionFlags.MENUBAR;
             }
             this.show();
         }

@@ -37,12 +37,12 @@ namespace Appmenu
         };
         public MenuWidgetDesktop(Bamf.Application? app, Bamf.Window window)
         {
-            base(app,window);
+            base(null,window);
             var group = new SimpleActionGroup();
             group.add_action_entries(menu_entries,this);
             this.insert_action_group("menu",group);
             var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
-            if (appmenu == null || appmenu is BamfAppmenu)
+            if ((completed_menus & MenuWidgetCompletionFlags.APPMENU) == 0)
             {
                 unowned GLib.Menu gmenu = builder.get_object("appmenu-desktop") as GLib.Menu;
                 var menu = new GLib.Menu();
@@ -56,18 +56,19 @@ namespace Appmenu
                 if (name == null)
                     name = _("_Desktop");
                 menu.append_submenu(name,gmenu);
-                appmenu = new Gtk.MenuBar.from_model(menu);
                 menu.freeze();
+                var appmenu = new Gtk.MenuBar.from_model(menu);
+                this.add(appmenu);
+                completed_menus |= MenuWidgetCompletionFlags.APPMENU;
             }
-            this.add(appmenu);
-            if ((menubar == null || menubar.get_children() == null))
+            if ((completed_menus & MenuWidgetCompletionFlags.MENUBAR) == 0)
             {
-                this.remove(menubar);
                 files_menu = builder.get_object("files") as GLib.Menu;
                 unowned GLib.Menu gmenu = builder.get_object("menubar") as GLib.Menu;
-                menubar = new Gtk.MenuBar.from_model(gmenu);
+                var menubar = new Gtk.MenuBar.from_model(gmenu);
+                completed_menus |= MenuWidgetCompletionFlags.MENUBAR;
+                this.add(menubar);
             }
-            this.add(menubar);
             this.show_all();
         }
         public static AppInfo? get_default_for_uri(string uri)

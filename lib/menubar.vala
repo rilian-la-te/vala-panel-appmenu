@@ -173,12 +173,13 @@ namespace Appmenu
                 /* Appmenu hack, because BAMF does not always send a correct Application
                 * DBusMenu registration always happened BEFORE a BAMF register application.
                 */
-                if (menu != null && menu.appmenu == null && app != null)
+                if (menu != null && (menu.completed_menus & MenuWidgetCompletionFlags.APPMENU) == 0 && app != null)
                 {
-                    menu.appmenu = new BamfAppmenu(app);
-                    menu.add(menu.appmenu);
-                    menu.reorder_child(menu.appmenu,0);
-                    menu.appmenu.show();
+                    var appmenu = new BamfAppmenu(app);
+                    menu.add(appmenu);
+                    menu.reorder_child(appmenu,0);
+                    appmenu.show();
+                    menu.completed_menus |= MenuWidgetCompletionFlags.APPMENU;
                 }
                 if (menu == null)
                 {

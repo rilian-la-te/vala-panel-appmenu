@@ -61,26 +61,32 @@ namespace Appmenu
                 name = window.get_name();
             if (name == null)
                 name = _("_Application");
+            Gtk.MenuBar? appmenu = null;
             if (app_menu_path != null)
             {
                 var menu = new GLib.Menu();
                 menu.append_submenu(name,DBusMenuModel.get(dbusconn,gtk_unique_bus_name,app_menu_path));
-                this.appmenu = new Gtk.MenuBar.from_model(menu);
+                appmenu = new Gtk.MenuBar.from_model(menu);
             }
             else if (app != null)
-                this.appmenu = new BamfAppmenu(app);
+                appmenu = new BamfAppmenu(app);
+            if (appmenu != null)
+            {
+                this.add(appmenu);
+                completed_menus |= MenuWidgetCompletionFlags.APPMENU;
+            }
             if (menubar_path != null)
-                menubar = new Gtk.MenuBar.from_model(DBusMenuModel.get(dbusconn,gtk_unique_bus_name,menubar_path));
+            {
+                var menubar = new Gtk.MenuBar.from_model(DBusMenuModel.get(dbusconn,gtk_unique_bus_name,menubar_path));
+                this.add(menubar);
+                completed_menus |= MenuWidgetCompletionFlags.MENUBAR;
+            }
             if (appmenu_actions != null)
                 this.insert_action_group("app",appmenu_actions);
             if (menubar_actions != null)
                 this.insert_action_group("win",menubar_actions);
             if (unity_actions != null)
                 this.insert_action_group("unity",unity_actions);
-            if (appmenu != null)
-                this.add(appmenu);
-            if (menubar != null)
-                this.add(menubar);
             this.show_all();
         }
     }
