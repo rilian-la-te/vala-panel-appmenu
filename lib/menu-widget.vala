@@ -62,10 +62,6 @@ namespace Appmenu
                 });
             } catch (GLib.Error e) {}
         }
-        ~MenuWidget()
-        {
-            this.destroy();
-        }
     }
     public class MenuWidgetAny : MenuWidget
     {
