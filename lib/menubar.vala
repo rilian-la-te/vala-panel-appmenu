@@ -87,7 +87,6 @@ namespace Appmenu
             if (menu.window_id == window_id)
             {
                 unowned MenuWidget ch = this.get_child() as MenuWidget;
-                this.remove(ch);
                 ch.destroy();
                 menu = show_dummy_menu();
             }
