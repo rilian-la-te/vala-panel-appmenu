@@ -97,7 +97,6 @@ namespace Appmenu
             if (this.get_child() != null)
             {
                 unowned MenuWidget ch = this.get_child() as MenuWidget;
-                this.remove(ch);
                 ch.destroy();
             }
             this.add(menu);
