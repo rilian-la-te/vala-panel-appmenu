@@ -30,7 +30,7 @@ namespace Appmenu
         private ulong close_handler;
         private ulong registered_handler;
         private ulong unregistered_handler;
-        private MenuWidget menu
+        private unowned MenuWidget menu
         {
             get {return this.get_child() as MenuWidget;}
             set {replace_menu(value);}
@@ -86,19 +86,15 @@ namespace Appmenu
         {
             if (menu.window_id == window_id)
             {
-                unowned MenuWidget ch = this.get_child() as MenuWidget;
-                ch.destroy();
+                this.menu.destroy();
                 menu = show_dummy_menu();
             }
             desktop_menus.remove(window_id);
         }
         private void replace_menu(MenuWidget menu)
         {
-            if (this.get_child() != null)
-            {
-                unowned MenuWidget ch = this.get_child() as MenuWidget;
-                ch.destroy();
-            }
+            if (this.menu != null)
+                this.menu.destroy();
             this.add(menu);
         }
         private MenuWidget? show_dummy_menu()
