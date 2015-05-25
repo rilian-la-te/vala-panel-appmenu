@@ -61,14 +61,15 @@ namespace Appmenu
                 on_window_opened(app);
             on_active_window_changed(matcher.get_active_window(),null);
         }
-        ~AppMenuBar()
+        protected override void destroy()
         {
             proxy.disconnect(registered_handler);
             proxy.disconnect(unregistered_handler);
             matcher.disconnect(active_handler);
             matcher.disconnect(open_handler);
             matcher.disconnect(close_handler);
-            this.get_child().destroy();
+            menu.destroy();
+            base.destroy();
         }
         public void register_menu_window(uint window_id, string sender, ObjectPath menu_object_path)
         {
