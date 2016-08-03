@@ -1,3 +1,9 @@
+unity-gtk-module (0.0.0+15.04.20150118-0ubuntu2) xenial; urgency=medium
+
+  * Blacklist freeciv-gtk3 (LP: #1556277)
+
+ -- Emmet Hikory <persia@ubuntu.com>  Sat, 12 Mar 2016 05:57:44 +0900
+
 unity-gtk-module (0.0.0+15.04.20150118-0ubuntu1) vivid; urgency=low
 
   [ Dmitry Shachnev ]
