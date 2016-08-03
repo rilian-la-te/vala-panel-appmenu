@@ -35,6 +35,7 @@ static const char * const BLACKLIST[] =
   "emacs24-lucid",
   "freeciv",
   "freeciv-gtk2",
+  "freeciv-gtk3",
   "glade",
   "gwyddion",
   NULL
