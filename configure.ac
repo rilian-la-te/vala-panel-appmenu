@@ -38,6 +38,16 @@ PKG_CHECK_MODULES([X11], [x11])
 AC_SUBST([X11_CFLAGS])
 AC_SUBST([X11_LIBS])
 
+AC_MSG_CHECKING([for the systemd user units directory])
+PKG_CHECK_VAR([SYSTEMD_USERUNITDIR], [systemd], [systemduserunitdir])
+AS_IF([test "x$SYSTEMD_USERUNITDIR" = "x"], [
+       AC_MSG_RESULT([not found, will not include systemd user units])
+       ], [
+       AC_MSG_RESULT([$SYSTEMD_USERUNITDIR])
+])
+AM_CONDITIONAL([HAVE_SYSTEMD], [test "x$SYSTEMD_USERUNITDIR" != "x"])
+
+
 m4_ifdef([GTK_DOC_CHECK], [
 GTK_DOC_CHECK([1.18], [--flavour no-tmpl])
 ], [

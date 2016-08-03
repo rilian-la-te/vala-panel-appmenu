@@ -7,6 +7,8 @@ Build-Depends: debhelper (>= 9),
                libx11-dev,
                libgtk2.0-dev,
                libgtk-3-dev,
+# so we know where to put the user unit
+               systemd
 Standards-Version: 3.9.4
 Section: libs
 Homepage: https://code.launchpad.net/unity-gtk-module

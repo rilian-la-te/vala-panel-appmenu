@@ -7,4 +7,12 @@ pkgconfig_DATA = unity-gtk$(GTK_VERSION)-parser.pc
 upstart_jobdir = $(datadir)/upstart/sessions/
 dist_upstart_job_DATA = unity-gtk-module.conf
 
+if HAVE_SYSTEMD
+systemd_userunitdir = $(SYSTEMD_USERUNITDIR)
+systemd_userunit_DATA = unity-gtk-module.service
+
+upstart_systemd_overridedir = $(datadir)/upstart/systemd-session/upstart/
+upstart_systemd_override_DATA = unity-gtk-module.override
+endif
+
 EXTRA_DIST = $(dist_upstart_job_DATA)
