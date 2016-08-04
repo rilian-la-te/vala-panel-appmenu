@@ -97,7 +97,7 @@ namespace Appmenu
             var info = new DesktopAppInfo(id);
             try{
                 var data = new SpawnData();
-                info.launch_uris_as_manager(null,
+                info.launch_uris_as_manager(new List<string>(),
                                              Gdk.Display.get_default().get_app_launch_context(),
                                              SpawnFlags.SEARCH_PATH,
                                              data.child_spawn_func,(a,b)=>{});
@@ -111,7 +111,7 @@ namespace Appmenu
                 var data = new SpawnData();
                 var info = AppInfo.create_from_commandline(command,null,
                                 AppInfoCreateFlags.SUPPORTS_STARTUP_NOTIFICATION) as DesktopAppInfo;
-                info.launch_uris_as_manager(null,
+                info.launch_uris_as_manager(new List<string>(),
                                              Gdk.Display.get_default().get_app_launch_context(),
                                              SpawnFlags.SEARCH_PATH,
                                              data.child_spawn_func,(a,b)=>{});
@@ -138,7 +138,7 @@ namespace Appmenu
             try{
                 var data = new SpawnData();
                 var info = GLib.AppInfo.get_default_for_type(type,false) as DesktopAppInfo;
-                info.launch_uris_as_manager(null,
+                info.launch_uris_as_manager(new List<string>(),
                                              Gdk.Display.get_default().get_app_launch_context(),
                                              SpawnFlags.SEARCH_PATH,
                                              data.child_spawn_func,(a,b)=>{});
@@ -165,7 +165,7 @@ namespace Appmenu
                         AppInfoCreateFlags.SUPPORTS_STARTUP_NOTIFICATION) as DesktopAppInfo;
                         break;
                 }
-                info.launch_uris_as_manager(null,
+                info.launch_uris_as_manager(new List<string>(),
                                              Gdk.Display.get_default().get_app_launch_context(),
                                              SpawnFlags.SEARCH_PATH,
                                              data.child_spawn_func,(a,b)=>{});
@@ -190,7 +190,7 @@ namespace Appmenu
                         info = new DesktopAppInfo("gnome-control-center.desktop");
                         break;
                 }
-                info.launch_uris_as_manager(null,
+                info.launch_uris_as_manager(new List<string>(),
                                              Gdk.Display.get_default().get_app_launch_context(),
                                              SpawnFlags.SEARCH_PATH,
                                              data.child_spawn_func,(a,b)=>{});

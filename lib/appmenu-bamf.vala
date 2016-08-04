@@ -114,7 +114,7 @@ namespace Appmenu
             {
                 try {
                     var info = new DesktopAppInfo.from_filename(desktop_file);
-                    info.launch_uris_as_manager(null,
+                    info.launch_uris_as_manager(new List<string>(),
                                                 this.get_display().get_app_launch_context(),
                                                 SpawnFlags.SEARCH_PATH,
                                                 data.child_spawn_func,(a,b)=>{});
@@ -145,7 +145,7 @@ namespace Appmenu
                     keyfile.load_from_file(desktop_file,KeyFileFlags.NONE);
                     var exec = keyfile.get_string(UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME.printf(action_name),KeyFileDesktop.KEY_EXEC);
                     var info  = AppInfo.create_from_commandline(exec,null,0) as DesktopAppInfo;
-                    info.launch_uris_as_manager(null,
+                    info.launch_uris_as_manager(new List<string>(),
                                                 this.get_display().get_app_launch_context(),
                                                 SpawnFlags.SEARCH_PATH,
                                                 data.child_spawn_func,(a,b)=>{});
