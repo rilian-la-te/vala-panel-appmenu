@@ -41,7 +41,8 @@ AC_SUBST([X11_LIBS])
 AC_MSG_CHECKING([for the systemd user units directory])
 PKG_CHECK_VAR([SYSTEMD_USERUNITDIR], [systemd], [systemduserunitdir])
 AS_IF([test "x$SYSTEMD_USERUNITDIR" = "x"], [
-       AC_MSG_RESULT([not found, will not include systemd user units])
+       SYSTEMD_USERUNITDIR='/usr/lib/systemd/user'
+       AC_MSG_RESULT([systemd not found, using the default of $SYSTEMD_USERUNITDIR])
        ], [
        AC_MSG_RESULT([$SYSTEMD_USERUNITDIR])
 ])
