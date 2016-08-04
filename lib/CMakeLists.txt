@@ -1,9 +1,10 @@
 #####
 # DBusMenu
 #####
+set(VALA_FILES_DBUSMENU ${CMAKE_SOURCE_DIR}/dbusmenu/dbusmenu.vala)
 macro(precompile_dbusmenu)
 vala_precompile(VALA_C_DBUSMENU vala-dbusmenu
-    ${CMAKE_SOURCE_DIR}/dbusmenu/dbusmenu.vala
+    ${VALA_FILES_DBUSMENU}
 PACKAGES
     gtk+-3.0
     gio-2.0
@@ -62,11 +63,16 @@ macro(precompile_core)
             libappmenu.gresource.xml
     )
 endmacro(precompile_core)
+set(PLUGIN_VALA_FILES
+    valapanel-plugin-appmenu.vala
+    xfce4-plugin-appmenu.vala
+    )
 if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/vala-panel-appmenu.vapi
    OR ${CMAKE_CURRENT_BINARY_DIR}/appmenu-core_valac.stamp IS_NEWER_THAN ${CMAKE_CURRENT_BINARY_DIR}/vala-panel-appmenu.vapi)
    precompile_core()
 endif()
 add_custom_target(appmenu-core DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/libappmenu.gresource.c ${CMAKE_CURRENT_BINARY_DIR}/appmenu-core_valac.stamp)
+add_custom_target(vala-files-ide SOURCES ${VALA_FILES_DBUSMENU} ${CORE_VALA_FILES} ${PLUGIN_VALA_FILES})
 add_dependencies(appmenu-core vala-dbusmenu)
 ##########
 # XFCE Part
