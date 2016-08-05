@@ -1,3 +1,10 @@
+unity-gtk-module (0.0.0+16.10.20160805-0ubuntu1) yakkety; urgency=medium
+
+  [ Iain Lane ]
+  * Add systemd user unit
+
+ -- iain@orangesquash.org.uk <iain@orangesquash.org.uk>  Fri, 05 Aug 2016 10:44:51 +0000
+
 unity-gtk-module (0.0.0+15.04.20150118-0ubuntu2) xenial; urgency=medium
 
   * Blacklist freeciv-gtk3 (LP: #1556277)
