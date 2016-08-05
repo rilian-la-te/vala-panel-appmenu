@@ -46,8 +46,6 @@ AS_IF([test "x$SYSTEMD_USERUNITDIR" = "x"], [
        ], [
        AC_MSG_RESULT([$SYSTEMD_USERUNITDIR])
 ])
-AM_CONDITIONAL([HAVE_SYSTEMD], [test "x$SYSTEMD_USERUNITDIR" != "x"])
-
 
 m4_ifdef([GTK_DOC_CHECK], [
 GTK_DOC_CHECK([1.18], [--flavour no-tmpl])
