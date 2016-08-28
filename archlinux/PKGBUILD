@@ -11,7 +11,7 @@ pkgdesc="AppMenu (Global Menu) plugin for xfce4-panel and vala-panel"
 url="https://github.com/rilian-la-te/vala-panel-appmenu"
 arch=('i686' 'x86_64')
 license=('GPL3')
-makedepends=('cmake' 'vala' 'gtk3' 'bamf>=0.5.0' 'xfce4-panel>=4.11.2' 'xfconf' 'libwnck3' 'vala-panel-git')
+makedepends=('cmake' 'vala' 'gtk3' 'bamf>=0.5.0' 'xfce4-panel>=4.11.2' 'xfconf' 'libwnck3' 'vala-panel-git' 'libappindicator-gtk2' 'libappindicator-gtk3' 'libappindicator-sharp')
 source=("git://github.com/rilian-la-te/${_pkgbase}.git"
         "git://github.com/rilian-la-te/${_cmakename}.git"
         "git://github.com/rilian-la-te/${_dbusmenuname}.git")
