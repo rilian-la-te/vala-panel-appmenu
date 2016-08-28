@@ -11,7 +11,7 @@ pkgdesc="AppMenu (Global Menu) plugin for xfce4-panel and vala-panel"
 url="https://github.com/rilian-la-te/vala-panel-appmenu"
 arch=('i686' 'x86_64')
 license=('GPL3')
-makedepends=('cmake' 'vala' 'gtk3' 'bamf>=0.5.0' 'xfce4-panel>=4.11.2' 'xfconf' 'libwnck3' 'vala-panel-git' 'libappindicator-gtk2' 'libappindicator-gtk3' 'libappindicator-sharp')
+makedepends=('cmake' 'vala' 'gtk3' 'bamf>=0.5.0' 'xfce4-panel>=4.11.2' 'xfconf' 'libwnck3' 'vala-panel-git')
 source=("git://github.com/rilian-la-te/${_pkgbase}.git"
         "git://github.com/rilian-la-te/${_cmakename}.git"
         "git://github.com/rilian-la-te/${_dbusmenuname}.git")
@@ -43,9 +43,9 @@ build() {
 
 package_vala-panel-appmenu-xfce-git() {
   pkgdesc="AppMenu (Global Menu) plugin for xfce4-panel"
-  depends=('gtk3' 'bamf>=0.5.0' 'xfce4-panel>=4.11.2' 'xfconf' 'libwnck3')
+  depends=('gtk3' 'bamf>=0.5.0' 'xfce4-panel>=4.11.2' 'xfconf' 'libwnck3' 'libappindicator-gtk2' 'libappindicator-gtk3' 'libappindicator-sharp')
   optdepends=('gtk2-ubuntu: for hiding gtk2 menus'
-            'unity-gtk-module-standalone-bzr: for gtk2/gtk3 menus'
+            'unity-gtk-module: for gtk2/gtk3 menus'
             'gtk2-appmenu: for gtk2 menus, alternate way'
             'gtk3-appmenu: for gtk3 menus, alternate way'
             'appmenu-qt: for qt4 menus'
