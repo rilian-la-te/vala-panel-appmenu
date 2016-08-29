@@ -43,7 +43,7 @@ build() {
 
 package_vala-panel-appmenu-xfce-git() {
   pkgdesc="AppMenu (Global Menu) plugin for xfce4-panel"
-  depends=('gtk3' 'bamf>=0.5.0' 'xfce4-panel>=4.11.2' 'xfconf' 'libwnck3' 'libappindicator-gtk2' 'libappindicator-gtk3' 'libappindicator-sharp')
+  depends=('gtk3' 'bamf>=0.5.0' 'xfce4-panel>=4.11.2' 'xfconf' 'libwnck3' 'libdbusmenu-gtk3' 'libdbusmenu-gtk2' 'libdbusmenu-glib')
   optdepends=('gtk2-ubuntu: for hiding gtk2 menus'
             'unity-gtk-module: for gtk2/gtk3 menus'
             'gtk2-appmenu: for gtk2 menus, alternate way'
