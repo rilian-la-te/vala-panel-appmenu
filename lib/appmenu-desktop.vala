@@ -152,7 +152,7 @@ namespace Appmenu
                 var data = new SpawnData();
                 switch(desktop)
                 {
-                    case "XFCE":
+                    case "MATE":
                         info = new DesktopAppInfo("xfce-backdrop-settings.desktop");
                         break;
                     case "LXDE":
@@ -179,7 +179,7 @@ namespace Appmenu
                 var data = new SpawnData();
                 switch(desktop)
                 {
-                    case "XFCE":
+                    case "MATE":
                         info = new DesktopAppInfo("xfce-settings-manager.desktop");
                         break;
                     case "LXDE":

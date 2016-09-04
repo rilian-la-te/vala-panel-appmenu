@@ -48,11 +48,11 @@ find_package (PkgConfig)
 
 pkg_check_modules (CORE REQUIRED
   gtk+-3.0>=3.10
-  glib-2.0>=2.40
-  gio-2.0>=2.40
-  gio-unix-2.0>=2.40
-  gthread-2.0>=2.40
-  gmodule-2.0>=2.40
+  glib-2.0>=2.44
+  gio-2.0>=2.44
+  gio-unix-2.0>=2.44
+  gthread-2.0>=2.44
+  gmodule-2.0>=2.44
   libbamf3)
 
 set(CORE_PACKAGES
@@ -83,9 +83,19 @@ option(ENABLE_XFCE "Enable Xfce Panel Integration" ON)
 if (ENABLE_XFCE)
     pkg_check_modules(XFCE libxfce4panel-2.0 libxfconf-0)
     if (NOT(XFCE_FOUND))
-        set(ENABLE_XFCE OFF)
+	set(ENABLE_XFCE OFF)
     endif()
 endif()
+
+
+option(ENABLE_MATE "Enable mate-panel Integration" ON)
+if (ENABLE_MATE)
+    pkg_check_modules(MATE libmatepanelapplet-4.0)
+    if (NOT MATE_FOUND)
+	set(ENABLE_MATE OFF)
+    endif()
+endif()
+
 
 option(ENABLE_VALAPANEL "Enable Vala Panel Integration" ON)
 if (ENABLE_VALAPANEL)

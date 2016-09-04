@@ -13,7 +13,7 @@ PACKAGES
     gobject-2.0
 OPTIONS
     --vapidir=${CMAKE_SOURCE_DIR}/vapi
-    --target-glib=2.40
+    --target-glib=2.44
     --thread
 GENERATE_VAPI
     vala-dbusmenu
@@ -50,7 +50,7 @@ macro(precompile_core)
     OPTIONS
         --vapidir=${CMAKE_SOURCE_DIR}/vapi
         --vapidir=${CMAKE_CURRENT_BINARY_DIR}
-        --target-glib=2.40
+	--target-glib=2.44
         --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
         --thread
         ${WNCK_DEFINE}
@@ -66,6 +66,7 @@ endmacro(precompile_core)
 set(PLUGIN_VALA_FILES
     valapanel-plugin-appmenu.vala
     xfce4-plugin-appmenu.vala
+    mate-plugin-appmenu.vala
     )
 if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/vala-panel-appmenu.vapi
    OR ${CMAKE_CURRENT_BINARY_DIR}/appmenu-core_valac.stamp IS_NEWER_THAN ${CMAKE_CURRENT_BINARY_DIR}/vala-panel-appmenu.vapi)
@@ -90,7 +91,7 @@ if (ENABLE_XFCE)
     OPTIONS
         --vapidir=${CMAKE_SOURCE_DIR}/vapi
         --vapidir=${CMAKE_CURRENT_BINARY_DIR}
-        --target-glib=2.40
+	--target-glib=2.44
         --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
         --thread
         ${WNCK_DEFINE}
@@ -111,6 +112,40 @@ if (ENABLE_XFCE)
 endif()
 
 ##########
+# MATE Part
+##########
+if (ENABLE_MATE)
+    vala_precompile(VALA_C_MATE appmenu-mate
+	${CMAKE_BINARY_DIR}/vapi/config.vala
+	mate-plugin-appmenu.vala
+    PACKAGES
+	${CORE_PACKAGES}
+	vala-panel-appmenu
+	${WNCK_PACKAGES}
+	libmatepanelapplet-4.0
+    OPTIONS
+	--vapidir=${CMAKE_SOURCE_DIR}/vapi
+	--vapidir=${CMAKE_CURRENT_BINARY_DIR}
+	--target-glib=2.44
+	--gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
+	--thread
+	${WNCK_DEFINE}
+    )
+    set (MA_CFLAGS ${CORE_CFLAGS} ${WNCK_CFLAGS} ${MATE_CFLAGS})
+    add_definitions(${MA_CFLAGS})
+    set (MATE_LIB_FILES ${VALA_C_CORE} ${VALA_C_MATE} ${VALA_C_DBUSMENU})
+    add_library (appmenu-mate MODULE
+	${MATE_LIB_FILES}
+	${RESOURCES}
+    )
+    target_link_libraries (appmenu-mate ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${MATE_LIBRARIES} m)
+    target_include_directories (appmenu-mate PRIVATE ${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${MATE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
+    link_directories (${CORE_LIBRARY_DIRS} ${WNCK_LIBRARY_DIRS} ${MATE_LIBRARY_DIRS})
+    add_dependencies(appmenu-mate appmenu-core)
+    # Install plugin stuffs
+    install(TARGETS appmenu-mate DESTINATION ${CMAKE_INSTALL_LIBDIR}/mate-panel)
+endif()
+##########
 # ValaPanel Part
 ##########
 if(ENABLE_VALAPANEL)
@@ -126,7 +161,7 @@ if(ENABLE_VALAPANEL)
     OPTIONS
         --vapidir=${CMAKE_SOURCE_DIR}/vapi
         --vapidir=${CMAKE_CURRENT_BINARY_DIR}
-        --target-glib=2.40
+	--target-glib=2.44
         --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
         --thread
         ${WNCK_DEFINE}
