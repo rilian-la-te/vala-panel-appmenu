@@ -1,3 +1,9 @@
+unity-gtk-module (0.0.0+16.10.20160913-0ubuntu1) yakkety; urgency=medium
+
+  * Fix $GTK_MODULES race condition (LP: #1618886)
+
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Tue, 13 Sep 2016 15:27:01 +0000
+
 unity-gtk-module (0.0.0+16.10.20160805-0ubuntu1) yakkety; urgency=medium
 
   [ Iain Lane ]
