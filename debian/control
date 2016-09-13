@@ -13,8 +13,8 @@ Homepage: https://code.launchpad.net/unity-gtk-module
 # If you aren't a member of ~indicator-applet-developers but need to upload
 # packaging changes, just go ahead.  ~indicator-applet-developers will notice
 # and sync up the code again.
-Vcs-Bzr: https://code.launchpad.net/~indicator-applet-developers/unity-gtk-module/trunk
-Vcs-Browser: https://bazaar.launchpad.net/~indicator-applet-developers/unity-gtk-module/trunk/files
+Vcs-Bzr: https://code.launchpad.net/~indicator-applet-developers/unity-gtk-module/trunk.15.04
+Vcs-Browser: https://bazaar.launchpad.net/~indicator-applet-developers/unity-gtk-module/trunk.15.04
 
 Package: libunity-gtk-parser-dev-common
 Section: libdevel
