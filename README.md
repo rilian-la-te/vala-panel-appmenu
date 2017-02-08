@@ -28,7 +28,7 @@ This is Global Menu for using in Vala Panel and xfce4-panel. unity-gtk-module is
 
 *Arch Linux*
 * Install from AUR [unity-gtk-module-standalone-bzr](https://aur.archlinux.org/packages/unity-gtk-module-standalone-bzr/) for appmenu to work
-* Install both [Appmenu](https://aur.archlinux.org/packages/appmenu-qt/) & [Appmenu-qt5](https://aur.archlinux.org/packages/appmenu-qt5-bzr/) to get appmenu for Qt Applications to work
+* Install [Appmenu](https://aur.archlinux.org/packages/appmenu-qt/) to get appmenu for Qt4 Applications to work. Qt 5.7 must work out of the box.
 * Install these [libdbusmenu-glib](https://aur.archlinux.org/packages/libdbusmenu-glib/) [libdbusmenu-gtk3](https://aur.archlinux.org/packages/libdbusmenu-gtk3/) [libdbusmenu-gtk2](https://aur.archlinux.org/packages/libdbusmenu-gtk2/) to get Chromium/Google Chrome to work
 
 *Building unity-gtk-module from sources for distros other than Arch or Ubuntu*
