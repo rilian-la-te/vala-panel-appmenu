@@ -24,6 +24,7 @@ This is Global Menu for using in Vala Panel and xfce4-panel. unity-gtk-module is
 `gtk-shell-shows-menubar=true`
 * Add to ~/.profile:
 `export UBUNTU_MENUPROXY=1`
+`export   GTK_MODULES=unity-gtk-module:$GTK_MODULES`
 * For XFCE Only: open `xfce4-settings-editor` and add keys Gtk/ShellShowsMenubar and Gtk/ShellShowsAppmenu to xsettings hive of xfce4 settings.
 
 *Arch Linux*
