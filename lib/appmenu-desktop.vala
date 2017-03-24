@@ -179,11 +179,8 @@ namespace Appmenu
                 var data = new SpawnData();
                 switch(desktop)
                 {
-                    case "XFCE":
-                        info = new DesktopAppInfo("xfce-settings-manager.desktop");
-                        break;
                     case "MATE":
-                        info = new DesktopAppInfo("mate-control-center.desktop");
+                        info = new DesktopAppInfo("xfce-settings-manager.desktop");
                         break;
                     case "LXDE":
                         info = new DesktopAppInfo("lxappearance.desktop");
