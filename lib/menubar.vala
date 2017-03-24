@@ -109,8 +109,6 @@ namespace Appmenu
                         return;
                 });
             }
-            else
-                menu = new MenuWidgetDesktop(null,null);
             return menu;
         }
         private void on_window_opened(Bamf.View view)
@@ -132,10 +130,7 @@ namespace Appmenu
             if (menu != null)
                 menu.destroy();
             unowned Bamf.Window win = next != null ? next : matcher.get_active_window();
-            if (win != null)
-                menu = lookup_menu(win);
-            else
-                menu = show_dummy_menu();
+            menu = lookup_menu(win);
             if (menu != null)
                 menu.show();
         }
