@@ -23,13 +23,13 @@ namespace Appmenu
 {
     public class BamfAppmenu : Gtk.MenuBar
     {
-        private static const string UNITY_QUICKLISTS_KEY = "X-Ayatana-Desktop-Shortcuts";
-        private static const string UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME = "%s Shortcut Group";
-        private static const string UNITY_QUICKLISTS_TARGET_KEY = "TargetEnvironment";
-        private static const string UNITY_QUICKLISTS_TARGET_VALUE = "Unity";
+        private const string UNITY_QUICKLISTS_KEY = "X-Ayatana-Desktop-Shortcuts";
+        private const string UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME = "%s Shortcut Group";
+        private const string UNITY_QUICKLISTS_TARGET_KEY = "TargetEnvironment";
+        private const string UNITY_QUICKLISTS_TARGET_VALUE = "Unity";
         private unowned Bamf.Application app;
         private GLib.Menu window_section;
-        private static const GLib.ActionEntry[] entries =
+        private const GLib.ActionEntry[] entries =
         {
             {"new-window", activate_new, null, null, null},
 #if WNCK

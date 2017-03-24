@@ -25,7 +25,7 @@ namespace Appmenu
     internal class MenuWidgetDesktop: MenuWidgetMenumodel
     {
         private GLib.Menu files_menu;
-        private static const GLib.ActionEntry[] menu_entries =
+        private const GLib.ActionEntry[] menu_entries =
         {
             {"launch-id", activate_menu_launch_id, "s", null, null},
             {"launch-uri", activate_menu_launch_uri, "s", null, null},
@@ -35,7 +35,7 @@ namespace Appmenu
             {"control-center", activate_control, null, null, null},
             {"populate-files", null, "b", "false", state_populate_files}
         };
-        public MenuWidgetDesktop(Bamf.Application? app, Bamf.Window window)
+        public MenuWidgetDesktop(Bamf.Application? app, Bamf.Window? window)
         {
             base(null,window);
             var group = new SimpleActionGroup();
