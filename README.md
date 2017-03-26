@@ -18,14 +18,16 @@ This is Global Menu for using in Vala Panel and xfce4-panel. unity-gtk-module is
 * Create a .gtkrc in your home(~) directory
 * Create a .config/gtk-3.0/settings.ini file in your home(~) directory
 * Add to this files:
-`export   GTK_MODULES=unity-gtk-module:$GTK_MODULES`
+`export GTK_MODULES=unity-gtk-module:$GTK_MODULES`
 * Add to .config/gtk-3.0/settings.ini file only:
 `gtk-shell-shows-app-menu=true`
 `gtk-shell-shows-menubar=true`
 * Add to ~/.profile:
-`export UBUNTU_MENUPROXY=1`
-`export   GTK_MODULES=unity-gtk-module:$GTK_MODULES`
-* For XFCE Only: open `xfce4-settings-editor` and add keys Gtk/ShellShowsMenubar and Gtk/ShellShowsAppmenu to xsettings hive of xfce4 settings.
+`export UBUNTU_MENUPROXY=0`
+`export GTK_MODULES=unity-gtk-module:$GTK_MODULES`
+* For XFCE Only: 
+`xfconf-query -c xsettings -p /Gtk/ShellShowsMenubar -n -t bool -s true`
+`xfconf-query -c xsettings -p /Gtk/ShellShowsAppmenu -n -t bool -s true`
 
 *Arch Linux*
 * Install from AUR [unity-gtk-module-standalone-bzr](https://aur.archlinux.org/packages/unity-gtk-module-standalone-bzr/) for appmenu to work
