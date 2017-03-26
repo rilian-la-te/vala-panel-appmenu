@@ -27,9 +27,9 @@ namespace Appmenu
         private GLib.Menu files_menu;
         private const GLib.ActionEntry[] menu_entries =
         {
-            {"launch-id", activate_menu_launch_id, "s", null, null},
-            {"launch-uri", activate_menu_launch_uri, "s", null, null},
-            {"launch-command", activate_menu_launch_command, "s", null, null},
+            {"launch-id", activate_menu_id, "s", null, null},
+            {"launch-uri", activate_menu_uri, "s", null, null},
+            {"launch-command", activate_menu_command, "s", null, null},
             {"launch-type", activate_menu_launch_type, "s", null, null},
             {"desktop-settings", activate_desktop, null, null, null},
             {"control-center", activate_control, null, null, null},
@@ -71,88 +71,35 @@ namespace Appmenu
             }
             this.show_all();
         }
-        public static AppInfo? get_default_for_uri(string uri)
+        internal void activate_menu_id(SimpleAction action, Variant? param)
         {
-            /* g_file_query_default_handler() calls
-            * g_app_info_get_default_for_uri_scheme() too, but we have to do it
-            * here anyway in case GFile can't parse @uri correctly.
-            */
-            AppInfo? app_info = null;
-            var uri_scheme = Uri.parse_scheme (uri);
-            if (uri_scheme != null && uri_scheme[0] != '\0')
-                app_info = AppInfo.get_default_for_uri_scheme (uri_scheme);
-            if (app_info == null)
-            {
-                var file = File.new_for_uri (uri);
-                try
-                {
-                    app_info = file.query_default_handler (null);
-                } catch (GLib.Error e){}
-            }
-            return app_info;
+            MenuMaker.activate_menu_launch_id(action,param,this);
         }
-        public static void activate_menu_launch_id(SimpleAction? action, Variant? param)
+        internal void activate_menu_uri(SimpleAction action, Variant? param)
         {
-            unowned string id = param.get_string();
-            var info = new DesktopAppInfo(id);
-            try{
-                var data = new SpawnData();
-                info.launch_uris_as_manager(new List<string>(),
-                                             Gdk.Display.get_default().get_app_launch_context(),
-                                             SpawnFlags.SEARCH_PATH,
-                                             data.child_spawn_func,(a,b)=>{});
-            } catch (GLib.Error e){stderr.printf("%s\n",e.message);}
+            MenuMaker.activate_menu_launch_uri(action,param,this);
         }
-
-        public static void activate_menu_launch_command(SimpleAction? action, Variant? param)
+        internal void activate_menu_command(SimpleAction action, Variant? param)
         {
-            unowned string command = param.get_string();
-            try{
-                var data = new SpawnData();
-                var info = AppInfo.create_from_commandline(command,null,
-                                AppInfoCreateFlags.SUPPORTS_STARTUP_NOTIFICATION) as DesktopAppInfo;
-                info.launch_uris_as_manager(new List<string>(),
-                                             Gdk.Display.get_default().get_app_launch_context(),
-                                             SpawnFlags.SEARCH_PATH,
-                                             data.child_spawn_func,(a,b)=>{});
-            } catch (GLib.Error e){stderr.printf("%s\n",e.message);}
-        }
-
-        public static void activate_menu_launch_uri(SimpleAction? action, Variant? param)
-        {
-            unowned string uri = param.get_string();
-            try{
-                var data = new SpawnData();
-                var info = get_default_for_uri(uri) as DesktopAppInfo;
-                List<string> uri_l = new List<string>();
-                uri_l.append(uri);
-                info.launch_uris_as_manager(uri_l,
-                                             Gdk.Display.get_default().get_app_launch_context(),
-                                             SpawnFlags.SEARCH_PATH,
-                                             data.child_spawn_func,(a,b)=>{});
-            } catch (GLib.Error e){stderr.printf("%s\n",e.message);}
+            MenuMaker.activate_menu_launch_command(action,param,this);
         }
         public void activate_menu_launch_type(SimpleAction action, Variant? param)
         {
             unowned string type = param.get_string();
-            try{
-                var data = new SpawnData();
-                var info = GLib.AppInfo.get_default_for_type(type,false) as DesktopAppInfo;
-                info.launch_uris_as_manager(new List<string>(),
-                                             Gdk.Display.get_default().get_app_launch_context(),
-                                             SpawnFlags.SEARCH_PATH,
-                                             data.child_spawn_func,(a,b)=>{});
-            } catch (GLib.Error e){stderr.printf("%s\n",e.message);}
+            var info = GLib.AppInfo.get_default_for_type(type,false) as DesktopAppInfo;
+			MenuMaker.launch(info,null,this);
         }
         public void activate_desktop(SimpleAction action, Variant? param)
         {
             try{
                 unowned string desktop = Environment.get_variable("XDG_CURRENT_DESKTOP");
                 DesktopAppInfo? info = null;
-                var data = new SpawnData();
                 switch(desktop)
                 {
                     case "MATE":
+                        info = new DesktopAppInfo("mate-appearance-properties.desktop");
+                        break;
+                    case "XFCE":
                         info = new DesktopAppInfo("xfce-backdrop-settings.desktop");
                         break;
                     case "LXDE":
@@ -165,38 +112,33 @@ namespace Appmenu
                         AppInfoCreateFlags.SUPPORTS_STARTUP_NOTIFICATION) as DesktopAppInfo;
                         break;
                 }
-                info.launch_uris_as_manager(new List<string>(),
-                                             Gdk.Display.get_default().get_app_launch_context(),
-                                             SpawnFlags.SEARCH_PATH,
-                                             data.child_spawn_func,(a,b)=>{});
+				MenuMaker.launch(info,null,this);
             } catch (GLib.Error e){stderr.printf("%s\n",e.message);}
         }
         public void activate_control(SimpleAction action, Variant? param)
         {
             try{
-                var desktop = Environment.get_variable("XDG_CURRENT_DESKTOP");
-                DesktopAppInfo? info = null;
-                var data = new SpawnData();
-                switch(desktop)
-                {
-                    case "XFCE":
-                        info = new DesktopAppInfo("xfce-settings-manager.desktop");
-                        break;
-                    case "MATE":
-                        info = new DesktopAppInfo("mate-control-center.desktop");
-                        break;
-                    case "LXDE":
-                        info = new DesktopAppInfo("lxappearance.desktop");
-                        break;
-                    default:
-                        warning("Unknown desktop environment\n");
-                        info = new DesktopAppInfo("gnome-control-center.desktop");
-                        break;
-                }
-                info.launch_uris_as_manager(new List<string>(),
-                                             Gdk.Display.get_default().get_app_launch_context(),
-                                             SpawnFlags.SEARCH_PATH,
-                                             data.child_spawn_func,(a,b)=>{});
+		        unowned string desktop = Environment.get_variable("XDG_CURRENT_DESKTOP");
+		        DesktopAppInfo? info = null;
+		        switch(desktop)
+		        {
+		            case "XFCE":
+		                info = new DesktopAppInfo("xfce-settings-manager.desktop");
+		                break;
+		            case "MATE":
+		                info = AppInfo.create_from_commandline("mate-control-center",null,
+		                AppInfoCreateFlags.SUPPORTS_STARTUP_NOTIFICATION) as DesktopAppInfo;
+		                break;
+		            case "LXDE":
+		                info = new DesktopAppInfo("lxappearance.desktop");
+		                break;
+		            default:
+		                warning("Unknown desktop environment\n");
+                        info = AppInfo.create_from_commandline("gnome-control-center",null,
+                        AppInfoCreateFlags.SUPPORTS_STARTUP_NOTIFICATION) as DesktopAppInfo;
+		                break;
+		        }
+				MenuMaker.launch(info,null,this);
             } catch (GLib.Error e){stderr.printf("%s\n",e.message);}
         }
         public void state_populate_files(SimpleAction action, Variant? param)

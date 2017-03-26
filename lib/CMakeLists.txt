@@ -46,6 +46,7 @@ macro(precompile_core)
         ${CORE_PACKAGES}
         vala-dbusmenu
         gio-addons-2.0
+        launcher
         ${WNCK_PACKAGES}
     OPTIONS
         --vapidir=${CMAKE_SOURCE_DIR}/vapi
@@ -62,6 +63,8 @@ macro(precompile_core)
         source
             libappmenu.gresource.xml
     )
+    include_directories(${CMAKE_SOURCE_DIR})
+    list(APPEND VALA_C_CORE c-lib/launcher.c c-lib/launcher.h)
 endmacro(precompile_core)
 set(PLUGIN_VALA_FILES
     valapanel-plugin-appmenu.vala
