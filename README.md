@@ -2,7 +2,7 @@
 Vala Panel Application Menu
 ---
 
-This is Global Menu for using in Vala Panel and xfce4-panel. unity-gtk-module is used as backend.
+This is Global Menu for using in Vala Panel, xfce4-panel, mate-panel and Budgie 10.x. unity-gtk-module is used as backend.
 
 *Dependencies:*
 
