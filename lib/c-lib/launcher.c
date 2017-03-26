@@ -72,8 +72,7 @@ void activate_menu_launch_id(GSimpleAction *action, GVariant *param, gpointer us
 {
 	const gchar *id                 = g_variant_get_string(param, NULL);
 	g_autoptr(GDesktopAppInfo) info = g_desktop_app_info_new(id);
-	GtkApplication *app             = GTK_APPLICATION(user_data);
-	GtkWidget *window               = GTK_WIDGET(gtk_application_get_windows(app)->data);
+	GtkWidget *window               = GTK_WIDGET(user_data);
 	vala_panel_launch(info, NULL, GTK_WIDGET(window));
 }
 
@@ -82,9 +81,8 @@ void activate_menu_launch_uri(GSimpleAction *action, GVariant *param, gpointer u
 	const char *uri                 = g_variant_get_string(param, NULL);
 	g_autoptr(GList) uris           = g_list_append(NULL, (gpointer)uri);
 	g_autoptr(GDesktopAppInfo) info = G_DESKTOP_APP_INFO(vala_panel_get_default_for_uri(uri));
-	GtkApplication *app             = GTK_APPLICATION(user_data);
-	GtkWidget *window               = GTK_WIDGET(gtk_application_get_windows(app)->data);
-	vala_panel_launch(info, NULL, GTK_WIDGET(window));
+	GtkWidget *window               = GTK_WIDGET(user_data);
+	vala_panel_launch(info, uris, GTK_WIDGET(window));
 }
 
 void activate_menu_launch_command(GSimpleAction *action, GVariant *param, gpointer user_data)
@@ -98,7 +96,6 @@ void activate_menu_launch_command(GSimpleAction *action, GVariant *param, gpoint
 	                                       &err));
 	if (err)
 		g_warning("%s\n", err->message);
-	GtkApplication *app = GTK_APPLICATION(user_data);
-	GtkWidget *window   = GTK_WIDGET(gtk_application_get_windows(app)->data);
+	GtkWidget *window   = GTK_WIDGET(user_data);
 	vala_panel_launch(info, NULL, GTK_WIDGET(window));
 }
