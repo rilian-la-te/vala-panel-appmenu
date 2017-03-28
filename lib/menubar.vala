@@ -104,7 +104,7 @@ namespace Appmenu
             if (desktop_menus.length > 0)
             {
                 desktop_menus.foreach((k,v)=>{
-                    menu = lookup_menu(v);
+                    menu = new MenuWidgetDesktop(null,v);;
                     if (menu != null)
                         return;
                 });
