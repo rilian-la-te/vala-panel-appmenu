@@ -17,14 +17,12 @@ This is Global Menu for using in Vala Panel, xfce4-panel, mate-panel and Budgie 
 ---
 * Create a .gtkrc in your home(~) directory
 * Create a .config/gtk-3.0/settings.ini file in your home(~) directory
-* Add to this files:
-`export GTK_MODULES=unity-gtk-module:$GTK_MODULES`
-* Add to .config/gtk-3.0/settings.ini file only:
+* Add to .config/gtk-3.0/settings.ini file in all distros:
 `gtk-shell-shows-app-menu=true`
 `gtk-shell-shows-menubar=true`
-* Add to ~/.profile:
-`export UBUNTU_MENUPROXY=0`
-`export GTK_MODULES=unity-gtk-module:$GTK_MODULES`
+* Add to ..gtkrc-2.0 file in Ubuntu-based:
+`gtk-shell-shows-app-menu=1`
+`gtk-shell-shows-menubar=1`
 * For XFCE Only: 
 `xfconf-query -c xsettings -p /Gtk/ShellShowsMenubar -n -t bool -s true`
 `xfconf-query -c xsettings -p /Gtk/ShellShowsAppmenu -n -t bool -s true`
