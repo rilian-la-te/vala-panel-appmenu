@@ -127,9 +127,9 @@ namespace Appmenu
         }
         private void on_active_window_changed(Bamf.Window? prev, Bamf.Window? next)
         {
+            unowned Bamf.Window win = next != null ? next : matcher.get_active_window();
             if (menu != null)
                 menu.destroy();
-            unowned Bamf.Window win = next != null ? next : matcher.get_active_window();
             menu = lookup_menu(win);
             if (menu != null)
                 menu.show();

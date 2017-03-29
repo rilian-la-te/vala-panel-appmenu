@@ -35,7 +35,7 @@ using Appmenu;
     }
 
 
-int _mate_panel_applet_shlib_factory()
+public int _mate_panel_applet_shlib_factory()
 {
     GLib.Intl.bindtextdomain(Config.GETTEXT_PACKAGE,Config.LOCALE_DIR);
     GLib.Intl.bind_textdomain_codeset(Config.GETTEXT_PACKAGE,"UTF-8");
