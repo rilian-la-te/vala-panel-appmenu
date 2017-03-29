@@ -64,7 +64,7 @@ macro(precompile_core)
             libappmenu.gresource.xml
     )
     include_directories(${CMAKE_SOURCE_DIR})
-    list(APPEND VALA_C_CORE c-lib/launcher.c c-lib/launcher.h)
+    list(APPEND VALA_C_CORE launcher.c launcher.h)
 endmacro(precompile_core)
 set(PLUGIN_VALA_FILES
     valapanel-plugin-appmenu.vala

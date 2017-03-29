@@ -22,15 +22,15 @@ using GLib;
 [CCode (cprefix="")]
 namespace MenuMaker
 {
-    [CCode (cheader_filename="lib/c-lib/launcher.h",cname="activate_menu_launch_id")]
+    [CCode (cheader_filename="lib/launcher.h",cname="activate_menu_launch_id")]
     public static void activate_menu_launch_id(SimpleAction? action, Variant? param, void* user_data);
-    [CCode (cheader_filename="lib/c-lib/launcher.h",cname="activate_menu_launch_uri")]
+    [CCode (cheader_filename="lib/launcher.h",cname="activate_menu_launch_uri")]
     public static void activate_menu_launch_uri(SimpleAction? action, Variant? param, void* user_data);
-    [CCode (cheader_filename="lib/c-lib/launcher.h",cname="activate_menu_launch_command")]
+    [CCode (cheader_filename="lib/launcher.h",cname="activate_menu_launch_command")]
     public static void activate_menu_launch_command(SimpleAction? action, Variant? param, void* user_data);
-    [CCode (cheader_filename="lib/c-lib/launcher.h",cname="vala_panel_launch")]
+    [CCode (cheader_filename="lib/launcher.h",cname="vala_panel_launch")]
     public static bool launch(DesktopAppInfo info, GLib.List<string>? uris, Gtk.Widget parent);
-    [CCode (cheader_filename="lib/c-lib/launcher.h",cname="vala_panel_get_default_for_uri")]
+    [CCode (cheader_filename="lib/launcher.h",cname="vala_panel_get_default_for_uri")]
     public static AppInfo get_default_for_uri(string uri);
 }
 
