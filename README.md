@@ -26,6 +26,21 @@ This is Global Menu for using in Vala Panel, xfce4-panel, mate-panel and Budgie 
 * For XFCE Only: 
 `xfconf-query -c xsettings -p /Gtk/ShellShowsMenubar -n -t bool -s true`
 `xfconf-query -c xsettings -p /Gtk/ShellShowsAppmenu -n -t bool -s true`
+* Add to .profile and .bashrc:
+```sh
+if [ -n "$GTK_MODULES" ]; then
+    GTK_MODULES="${GTK_MODULES}:unity-gtk-module"
+else
+    GTK_MODULES="unity-gtk-module"
+fi
+
+if [ -z "$UBUNTU_MENUPROXY" ]; then
+    UBUNTU_MENUPROXY=1
+fi
+
+export GTK_MODULES
+export UBUNTU_MENUPROXY
+```
 
 *Arch Linux*
 * Install from AUR [unity-gtk-module-standalone-bzr](https://aur.archlinux.org/packages/unity-gtk-module-standalone-bzr/) for appmenu to work
