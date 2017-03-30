@@ -19,20 +19,20 @@
 using Gtk;
 using GLib;
 using Appmenu;
-    private bool factory_callback(MatePanel.Applet applet, string iid)
-    {
-        if (iid != "AppmenuApplet") {
-            return false;
-        }
-
-        applet.flags = MatePanel.AppletFlags.HAS_HANDLE & MatePanel.AppletFlags.EXPAND_MINOR;
-
-        var layout = new Appmenu.AppMenuBar();
-        var widget = layout;
-        applet.add(widget);
-        applet.show_all();
-        return true;
+private bool factory_callback(MatePanel.Applet applet, string iid)
+{
+    if (iid != "AppmenuApplet") {
+        return false;
     }
+
+    applet.flags = MatePanel.AppletFlags.HAS_HANDLE & MatePanel.AppletFlags.EXPAND_MINOR;
+
+    var layout = new Appmenu.AppMenuBar();
+    var widget = layout;
+    applet.add(widget);
+    applet.show_all();
+    return true;
+}
 
 
 public int _mate_panel_applet_shlib_factory()
