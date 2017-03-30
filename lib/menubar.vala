@@ -25,11 +25,6 @@ namespace Appmenu
         private static DBusMenuRegistrarProxy proxy;
         private HashTable<uint,unowned Bamf.Window> desktop_menus;
         private Bamf.Matcher matcher;
-        private ulong active_handler;
-        private ulong open_handler;
-        private ulong close_handler;
-        private ulong registered_handler;
-        private ulong unregistered_handler;
         private unowned MenuWidget menu
         {
             get {return this.get_child() as MenuWidget;}
@@ -50,11 +45,11 @@ namespace Appmenu
             gtksettings.gtk_shell_shows_menubar = false;
             desktop_menus = new HashTable<uint,unowned Bamf.Window>(direct_hash,direct_equal);
             matcher = Bamf.Matcher.get_default();
-            registered_handler = proxy.window_registered.connect(register_menu_window);
-            unregistered_handler = proxy.window_unregistered.connect(unregister_menu_window);
-            active_handler = matcher.active_window_changed.connect(on_active_window_changed);
-            open_handler = matcher.view_opened.connect(on_window_opened);
-            close_handler = matcher.view_closed.connect(on_window_closed);
+            proxy.window_registered.connect(register_menu_window);
+            proxy.window_unregistered.connect(unregister_menu_window);
+            matcher.active_window_changed.connect(on_active_window_changed);
+            matcher.view_opened.connect(on_window_opened);
+            matcher.view_closed.connect(on_window_closed);
             foreach (unowned Bamf.Window window in matcher.get_windows())
                 on_window_opened(window);
             foreach (unowned Bamf.Application app in matcher.get_running_applications())
@@ -63,13 +58,8 @@ namespace Appmenu
         }
         protected override void destroy()
         {
-            proxy.disconnect(registered_handler);
-            proxy.disconnect(unregistered_handler);
-            matcher.disconnect(active_handler);
-            matcher.disconnect(open_handler);
-            matcher.disconnect(close_handler);
-            menu.destroy();
-            base.destroy();
+            SignalHandler.disconnect_by_data(proxy,this);
+            SignalHandler.disconnect_by_data(matcher,this);
         }
         public void register_menu_window(uint window_id, string sender, ObjectPath menu_object_path)
         {
