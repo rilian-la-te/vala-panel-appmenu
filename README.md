@@ -26,7 +26,7 @@ This is Global Menu for using in Vala Panel, xfce4-panel, mate-panel and Budgie 
 * For XFCE Only: 
 `xfconf-query -c xsettings -p /Gtk/ShellShowsMenubar -n -t bool -s true`
 `xfconf-query -c xsettings -p /Gtk/ShellShowsAppmenu -n -t bool -s true`
-* Add to .profile and .bashrc:
+* Add to .profile and .bashrc on non-Arch:
 ```sh
 if [ -n "$GTK_MODULES" ]; then
     GTK_MODULES="${GTK_MODULES}:unity-gtk-module"
