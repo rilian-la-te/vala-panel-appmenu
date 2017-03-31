@@ -174,7 +174,7 @@ if (ENABLE_MATE)
     set (MA_CFLAGS ${CORE_CFLAGS} ${WNCK_CFLAGS} ${MATE_CFLAGS})
     add_definitions(${MA_CFLAGS})
     set (MATE_LIB_FILES ${VALA_C_CORE} ${VALA_C_MATE} ${VALA_C_DBUSMENU})
-    add_library (appmenu-mate MODULE
+    add_executable (appmenu-mate
 	${MATE_LIB_FILES}
 	${RESOURCES}
     )
