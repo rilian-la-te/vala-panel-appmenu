@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=org.mate.panel.applet.AppmenuAppletFactory
+Exec=@CMAKE_INSTALL_FULL_LIBDIR@/mate-panel/appmenu-mate

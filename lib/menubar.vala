@@ -20,12 +20,12 @@ using GLib;
 
 namespace Appmenu
 {
-    public class AppMenuBar : Gtk.EventBox
+    public class AppMenuBar : Gtk.Bin
     {
         private static DBusMenuRegistrarProxy proxy;
         private HashTable<uint,unowned Bamf.Window> desktop_menus;
         private Bamf.Matcher matcher;
-        private unowned MenuWidget menu
+        private unowned MenuWidget? menu
         {
             get {return this.get_child() as MenuWidget;}
             set {replace_menu(value);}
@@ -40,9 +40,6 @@ namespace Appmenu
         }
         construct
         {
-            unowned Gtk.Settings gtksettings = this.get_settings();
-            gtksettings.gtk_shell_shows_app_menu = false;
-            gtksettings.gtk_shell_shows_menubar = false;
             desktop_menus = new HashTable<uint,unowned Bamf.Window>(direct_hash,direct_equal);
             matcher = Bamf.Matcher.get_default();
             proxy.window_registered.connect(register_menu_window);
@@ -54,12 +51,20 @@ namespace Appmenu
                 on_window_opened(window);
             foreach (unowned Bamf.Application app in matcher.get_running_applications())
                 on_window_opened(app);
-            on_active_window_changed(matcher.get_active_window(),null);
+            on_active_window_changed(null,matcher.get_active_window());
         }
         protected override void destroy()
         {
             SignalHandler.disconnect_by_data(proxy,this);
             SignalHandler.disconnect_by_data(matcher,this);
+            base.destroy();
+        }
+        protected override void map()
+        {
+            base.map();
+            unowned Gtk.Settings gtksettings = this.get_settings();
+            gtksettings.gtk_shell_shows_app_menu = false;
+            gtksettings.gtk_shell_shows_menubar = false;
         }
         public void register_menu_window(uint window_id, string sender, ObjectPath menu_object_path)
         {
@@ -82,11 +87,12 @@ namespace Appmenu
             }
             desktop_menus.remove(window_id);
         }
-        private void replace_menu(MenuWidget menu)
+        private void replace_menu(MenuWidget? menu)
         {
             if (this.menu != null)
                 this.menu.destroy();
-            this.add(menu);
+            if (menu != null)
+                this.add(menu);
         }
         private MenuWidget? show_dummy_menu()
         {
