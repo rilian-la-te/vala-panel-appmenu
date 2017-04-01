@@ -78,7 +78,10 @@ namespace Appmenu
                 on_window_added(window);
             var gmenu = new GLib.Menu();
             menu.freeze();
-            gmenu.append_submenu(app.get_name(),menu);
+            var name = app.get_name();
+            if (desktop_file == null && name.length >= 28)
+                name = name[0:25]+"...";
+            gmenu.append_submenu(name,menu);
             this.bind_model(gmenu,null,true);
             this.show_all();
         }
