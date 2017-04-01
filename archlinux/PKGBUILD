@@ -1,7 +1,7 @@
 # Maintainer: rilian-la-te <ria.freelander@gmail.com>
 
 _disable_mate=0
-_disable_xfce=9
+_disable_xfce=0
 _disable_vala=0
 
 _opts=(
