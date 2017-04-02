@@ -1,0 +1,2 @@
+version=3
+https://github.com/rilian-la-te/vala-panel-appmenu/tags .*/V?(\d\S*)\.tar\.gz
