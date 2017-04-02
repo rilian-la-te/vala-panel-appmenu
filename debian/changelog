@@ -1,3 +1,9 @@
+vala-panel-appmenu (0.3.4-1~zesty1.4) zesty; urgency=medium
+
+  * New upstream release.
+
+ -- Martin Wimpress <martin.wimpress@ubuntu.com>  Thu, 31 Mar 2017 00:11:22 +0100
+
 vala-panel-appmenu (0.2.8-1) vivid; urgency=medium
 
   * New upstream version
