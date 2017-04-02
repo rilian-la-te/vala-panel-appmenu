@@ -1,1 +1,2 @@
+debian/99vala-panel-appmenu etc/X11/Xsession.d/
 usr/share/locale/*
