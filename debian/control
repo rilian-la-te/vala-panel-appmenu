@@ -2,8 +2,18 @@ Source: vala-panel-appmenu
 Section: x11
 Priority: optional
 Maintainer: Konstantin P. <ria.freelander@gmail.com>
-Build-Depends: debhelper (>= 9), cmake (>= 2.8.0), valac (>= 0.24.0), libpeas-dev (>= 1.2.0), libgtk-3-dev (>= 3.12.0), vala-panel-dev, xfce4-panel-dev (>= 4.11.0), libxfconf-0-dev, libbamf3-dev, libwnck-3-dev (>= 3.4.0)
-Standards-Version: 3.9.6
+Build-Depends: cmake (>= 2.8.0),
+               debhelper (>= 9),
+               libbamf3-dev,
+               libgtk-3-dev (>= 3.12.0),
+               libmate-panel-applet-dev (>= 1.16),
+               libwnck-3-dev (>= 3.4.0),
+               libxfce4panel-2.0-dev,
+               libxfconf-0-dev,
+               valac (>= 0.24.0),
+               xfce4-panel-dev (>= 4.11.2),
+#vala-panel-dev               
+Standards-Version: 3.9.8
 Homepage: https://github.com/rilian-la-te/vala-panel-appmenu
 Vcs-Git: https://github.com/rilian-la-te/vala-panel-appmenu.git
 Vcs-Browser: https://github.com/rilian-la-te/vala-panel-appmenu
@@ -11,46 +21,98 @@ Vcs-Browser: https://github.com/rilian-la-te/vala-panel-appmenu
 Package: xfce4-vala-appmenu-plugin
 Section: xfce
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, vala-panel-appmenu-common (= ${source:Version}), bamfdaemon
-Recommends: unity-gtk3-module, unity-gtk2-module, appmenu-qt, appmenu-qt5
-Description: This package provides Application Menu plugin for xfce4-panel
- This is Application Menu (Global Menu) plugin.
- It built using Unity protocol and libraries,
- and share all Unity limitations and advancements.
+Depends: bamfdaemon,
+         vala-panel-appmenu-common (= ${source:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends},
+Recommends: appmenu-qt,
+            appmenu-qt5,
+            unity-gtk2-module,
+            unity-gtk3-module,
+Description: Application Menu plugin for xfce4-panel
+ This is an Application Menu (Global Menu) plugin. It is built using
+ the Unity protocol and libraries and provides all features found in
+ the Unity implementation.
+ .
+ This package provides the plugin for XFCE. 
 
 Package: xfce4-vala-appmenu-plugin-dbg
 Architecture: any
 Priority: extra
 Section: debug
-Depends: ${misc:Depends}, xfce4-vala-appmenu-plugin (= ${binary:Version})
-Description: This package provides debug symbols for xfce4-vala-appmenu-plugin
- This is Application Menu (Global Menu) plugin.
- It built using Unity protocol and libraries,
- and share all Unity limitations and advancements.
+Depends: xfce4-vala-appmenu-plugin (= ${binary:Version}),
+         ${misc:Depends},
+Description: Debug symbols for xfce-panel Application Menu plugin
+ This is an Application Menu (Global Menu) plugin. It is built using
+ the Unity protocol and libraries and provides all features found in
+ the Unity implementation.
+ .
+ This package provides debug symbols for the XFCE plugin.
 
-Package: vala-panel-appmenu
+Package: mate-applet-vala-appmenu
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, vala-panel-appmenu-common (= ${source:Version}), bamfdaemon
-Recommends: unity-gtk3-module, unity-gtk2-module, appmenu-qt, appmenu-qt5
-Description:  This package provides Application Menu plugin for vala-panel
- This is Application Menu (Global Menu) plugin.
- It built using Unity protocol and libraries,
- and share all Unity limitations and advancements.
+Depends: bamfdaemon,
+         vala-panel-appmenu-common (= ${source:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends},
+Recommends: appmenu-qt,
+            appmenu-qt5,
+            unity-gtk2-module,
+            unity-gtk3-module,
+Description: Application Menu plugin for mate-panel
+ This is an Application Menu (Global Menu) plugin. It is built using
+ the Unity protocol and libraries and provides all features found in
+ the Unity implementation.
+ .
+ This package provides the plugin for MATE.
 
-Package: vala-panel-appmenu-dbg
+Package: mate-applet-vala-appmenu-dbg
 Architecture: any
 Priority: extra
 Section: debug
-Depends: ${misc:Depends}, vala-panel-appmenu (= ${binary:Version})
-Description: This package provides debug symbols for vala-panel-appmenu
- This is Application Menu (Global Menu) plugin.
- It built using Unity protocol and libraries,
- and share all Unity limitations and advancements.
+Depends: mate-applet-vala-appmenu (= ${binary:Version}),
+         ${misc:Depends},
+Description: Debug symbols for mate-panel Application Menu plugin
+ This is an Application Menu (Global Menu) plugin. It is built using
+ the Unity protocol and libraries and provides all features found in
+ the Unity implementation.
+ .
+ This package provides debug symbols for the MATE plugin.
+
+#Package: vala-panel-appmenu
+#Architecture: any
+#Depends: bamfdaemon,
+#         vala-panel-appmenu-common (= ${source:Version}),
+#         ${misc:Depends},
+#         ${shlibs:Depends},
+#Recommends: appmenu-qt,
+#            appmenu-qt5,
+#            unity-gtk2-module,
+#            unity-gtk3-module,
+#Description: Application Menu plugin for vala-panel
+# This is an Application Menu (Global Menu) plugin. It is built using
+# the Unity protocol and libraries and provides all features found in
+# the Unity implementation.
+
+#Package: vala-panel-appmenu-dbg
+#Architecture: any
+#Priority: extra
+#Section: debug
+#Depends: vala-panel-appmenu (= ${binary:Version}),
+#         ${misc:Depends},
+#Description: Debug symbols for vala-panel Application Menu plugin
+# This is an Application Menu (Global Menu) plugin. It is built using
+# the Unity protocol and libraries and provides all features found in
+# the Unity implementation.
+# .
+# This package provides debug symbols for the vala-panel-appmenu
 
 Package: vala-panel-appmenu-common
 Architecture: all
-Depends: ${misc:Depends}
+Depends: ${misc:Depends},
 Description: Common files for Application Menu plugins
- This is Application Menu (Global Menu) plugin.
- It built using Unity protocol and libraries,
- and share all Unity limitations and advancements.
+ This is an Application Menu (Global Menu) plugin. It is built using
+ the Unity protocol and libraries and provides all features found in
+ the Unity implementation.
+ .
+ This package provides common files.
