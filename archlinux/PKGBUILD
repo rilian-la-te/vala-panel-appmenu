@@ -116,6 +116,7 @@ package_vala-panel-appmenu-valapanel-git() {
   rm -rf "${pkgdir}/usr/lib/xfce4"
   rm -rf "${pkgdir}/usr/share"
   rm -rf "${pkgdir}/usr/lib/mate-panel"
+  rm -rf "${pkgdir}/usr/share/dbus-1"
 }
 
 package_vala-panel-appmenu-mate-git() {
