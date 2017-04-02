@@ -1,3 +1,9 @@
+vala-panel-appmenu (0.3.5) zesty; urgency=medium
+
+  * New upstream release.
+
+ -- Konstantin <ria.freelander@gmail.com>  Sun, 02 Apr 2017 22:00:00 +0300
+
 vala-panel-appmenu (0.3.4-1~zesty1.4) zesty; urgency=medium
 
   * New upstream release.

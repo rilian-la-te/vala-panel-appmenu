@@ -18,7 +18,7 @@ Homepage: https://github.com/rilian-la-te/vala-panel-appmenu
 Vcs-Git: https://github.com/rilian-la-te/vala-panel-appmenu.git
 Vcs-Browser: https://github.com/rilian-la-te/vala-panel-appmenu
 
-Package: xfce4-vala-appmenu-plugin
+Package: xfce4-vala-panel-appmenu-plugin
 Section: xfce
 Architecture: any
 Depends: bamfdaemon,
@@ -36,11 +36,11 @@ Description: Application Menu plugin for xfce4-panel
  .
  This package provides the plugin for XFCE. 
 
-Package: xfce4-vala-appmenu-plugin-dbg
+Package: xfce4-vala-panel-appmenu-plugin-dbg
 Architecture: any
 Priority: extra
 Section: debug
-Depends: xfce4-vala-appmenu-plugin (= ${binary:Version}),
+Depends: xfce4-vala-panel-appmenu-plugin (= ${binary:Version}),
          ${misc:Depends},
 Description: Debug symbols for xfce-panel Application Menu plugin
  This is an Application Menu (Global Menu) plugin. It is built using
@@ -49,7 +49,7 @@ Description: Debug symbols for xfce-panel Application Menu plugin
  .
  This package provides debug symbols for the XFCE plugin.
 
-Package: mate-applet-vala-appmenu
+Package: mate-applet-vala-panel-appmenu
 Architecture: any
 Depends: bamfdaemon,
          vala-panel-appmenu-common (= ${source:Version}),
@@ -66,11 +66,11 @@ Description: Application Menu plugin for mate-panel
  .
  This package provides the plugin for MATE.
 
-Package: mate-applet-vala-appmenu-dbg
+Package: mate-applet-vala-panel-appmenu-dbg
 Architecture: any
 Priority: extra
 Section: debug
-Depends: mate-applet-vala-appmenu (= ${binary:Version}),
+Depends: mate-applet-vala-panel-appmenu (= ${binary:Version}),
          ${misc:Depends},
 Description: Debug symbols for mate-panel Application Menu plugin
  This is an Application Menu (Global Menu) plugin. It is built using
