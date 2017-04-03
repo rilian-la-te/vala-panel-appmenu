@@ -49,7 +49,7 @@ export UBUNTU_MENUPROXY
 
 *Building unity-gtk-module from sources for distros other than Arch or Ubuntu*
 * `bzr branch lp:unity-gtk-module` 
-* `git clone https://github.com/rilian-la-te/unity-gtk-module-packages.git`
+* `git clone https://github.com/rilian-la-te/vala-project-packages.git`
 * Copy a patch from github package to unity-gtk-module branch
 * `patch -p0 -i "unity-gtk-module-gsettings.patch"`
 * `../configure --prefix=/usr --sysconfdir=/etc --with-gtk=2 --enable-gtk-doc --disable-static && make && sudo make install &&   ../configure --prefix=/usr --sysconfdir=/etc --with-gtk=3 --enable-gtk-doc --disable-static && make && sudo make install`
