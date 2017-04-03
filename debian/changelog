@@ -1,3 +1,10 @@
+unity-gtk-module (0.0.0+17.04.20170403-0ubuntu1) zesty; urgency=medium
+
+  [ William Hua ]
+  * Blacklist Anjuta
+
+ -- iain@orangesquash.org.uk <iain@orangesquash.org.uk>  Mon, 03 Apr 2017 16:52:34 +0000
+
 unity-gtk-module (0.0.0+16.10.20160913-0ubuntu1) yakkety; urgency=medium
 
   * Fix $GTK_MODULES race condition (LP: #1618886)
