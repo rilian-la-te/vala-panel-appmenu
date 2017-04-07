@@ -45,6 +45,7 @@ static const char * const BLACKLIST[] =
 #define UNITY_GTK_MODULE_SCHEMA "com.canonical.unity-gtk-module"
 #define BLACKLIST_KEY           "blacklist"
 #define WHITELIST_KEY           "whitelist"
+#define SHELL_SHOWS_MENUBAR_KEY "gtk2-shell-shows-menubar"
 
 #define _GTK_UNIQUE_BUS_NAME     "_GTK_UNIQUE_BUS_NAME"
 #define _UNITY_OBJECT_PATH       "_UNITY_OBJECT_PATH"
@@ -515,6 +516,7 @@ gtk_window_connect_menu_shell (GtkWindow    *window,
     }
 }
 
+#if GTK_MAJOR_VERSION == 3
 static gboolean
 gtk_widget_shell_shows_menubar (GtkWidget *widget)
 {
@@ -545,6 +547,28 @@ gtk_settings_handle_gtk_shell_shows_menubar (GObject    *object,
 {
   gtk_widget_queue_resize (user_data);
 }
+#else
+static void
+g_settings_handle_gtk_shell_shows_menubar (GSettings    *settings,
+                                           gchar *key,
+                                           gpointer    user_data)
+{
+  gtk_widget_queue_resize (user_data);
+}
+
+static gboolean
+gtk_widget_shell_shows_menubar (GtkWidget *widget)
+{
+  GSettings* settings = G_SETTINGS(g_object_get_data(G_OBJECT(widget),UNITY_GTK_MODULE_SCHEMA));
+  if (settings == NULL)
+    {
+      settings = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
+      g_object_set_data_full(G_OBJECT(widget),UNITY_GTK_MODULE_SCHEMA,(gpointer)settings,(GDestroyNotify)g_object_unref);
+      g_signal_connect (settings, "changed::"SHELL_SHOWS_MENUBAR_KEY, G_CALLBACK (g_settings_handle_gtk_shell_shows_menubar), widget);
+    }
+  return g_settings_get_boolean (settings,SHELL_SHOWS_MENUBAR_KEY);
+}
+#endif
 
 static void
 hijacked_window_realize (GtkWidget *widget)
@@ -582,7 +606,6 @@ hijacked_application_window_realize (GtkWidget *widget)
 
   gtk_window_get_window_data (GTK_WINDOW (widget));
 }
-#endif
 
 static void
 hijacked_menu_bar_realize (GtkWidget *widget)
@@ -624,6 +647,56 @@ hijacked_menu_bar_unrealize (GtkWidget *widget)
   if (pre_hijacked_menu_bar_unrealize != NULL)
     (* pre_hijacked_menu_bar_unrealize) (widget);
 }
+#else
+static void
+hijacked_menu_bar_realize (GtkWidget *widget)
+{
+  GtkWidget *window;
+  GSettings* settings;
+
+  g_return_if_fail (GTK_IS_MENU_BAR (widget));
+
+  settings = G_SETTINGS(g_object_get_data(G_OBJECT(widget),UNITY_GTK_MODULE_SCHEMA));
+  if (settings == NULL)
+    {
+      settings = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
+      g_object_set_data_full(G_OBJECT(widget),UNITY_GTK_MODULE_SCHEMA,(gpointer)settings,(GDestroyNotify)g_object_unref);
+      g_signal_connect (settings, "changed::"SHELL_SHOWS_MENUBAR_KEY, G_CALLBACK (g_settings_handle_gtk_shell_shows_menubar), widget);
+    }
+
+  if (pre_hijacked_menu_bar_realize != NULL)
+    (* pre_hijacked_menu_bar_realize) (widget);
+
+  window = gtk_widget_get_toplevel (widget);
+
+  if (GTK_IS_WINDOW (window))
+    gtk_window_connect_menu_shell (GTK_WINDOW (window), GTK_MENU_SHELL (widget));
+}
+
+static void
+hijacked_menu_bar_unrealize (GtkWidget *widget)
+{
+  GSettings *settings;
+  MenuShellData *menu_shell_data;
+
+  g_return_if_fail (GTK_IS_MENU_BAR (widget));
+
+  settings = G_SETTINGS(g_object_get_data (G_OBJECT(widget),UNITY_GTK_MODULE_SCHEMA));
+  menu_shell_data = gtk_menu_shell_get_menu_shell_data (GTK_MENU_SHELL (widget));
+
+  if (settings != NULL)
+    {
+      g_signal_handlers_disconnect_by_data (settings, widget);
+      g_object_set_data(G_OBJECT(widget),UNITY_GTK_MODULE_SCHEMA,NULL);
+    }
+
+  if (menu_shell_data->window != NULL)
+    gtk_window_disconnect_menu_shell (menu_shell_data->window, GTK_MENU_SHELL (widget));
+
+  if (pre_hijacked_menu_bar_unrealize != NULL)
+    (* pre_hijacked_menu_bar_unrealize) (widget);
+}
+#endif
 
 static void
 hijacked_menu_bar_size_allocate (GtkWidget     *widget,

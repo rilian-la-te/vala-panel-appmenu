@@ -11,5 +11,10 @@
       <description>List of applications where unity-gtk-module should be enabled.</description>
       <default>[]</default>
     </key>
+    <key name="gtk2-shell-shows-menubar" type="b">
+      <summary>Determines GTK2 menus behaviour</summary>
+      <description>This key is ubuntu gtk patch replacement.</description>
+      <default>true</default>
+    </key>
   </schema>
 </schemalist>
