@@ -1,7 +1,5 @@
 option(ENABLE_DEMOS "Enable demo programs for gtk module" OFF)
 
-pkg_check_modules(GTK3
-    gtk+-3.0>=3.10)
 pkg_check_modules(GTK2
     gtk+-2.0>=2.24)
 find_package(X11)
