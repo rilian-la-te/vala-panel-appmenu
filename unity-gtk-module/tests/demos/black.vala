@@ -8,16 +8,12 @@ class BlackBox : Gtk.Box {
 
 void main (string[] args) {
 	Gtk.init (ref args);
-	Gdk.Color red;
-
-	Gdk.Color.parse ("red", out red);
 
 	Bus.own_name (BusType.SESSION, "demo.black", 0, null, null, null);
 
 	var window = new Gtk.Window (Gtk.WindowType.TOPLEVEL);
 	window.set_default_size (400, 300);
-	window.modify_bg (Gtk.StateType.NORMAL, red);
-	var box = new Gtk.VBox (false, 0);
+    var box = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
 	window.add (box);
 
 	var menubar = new Gtk.MenuBar ();

@@ -42,7 +42,7 @@ static const char * const BLACKLIST[] =
   NULL
 };
 
-#define UNITY_GTK_MODULE_SCHEMA "com.canonical.unity-gtk-module"
+#define UNITY_GTK_MODULE_SCHEMA "org.valapanel.appmenu-gtk-module"
 #define BLACKLIST_KEY           "blacklist"
 #define WHITELIST_KEY           "whitelist"
 #define SHELL_SHOWS_MENUBAR_KEY "gtk2-shell-shows-menubar"

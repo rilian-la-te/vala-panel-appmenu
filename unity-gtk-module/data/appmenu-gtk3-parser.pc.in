@@ -1,0 +1,11 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=@CMAKE_INSTALL_FULL_LIBEXECDIR@
+libdir=@CMAKE_INSTALL_FULL_LIBDIR@
+includedir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
+
+Name: appmenu-gtk3-parser
+Description: GtkMenuShell to GMenuModel parser
+Version: @VERSION@
+Requires: gtk+-3.0
+Cflags: -I@DOLLAR@{includedir}/unity-gtk-parser
+Libs: -L@DOLLAR@{libdir} -lunity-gtk3-parser

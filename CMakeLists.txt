@@ -46,7 +46,7 @@ add_definitions(-w) # Disable gcc warnings
 
 find_package (PkgConfig)
 
-pkg_check_modules (CORE REQUIRED
+pkg_check_modules (CORE REQUIRED QUIET
   gtk+-3.0>=3.10
   glib-2.0>=2.44
   gio-2.0>=2.44
@@ -54,6 +54,13 @@ pkg_check_modules (CORE REQUIRED
   gthread-2.0>=2.44
   gmodule-2.0>=2.44
   libbamf3)
+
+pkg_check_modules(GLIB REQUIRED
+    glib-2.0>=2.44
+    gio-2.0>=2.44
+    gio-unix-2.0>=2.44
+    gthread-2.0>=2.44
+    gmodule-2.0>=2.44)
 
 set(CORE_PACKAGES
   gtk+-3.0
@@ -105,6 +112,11 @@ if (ENABLE_VALAPANEL)
     endif()
 endif()
 
+option(ENABLE_UNITY_GTK_MODULE "Build unity-gtk-module" OFF)
+
+if(ENABLE_UNITY_GTK_MODULE)
+    add_subdirectory(unity-gtk-module)
+endif()
 ADD_SUBDIRECTORY(lib)
 add_subdirectory(data)
 add_subdirectory(po)

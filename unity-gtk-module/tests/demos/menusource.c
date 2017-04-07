@@ -13,7 +13,11 @@
 #include <gdk/gdkx.h>
 #include <X11/Xatom.h>
 
-#include "../src/enums.h"
+typedef enum
+{
+    MENU_BAR_MODE_GLOBAL,
+    MENU_BAR_MODE_WHEN_MAXIMIZED
+} MenuBarMode;
 
 enum
 {
