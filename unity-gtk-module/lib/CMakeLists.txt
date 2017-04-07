@@ -12,7 +12,7 @@ set(LIB_SOURCES
 	unity-gtk-action-private.h
 	unity-gtk-action.c)
 
-add_library(appmenu-gtk3-parser MODULE
+add_library(appmenu-gtk3-parser SHARED
 	${LIB_SOURCES})
 
 target_include_directories(appmenu-gtk3-parser PRIVATE ${GLIB_INCLUDE_DIRS} ${GTK3_INCLUDE_DIRS} ${X11_INCLUDE_DIRS})
