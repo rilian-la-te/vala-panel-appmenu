@@ -10,9 +10,9 @@ if(DOC_FOUND)
 endif()
 
 set(LIB_PUBLIC_HEADERS
-	unity-gtk-parser.h
-	unity-gtk-menu-shell.h
-	unity-gtk-action-group.h)
+	lib/unity-gtk-parser.h
+	lib/unity-gtk-menu-shell.h
+	lib/unity-gtk-action-group.h)
 
 set(GTK_MODULE_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR}/appmenu-gtk-module)
 
