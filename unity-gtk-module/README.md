@@ -1,5 +1,5 @@
 
-This is renamed port of [Repository](https://launchpad.net/unity-gtk-module) of Unity GTK+ Module.
+This is renamed port of [Launchpad repository](https://launchpad.net/unity-gtk-module) of Unity GTK+ Module.
 
 Unity GTK+ Module is small GTK Module than strips menus from all GTK programs, converts to MenuModel and send to AppMenu.
 Ubuntu users now does not need to install this.
