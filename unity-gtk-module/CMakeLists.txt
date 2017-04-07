@@ -1,4 +1,4 @@
-option(ENABLE_DEMOS "Enable demo programs for gtk module" OFF)
+option(ENABLE_GTK_MODULE_DEMOS "Enable demo programs for gtk module" OFF)
 
 pkg_check_modules(GTK2
     gtk+-2.0>=2.24)
