@@ -26,7 +26,7 @@ This is Global Menu for using in Vala Panel, xfce4-panel and mate-panel (Budgie 
 * For XFCE Only: 
 `xfconf-query -c xsettings -p /Gtk/ShellShowsMenubar -n -t bool -s true`
 `xfconf-query -c xsettings -p /Gtk/ShellShowsAppmenu -n -t bool -s true`
-* Add to .profile and .bashrc on non-Arch:
+* Add to .profile and .bashrc on Ubuntu:
 ```sh
 if [ -n "$GTK_MODULES" ]; then
     GTK_MODULES="${GTK_MODULES}:unity-gtk-module"
@@ -47,12 +47,9 @@ export UBUNTU_MENUPROXY
 * Install [Appmenu](https://aur.archlinux.org/packages/appmenu-qt/) to get appmenu for Qt4 Applications to work. Qt 5.7 must work out of the box.
 * Install these [libdbusmenu-glib](https://aur.archlinux.org/packages/libdbusmenu-glib/) [libdbusmenu-gtk3](https://aur.archlinux.org/packages/libdbusmenu-gtk3/) [libdbusmenu-gtk2](https://aur.archlinux.org/packages/libdbusmenu-gtk2/) to get Chromium/Google Chrome to work
 
-*Building unity-gtk-module from sources for distros other than Arch or Ubuntu*
-* `bzr branch lp:unity-gtk-module` 
-* `git clone https://github.com/rilian-la-te/vala-project-packages.git`
-* Copy a patch from github package to unity-gtk-module branch
-* `patch -p0 -i "unity-gtk-module-gsettings.patch"`
-* `../configure --prefix=/usr --sysconfdir=/etc --with-gtk=2 --enable-gtk-doc --disable-static && make && sudo make install &&   ../configure --prefix=/usr --sysconfdir=/etc --with-gtk=3 --enable-gtk-doc --disable-static && make && sudo make install`
+*For distros other than Arch or Ubuntu*
+* Build vala-panel-appmenu with `-DENABLE_UNITY_GTK_MODULE=ON`
+* Follow instructions into [README](unity-gtk-module/README.md)
 
 Author
 ===
