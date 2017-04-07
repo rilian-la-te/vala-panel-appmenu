@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="com.canonical.unity-gtk-module" path="/com/canonical/unity-gtk-module/">
+    <key name="blacklist" type="as">
+      <summary>Application blacklist</summary>
+      <description>List of applications where unity-gtk-module should be disabled.</description>
+      <default>[]</default>
+    </key>
+    <key name="whitelist" type="as">
+      <summary>Application whitelist</summary>
+      <description>List of applications where unity-gtk-module should be enabled.</description>
+      <default>[]</default>
+    </key>
+  </schema>
+</schemalist>

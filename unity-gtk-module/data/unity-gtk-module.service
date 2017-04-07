@@ -1,0 +1,17 @@
+[Unit]
+Description=Unity GTK Module Environment variables
+Before=unity7.service unity-panel-service.service gnome-session.service
+PartOf=graphical-session.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/sh -ec '\
+        GTK_MODULES="$${GTK_MODULES:+$GTK_MODULES:}unity-gtk-module";\
+        dbus-update-activation-environment --verbose --systemd GTK_MODULES'
+ExecStopPost=/bin/sh -ec '\
+        GTK_MODULES=$$(echo -n $${GTK_MODULES} | awk -v RS=: -v ORS=: "/^unity-gtk-module$/ {next} {print}" | sed -e "s/:*$//");\
+        dbus-update-activation-environment --verbose --systemd GTK_MODULES'
+
+[Install]
+WantedBy=ubuntu-session.target

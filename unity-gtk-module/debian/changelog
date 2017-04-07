@@ -1,0 +1,418 @@
+unity-gtk-module (0.0.0+17.04.20170403-0ubuntu1) zesty; urgency=medium
+
+  [ William Hua ]
+  * Blacklist Anjuta
+
+ -- iain@orangesquash.org.uk <iain@orangesquash.org.uk>  Mon, 03 Apr 2017 16:52:34 +0000
+
+unity-gtk-module (0.0.0+16.10.20160913-0ubuntu1) yakkety; urgency=medium
+
+  * Fix $GTK_MODULES race condition (LP: #1618886)
+
+ -- Martin Pitt <martin.pitt@ubuntu.com>  Tue, 13 Sep 2016 15:27:01 +0000
+
+unity-gtk-module (0.0.0+16.10.20160805-0ubuntu1) yakkety; urgency=medium
+
+  [ Iain Lane ]
+  * Add systemd user unit
+
+ -- iain@orangesquash.org.uk <iain@orangesquash.org.uk>  Fri, 05 Aug 2016 10:44:51 +0000
+
+unity-gtk-module (0.0.0+15.04.20150118-0ubuntu2) xenial; urgency=medium
+
+  * Blacklist freeciv-gtk3 (LP: #1556277)
+
+ -- Emmet Hikory <persia@ubuntu.com>  Sat, 12 Mar 2016 05:57:44 +0900
+
+unity-gtk-module (0.0.0+15.04.20150118-0ubuntu1) vivid; urgency=low
+
+  [ Dmitry Shachnev ]
+  * Support multiple desktop names in $XDG_CURRENT_DESKTOP. (LP:
+    #1383382)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Sun, 18 Jan 2015 09:59:10 +0000
+
+unity-gtk-module (0.0.0+14.10.20140716-0ubuntu2) vivid; urgency=medium
+
+  * No change rebuild to get debug symbols on all architectures.
+
+ -- Brian Murray <brian@ubuntu.com>  Mon, 17 Nov 2014 09:59:59 -0800
+
+unity-gtk-module (0.0.0+14.10.20140716-0ubuntu1) utopic; urgency=low
+
+  [ William Hua ]
+  * Make up a bad state name if we can't infer a good name from a radio
+    menu item's label or action. (LP: #1313184)
+  * Forward show and hide signals to GTK+ menus. (LP: #1208019)
+  * Disable unity-gtk-module on non-Unity desktops. (LP: #1307657)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 16 Jul 2014 16:45:42 +0000
+
+unity-gtk-module (0.0.0+14.10.20140618-0ubuntu1) utopic; urgency=low
+
+  [ Robert Ancell ]
+  * Handle not using the X11 backend
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 18 Jun 2014 10:11:01 +0000
+
+unity-gtk-module (0.0.0+14.04.20140403-0ubuntu1) trusty; urgency=low
+
+  [ William Hua ]
+  * Forward original accelerator text for Eclipse, Inkscape, Emacs. (LP:
+    #1208019)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 03 Apr 2014 17:12:49 +0000
+
+unity-gtk-module (0.0.0+14.04.20140328-0ubuntu1) trusty; urgency=low
+
+  [ CI bot ]
+  * Stop using signal handler ids. Use
+    g_signal_handlers_disconnect_by_data () instead.
+
+  [ William Hua ]
+  * Fix Eclipse and DBeaver menus. (LP: #1208019)
+  * Watch use-underline on label instead of menu item. (LP: #1294947)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 28 Mar 2014 10:54:34 +0000
+
+unity-gtk-module (0.0.0+14.04.20140319-0ubuntu1) trusty; urgency=low
+
+  [ William Hua ]
+  * Watch use-underline property on GtkMenuItems. (LP: #1260777)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 19 Mar 2014 09:04:02 +0000
+
+unity-gtk-module (0.0.0+14.04.20140311-0ubuntu1) trusty; urgency=low
+
+  [ CI bot ]
+  * Release trunk to the archive
+
+  [ William Hua ]
+  * Filter out mnemonics when the gtk-enable-mnemonics setting is
+    cleared. Workaround for LP: #1282782. (LP: #1282782)
+  * Dispatch gtk_menu_item_activate () in a GDK idle. (LP: #1258669)
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 11 Mar 2014 12:38:16 +0000
+
+unity-gtk-module (0.0.0+14.04.20140213.2-0ubuntu1) trusty; urgency=low
+
+  [ William Hua ]
+  * Fix regression on GtkRecentChooserMenus. (LP: #1243974). (LP:
+    #1243974)
+  * Use Multi-Arch: foreign in debian/control.
+  * Relax the preconditions for disconnecting action groups from shells.
+    (LP: #1198471) If we have this situation: Menu A (action group G)
+    Menu B (action group G) Menu C (action group G) <- about to be
+    destroyed Menu D (action group G) Menu E (action group G) and Menu C
+    is destroyed, we get: Menu A (action group G) Menu B (action group
+    G) Menu C (no action group) Menu D (no action group) Menu E (no
+    action group) So when Menu A is disconnected from G, this causes the
+    warnings from LP: #1198471. One thing we could have tried was just
+    removing the tree rooted at Menu C, but then that would break
+    removing the entire tree rooted at Menu A. Also, we'd have to end up
+    doing this by having the Menu C unref itself. It's really easiest to
+    treat it as a dead sub-tree that will be finalized when the entire
+    tree is finalized. Let's relax the preconditions on the
+    unity_gtk_action_group_disconnect_item and
+    unity_gtk_action_group_disconnect_shell functions, and allow the
+    case where the shell's action group is already set to NULL. (LP:
+    #1198471)
+  * Remove our g_ptr_array_insert (), it's added in GLib 2.40.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 313
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 13 Feb 2014 18:05:57 +0000
+
+unity-gtk-module (0.0.0+14.04.20131125-0ubuntu1) trusty; urgency=low
+
+  [ Charles Kerr ]
+  * Add acroread to the blacklist. (LP: #664647)
+
+  [ William Hua ]
+  * Freeciv uses multiple menu bars in its UI. When unity-gtk-module
+    tries to export its menus, it becomes really cramped in the global
+    menu to the point of being unusable. It's better to allow Freeciv to
+    keep its menus where they are in this case. (LP: #1242937)
+  * Add a GSettings schema that allows the user to set a blacklist and
+    whitelist for unity-gtk-module (LP: #1243413). (LP: #1243413)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 308
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 25 Nov 2013 03:55:07 +0000
+
+unity-gtk-module (0.0.0+13.10.20130716.1-0ubuntu1) saucy; urgency=low
+
+  [ Ted Gould ]
+  * Converts from using Xsession to using Upstart.
+
+  [ Łukasz 'sil2100' Zemczak ]
+  * Make sure to use dpkg-maintscript-helper and dh_builddeb to remove
+    the old obsolete Xsession conffile.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 304
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 16 Jul 2013 12:34:49 +0000
+
+unity-gtk-module (0.0.0+13.10.20130710-0ubuntu1) saucy; urgency=low
+
+  [ William Hua ]
+  * Handle GtkImageMenuItems with stock ids. (LP: #1195365)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 301
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 10 Jul 2013 06:43:49 +0000
+
+unity-gtk-module (0.0.0+13.10.20130709-0ubuntu1) saucy; urgency=low
+
+  [ Charles Kerr ]
+  * in lib/unity-gtk-menu-shell.c's unity_gtk_menu_shell_get_items(),
+    plug a GList leak. (LP: #1199123)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 299
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 09 Jul 2013 02:02:48 +0000
+
+unity-gtk-module (0.0.0+13.10.20130708-0ubuntu1) saucy; urgency=low
+
+  [ William Hua ]
+  * We no longer export verb icons in the menus. Only export potential
+    noun icons that would appear in a GtkImage of a non-
+    GtkImageMenuItem. (LP: #1196998)
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 297
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Mon, 08 Jul 2013 02:01:36 +0000
+
+unity-gtk-module (0.0.0+13.10.20130702-0ubuntu1) saucy; urgency=low
+
+  [ Iain Lane ]
+  * 80unity-gtk-module: Don't do anything if the files aren't installed.
+    Per Debian policy, we can remove the packages but not purge them. In
+    that case we should not add the modules to GTK_MODULES - if they are
+    there then gtk prints a warning.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 295
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Tue, 02 Jul 2013 02:01:53 +0000
+
+unity-gtk-module (0.0.0+13.10.20130628-0ubuntu1) saucy; urgency=low
+
+  [ William Hua ]
+  * Workaround for crash in unity-panel-service. The Edit Undo test
+    didn't work due to the bug LP #1063212 in unity-panel-service. This
+    should avoid it entirely. (LP: #1063212)
+  * Export menu item icons.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 293
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 28 Jun 2013 02:02:20 +0000
+
+unity-gtk-module (0.0.0daily13.06.19-0ubuntu1) saucy; urgency=low
+
+  [ William Hua ]
+  * Revise debian/copyright since the work was done with Canonical's
+    resources.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 290
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Wed, 19 Jun 2013 02:01:38 +0000
+
+unity-gtk-module (0.0.0daily13.06.07-0ubuntu1) saucy; urgency=low
+
+  [ Michael Terry ]
+  * Clean up all debuild warnings about substvars.
+
+  [ Didier Roche ]
+  * add missing python-autopilot and python-pyatspi dependencies on the
+    autopilot package
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 288
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Fri, 07 Jun 2013 02:02:23 +0000
+
+unity-gtk-module (0.0.0daily13.05.23.1-0ubuntu1) saucy; urgency=low
+
+  [ Sebastien Bacher ]
+  * Updated a bit the packaging to be similar to other indicators:
+    - use source format v1 and split mode for bzr-builddeb
+    - bump compat mode to 9
+    - update .install files for dh9 and multiarch locations
+    - clean some leftover templates files from dh-make
+    - small extra cosmetic changes
+
+  [ Łukasz 'sil2100' Zemczak ]
+  * debian/control:
+    - Added the unity-gtk-module-autopilot package
+    - Added conflicts, replaces and provides regarding appmenu-gtk packages
+  * Added debian/unity-gtk-module-autopilot.install
+  * Changed the build system a bit to enable installation of autopilot tests
+  * Automatic snapshot from revision 279 (bootstrap)
+
+  [ William Hua ]
+  * Don't assume the app menu is first in the panel.
+  * Don't assume any particular menu structure in autopilot tests.
+
+  [ Łukasz 'sil2100' Zemczak ]
+  * Add locale independency and use the globally installed unity-gtk-
+    module
+  * Fix a few things that changed with autopilot 1.3.
+    GtkIntrospectionTestMixin is no longer necessary, the X11 emulator
+    as well. Process related operations moved to self.process_manager.
+
+  [ Ubuntu daily release ]
+  * Automatic snapshot from revision 285
+
+ -- Ubuntu daily release <ps-jenkins@lists.canonical.com>  Thu, 23 May 2013 16:59:18 +0000
+
+unity-gtk-module (0.0.0-0ubuntu17) raring; urgency=low
+
+  * tests
+    - Add autopilot integration tests.
+
+ -- William Hua <william.hua@canonical.com>  Thu, 07 Mar 2013 16:01:41 -0500
+
+unity-gtk-module (0.0.0-0ubuntu16) raring; urgency=low
+
+  * src/main.c
+    - Don't do anything under GNOME shell.
+    - Blacklist problem apps.
+
+ -- William Hua <william.hua@canonical.com>  Mon, 18 Feb 2013 16:15:13 +0000
+
+unity-gtk-module (0.0.0-0ubuntu15) raring; urgency=low
+
+  * lib/unity-gtk-menu-shell.c
+    - Don't update invisible menu items.
+
+ -- William Hua <william.hua@canonical.com>  Tue, 12 Feb 2013 09:49:30 -0500
+
+unity-gtk-module (0.0.0-0ubuntu14) raring; urgency=low
+
+  * lib/unity-gtk-menu-item.c
+  * lib/unity-gtk-menu-section.c
+  * src/main.c
+    - Support manually added labels in menu items.
+
+ -- William Hua <william.hua@canonical.com>  Tue, 05 Feb 2013 09:08:39 -0500
+
+unity-gtk-module (0.0.0-0ubuntu13) raring; urgency=low
+
+  * debian/control
+    - Add GTK+ 2 support.
+    - Put common files into separate packages.
+  * debian/rules
+    - Add GTK-Doc support.
+  * src/main.c
+    - Add GTK+ 2 support.
+
+ -- William Hua <william.hua@canonical.com>  Fri, 18 Jan 2013 12:10:12 -0500
+
+unity-gtk-module (0.0.0-0ubuntu12) raring; urgency=low
+
+  * debian/control
+    - Fix dependencies.
+  * lib/Makefile.am
+    - Use conditional test for build.
+
+ -- William Hua <william.hua@canonical.com>  Tue, 15 Jan 2013 16:22:57 -0500
+
+unity-gtk-module (0.0.0-0ubuntu11) raring; urgency=low
+
+  * debian/unity-gtk3-module.install
+    - Fix architecture dependency.
+
+ -- William Hua <william.hua@canonical.com>  Tue, 15 Jan 2013 11:38:33 -0500
+
+unity-gtk-module (0.0.0-0ubuntu10) raring; urgency=low
+
+  * debian/control
+  * debian/rules
+    - Restructure packaging.
+
+ -- William Hua <william.hua@canonical.com>  Tue, 15 Jan 2013 00:59:30 -0500
+
+unity-gtk-module (0.0.0-0ubuntu9) raring; urgency=low
+
+  * docs
+    - Update docs.
+  * lib
+    - Remove ref cycles, thanks Lars Uebernickel.
+
+ -- William Hua <william.hua@canonical.com>  Thu, 10 Jan 2013 11:29:03 -0500
+
+unity-gtk-module (0.0.0-0ubuntu8) raring; urgency=low
+
+  * debian/control
+  * debian/unity-gtk-module1.dirs
+  * debian/unity-gtk-module1.install
+  * debian/unity-gtk-module-dev.dirs
+  * debian/unity-gtk-module-dev.install
+    - Fix packaging issues.
+
+ -- William Hua <william.hua@canonical.com>  Wed, 09 Jan 2013 09:27:01 -0500
+
+unity-gtk-module (0.0.0-0ubuntu7) raring; urgency=low
+
+  * debian/control
+  * debian/unity-gtk-module1.dirs
+  * debian/unity-gtk-module1.install
+  * debian/unity-gtk-module-dev.dirs
+  * debian/unity-gtk-module-dev.install
+    - Separate -dev package.
+
+ -- William Hua <william.hua@canonical.com>  Tue, 08 Jan 2013 10:18:24 -0500
+
+unity-gtk-module (0.0.0-0ubuntu6) raring; urgency=low
+
+  * docs
+    - Add GTK-Doc support.
+  * lib/libunity-gtk-parser.la
+    - Split parser into separate library.
+
+ -- William Hua <william.hua@canonical.com>  Tue, 08 Jan 2013 01:05:47 -0500
+
+unity-gtk-module (0.0.0-0ubuntu5) raring; urgency=low
+
+  * src/main.c
+  * src/unity-gtk-action-group.h
+  * src/unity-gtk-action-group.c
+    - Merge old menu models and action groups.
+
+ -- William Hua <william.hua@canonical.com>  Thu, 20 Dec 2012 11:33:03 -0500
+
+unity-gtk-module (0.0.0-0ubuntu4) raring; urgency=low
+
+  * src/main.c
+    - Fix applications already using GMenuModel.
+
+ -- William Hua <william.hua@canonical.com>  Tue, 18 Dec 2012 10:41:58 -0500
+
+unity-gtk-module (0.0.0-0ubuntu3) raring; urgency=low
+
+  * src/Makefile.am
+    - Link against GTK+ 3, thanks Lars Uebernickel.
+
+ -- William Hua <william.hua@canonical.com>  Mon, 17 Dec 2012 13:07:23 -0500
+
+unity-gtk-module (0.0.0-0ubuntu2) raring; urgency=low
+
+  * configure.ac
+    - Detect GTK_MODULE_DIR using pkg-config.
+
+ -- William Hua <william.hua@canonical.com>  Fri, 14 Dec 2012 17:15:24 -0500
+
+unity-gtk-module (0.0.0-0ubuntu1) raring; urgency=low
+
+  * Initial Release.
+
+ -- William Hua <william.hua@canonical.com>  Thu, 13 Dec 2012 14:38:28 -0500

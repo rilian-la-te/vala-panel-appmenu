@@ -1,0 +1,1 @@
+rm_conffile /etc/X11/Xsession.d/80unity-gtk-module 0.0.0+13.10.20130716.1

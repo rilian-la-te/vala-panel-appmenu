@@ -1,0 +1,30 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
+
+%:
+	dh $@ --with autoreconf
+
+override_dh_auto_configure:
+	dh_auto_configure -Bbuild/gtk2 -- --with-gtk=2 --enable-gtk-doc
+	dh_auto_configure -Bbuild/gtk3 -- --with-gtk=3 --enable-gtk-doc
+
+override_dh_auto_build:
+	dh_auto_build -Bbuild/gtk2
+	dh_auto_build -Bbuild/gtk3
+
+override_dh_auto_test:
+	dh_auto_test -Bbuild/gtk2
+	dh_auto_test -Bbuild/gtk3
+
+override_dh_auto_install:
+	dh_auto_install -Dbuild/gtk2
+	dh_auto_install -Dbuild/gtk3
+
+override_dh_install:
+	find debian/tmp -name \*.la -exec rm {} \;
+	dh_install --fail-missing
