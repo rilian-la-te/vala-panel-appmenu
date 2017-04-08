@@ -39,6 +39,7 @@ static const char * const BLACKLIST[] =
   "freeciv-gtk3",
   "glade",
   "gwyddion",
+  "mate-panel",
   NULL
 };
 
