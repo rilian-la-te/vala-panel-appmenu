@@ -34,7 +34,7 @@ public class GlobalMenuApplet: Applet
     {
         return false;
     }
-    public GlobalMenuApplet (string uid)
+    public GlobalMenuApplet (string uuid)
     {
         Object(uuid: uuid);
         var layout = new Appmenu.AppMenuBar();
