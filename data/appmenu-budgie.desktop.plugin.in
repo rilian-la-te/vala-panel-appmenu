@@ -1,0 +1,8 @@
+[Plugin]
+Module=appmenu-budgie.so
+Name=Global Menu
+Description=Show menus from windows
+Authors=Konstantin Pugin
+Copyright=Copyright © 2016 Konstantin Pugin
+Website=https://github.com/rilian-la-te/vala-panel-appmenu
+Icon=view-grid-symbolic

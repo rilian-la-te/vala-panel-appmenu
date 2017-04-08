@@ -115,6 +115,14 @@ if (ENABLE_VALAPANEL)
     endif()
 endif()
 
+option(ENABLE_BUDGIE "Enable budgie-desktop plugin" ON)
+if (ENABLE_BUDGIE)
+    pkg_check_modules(BUDGIE budgie-1.0 libpeas-1.0)
+    if (NOT BUDGIE_FOUND)
+        set(ENABLE_BUDGIE OFF)
+    endif()
+endif()
+
 option(ENABLE_UNITY_GTK_MODULE "Build unity-gtk-module" OFF)
 
 if(ENABLE_UNITY_GTK_MODULE)

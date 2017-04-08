@@ -70,6 +70,7 @@ set(PLUGIN_VALA_FILES
     valapanel-plugin-appmenu.vala
     xfce4-plugin-appmenu.vala
     mate-plugin-appmenu.vala
+    budgie-plugin-appmenu.vala
     )
 if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/vala-panel-appmenu.vapi
    OR ${CMAKE_CURRENT_BINARY_DIR}/appmenu-core_valac.stamp IS_NEWER_THAN ${CMAKE_CURRENT_BINARY_DIR}/vala-panel-appmenu.vapi)
@@ -136,7 +137,7 @@ if(ENABLE_VALAPANEL)
     )
 
     # Build library for plugins and application
-    set (VP_CFLAGS ${CORE_CFLAGS} ${WNCK_CFLAGS} ${XFCE_CFLAGS})
+    set (VP_CFLAGS ${CORE_CFLAGS} ${WNCK_CFLAGS} ${VALAPANEL_CFLAGS})
     add_definitions(${VP_CFLAGS})
     set (VALAPANEL_LIB_FILES ${VALA_C_CORE} ${VALA_C_VALAPANEL})
 
@@ -150,6 +151,43 @@ if(ENABLE_VALAPANEL)
     link_directories (${CORE_LIBRARY_DIRS} ${WNCK_LIBRARY_DIRS} ${VALAPANEL_LIBRARY_DIRS})
     # Install plugin stuffs
     install(TARGETS appmenu-valapanel DESTINATION ${CMAKE_INSTALL_LIBDIR}/vala-panel/applets)
+endif()
+##########
+# Budgie Panel Part
+##########
+if(ENABLE_BUDGIE)
+    vala_precompile(VALA_C_BUDGIE appmenu-budgie
+        budgie-plugin-appmenu.vala
+    PACKAGES
+        ${CORE_PACKAGES}
+        vala-panel-appmenu
+        ${WNCK_PACKAGES}
+        budgie-1.0
+        libpeas-1.0
+    OPTIONS
+        --vapidir=${CMAKE_SOURCE_DIR}/vapi
+        --vapidir=${CMAKE_CURRENT_BINARY_DIR}
+        --target-glib=2.44
+        --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
+        --thread
+        ${WNCK_DEFINE}
+    )
+
+    # Build library for plugins and application
+    set (VP_CFLAGS ${CORE_CFLAGS} ${WNCK_CFLAGS} ${BUDGIE_CFLAGS})
+    add_definitions(${VP_CFLAGS})
+    set (BUDGIE_LIB_FILES ${VALA_C_CORE} ${VALA_C_BUDGIE} ${VALA_C_DBUSMENU})
+
+    add_library (appmenu-budgie MODULE
+        ${BUDGIE_LIB_FILES}
+        ${RESOURCES}
+    )
+    add_dependencies(appmenu-budgie appmenu-core)
+    target_include_directories (appmenu-budgie PRIVATE ${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${BUDGIE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
+    target_link_libraries (appmenu-budgie ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${BUDGIE_LIBRARIES} m)
+    link_directories (${CORE_LIBRARY_DIRS} ${WNCK_LIBRARY_DIRS} ${BUDGIE_LIBRARY_DIRS})
+    # Install plugin stuffs
+    install(TARGETS appmenu-budgie DESTINATION ${CMAKE_INSTALL_LIBDIR}/budgie-desktop/plugins)
 endif()
 ##########
 # MATE Part
