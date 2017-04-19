@@ -1,5 +1,6 @@
 [Unit]
 Description=Appmenu GTK Module Environment variables
+After=dbus.service
 Before=gnome-session.service
 PartOf=graphical-session.target
 
@@ -8,10 +9,10 @@ Type=oneshot
 RemainAfterExit=yes
 ExecStart=/bin/sh -ec '\
         GTK_MODULES="$${GTK_MODULES:+$GTK_MODULES:}appmenu-gtk-module";\
-        dbus-update-activation-environment --verbose --systemd GTK_MODULES'
+        ${CMAKE_INSTALL_FULL_BINDIR}/dbus-update-activation-environment --verbose --systemd GTK_MODULES'
 ExecStopPost=/bin/sh -ec '\
-        GTK_MODULES=$$(echo -n $${GTK_MODULES} | awk -v RS=: -v ORS=: "/^appmenu-gtk-module$/ {next} {print}" | sed -e "s/:*$//");\
-        dbus-update-activation-environment --verbose --systemd GTK_MODULES'
+        GTK_MODULES=$$(echo -n $${GTK_MODULES} | ${CMAKE_INSTALL_FULL_BINDIR}/awk -v RS=: -v ORS=: "/^appmenu-gtk-module$/ {next} {print}" | ${CMAKE_INSTALL_FULL_BINDIR}/sed -e "s/:*$//");\
+        ${CMAKE_INSTALL_FULL_BINDIR}/dbus-update-activation-environment --verbose --systemd GTK_MODULES'
 
 [Install]
 WantedBy=gnome-session.target mate-session.target
