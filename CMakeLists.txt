@@ -13,6 +13,7 @@ list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(GitVersion)
 determine_fallback_version(${CMAKE_SOURCE_DIR}/cmake)
 include(FallbackVersion)
+include(Format)
 
 # Add 'make dist' command for creating release tarball
 set (CPACK_PACKAGE_VERSION ${VERSION})
