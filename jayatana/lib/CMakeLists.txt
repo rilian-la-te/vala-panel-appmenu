@@ -1,7 +1,8 @@
+configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 add_library(jayatanaag SHARED
     com_jarego_jayatana_Agent.h
     com_jarego_jayatana_Agent.c)
-target_include_directories(jayatanaag PRIVATE ${JNI_INCLUDE_DIRS})
+target_include_directories(jayatanaag PRIVATE ${JNI_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(jayatanaag PRIVATE ${JNI_LIBRARIES})
 pkg_check_modules(LINK REQUIRED QUIET
     glib-2.0

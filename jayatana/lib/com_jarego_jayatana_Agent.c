@@ -33,6 +33,7 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include "config.h"
 #include "com_jarego_jayatana_Agent.h"
 
 /**
@@ -116,7 +117,7 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 jvmtiError com_jarego_jayatana_Initialize(JavaVM *vm, int fromAgent) {
 	// en caso de no exista una referencia a jayatana
 	if (getenv("JAYATANA_CLASSPATH") == NULL &&
-			access("/usr/share/java/jayatana.jar", R_OK) != 0)
+            access(JAVADIR"/jayatana.jar", R_OK) != 0)
 		return JVMTI_ERROR_NONE;
 
 	// la librería si existe iniciar procedo de validación de integración
@@ -165,7 +166,7 @@ jvmtiError com_jarego_jayatana_Initialize(JavaVM *vm, int fromAgent) {
 					fprintf(stderr, "JAYATANA_CLASSPATH=%s\n", getenv("JAYATANA_CLASSPATH"));
 				} else {
 					(*jvmti_env)->AddToSystemClassLoaderSearch(
-							jvmti_env, "/usr/share/java/jayatana.jar");
+                            jvmti_env, JAVADIR"/jayatana.jar");
 				}
 			}
 
