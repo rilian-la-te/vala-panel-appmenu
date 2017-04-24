@@ -7,7 +7,7 @@ target_link_libraries(jayatanaag PRIVATE ${JNI_LIBRARIES})
 pkg_check_modules(LINK REQUIRED QUIET
     glib-2.0
     gio-2.0)
-pkg_check_modules(TEMP REQUIRED
+pkg_check_modules(TEMP REQUIRED QUIET
     dbusmenu-glib-0.4)
 include(UseJava)
 add_library(jayatana SHARED
