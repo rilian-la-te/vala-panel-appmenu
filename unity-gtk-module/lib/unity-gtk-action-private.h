@@ -25,14 +25,17 @@
 G_BEGIN_DECLS
 
 typedef struct _UnityGtkAction UnityGtkAction;
-typedef GObjectClass           UnityGtkActionClass;
+typedef GObjectClass UnityGtkActionClass;
 
-#define UNITY_GTK_TYPE_ACTION            (unity_gtk_action_get_type ())
-#define UNITY_GTK_ACTION(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), UNITY_GTK_TYPE_ACTION, UnityGtkAction))
-#define UNITY_GTK_IS_ACTION(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), UNITY_GTK_TYPE_ACTION))
-#define UNITY_GTK_ACTION_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), UNITY_GTK_TYPE_ACTION, UnityGtkActionClass))
-#define UNITY_GTK_IS_ACTION_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), UNITY_GTK_TYPE_ACTION))
-#define UNITY_GTK_ACTION_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_ACTION, UnityGtkActionClass))
+#define UNITY_GTK_TYPE_ACTION (unity_gtk_action_get_type())
+#define UNITY_GTK_ACTION(obj)                                                                      \
+	(G_TYPE_CHECK_INSTANCE_CAST((obj), UNITY_GTK_TYPE_ACTION, UnityGtkAction))
+#define UNITY_GTK_IS_ACTION(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), UNITY_GTK_TYPE_ACTION))
+#define UNITY_GTK_ACTION_CLASS(klass)                                                              \
+	(G_TYPE_CHECK_CLASS_CAST((klass), UNITY_GTK_TYPE_ACTION, UnityGtkActionClass))
+#define UNITY_GTK_IS_ACTION_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), UNITY_GTK_TYPE_ACTION))
+#define UNITY_GTK_ACTION_GET_CLASS(obj)                                                            \
+	(G_TYPE_INSTANCE_GET_CLASS((obj), UNITY_GTK_TYPE_ACTION, UnityGtkActionClass))
 
 G_END_DECLS
 
@@ -42,33 +45,28 @@ G_BEGIN_DECLS
 
 struct _UnityGtkAction
 {
-  GObject parent_instance;
+	GObject parent_instance;
 
-  /*< private >*/
-  gchar            *name;
-  gchar            *subname;
-  UnityGtkMenuItem *item;
-  GHashTable       *items_by_name;
+	/*< private >*/
+	gchar *name;
+	gchar *subname;
+	UnityGtkMenuItem *item;
+	GHashTable *items_by_name;
 };
 
-GType            unity_gtk_action_get_type    (void)                      G_GNUC_INTERNAL;
+GType unity_gtk_action_get_type(void) G_GNUC_INTERNAL;
 
-UnityGtkAction * unity_gtk_action_new         (const gchar      *name,
-                                               UnityGtkMenuItem *item)    G_GNUC_INTERNAL;
+UnityGtkAction *unity_gtk_action_new(const gchar *name, UnityGtkMenuItem *item) G_GNUC_INTERNAL;
 
-UnityGtkAction * unity_gtk_action_new_radio   (const gchar      *name)    G_GNUC_INTERNAL;
+UnityGtkAction *unity_gtk_action_new_radio(const gchar *name) G_GNUC_INTERNAL;
 
-void             unity_gtk_action_set_name    (UnityGtkAction   *action,
-                                               const gchar      *name)    G_GNUC_INTERNAL;
+void unity_gtk_action_set_name(UnityGtkAction *action, const gchar *name) G_GNUC_INTERNAL;
 
-void             unity_gtk_action_set_subname (UnityGtkAction   *action,
-                                               const gchar      *subname) G_GNUC_INTERNAL;
+void unity_gtk_action_set_subname(UnityGtkAction *action, const gchar *subname) G_GNUC_INTERNAL;
 
-void             unity_gtk_action_set_item    (UnityGtkAction   *action,
-                                               UnityGtkMenuItem *item)    G_GNUC_INTERNAL;
+void unity_gtk_action_set_item(UnityGtkAction *action, UnityGtkMenuItem *item) G_GNUC_INTERNAL;
 
-void             unity_gtk_action_print       (UnityGtkAction   *action,
-                                               guint             indent)  G_GNUC_INTERNAL;
+void unity_gtk_action_print(UnityGtkAction *action, guint indent) G_GNUC_INTERNAL;
 
 G_END_DECLS
 

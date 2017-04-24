@@ -19,149 +19,144 @@
 
 #include "unity-gtk-action-private.h"
 
-G_DEFINE_TYPE (UnityGtkAction,
-               unity_gtk_action,
-               G_TYPE_OBJECT);
+G_DEFINE_TYPE(UnityGtkAction, unity_gtk_action, G_TYPE_OBJECT);
 
-static void
-unity_gtk_action_dispose (GObject *object)
+static void unity_gtk_action_dispose(GObject *object)
 {
-  UnityGtkAction *action;
-  GHashTable *items_by_name;
+	UnityGtkAction *action;
+	GHashTable *items_by_name;
 
-  g_return_if_fail (UNITY_GTK_IS_ACTION (object));
+	g_return_if_fail(UNITY_GTK_IS_ACTION(object));
 
-  action = UNITY_GTK_ACTION (object);
-  items_by_name = action->items_by_name;
+	action        = UNITY_GTK_ACTION(object);
+	items_by_name = action->items_by_name;
 
-  if (items_by_name != NULL)
-    {
-      action->items_by_name = NULL;
-      g_hash_table_unref (items_by_name);
-    }
+	if (items_by_name != NULL)
+	{
+		action->items_by_name = NULL;
+		g_hash_table_unref(items_by_name);
+	}
 
-  unity_gtk_action_set_item (action, NULL);
-  unity_gtk_action_set_subname (action, NULL);
-  unity_gtk_action_set_name (action, NULL);
+	unity_gtk_action_set_item(action, NULL);
+	unity_gtk_action_set_subname(action, NULL);
+	unity_gtk_action_set_name(action, NULL);
 
-  G_OBJECT_CLASS (unity_gtk_action_parent_class)->dispose (object);
+	G_OBJECT_CLASS(unity_gtk_action_parent_class)->dispose(object);
 }
 
-static void
-unity_gtk_action_class_init (UnityGtkActionClass *klass)
+static void unity_gtk_action_class_init(UnityGtkActionClass *klass)
 {
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+	GObjectClass *object_class = G_OBJECT_CLASS(klass);
 
-  object_class->dispose = unity_gtk_action_dispose;
+	object_class->dispose = unity_gtk_action_dispose;
 }
 
-static void
-unity_gtk_action_init (UnityGtkAction *self)
+static void unity_gtk_action_init(UnityGtkAction *self)
 {
 }
 
-UnityGtkAction *
-unity_gtk_action_new (const gchar      *name,
-                      UnityGtkMenuItem *item)
+UnityGtkAction *unity_gtk_action_new(const gchar *name, UnityGtkMenuItem *item)
 {
-  UnityGtkAction *action = g_object_new (UNITY_GTK_TYPE_ACTION, NULL);
+	UnityGtkAction *action = g_object_new(UNITY_GTK_TYPE_ACTION, NULL);
 
-  unity_gtk_action_set_name (action, name);
-  unity_gtk_action_set_item (action, item);
+	unity_gtk_action_set_name(action, name);
+	unity_gtk_action_set_item(action, item);
 
-  return action;
+	return action;
 }
 
-UnityGtkAction *
-unity_gtk_action_new_radio (const gchar *name)
+UnityGtkAction *unity_gtk_action_new_radio(const gchar *name)
 {
-  UnityGtkAction *action = g_object_new (UNITY_GTK_TYPE_ACTION, NULL);
+	UnityGtkAction *action = g_object_new(UNITY_GTK_TYPE_ACTION, NULL);
 
-  unity_gtk_action_set_name (action, name);
-  action->items_by_name = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
+	unity_gtk_action_set_name(action, name);
+	action->items_by_name =
+	    g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_object_unref);
 
-  return action;
+	return action;
 }
 
-void
-unity_gtk_action_set_name (UnityGtkAction *action,
-                           const gchar    *name)
+void unity_gtk_action_set_name(UnityGtkAction *action, const gchar *name)
 {
-  g_return_if_fail (UNITY_GTK_IS_ACTION (action));
+	g_return_if_fail(UNITY_GTK_IS_ACTION(action));
 
-  g_free (action->name);
-  action->name = g_strdup (name);
+	g_free(action->name);
+	action->name = g_strdup(name);
 }
 
-void
-unity_gtk_action_set_subname (UnityGtkAction *action,
-                              const gchar    *subname)
+void unity_gtk_action_set_subname(UnityGtkAction *action, const gchar *subname)
 {
-  g_return_if_fail (UNITY_GTK_IS_ACTION (action));
+	g_return_if_fail(UNITY_GTK_IS_ACTION(action));
 
-  g_free (action->subname);
-  action->subname = g_strdup (subname);
+	g_free(action->subname);
+	action->subname = g_strdup(subname);
 }
 
-void
-unity_gtk_action_set_item (UnityGtkAction   *action,
-                           UnityGtkMenuItem *item)
+void unity_gtk_action_set_item(UnityGtkAction *action, UnityGtkMenuItem *item)
 {
-  UnityGtkMenuItem *old_item;
+	UnityGtkMenuItem *old_item;
 
-  g_return_if_fail (UNITY_GTK_IS_ACTION (action));
+	g_return_if_fail(UNITY_GTK_IS_ACTION(action));
 
-  old_item = action->item;
+	old_item = action->item;
 
-  if (item != old_item)
-    {
-      if (old_item != NULL)
-        {
-          action->item = NULL;
-          g_object_unref (old_item);
-        }
+	if (item != old_item)
+	{
+		if (old_item != NULL)
+		{
+			action->item = NULL;
+			g_object_unref(old_item);
+		}
 
-      if (item != NULL)
-        action->item = g_object_ref (item);
-    }
+		if (item != NULL)
+			action->item = g_object_ref(item);
+	}
 }
 
-void
-unity_gtk_action_print (UnityGtkAction *action,
-                        guint           indent)
+void unity_gtk_action_print(UnityGtkAction *action, guint indent)
 {
-  gchar *space;
+	gchar *space;
 
-  g_return_if_fail (action == NULL || UNITY_GTK_IS_ACTION (action));
+	g_return_if_fail(action == NULL || UNITY_GTK_IS_ACTION(action));
 
-  space = g_strnfill (indent, ' ');
+	space = g_strnfill(indent, ' ');
 
-  if (action != NULL)
-    {
-      g_print ("%s(%s *) %p\n", space, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (action)), action);
+	if (action != NULL)
+	{
+		g_print("%s(%s *) %p\n",
+		        space,
+		        G_OBJECT_CLASS_NAME(G_OBJECT_GET_CLASS(action)),
+		        action);
 
-      if (action->name != NULL)
-        g_print ("%s  \"%s\"\n", space, action->name);
+		if (action->name != NULL)
+			g_print("%s  \"%s\"\n", space, action->name);
 
-      if (action->subname != NULL)
-        g_print ("%s  \"%s\"\n", space, action->subname);
+		if (action->subname != NULL)
+			g_print("%s  \"%s\"\n", space, action->subname);
 
-      if (action->item != NULL)
-        g_print ("%s  (%s *) %p\n", space, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (action->item)), action->item);
+		if (action->item != NULL)
+			g_print("%s  (%s *) %p\n",
+			        space,
+			        G_OBJECT_CLASS_NAME(G_OBJECT_GET_CLASS(action->item)),
+			        action->item);
 
-      if (action->items_by_name != NULL)
-        {
-          GHashTableIter iter;
-          gpointer key;
-          gpointer value;
+		if (action->items_by_name != NULL)
+		{
+			GHashTableIter iter;
+			gpointer key;
+			gpointer value;
 
-          g_hash_table_iter_init (&iter, action->items_by_name);
-          while (g_hash_table_iter_next (&iter, &key, &value))
-            g_print ("%s  \"%s\" -> (%s *) %p\n", space, (const gchar *) key, G_OBJECT_CLASS_NAME (G_OBJECT_GET_CLASS (value)), value);
-        }
-    }
-  else
-    g_print ("%sNULL\n", space);
+			g_hash_table_iter_init(&iter, action->items_by_name);
+			while (g_hash_table_iter_next(&iter, &key, &value))
+				g_print("%s  \"%s\" -> (%s *) %p\n",
+				        space,
+				        (const gchar *)key,
+				        G_OBJECT_CLASS_NAME(G_OBJECT_GET_CLASS(value)),
+				        value);
+		}
+	}
+	else
+		g_print("%sNULL\n", space);
 
-  g_free (space);
+	g_free(space);
 }
