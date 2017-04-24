@@ -6,7 +6,8 @@ target_include_directories(jayatanaag PRIVATE ${JNI_INCLUDE_DIRS} ${CMAKE_CURREN
 target_link_libraries(jayatanaag PRIVATE ${JNI_LIBRARIES})
 pkg_check_modules(LINK REQUIRED QUIET
     glib-2.0
-    gio-2.0)
+    gio-2.0
+    xkbcommon)
 pkg_check_modules(TEMP REQUIRED QUIET
     dbusmenu-glib-0.4)
 include(UseJava)

@@ -19,8 +19,9 @@ add_jar(jayatana-java
 create_javah(TARGET java-headers
     CLASSES
         com.jarego.jayatana.basic.GMainLoop
-        com.jarego.jayatana.basic.GlobalMenu
-    CLASSPATH ${CMAKE_CURRENT_BINARY_DIR}/jayatana.jar
+        com.jarego.jayatana.basic.GlobalMenu      
+    CLASSPATH
+        jayatana-java
     )
 install_jar(jayatana-java DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/java)
 add_jar(agent-java
