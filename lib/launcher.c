@@ -96,6 +96,6 @@ void activate_menu_launch_command(GSimpleAction *action, GVariant *param, gpoint
 	                                       &err));
 	if (err)
 		g_warning("%s\n", err->message);
-	GtkWidget *window   = GTK_WIDGET(user_data);
+	GtkWidget *window = GTK_WIDGET(user_data);
 	vala_panel_launch(info, NULL, GTK_WIDGET(window));
 }
