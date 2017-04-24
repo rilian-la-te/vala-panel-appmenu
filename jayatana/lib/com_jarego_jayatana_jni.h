@@ -38,5 +38,4 @@ JavaVM *jayatana_jvm;
  */
 jint JNI_OnLoad(JavaVM *, void *);
 
-
 #endif /* COM_JAREGO_JAYATANA_JNI_H_ */

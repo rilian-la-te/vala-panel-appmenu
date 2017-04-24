@@ -31,7 +31,8 @@
 /**
  * Obtener el putero JavaVM para permitr integración con Ubuntu/Linux
  */
-jint JNI_OnLoad(JavaVM *jvm, void *reserved) {
+jint JNI_OnLoad(JavaVM *jvm, void *reserved)
+{
 	jayatana_jvm = jvm;
 	return JNI_VERSION_1_6;
 }

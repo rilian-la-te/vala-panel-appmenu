@@ -32,18 +32,20 @@
 /**
  * Estructura de entrada de lista
  */
-typedef struct {
-        long id;
-        void *data;
+typedef struct
+{
+	long id;
+	void *data;
 } ListIndexEntry;
 
 /**
  * Estructura de lista
  */
-typedef struct {
-        ListIndexEntry **entries;
-        unsigned long allocated;
-        unsigned long size;
+typedef struct
+{
+	ListIndexEntry **entries;
+	unsigned long allocated;
+	unsigned long size;
 } ListIndex;
 
 /**

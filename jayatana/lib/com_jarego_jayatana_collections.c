@@ -33,33 +33,38 @@
 /**
  * Redimencionar lista
  */
-void collection_list_realloc(ListIndex *list) {
-	if (list->size == list->allocated) {
+void collection_list_realloc(ListIndex *list)
+{
+	if (list->size == list->allocated)
+	{
 		list->allocated *= 2;
-		list->entries = (ListIndexEntry **) realloc(list->entries,
-				sizeof(ListIndexEntry *) * list->allocated);
+		list->entries =
+		    (ListIndexEntry **)realloc(list->entries,
+		                               sizeof(ListIndexEntry *) * list->allocated);
 	}
 }
 
 /**
  * Crear nueva lista
  */
-ListIndex *collection_list_index_new() {
-	ListIndex *list = (ListIndex *) malloc(sizeof(ListIndex));
-	list->entries = (ListIndexEntry **) malloc(sizeof(ListIndexEntry *));
+ListIndex *collection_list_index_new()
+{
+	ListIndex *list = (ListIndex *)malloc(sizeof(ListIndex));
+	list->entries   = (ListIndexEntry **)malloc(sizeof(ListIndexEntry *));
 	list->allocated = 1;
-	list->size = 0;
+	list->size      = 0;
 	return list;
 }
 
 /**
  * Agregar nuevo elemento a la lista
  */
-void collection_list_index_add(ListIndex *list, long id, void *data) {
+void collection_list_index_add(ListIndex *list, long id, void *data)
+{
 	collection_list_realloc(list);
-	ListIndexEntry *entry = (ListIndexEntry *) malloc(sizeof(ListIndexEntry));
-	entry->id = id;
-	entry->data = data;
+	ListIndexEntry *entry     = (ListIndexEntry *)malloc(sizeof(ListIndexEntry));
+	entry->id                 = id;
+	entry->data               = data;
 	list->entries[list->size] = entry;
 	list->size++;
 }
@@ -67,9 +72,11 @@ void collection_list_index_add(ListIndex *list, long id, void *data) {
 /**
  * Obtener un elemento de la lista
  */
-void *collection_list_index_get(ListIndex *list, long id) {
+void *collection_list_index_get(ListIndex *list, long id)
+{
 	int i;
-	for (i = 0; i < list->size; i++) {
+	for (i = 0; i < list->size; i++)
+	{
 		if (list->entries[i]->id == id)
 			return list->entries[i]->data;
 	}
@@ -79,14 +86,18 @@ void *collection_list_index_get(ListIndex *list, long id) {
 /**
  * Eliminar un elemento de la lista
  */
-void *collection_list_index_remove(ListIndex *list, long id) {
+void *collection_list_index_remove(ListIndex *list, long id)
+{
 	int i;
-	for (i = 0; i < list->size; i++) {
-		if (list->entries[i]->id == id) {
+	for (i = 0; i < list->size; i++)
+	{
+		if (list->entries[i]->id == id)
+		{
 			void *data = list->entries[i]->data;
 			free(list->entries[i]);
 			int j;
-			for (j = i + 1; j < list->size; j++) {
+			for (j = i + 1; j < list->size; j++)
+			{
 				list->entries[j - 1] = list->entries[j];
 			}
 			list->size--;
@@ -99,7 +110,8 @@ void *collection_list_index_remove(ListIndex *list, long id) {
 /**
  * Destruir lista
  */
-void collection_list_index_destory(ListIndex *list) {
+void collection_list_index_destory(ListIndex *list)
+{
 	int i;
 	for (i = 0; i < list->size; i++)
 		free(list->entries[i]);
@@ -110,11 +122,12 @@ void collection_list_index_destory(ListIndex *list) {
 /**
  * Agregar elemento al final de la lista
  */
-void collection_list_index_add_last(ListIndex *list, void *data) {
+void collection_list_index_add_last(ListIndex *list, void *data)
+{
 	collection_list_realloc(list);
-	ListIndexEntry *entry = (ListIndexEntry *) malloc(sizeof(ListIndexEntry));
-	entry->id = list->size;
-	entry->data = data;
+	ListIndexEntry *entry     = (ListIndexEntry *)malloc(sizeof(ListIndexEntry));
+	entry->id                 = list->size;
+	entry->data               = data;
 	list->entries[list->size] = entry;
 	list->size++;
 }
@@ -122,14 +135,16 @@ void collection_list_index_add_last(ListIndex *list, void *data) {
 /**
  * Obtener el ultimo elemento de la lista
  */
-void *collection_list_index_get_last(ListIndex *list) {
+void *collection_list_index_get_last(ListIndex *list)
+{
 	return list->entries[list->size - 1]->data;
 }
 
 /**
  * Eliminar el ultimo elemento de la lista
  */
-void *collection_list_index_remove_last(ListIndex *list) {
+void *collection_list_index_remove_last(ListIndex *list)
+{
 	if (list->size == 0)
 		return NULL;
 	void *data = collection_list_index_get_last(list);

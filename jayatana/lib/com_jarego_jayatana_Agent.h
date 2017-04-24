@@ -34,8 +34,7 @@
 /**
  * Cargar agente para integración con Ubuntu/Linux
  */
-JNIEXPORT jint JNICALL
-Agent_OnLoad(JavaVM *vm, char *options, void *reserved);
+JNIEXPORT jint JNICALL Agent_OnLoad(JavaVM *vm, char *options, void *reserved);
 
 /**
  * Carga libreria nativa desde agente Java para integración
