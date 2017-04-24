@@ -20,8 +20,9 @@
 #ifndef __UNITY_GTK_MENU_SHELL_PRIVATE_H__
 #define __UNITY_GTK_MENU_SHELL_PRIVATE_H__
 
-#include "unity-gtk-menu-item-private.h"
 #include "unity-gtk-menu-shell.h"
+#include "unity-gtk-menu-item-private.h"
+
 #include <glib-object.h>
 
 G_BEGIN_DECLS
