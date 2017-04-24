@@ -1,3 +1,6 @@
+#ifndef CONFIG_H
+#define CONFIG_H
 
 #define LIBDIR "@CMAKE_INSTALL_FULL_LIBDIR@/jayatana"
 #define JAVADIR "@CMAKE_INSTALL_FULL_DATAROOTDIR@/java"
+#endif
