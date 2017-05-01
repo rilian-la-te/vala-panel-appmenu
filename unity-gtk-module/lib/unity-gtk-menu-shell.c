@@ -971,7 +971,7 @@ UnityGtkMenuItem *unity_gtk_menu_shell_get_item(UnityGtkMenuShell *shell, guint 
 
 	items = unity_gtk_menu_shell_get_items(shell);
 
-	g_return_val_if_fail(0 <= index && index < items->len, NULL);
+	g_return_val_if_fail(index < items->len, NULL);
 
 	return g_ptr_array_index(items, index);
 }
