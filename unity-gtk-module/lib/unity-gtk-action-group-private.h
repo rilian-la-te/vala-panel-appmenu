@@ -20,22 +20,21 @@
 #ifndef __UNITY_GTK_ACTION_GROUP_PRIVATE_H__
 #define __UNITY_GTK_ACTION_GROUP_PRIVATE_H__
 
-#include <glib.h>
 #include "unity-gtk-action-group.h"
 #include "unity-gtk-menu-item-private.h"
+#include <glib.h>
 
 G_BEGIN_DECLS
 
-void     unity_gtk_action_group_connect_item    (UnityGtkActionGroup *group,
-                                                 UnityGtkMenuItem    *item)   G_GNUC_INTERNAL;
+void unity_gtk_action_group_connect_item(UnityGtkActionGroup *group,
+                                         UnityGtkMenuItem *item) G_GNUC_INTERNAL;
 
-void     unity_gtk_action_group_disconnect_item (UnityGtkActionGroup *group,
-                                                 UnityGtkMenuItem    *item)   G_GNUC_INTERNAL;
+void unity_gtk_action_group_disconnect_item(UnityGtkActionGroup *group,
+                                            UnityGtkMenuItem *item) G_GNUC_INTERNAL;
 
-void     unity_gtk_action_group_print           (UnityGtkActionGroup *group,
-                                                 guint                indent) G_GNUC_INTERNAL;
+void unity_gtk_action_group_print(UnityGtkActionGroup *group, guint indent) G_GNUC_INTERNAL;
 
-gboolean unity_gtk_action_group_is_debug        (void)                        G_GNUC_INTERNAL;
+gboolean unity_gtk_action_group_is_debug(void) G_GNUC_INTERNAL;
 
 G_END_DECLS
 

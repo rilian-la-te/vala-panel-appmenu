@@ -25,14 +25,19 @@
 G_BEGIN_DECLS
 
 typedef struct _UnityGtkActionGroup UnityGtkActionGroup;
-typedef GObjectClass                UnityGtkActionGroupClass;
+typedef GObjectClass UnityGtkActionGroupClass;
 
-#define UNITY_GTK_TYPE_ACTION_GROUP            (unity_gtk_action_group_get_type ())
-#define UNITY_GTK_ACTION_GROUP(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), UNITY_GTK_TYPE_ACTION_GROUP, UnityGtkActionGroup))
-#define UNITY_GTK_IS_ACTION_GROUP(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), UNITY_GTK_TYPE_ACTION_GROUP))
-#define UNITY_GTK_ACTION_GROUP_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), UNITY_GTK_TYPE_ACTION_GROUP, UnityGtkActionGroupClass))
-#define UNITY_GTK_IS_ACTION_GROUP_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), UNITY_GTK_TYPE_ACTION_GROUP))
-#define UNITY_GTK_ACTION_GROUP_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), UNITY_GTK_TYPE_ACTION_GROUP, UnityGtkActionGroupClass))
+#define UNITY_GTK_TYPE_ACTION_GROUP (unity_gtk_action_group_get_type())
+#define UNITY_GTK_ACTION_GROUP(obj)                                                                \
+	(G_TYPE_CHECK_INSTANCE_CAST((obj), UNITY_GTK_TYPE_ACTION_GROUP, UnityGtkActionGroup))
+#define UNITY_GTK_IS_ACTION_GROUP(obj)                                                             \
+	(G_TYPE_CHECK_INSTANCE_TYPE((obj), UNITY_GTK_TYPE_ACTION_GROUP))
+#define UNITY_GTK_ACTION_GROUP_CLASS(klass)                                                        \
+	(G_TYPE_CHECK_CLASS_CAST((klass), UNITY_GTK_TYPE_ACTION_GROUP, UnityGtkActionGroupClass))
+#define UNITY_GTK_IS_ACTION_GROUP_CLASS(klass)                                                     \
+	(G_TYPE_CHECK_CLASS_TYPE((klass), UNITY_GTK_TYPE_ACTION_GROUP))
+#define UNITY_GTK_ACTION_GROUP_GET_CLASS(obj)                                                      \
+	(G_TYPE_INSTANCE_GET_CLASS((obj), UNITY_GTK_TYPE_ACTION_GROUP, UnityGtkActionGroupClass))
 
 G_END_DECLS
 
@@ -47,25 +52,23 @@ G_BEGIN_DECLS
  */
 struct _UnityGtkActionGroup
 {
-  GObject parent_instance;
+	GObject parent_instance;
 
-  /*< private >*/
-  GActionGroup *old_group;
-  GHashTable   *actions_by_name;
-  GHashTable   *names_by_radio_menu_item;
+	/*< private >*/
+	GActionGroup *old_group;
+	GHashTable *actions_by_name;
+	GHashTable *names_by_radio_menu_item;
 };
 
-GType                 unity_gtk_action_group_get_type         (void);
+GType unity_gtk_action_group_get_type(void);
 
-UnityGtkActionGroup * unity_gtk_action_group_new              (GActionGroup        *old_group);
+UnityGtkActionGroup *unity_gtk_action_group_new(GActionGroup *old_group);
 
-void                  unity_gtk_action_group_connect_shell    (UnityGtkActionGroup *group,
-                                                               UnityGtkMenuShell   *shell);
+void unity_gtk_action_group_connect_shell(UnityGtkActionGroup *group, UnityGtkMenuShell *shell);
 
-void                  unity_gtk_action_group_disconnect_shell (UnityGtkActionGroup *group,
-                                                               UnityGtkMenuShell   *shell);
+void unity_gtk_action_group_disconnect_shell(UnityGtkActionGroup *group, UnityGtkMenuShell *shell);
 
-void                  unity_gtk_action_group_set_debug        (gboolean             debug);
+void unity_gtk_action_group_set_debug(gboolean debug);
 
 G_END_DECLS
 

@@ -1,0 +1,16 @@
+option(ENABLE_JAYATANA "Build jayatana fork" OFF)
+if (ENABLE_JAYATANA)
+    find_package(Java)
+    find_package(JNI)
+    pkg_check_modules(XKBCOMMON
+        xkbcommon)
+	pkg_check_modules(DBUSMENU
+	    dbusmenu-glib-0.4)
+	if (NOT JAVA_FOUND OR NOT JNI_FOUND OR NOT DBUSMENU_FOUND OR NOT XKBCOMMON_FOUND)
+        set(ENABLE_JAYATANA OFF)
+    endif()
+endif()
+if (ENABLE_JAYATANA)
+    add_subdirectory(lib)
+    add_subdirectory(java)
+endif()
