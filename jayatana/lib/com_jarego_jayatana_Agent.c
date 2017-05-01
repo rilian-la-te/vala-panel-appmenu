@@ -36,6 +36,12 @@
 #include "com_jarego_jayatana_Agent.h"
 #include "config.h"
 
+#ifdef JAVA_VERSION
+#if JAVA_VERSION < 7
+extern void XInitThreads(void);
+#endif
+#endif
+
 /**
  * Inicializar observadores de componentes para prevenir la integración
  * con Ubuntu/Linux.
@@ -61,12 +67,14 @@ static void JNICALL com_jarego_jayatana_Agent_threadStart(jvmtiEnv *jvmti_env, J
 	error = (*jvmti_env)->GetThreadInfo(jvmti_env, thread, &info);
 	if (error == JVMTI_ERROR_NONE)
 	{
-		// inicializar XInitThreads para corregir defecto en OpenJDK 6 para los hilos de AWT
-		// o
-		// Java 2D
+        // initialize XInitThreads to fix default on OpenJDK 6 for AWT threads
+        // Or
+        // Java 2D
 		if (strcmp(info.name, "Java2D Disposer") == 0)
 		{
-			// inicializar hilos de X, solo para OpenJDK 6
+#ifdef JAVA_VERSION
+#if JAVA_VERSION < 7
+            // Initialize X threads, only for OpenJDK 6
 			char *version = 0;
 			if ((*jvmti_env)
 			        ->GetSystemProperty(jvmti_env,
@@ -75,17 +83,19 @@ static void JNICALL com_jarego_jayatana_Agent_threadStart(jvmtiEnv *jvmti_env, J
 			{
 				if (strcmp(version, "1.0") == 0)
 				{
-					// TODO: Utilizando openjdk6, al actualizar el objeto
-					// splashScreen (splashScreen.update) la aplicacion muere.
-					// Existe un conflicto al utilizar XInitThread y pthread.
-					// Error:
-					//   java: pthread_mutex_lock.c:317:
-					//   __pthread_mutex_lock_full: La declaración `(-(e)) != 3
-					//   || !robust' no se cumple.
+                    // TODO: Using openjdk6, when updating the object
+                    // splashScreen (splashScreen.update) the application dies.
+                    // There is a conflict when using XInitThread and pthread.
+                    // Error:
+                    // java: pthread_mutex_lock.c: 317:
+                    // __pthread_mutex_lock_full: The statement `(- (e)) = 3
+                    // || ! Robust 'is not met.
 					XInitThreads();
 				}
 				(*jvmti_env)->Deallocate(jvmti_env, (unsigned char *)version);
 			}
+#endif
+#endif
 		}
 		else if (strcmp(info.name, "AWT-XAWT") == 0)
 		{

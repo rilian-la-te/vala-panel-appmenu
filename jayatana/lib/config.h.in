@@ -3,4 +3,5 @@
 
 #define LIBDIR "@CMAKE_INSTALL_FULL_LIBDIR@/jayatana"
 #define JAVADIR "@CMAKE_INSTALL_FULL_DATAROOTDIR@/java"
+#define JAVA_VERSION @Java_VERSION_MINOR@
 #endif
