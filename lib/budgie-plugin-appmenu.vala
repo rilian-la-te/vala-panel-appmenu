@@ -38,6 +38,20 @@ public class GlobalMenuApplet: Applet
     {
         Object(uuid: uuid);
         var layout = new Appmenu.AppMenuBar();
+        provider = new Gtk.CssProvider();
+        File ruri = File.new_for_uri("resource://org/vala-panel/appmenu/appmenu.css");
+        try
+        {
+            provider.load_from_file(ruri);
+            this.notify.connect((pspec)=>{
+                foreach(unowned Gtk.Widget ch in layout.get_children())
+                {
+                    unowned Gtk.StyleContext context = ch.get_style_context();
+                    context.add_provider(provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+                    context.add_class("-vala-panel-appmenu-budgie");
+                }
+            });
+        } catch (GLib.Error e) {}
         this.add(layout);
         show_all();
     }
