@@ -12,9 +12,12 @@ set(LIB_SOURCES
 	unity-gtk-menu-item-private.h
 	unity-gtk-menu-item.c
 )
+set(GTK3_SOURCES
+    )
 
 add_library(appmenu-gtk3-parser SHARED
-	${LIB_SOURCES})
+        ${LIB_SOURCES}
+        ${GTK3_SOURCES})
 
 target_include_directories(appmenu-gtk3-parser PRIVATE ${GLIB_INCLUDE_DIRS} ${GTK3_INCLUDE_DIRS} ${X11_INCLUDE_DIRS})
 target_link_libraries(appmenu-gtk3-parser PRIVATE ${GLIB_LIBRARIES} ${GTK3_LIBRARIES} ${X11_LIBRARIES})
