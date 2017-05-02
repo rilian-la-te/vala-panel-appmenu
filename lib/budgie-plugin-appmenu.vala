@@ -38,7 +38,7 @@ public class GlobalMenuApplet: Applet
     {
         Object(uuid: uuid);
         var layout = new Appmenu.AppMenuBar();
-        provider = new Gtk.CssProvider();
+        var provider = new Gtk.CssProvider();
         File ruri = File.new_for_uri("resource://org/vala-panel/appmenu/appmenu.css");
         try
         {
