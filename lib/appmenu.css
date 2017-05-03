@@ -18,37 +18,37 @@
     color: rgba(207, 218, 231, 0.2);
     border-color: transparent;
     }
-.-vala-panel-appmenu-budgie  menu {
+menu {
     margin: 4px;
     padding: 5px;
     border-radius: 0;
     background-color: rgba(53,57,69,0.93);
     }
-.-vala-panel-appmenu-budgie  menu > menuitem:hover {
+menu > menuitem:hover {
     background-color: #5294e2;
     color: #ffffff; 
     }
-.-vala-panel-appmenu-budgie  menu arrow{
+menu arrow{
     border:none;
     min-width:16px;
     min-height:16px;
     }
-.-vala-panel-appmenu-budgie  menu arrow.top {
+menu arrow.top {
     -gtk-icon-source:-gtk-icontheme("pan-up-symbolic");
     border-bottom:1px solid rgba(76,79,90,0.937);
     }
-.-vala-panel-appmenu-budgie  menu arrow.bottom{
+menu arrow.bottom{
     -gtk-icon-source:-gtk-icontheme("pan-down-symbolic");
     border-top:1px solid rgba(76,79,90,0.937);
     }
-.-vala-panel-appmenu-budgie  menu > menuitem accelerator {
+menu > menuitem accelerator {
       color: alpha(currentColor,0.55); }
-.-vala-panel-appmenu-budgie  menu menuitem check, menuitem radio {
+menu menuitem check, menuitem radio {
       min-height: 16px;
       min-width: 16px; }
-.-vala-panel-appmenu-budgie  menu > menuitem check:dir(ltr), menuitem radio:dir(ltr) {
+menu > menuitem check:dir(ltr), menuitem radio:dir(ltr) {
         margin-right: 6px;
         margin-left: 2px; }
-.-vala-panel-appmenu-budgie  menu > menuitem check:dir(rtl), menuitem radio:dir(rtl) {
+menu > menuitem check:dir(rtl), menuitem radio:dir(rtl) {
         margin-left: 6px;
         margin-right: 2px; }
