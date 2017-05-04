@@ -30,6 +30,25 @@ public class AppmenuApplet : Plugin, Peas.ExtensionBase
 public class GlobalMenuApplet: Applet
 {
     public string uuid { public set ; public get; }
+    private void add_budgie_style(Gtk.Bin layout)
+    {
+        var provider = new Gtk.CssProvider();
+        File ruri = File.new_for_uri("resource://org/vala-panel/appmenu/appmenu.css");
+        try
+        {
+            provider.load_from_file(ruri);
+            layout.notify.connect((pspec)=>{
+                foreach(unowned Gtk.Widget ch in (layout.get_child() as Container).get_children())
+                {
+                    unowned Gtk.StyleContext context = ch.get_style_context();
+                    context.add_provider(provider,Gtk.STYLE_PROVIDER_PRIORITY_THEME);
+                    context.add_class("budgie-menubar");
+                    context.add_class("-vala-panel-appmenu-budgie");
+                }
+            });
+        } catch (GLib.Error e) {}
+    }
+
     public override bool supports_settings()
     {
         return false;
@@ -38,20 +57,10 @@ public class GlobalMenuApplet: Applet
     {
         Object(uuid: uuid);
         var layout = new Appmenu.AppMenuBar();
-        var provider = new Gtk.CssProvider();
-        File ruri = File.new_for_uri("resource://org/vala-panel/appmenu/appmenu.css");
-        try
-        {
-            provider.load_from_file(ruri);
-            layout.notify.connect((pspec)=>{
-                foreach(unowned Gtk.Widget ch in layout.get_children())
-                {
-                    unowned Gtk.StyleContext context = ch.get_style_context();
-                    context.add_provider(provider,Gtk.STYLE_PROVIDER_PRIORITY_FALLBACK);
-                    context.add_class("-vala-panel-appmenu-budgie");
-                }
-            });
-        } catch (GLib.Error e) {}
+        add_budgie_style(layout);
+        layout.add.connect((w)=>{
+            add_budgie_style(layout);
+        });
         this.add(layout);
         show_all();
     }
