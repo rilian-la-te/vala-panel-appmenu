@@ -25,19 +25,30 @@ public class AppmenuApplet : AppletPlugin, Peas.ExtensionBase
 {
     public Applet get_applet_widget(ValaPanel.Toplevel toplevel,
                                     GLib.Settings? settings,
+#if NEW
+                                    string number)
+#else
                                     uint number)
+#endif
     {
         return new GlobalMenuApplet(toplevel,settings,number);
     }
 }
 public class GlobalMenuApplet: Applet
 {
+#if NEW
+    public GlobalMenuApplet (Toplevel top, GLib.Settings? settings, string number)
+#else
     public GlobalMenuApplet (Toplevel top, GLib.Settings? settings, uint number)
+#endif
     {
         base(top,settings,number);
+#if NEW
+#else
     }
     public override void create()
     {
+#endif
         var layout = new Appmenu.AppMenuBar();
         this.add(layout);
         show_all();

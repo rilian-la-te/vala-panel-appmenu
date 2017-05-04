@@ -134,6 +134,7 @@ if(ENABLE_VALAPANEL)
         --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
         --thread
         ${WNCK_DEFINE}
+        ${NEW_DEFINE}
     )
 
     # Build library for plugins and application
