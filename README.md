@@ -51,10 +51,11 @@ export UBUNTU_MENUPROXY
 * Build vala-panel-appmenu with `-DENABLE_UNITY_GTK_MODULE=ON`
 * Follow instructions into [README](unity-gtk-module/README.md)
 
+*For JAyatana*
+* Install OpenJDK >= 7 or JDK >= 1.7
+* Build vala-panel-appmenu with `-DENABLE_JAYATANA=ON`
+* Find instructions in Internet and made a Pull Request:)))
+
 Author
 ===
  * Athor <ria.freelander@gmail.com>
-
-Special thanks:
-===
- * Ikey Doherty <ikey@evolve-os.com> for sidebar widget and icontasklist
