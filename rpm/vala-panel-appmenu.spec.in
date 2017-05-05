@@ -35,7 +35,7 @@ and share all Unity limitations and advancements.
 %setup -q 
 
 %build
-cmake . -DGSETTINGS_COMPILE=OFF -DCMAKE_INSTALL_PREFIX=%{_prefix} -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir} -DCMAKE_INSTALL_LIBDIR=%{_libdir} -DCMAKE_INSTALL_SYSCONFDIR=%{_sysconfdir} -DCMAKE_INSTALL_DATAROOTDIR=%{_datarootdir} -DCMAKE_INSTALL_DATADIR=%{_datadir}
+cmake . -DGSETTINGS_COMPILE=OFF -DCMAKE_INSTALL_PREFIX=%{_prefix} -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir} -DCMAKE_INSTALL_LIBDIR=%{_libdir} -DCMAKE_INSTALL_SYSCONFDIR=%{_sysconfdir} -DCMAKE_INSTALL_DATAROOTDIR=%{_datarootdir} -DCMAKE_INSTALL_DATADIR=%{_datadir} -DCMAKE_INSTALL_LIBEXECDIR=%{_libexecdir}
 make %{?_smp_mflags}
 
 %install
@@ -105,14 +105,31 @@ It built using Unity protocol and libraries,
 and share all Unity limitations and advancements.
 %files -n mate-vala-panel-appmenu-plugin
 %defattr(644,root,root,755)
-%dir %{_libdir}/mate-panel
+%dir %{_libexecdir}/mate-panel
 %dir %{_datadir}/dbus-1
 %dir %{_datadir}/dbus-1/services
 %dir %{_datadir}/mate-panel
 %dir %{_datadir}/mate-panel/applets
 %{_datadir}/dbus-1/services/org.mate.panel.applet.AppmenuAppletFactory.service
-%{_libdir}/mate-panel/appmenu-mate
+%{_libexecdir}/mate-panel/appmenu-mate
 %{_datadir}/mate-panel/applets/org.vala-panel.appmenu.mate-panel-applet
+
+%package -n budgie-vala-panel-appmenu-plugin
+Group: System/GUI/Budgie
+Summary: This package provides Application Menu plugin for budgie-panel
+Requires: bamf-daemon
+Provides: vala-panel-appmenu-plugin
+%description -n budgie-vala-panel-appmenu-plugin
+This is Application Menu (Global Menu) plugin.
+It built using Unity protocol and libraries,
+and share all Unity limitations and advancements.
+%files -n budgie-vala-panel-appmenu-plugin
+%defattr(644,root,root,755)
+%doc README.md
+%dir %{_libdir}/budgie-desktop
+%dir %{_libdir}/budgie-desktop/plugins
+%{_libdir}/budgie-desktop/plugins/libappmenu-budgie.so
+%{_libdir}/budgie-desktop/plugins/appmenu-budgie.plugin
 
 %changelog
 * Mon Apr 27 2015 Konstantin <ria.freelander@gmail.com> - @CPACK_PACKAGE_VERSION@

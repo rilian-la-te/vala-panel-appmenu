@@ -222,5 +222,5 @@ if (ENABLE_MATE)
     link_directories (${CORE_LIBRARY_DIRS} ${WNCK_LIBRARY_DIRS} ${MATE_LIBRARY_DIRS})
     add_dependencies(appmenu-mate appmenu-core)
     # Install plugin stuffs
-    install(TARGETS appmenu-mate DESTINATION ${CMAKE_INSTALL_LIBDIR}/mate-panel)
+    install(TARGETS appmenu-mate DESTINATION ${CMAKE_INSTALL_LIBEXECDIR}/mate-panel)
 endif()
