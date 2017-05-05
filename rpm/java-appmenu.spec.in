@@ -1,0 +1,50 @@
+Name:           java-appmenu
+Version: @CPACK_PACKAGE_VERSION@
+Release: @CPACK_PACKAGE_RELEASE@%{?dist}
+Summary:        Java agent for exporting Swing menus as DBusMenuClients.
+Group: User Interface/Desktops
+%if %{defined suse_version}
+License: LGPL-3.0+
+%else
+License: LGPLv3.0+
+%endif
+URL: https://github.com/rilian-la-te/%{name}
+Source: @CPACK_SOURCE_PACKAGE_FILE_NAME@.tar.gz
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRequires:  cmake >= 2.8.0
+BuildRequires:  vala >= 0.24.0
+Requires:  java >= 1.7.0
+Requires:  java-devel >= 1.7.0
+BuildRequires:  pkgconfig(glib-2.0) >= 2.44.0
+BuildRequires:  pkgconfig(gio-2.0) >= 2.44.0
+BuildRequires:  pkgconfig(xkbcommon)
+BuildRequires:  pkgconfig(dbusmenu-glib-0.4)
+
+%description
+Java applications implement menus as Swing elements GTK does not permit
+for in using the newer GMenuModel API.
+This module watches for Java menus and exports the
+appropriate com.canonical.Appmenu.Registrar implementation.
+
+%prep
+%setup -q -n @CMAKE_PROJECT_NAME@-%{version}
+
+%build
+cmake . -DGSETTINGS_COMPILE=OFF -DCMAKE_INSTALL_PREFIX=%{_prefix} -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir} -DCMAKE_INSTALL_LIBDIR=%{_libdir} -DCMAKE_INSTALL_SYSCONFDIR=%{_sysconfdir} -DCMAKE_INSTALL_DATAROOTDIR=%{_datarootdir} -DCMAKE_INSTALL_DATADIR=%{_datadir} -DENABLE_BUDGIE=OFF -DENABLE_XFCE=OFF -DENABLE_VALAPANEL=OFF -DENABLE_MATE=OFF -DENABLE_JAYATANA=ON
+make %{?_smp_mflags}
+
+%install
+make install DESTDIR=%{buildroot}
+# Remove unneeded files
+rm -rf %{buildroot}/usr/share/locale/
+
+%clean
+rm -rf %{buildroot}
+
+%files
+%license LICENSE*
+%{_libdir}/jayatana/libjayatana.so
+%{_libdir}/jayatana/libjayatanaag.so
+%{_datarootdir}/java/jayatana.jar
+%{_datarootdir}/java/jayatanaag.jar
+

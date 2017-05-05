@@ -10,7 +10,7 @@ License: LGPLv3.0+
 URL: https://github.com/rilian-la-te/%{name}
 Source: @CPACK_SOURCE_PACKAGE_FILE_NAME@.tar.gz
 Summary: This package provides Application Menu plugin for vala-panel
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+BuildRoot: %{_tmppath}/@CMAKE_PROJECT_NAME@-%{version}-%{release}-root
 BuildRequires: cmake >= 2.8.0
 BuildRequires: gettext
 BuildRequires: vala >= 0.24.0
@@ -35,7 +35,7 @@ and share all Unity limitations and advancements.
 %setup -q 
 
 %build
-cmake . -DGSETTINGS_COMPILE=OFF -DCMAKE_INSTALL_PREFIX=%{_prefix} -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir} -DCMAKE_INSTALL_LIBDIR=%{_libdir} -DCMAKE_INSTALL_SYSCONFDIR=%{_sysconfdir} -DCMAKE_INSTALL_DATAROOTDIR=%{_datarootdir} -DCMAKE_INSTALL_DATADIR=%{_datadir} -DENABLE_UNITY_GTK_MODULE=ON
+cmake . -DGSETTINGS_COMPILE=OFF -DCMAKE_INSTALL_PREFIX=%{_prefix} -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir} -DCMAKE_INSTALL_LIBDIR=%{_libdir} -DCMAKE_INSTALL_SYSCONFDIR=%{_sysconfdir} -DCMAKE_INSTALL_DATAROOTDIR=%{_datarootdir} -DCMAKE_INSTALL_DATADIR=%{_datadir}
 make %{?_smp_mflags}
 
 %install
@@ -113,178 +113,6 @@ and share all Unity limitations and advancements.
 %{_datadir}/dbus-1/services/org.mate.panel.applet.AppmenuAppletFactory.service
 %{_libdir}/mate-panel/appmenu-mate
 %{_datadir}/mate-panel/applets/org.vala-panel.appmenu.mate-panel-applet
-
-%package -n libappmenu-gtk-parser-devel
-Summary:	Common development-files for libappmenu-gtk{2,3}-parser
-
-BuildArch:	noarch
-
-BuildRequires:	gtk-doc
-
-Requires:	gtk-doc
-
-%description -n libappmenu-gtk-parser-devel
-This package contains common headers and documentation for
-libappmenu-gtk{2,3}-parser.
-
-
-%package -n libappmenu-gtk2-parser
-Summary:	Gtk2MenuShell to GMenuModel parser
-
-BuildRequires:	gtk2-devel
-
-%description -n libappmenu-gtk2-parser
-This library converts Gtk2MenuShells into GMenuModels.
-
-
-%package -n libappmenu-gtk2-parser-devel
-Summary:	Development-files for libappmenu-gtk2-parser
-
-Requires:	gtk2-devel%{?_isa}
-Requires:	libappmenu-gtk-parser-devel	== %{version}-%{release}
-Requires:	libappmenu-gtk2-parser%{?_isa}	== %{version}-%{release}
-
-%description -n libappmenu-gtk2-parser-devel
-This package contains development-files for libappmenu-gtk2-parser.
-
-
-%package -n libappmenu-gtk3-parser
-Summary:	Gtk3MenuShell to GMenuModel parser
-
-BuildRequires:	gtk3-devel
-
-%description -n libappmenu-gtk3-parser
-This library converts Gtk3MenuShells into GMenuModels.
-
-
-%package -n libappmenu-gtk3-parser-devel
-Summary:	Development-files for libappmenu-gtk3-parser
-
-Requires:	gtk3-devel%{?_isa}
-Requires:	libappmenu-gtk-parser-devel	== %{version}-%{release}
-Requires:	libappmenu-gtk3-parser%{?_isa}	== %{version}-%{release}
-
-%description -n libappmenu-gtk3-parser-devel
-This package contains development-files for libappmenu-gtk3-parser.
-
-
-%package -n appmenu-gtk-module-common
-Summary:	Common files for appmenu-gtk{2,3}-module
-
-BuildArch:	noarch
-
-BuildRequires:	systemd
-
-Requires:	/bin/sh
-Requires:	dbus
-Requires:	gawk
-Requires:	glib2
-Requires:	sed
-Requires:	systemd
-
-%description -n appmenu-gtk-module-common
-This package contains common data-files for appmenu-gtk{2,3}-module.
-
-
-%package -n appmenu-gtk2-module
-Summary:	Gtk2MenuShell D-Bus exporter
-
-Requires:	libappmenu-gtk2-parser%{?_isa}	== %{version}-%{release}
-Requires:	appmenu-gtk-module-common		== %{version}-%{release}
-
-Provides:	appmenu-gtk			== %{version}-%{release}
-Provides:	appmenu-gtk%{?_isa}		== %{version}-%{release}
-
-%description -n appmenu-gtk2-module
-This GTK 2 module exports Gtk2MenuShells over D-Bus.
-
-
-%package -n appmenu-gtk3-module
-Summary:	Gtk3MenuShell D-Bus exporter
-
-Requires:	libappmenu-gtk3-parser%{?_isa}	== %{version}-%{release}
-Requires:	appmenu-gtk-module-common		== %{version}-%{release}
-
-Provides:	appmenu-gtk3			== %{version}-%{release}
-Provides:	appmenu-gtk3%{?_isa}		== %{version}-%{release}
-
-%description -n appmenu-gtk3-module
-This GTK 3 module exports Gtk3MenuShells over D-Bus.
-
-
-
-
-# Setup systemd.
-%{__mkdir} -p %{buildroot}%{_userunitdir}/default.target.wants
-%{_bindir}/ln -s						\
-	%{_userunitdir}/%{name}.service				\
-	%{buildroot}%{_userunitdir}/default.target.wants/%{name}.service
-
-
-%post -n libappmenu-gtk2-parser -p /sbin/ldconfig
-%postun -n libappmenu-gtk2-parser -p /sbin/ldconfig
-
-
-%post -n libappmenu-gtk3-parser -p /sbin/ldconfig
-%postun -n libappmenu-gtk3-parser -p /sbin/ldconfig
-
-
-%postun -n appmenu-gtk-module-common
-if [ $1 -eq 0 ] ; then
-	%{_bindir}/glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
-fi
-
-%posttrans -n appmenu-gtk-module-common
-%{_bindir}/glib-compile-schemas %{_datadir}/glib-2.0/schemas &> /dev/null || :
-
-
-%postun -n appmenu-gtk2-module
-%{_bindir}/gtk-query-immodules-2.0-%{__isa_bits} --update-cache &> /dev/null || :
-
-%post -n appmenu-gtk2-module
-if [ $1 -eq 1 ] ; then
-	%{_bindir}/gtk-query-immodules-2.0-%{__isa_bits} --update-cache &> /dev/null || :
-fi
-
-
-%postun -n appmenu-gtk3-module
-%{_bindir}/gtk-query-immodules-3.0-%{__isa_bits} --update-cache &> /dev/null || :
-
-%post -n appmenu-gtk3-module
-if [ $1 -eq 1 ] ; then
-	%{_bindir}/gtk-query-immodules-3.0-%{__isa_bits} --update-cache &> /dev/null || :
-fi
-
-
-%files -n libappmenu-gtk-parser-devel
-%{_includedir}/appmenu-gtk-module
-
-%files -n libappmenu-gtk2-parser
-%license LICENSE*
-%{_libdir}/libappmenu-gtk2-parser.so.0*
-
-%files -n libappmenu-gtk2-parser-devel
-%{_libdir}/libappmenu-gtk2-parser.so
-%{_libdir}/pkgconfig/appmenu-gtk2-parser.pc
-
-%files -n libappmenu-gtk3-parser
-%license LICENSE
-%{_libdir}/libappmenu-gtk3-parser.so.0*
-
-%files -n libappmenu-gtk3-parser-devel
-%{_libdir}/libappmenu-gtk3-parser.so
-%{_libdir}/pkgconfig/appmenu-gtk3-parser.pc
-
-%files -n appmenu-gtk-module-common
-%license LICENSE
-%{_datadir}/glib-2.0/schemas/*
-%{_userunitdir}/appmenu-gtk-module.service
-
-%files -n appmenu-gtk2-module
-%{_libdir}/gtk-2.0/modules/libappmenu-gtk-module.so
-
-%files -n appmenu-gtk3-module
-%{_libdir}/gtk-3.0/modules/libappmenu-gtk-module.so
 
 %changelog
 * Mon Apr 27 2015 Konstantin <ria.freelander@gmail.com> - @CPACK_PACKAGE_VERSION@

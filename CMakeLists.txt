@@ -27,7 +27,9 @@ add_custom_target (dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 #Add RPM build support
 include (UseRPMTools)
 if (RPMTools_FOUND)
-   RPMTools_ADD_RPM_TARGETS(package ${CMAKE_SOURCE_DIR}/rpm/vala-panel-appmenu.spec.in)
+   RPMTools_ADD_RPM_TARGETS(appmenu ${CMAKE_SOURCE_DIR}/rpm/vala-panel-appmenu.spec.in)
+   RPMTools_ADD_RPM_TARGETS(module ${CMAKE_SOURCE_DIR}/rpm/appmenu-gtk-module.spec.in)
+   RPMTools_ADD_RPM_TARGETS(jayatana ${CMAKE_SOURCE_DIR}/rpm/java-appmenu.spec.in)
 endif(RPMTools_FOUND)
 
 # Configuration
