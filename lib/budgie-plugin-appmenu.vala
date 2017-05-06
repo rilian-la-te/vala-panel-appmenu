@@ -37,7 +37,7 @@ public class GlobalMenuApplet: Applet
         try
         {
             provider.load_from_file(ruri);
-            layout.notify.connect((pspec)=>{
+            layout.get_child().notify.connect((pspec)=>{
                 foreach(unowned Gtk.Widget ch in (layout.get_child() as Container).get_children())
                 {
                     unowned Gtk.StyleContext context = ch.get_style_context();
