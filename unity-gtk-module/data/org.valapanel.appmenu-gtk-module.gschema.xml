@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
-  <schema id="org.valapanel.appmenu-gtk-module" path="/org/vala-panel/appmenu-gtk-module/">
+  <schema id="org.valapanel.appmenu-gtk-module" path="/org/valapanel/appmenu-gtk-module/">
     <key name="blacklist" type="as">
       <summary>Application blacklist</summary>
       <description>List of applications where appmenu-gtk-module should be disabled.</description>

@@ -43,8 +43,8 @@ static const char *const BLACKLIST[] = { "acroread",      "anjuta",
 #define _GTK_MENUBAR_OBJECT_PATH "_GTK_MENUBAR_OBJECT_PATH"
 #define OBJECT_PATH "/com/canonical/unity/gtk/window"
 
-G_DEFINE_QUARK(window_data, window_data);
-G_DEFINE_QUARK(menu_shell_data, menu_shell_data);
+G_DEFINE_QUARK(window_data, window_data)
+G_DEFINE_QUARK(menu_shell_data, menu_shell_data)
 
 typedef struct _WindowData WindowData;
 typedef struct _MenuShellData MenuShellData;
