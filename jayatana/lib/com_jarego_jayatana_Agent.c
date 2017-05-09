@@ -67,14 +67,14 @@ static void JNICALL com_jarego_jayatana_Agent_threadStart(jvmtiEnv *jvmti_env, J
 	error = (*jvmti_env)->GetThreadInfo(jvmti_env, thread, &info);
 	if (error == JVMTI_ERROR_NONE)
 	{
-        // initialize XInitThreads to fix default on OpenJDK 6 for AWT threads
-        // Or
-        // Java 2D
+		// initialize XInitThreads to fix default on OpenJDK 6 for AWT threads
+		// Or
+		// Java 2D
 		if (strcmp(info.name, "Java2D Disposer") == 0)
 		{
 #ifdef JAVA_VERSION
 #if JAVA_VERSION < 7
-            // Initialize X threads, only for OpenJDK 6
+			// Initialize X threads, only for OpenJDK 6
 			char *version = 0;
 			if ((*jvmti_env)
 			        ->GetSystemProperty(jvmti_env,
@@ -83,13 +83,13 @@ static void JNICALL com_jarego_jayatana_Agent_threadStart(jvmtiEnv *jvmti_env, J
 			{
 				if (strcmp(version, "1.0") == 0)
 				{
-                    // TODO: Using openjdk6, when updating the object
-                    // splashScreen (splashScreen.update) the application dies.
-                    // There is a conflict when using XInitThread and pthread.
-                    // Error:
-                    // java: pthread_mutex_lock.c: 317:
-                    // __pthread_mutex_lock_full: The statement `(- (e)) = 3
-                    // || ! Robust 'is not met.
+					// TODO: Using openjdk6, when updating the object
+					// splashScreen (splashScreen.update) the application dies.
+					// There is a conflict when using XInitThread and pthread.
+					// Error:
+					// java: pthread_mutex_lock.c: 317:
+					// __pthread_mutex_lock_full: The statement `(- (e)) = 3
+					// || ! Robust 'is not met.
 					XInitThreads();
 				}
 				(*jvmti_env)->Deallocate(jvmti_env, (unsigned char *)version);
