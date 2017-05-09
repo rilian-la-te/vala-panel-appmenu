@@ -37,7 +37,7 @@ static const char *const BLACKLIST[] = { "acroread",      "emacs",      "emacs23
 #define _GTK_UNIQUE_BUS_NAME "_GTK_UNIQUE_BUS_NAME"
 #define _UNITY_OBJECT_PATH "_UNITY_OBJECT_PATH"
 #define _GTK_MENUBAR_OBJECT_PATH "_GTK_MENUBAR_OBJECT_PATH"
-#define OBJECT_PATH "/com/canonical/unity/gtk/window"
+#define OBJECT_PATH "/org/valapanel/appmenu/gtk/window"
 
 G_DEFINE_QUARK(window_data, window_data)
 G_DEFINE_QUARK(menu_shell_data, menu_shell_data)
