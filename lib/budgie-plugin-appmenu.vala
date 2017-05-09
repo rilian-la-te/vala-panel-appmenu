@@ -32,21 +32,18 @@ public class GlobalMenuApplet: Applet
     public string uuid { public set ; public get; }
     private void add_budgie_style(Gtk.Bin layout)
     {
-        try
-        {
-            layout.get_child().notify.connect((pspec)=>{
-                foreach(unowned Gtk.Widget ch in (layout.get_child() as Container).get_children())
-                {
-                    unowned Gtk.StyleContext context = ch.get_style_context();
-                    context.add_class("budgie-menubar");
-                }
-            });
+        layout.get_child().notify.connect((pspec)=>{
             foreach(unowned Gtk.Widget ch in (layout.get_child() as Container).get_children())
             {
                 unowned Gtk.StyleContext context = ch.get_style_context();
                 context.add_class("budgie-menubar");
             }
-        } catch (GLib.Error e) {}
+        });
+        foreach(unowned Gtk.Widget ch in (layout.get_child() as Container).get_children())
+        {
+            unowned Gtk.StyleContext context = ch.get_style_context();
+            context.add_class("budgie-menubar");
+        }
     }
 
     public override bool supports_settings()
