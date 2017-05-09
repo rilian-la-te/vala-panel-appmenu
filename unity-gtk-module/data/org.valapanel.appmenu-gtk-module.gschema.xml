@@ -4,7 +4,7 @@
     <key name="blacklist" type="as">
       <summary>Application blacklist</summary>
       <description>List of applications where appmenu-gtk-module should be disabled.</description>
-      <default>[]</default>
+      <default>['anjuta','freeciv', 'freeciv-gtk2', 'freeciv-gtk3', 'glade','gwyddion']</default>
     </key>
     <key name="whitelist" type="as">
       <summary>Application whitelist</summary>
