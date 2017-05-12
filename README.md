@@ -20,6 +20,7 @@ This is Global Menu for using in Vala Panel, xfce4-panel and mate-panel (Budgie 
 * Add to .config/gtk-3.0/settings.ini file in all distros:
 `gtk-shell-shows-app-menu=true`
 `gtk-shell-shows-menubar=true`
+* For now, it conflicts with [qt5ct](https://sourceforge.net/p/qt5ct/tickets/34/), so, use another PlatformTheme
 * Add to .gtkrc-2.0 file in Ubuntu-based:
 `gtk-shell-shows-app-menu=1`
 `gtk-shell-shows-menubar=1`
