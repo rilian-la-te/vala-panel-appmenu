@@ -24,6 +24,7 @@ PACKAGES
 OPTIONS
     --vapidir=${CMAKE_SOURCE_DIR}/vapi
     --vapidir=${CMAKE_CURRENT_BINARY_DIR}
+    --vapidir=${CMAKE_BINARY_DIR}/dbusmenu
     --target-glib=2.44
     --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
     --thread
@@ -96,6 +97,7 @@ if(ENABLE_VALAPANEL)
     OPTIONS
         --vapidir=${CMAKE_SOURCE_DIR}/vapi
         --vapidir=${CMAKE_CURRENT_BINARY_DIR}
+        --vapidir=${CMAKE_BINARY_DIR}/dbusmenu
 	--target-glib=2.44
         --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
         --thread
