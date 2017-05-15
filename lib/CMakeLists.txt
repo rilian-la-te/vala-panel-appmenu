@@ -68,7 +68,7 @@ set(PLUGIN_VALA_FILES
     budgie-plugin-appmenu.vala
     )
 add_library(appmenu-core STATIC ${CORE_C_FILES} ${VALA_C_CORE})
-target_link_libraries (appmenu-core ${CORE_LIBRARIES} m vala-dbusmenu)
+target_link_libraries (appmenu-core ${CORE_LIBRARIES} ${WNCK_LIBRARIES} m vala-dbusmenu)
 add_custom_target(vala-files-ide SOURCES ${VALA_FILES_DBUSMENU} ${CORE_VALA_FILES} ${PLUGIN_VALA_FILES})
 ##########
 # XFCE Part
