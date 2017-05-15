@@ -110,7 +110,6 @@ if(ENABLE_VALAPANEL)
         ${VALA_C_VALAPANEL}
         ${RESOURCES}
     )
-    add_dependencies(appmenu-valapanel appmenu-core)
     target_include_directories (appmenu-valapanel PRIVATE ${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${VALAPANEL_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
     target_link_libraries (appmenu-valapanel ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${VALAPANEL_LIBRARIES} m appmenu-core)
     link_directories (${CORE_LIBRARY_DIRS} ${WNCK_LIBRARY_DIRS} ${VALAPANEL_LIBRARY_DIRS})
