@@ -21,7 +21,6 @@ GENERATE_HEADER
 )
 add_library(vala-dbusmenu STATIC ${VALA_C_DBUSMENU})
 add_definitions(-fPIC)
-#add_custom_target(vala-dbusmenu DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/vala-dbusmenu_valac.stamp)
 #####
 # Core Parts (GResource, definitions)
 #####
