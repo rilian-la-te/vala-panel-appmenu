@@ -1,29 +1,7 @@
 #####
-# DBusMenu
-#####
-set(VALA_FILES_DBUSMENU ${CMAKE_SOURCE_DIR}/dbusmenu/dbusmenu.vala)
-vala_precompile(VALA_C_DBUSMENU vala-dbusmenu
-    ${VALA_FILES_DBUSMENU}
-PACKAGES
-    gtk+-3.0
-    gio-2.0
-    glib-2.0
-    gio-addons-2.0
-    gobject-2.0
-OPTIONS
-    --vapidir=${CMAKE_SOURCE_DIR}/vapi
-    --target-glib=2.44
-    --thread
-GENERATE_VAPI
-    vala-dbusmenu
-GENERATE_HEADER
-    vala-dbusmenu
-)
-add_library(vala-dbusmenu STATIC ${VALA_C_DBUSMENU})
-add_definitions(-fPIC)
-#####
 # Core Parts (GResource, definitions)
 #####
+add_definitions(-fPIC)
 add_definitions(-DWNCK_I_KNOW_THIS_IS_UNSTABLE)
 set(CORE_VALA_FILES
     appmenu-bamf.vala
