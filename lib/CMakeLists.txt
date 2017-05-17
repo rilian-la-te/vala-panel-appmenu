@@ -45,8 +45,8 @@ set(PLUGIN_VALA_FILES
     mate-plugin-appmenu.vala
     budgie-plugin-appmenu.vala
     )
-add_library(appmenu-core STATIC ${CORE_C_FILES} ${VALA_C_CORE})
-target_link_libraries (appmenu-core ${CORE_LIBRARIES} ${WNCK_LIBRARIES} m vala-dbusmenu)
+add_library(appmenu-core STATIC ${CORE_C_FILES} ${VALA_C_CORE} $<TARGET_OBJECTS:vala-dbusmenu-o>)
+target_link_libraries (appmenu-core ${CORE_LIBRARIES} ${WNCK_LIBRARIES} m)
 target_include_directories (appmenu-core PRIVATE ${CORE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_BINARY_DIR}/dbusmenu)
 add_custom_target(vala-files-ide SOURCES ${VALA_FILES_DBUSMENU} ${CORE_VALA_FILES} ${PLUGIN_VALA_FILES})
 ##########
@@ -75,7 +75,7 @@ if (ENABLE_XFCE)
         ${VALA_C_XFCE}
         ${RESOURCES}
     )
-    target_link_libraries (appmenu-xfce ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${XFCE_LIBRARIES} m vala-dbusmenu appmenu-core)
+    target_link_libraries (appmenu-xfce ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${XFCE_LIBRARIES} m appmenu-core)
     target_include_directories (appmenu-xfce PRIVATE ${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${XFCE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
     link_directories (${CORE_LIBRARY_DIRS} ${WNCK_LIBRARY_DIRS} ${XFCE_LIBRARY_DIRS})
     add_dependencies(appmenu-xfce appmenu-core)
@@ -149,7 +149,7 @@ if(ENABLE_BUDGIE)
     )
     add_dependencies(appmenu-budgie appmenu-core)
     target_include_directories (appmenu-budgie PRIVATE ${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${BUDGIE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
-    target_link_libraries (appmenu-budgie ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${BUDGIE_LIBRARIES} m vala-dbusmenu appmenu-core)
+    target_link_libraries (appmenu-budgie ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${BUDGIE_LIBRARIES} m appmenu-core)
     link_directories (${CORE_LIBRARY_DIRS} ${WNCK_LIBRARY_DIRS} ${BUDGIE_LIBRARY_DIRS})
     # Install plugin stuffs
     install(TARGETS appmenu-budgie DESTINATION ${CMAKE_INSTALL_LIBEXECDIR}/budgie-desktop/plugins)
@@ -179,7 +179,7 @@ if (ENABLE_MATE)
         ${VALA_C_MATE}
 	${RESOURCES}
     )
-    target_link_libraries (appmenu-mate ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${MATE_LIBRARIES} m vala-dbusmenu appmenu-core)
+    target_link_libraries (appmenu-mate ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${MATE_LIBRARIES} m appmenu-core)
     target_include_directories (appmenu-mate PRIVATE ${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${MATE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
     link_directories (${CORE_LIBRARY_DIRS} ${WNCK_LIBRARY_DIRS} ${MATE_LIBRARY_DIRS})
     add_dependencies(appmenu-mate appmenu-core)
