@@ -177,6 +177,7 @@ fi
 %files -n appmenu-gtk-module-common
 %license LICENSE
 %{_datadir}/glib-2.0/schemas/*
+%dir %{_userunitdir}
 %{_userunitdir}/appmenu-gtk-module.service
 %{_userunitdir}/default.target.wants/appmenu-gtk-module.service
 
