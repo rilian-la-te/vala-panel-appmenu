@@ -1,6 +1,6 @@
 [Applet Factory]
 Id=AppmenuAppletFactory
-Location=@CMAKE_INSTALL_FULL_LIBDIR@/mate-panel/appmenu-mate
+Location=@CMAKE_INSTALL_FULL_LIBEXECDIR@/mate-panel/appmenu-mate
 Name=Appmenu applet factory
 InProcess=false
 
