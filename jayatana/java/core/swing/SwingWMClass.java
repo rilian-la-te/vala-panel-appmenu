@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Jared González
+ * Copyright (c) 2014 Jared Gonzalez
  *
  * Permission is hereby granted, free of charge, to any
  * person obtaining a copy of this software and associated
@@ -33,23 +33,23 @@ import java.util.logging.Logger;
 import com.jarego.jayatana.Feature;
 
 /**
- * Esta clase es un característica para modificar el valor del STARTUP WINDOW MANAGER CLASS
- * el cual puede permite integrarse a un archivo lanzador *.desktop para integración con la
+ * Esta clase es un caracteristica para modificar el valor del STARTUP WINDOW MANAGER CLASS
+ * el cual puede permite integrarse a un archivo lanzador *.desktop para integracion con la
  * barra de menús de Ubuntu.
  * 
- * Este valor se puede modificar con el parámetro de máquina virtal:
+ * Este valor se puede modificar con el parametro de maquina virtal:
  * 		jayatana.wmclass
  * O con la variable de ambiente:
  * 		JAYATANA_WMCLASS
  * 
- * Este valor puede usarse en convinación con el parámetro StartupWMClass del archivo .desktop
+ * Este valor puede usarse en convinacion con el parametro StartupWMClass del archivo .desktop
  * Para permitir integrar con la barra de lanzamiento unity.
  * 
- * @author Jared González.
+ * @author Jared Gonzalez.
  */
 public class SwingWMClass implements Feature {
 	/**
-	 * Despliege de característica para permitir integración con el lanzador de Unity.
+	 * Despliege de caracteristica para permitir integracion con el lanzador de Unity.
 	 */
 	@Override
 	public void deploy() {

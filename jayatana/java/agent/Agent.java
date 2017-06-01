@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Jared González
+ * Copyright (c) 2014 Jared Gonzalez
  *
  * Permission is hereby granted, free of charge, to any
  * person obtaining a copy of this software and associated
@@ -31,20 +31,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Este agente java permite evaluar si la arquitectura de las librerías nativas
- * de integración son de la misma arquitectura de la máquina virtual. En caso
- * de que conincidan inicia los procesos nativos de integración de lo contrario
+ * Este agente java permite evaluar si la arquitectura de las librerias nativas
+ * de integracion son de la misma arquitectura de la maquina virtual. En caso
+ * de que conincidan inicia los procesos nativos de integracion de lo contrario
  * solo se ignoran
  * 
- * @author Jared González
+ * @author Jared Gonzalez
  */
 public class Agent {
 	/**
-	 * Evalua si la arquitectura de la librerías nativas de Jayatana coninciden con
-	 * la arquitectura de la máquia virutal de Java.
+	 * Evalua si la arquitectura de la librerias nativas de Jayatana coninciden con
+	 * la arquitectura de la maquia virutal de Java.
 	 * 
 	 * @param agentArgs argumentos de agente
-	 * @param inst Control de la intrumentación de Java
+	 * @param inst Control de la intrumentacion de Java
 	 */
 	public static void premain(String agentArgs, Instrumentation inst) {
 		try {
@@ -53,7 +53,7 @@ public class Agent {
 					System.getProperty("java.version").startsWith("1.4"))
 				return;
 			
-			// obtienen el archivo de la librería nativa de integración
+			// obtienen el archivo de la libreria nativa de integracion
 			String libjayatanaag;
 			try {
 				if ((libjayatanaag = System.getenv("JAYATANA_LIBAGPATH")) == null) {
@@ -66,7 +66,7 @@ public class Agent {
 			}
 			
 			try {
-				// obtener arquitectura de la librería
+				// obtener arquitectura de la libreria
 				String libjayatanaagarch = "--";
 				FileInputStream fis = new FileInputStream(libjayatanaag);
 				try {
@@ -80,7 +80,7 @@ public class Agent {
 					fis.close();
 				}
 				
-				// verificar si la arquitectura conicide con la máquina virtual
+				// verificar si la arquitectura conicide con la maquina virtual
 				if (libjayatanaagarch.equals(System.getProperty("sun.arch.data.model")))
 					System.load(libjayatanaag);
 			} catch (Exception e) {}

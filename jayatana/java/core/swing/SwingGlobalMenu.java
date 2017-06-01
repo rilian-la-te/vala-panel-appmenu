@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Jared González
+ * Copyright (c) 2014 Jared Gonzalez
  *
  * Permission is hereby granted, free of charge, to any
  * person obtaining a copy of this software and associated
@@ -47,14 +47,14 @@ import com.jarego.jayatana.FeatureManager;
 import com.jarego.jayatana.basic.GlobalMenu;
 
 /**
- * Clase de caráteristica para desplegar la integración con el menú global
+ * Clase de carateristica para desplegar la integracion con el menú global
  * de Ubuntu para aplicaciones Java Swing.
  * 
- * @author Jared González
+ * @author Jared Gonzalez
  */
 public class SwingGlobalMenu implements Feature, AWTEventListener {
 	/**
-	 * Iniciar despliege de característica para la integración del menú global
+	 * Iniciar despliege de caracteristica para la integracion del menú global
 	 * de Ubuntu.
 	 */
 	@Override
@@ -65,7 +65,7 @@ public class SwingGlobalMenu implements Feature, AWTEventListener {
 	}
 	
 	/**
-	 * Escucha de evento de apertura de ventana para lazar integración
+	 * Escucha de evento de apertura de ventana para lazar integracion
 	 * para cada ventana nueva lanzada.
 	 */
 	@Override
@@ -134,7 +134,7 @@ public class SwingGlobalMenu implements Feature, AWTEventListener {
 	}
 	
 	/**
-	 * Tratar de instalar siempre y cuando este en ejecución el bus del menú global.
+	 * Tratar de instalar siempre y cuando este en ejecucion el bus del menú global.
 	 * 
 	 * @param window ventana.
 	 * @param menubar barra de menús.
@@ -212,7 +212,7 @@ public class SwingGlobalMenu implements Feature, AWTEventListener {
 	/**
 	 * Clase para liberar el bloque de menus una vez cerrada la ventana MODAL.
 	 * 
-	 * @author Jared González
+	 * @author Jared Gonzalez
 	 */
 	private class ApplicationModalWindowListener implements WindowListener, ComponentListener {
 		boolean locked;

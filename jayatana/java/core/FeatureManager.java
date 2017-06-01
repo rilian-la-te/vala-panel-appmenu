@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Jared González
+ * Copyright (c) 2014 Jared Gonzalez
  *
  * Permission is hereby granted, free of charge, to any
  * person obtaining a copy of this software and associated
@@ -29,39 +29,39 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Esta clase declara cada una de las características y permite gestionarlas para
- * controlar los desplieges de estas. Permite gestionar las características son
+ * Esta clase declara cada una de las caracteristicas y permite gestionarlas para
+ * controlar los desplieges de estas. Permite gestionar las caracteristicas son
  * instanciar las clases hasta que estas son requeridas.
  * 
- * @author Jared González
+ * @author Jared Gonzalez
  */
 public class FeatureManager {
 	/**
-	 * Característica de GMainLoop.
+	 * Caracteristica de GMainLoop.
 	 */
 	public static final String FEATURE_GMAINLOOP = "gMainLoop";
 	/**
-	 * Característica de correción de bordes de menus para el LookAndFeel de
+	 * Caracteristica de correcion de bordes de menus para el LookAndFeel de
 	 * GTK.
 	 */
 	public static final String FEATURE_SWINGGTKFIX = "swingGtkFix";
 	/**
-	 * Característica de integración de menu global con Ubuntu.
+	 * Caracteristica de integracion de menu global con Ubuntu.
 	 */
 	public static final String FEATURE_SWINGGMENU = "swingGMenu";
 	/**
-	 * Característica de cambio de Startup Window Manager Class usando
+	 * Caracteristica de cambio de Startup Window Manager Class usando
 	 * la varaible de ambiente JAYATAN_WMCLASS
 	 */
 	public static final String FEATURE_SWINGWMCLASS = "swingWMClass";
 	
 	/**
-	 * Tabla hash de características
+	 * Tabla hash de caracteristicas
 	 */
 	private static Map<String, FeatureWrapper> features = new HashMap<String, FeatureWrapper>();
 	
 	static {
-		// registrar carcateristicas de integración
+		// registrar carcateristicas de integracion
 		FeatureWrapper basicNativeLibraries = new FeatureWrapper(
 				"com.jarego.jayatana.basic.NativeLibraries");
 		
@@ -80,30 +80,30 @@ public class FeatureManager {
 	}
 	
 	/**
-	 * Despliega todas características compatibles para Swing.
+	 * Despliega todas caracteristicas compatibles para Swing.
 	 */
 	public static void deployForSwing() {
-		// desplegar carcateristicas de integración
+		// desplegar carcateristicas de integracion
 		deployOnce(FEATURE_SWINGWMCLASS);
 		deployOnce(FEATURE_SWINGGTKFIX);
 		deployOnce(FEATURE_SWINGGMENU);
 	}
 	
 	/**
-	 * Despliege una característica solo una vez.
+	 * Despliege una caracteristica solo una vez.
 	 * 
-	 * @param featureId identificador de la característica.
-	 * @return Retrona <code>True</code> si la característica es
+	 * @param featureId identificador de la caracteristica.
+	 * @return Retrona <code>True</code> si la caracteristica es
 	 * desplegada o <code>False</code> si ya estaba desplegada.
 	 */
 	public static boolean deployOnce(String featureId) {
 		return features.get(featureId).deployOnce();
 	}
 	/**
-	 * Verifica si una característica ya ha sido desplegada.
+	 * Verifica si una caracteristica ya ha sido desplegada.
 	 * 
-	 * @param featureId identificador de la característica.
-	 * @return Retrona <code>True</code> si la característica es
+	 * @param featureId identificador de la caracteristica.
+	 * @return Retrona <code>True</code> si la caracteristica es
 	 * desplegada o <code>False</code> si ya estaba desplegada.
 	 */
 	public static boolean isDeployed(String featureId) {

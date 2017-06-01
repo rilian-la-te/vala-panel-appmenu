@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Jared González
+ * Copyright (c) 2014 Jared Gonzalez
  *
  * Permission is hereby granted, free of charge, to any
  * person obtaining a copy of this software and associated
@@ -31,9 +31,9 @@ import java.util.logging.Logger;
 import com.jarego.jayatana.Feature;
 
 /**
- * Esta clase inicia un GMainLoop para integración con el bus de linux.
+ * Esta clase inicia un GMainLoop para integracion con el bus de linux.
  * 
- * @author Jared González
+ * @author Jared Gonzalez
  */
 public class GMainLoop implements Feature {
 	/**
@@ -47,7 +47,7 @@ public class GMainLoop implements Feature {
 	
 	@Override
 	public void deploy() {
-		// registra el hilo de salida de la aplicación para 
+		// registra el hilo de salida de la aplicacion para 
 		// detener el GMainLoop
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			{

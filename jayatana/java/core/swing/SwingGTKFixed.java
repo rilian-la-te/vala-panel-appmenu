@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Jared González
+ * Copyright (c) 2014 Jared Gonzalez
  *
  * Permission is hereby granted, free of charge, to any
  * person obtaining a copy of this software and associated
@@ -39,15 +39,15 @@ import javax.swing.UIManager;
 import javax.swing.plaf.synth.Region;
 
 /**
- * Esta clase es una característica para corregir el borde los menus en GTK los cuales no
+ * Esta clase es una caracteristica para corregir el borde los menus en GTK los cuales no
  * se muestran. Esta clase permite incorporar el dibujado de los bordes de estos menús.
  * 
- * @author Jared González
+ * @author Jared Gonzalez
  */
 @SuppressWarnings("restriction")
 public class SwingGTKFixed implements Feature, PropertyChangeListener {
 	/**
-	 * Se despliega la correción del borde de los menús en GTK.
+	 * Se despliega la correcion del borde de los menús en GTK.
 	 */
 	@Override
 	public void deploy() {

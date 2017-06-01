@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Jared González
+ * Copyright (c) 2014 Jared Gonzalez
  *
  * Permission is hereby granted, free of charge, to any
  * person obtaining a copy of this software and associated
@@ -24,7 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * File:   com_jarego_jayatana_basic_GMainLoop.c
- * Author: Jared González
+ * Author: Jared Gonzalez
  */
 #include "com_jarego_jayatana_basic_GMainLoop.h"
 
@@ -39,7 +39,7 @@
 GMainLoop *com_jarego_jayatana_gmainloop = NULL;
 
 /**
- * Hilo que mantiene en ejecución un GMainLoop
+ * Hilo que mantiene en ejecucion un GMainLoop
  */
 gpointer com_jarego_jayatana_gmainloop_thread(gpointer data)
 {

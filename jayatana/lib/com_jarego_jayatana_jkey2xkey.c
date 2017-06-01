@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Jared González
+ * Copyright (c) 2014 Jared Gonzalez
  *
  * Permission is hereby granted, free of charge, to any
  * person obtaining a copy of this software and associated
@@ -24,7 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * File:   com_jarego_jayatana_jkey2xkey.c
- * Author: Jared González
+ * Author: Jared Gonzalez
  */
 #include "com_jarego_jayatana_jkey2xkey.h"
 

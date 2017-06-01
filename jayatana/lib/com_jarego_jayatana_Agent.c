@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Jared González
+ * Copyright (c) 2014 Jared Gonzalez
  *
  * Permission is hereby granted, free of charge, to any
  * person obtaining a copy of this software and associated
@@ -24,7 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * File:   com_jarego_jayatana_Agent.c
- * Author: Jared González
+ * Author: Jared Gonzalez
  */
 #include <jvmti.h>
 #include <stdbool.h>
@@ -43,25 +43,25 @@ extern void XInitThreads(void);
 #endif
 
 /**
- * Inicializar observadores de componentes para prevenir la integración
+ * Inicializar observadores de componentes para prevenir la integracion
  * con Ubuntu/Linux.
  */
 jvmtiError com_jarego_jayatana_Initialize(JavaVM *vm, int fromAgent);
 
 /**
- * Validar el valor de una variable de ambiente para más opciones o
- * variables de configuración.
+ * Validar el valor de una variable de ambiente para mas opciones o
+ * variables de configuracion.
  */
 int com_jarego_jayatana_Agent_CheckEnv(const char *envname, const char *envval, const int def);
 
 /**
- * Iniciar observador de inicio de hilos para prevenir la integración
+ * Iniciar observador de inicio de hilos para prevenir la integracion
  * con Ubuntu/Linux
  */
 static void JNICALL com_jarego_jayatana_Agent_threadStart(jvmtiEnv *jvmti_env, JNIEnv *jni_env,
                                                           jthread thread)
 {
-	// recuperar información del hilo
+	// recuperar informacion del hilo
 	jvmtiError error;
 	jvmtiThreadInfo info;
 	error = (*jvmti_env)->GetThreadInfo(jvmti_env, thread, &info);
@@ -99,7 +99,7 @@ static void JNICALL com_jarego_jayatana_Agent_threadStart(jvmtiEnv *jvmti_env, J
 		}
 		else if (strcmp(info.name, "AWT-XAWT") == 0)
 		{
-			// instala la clase para control de integración Swing
+			// instala la clase para control de integracion Swing
 			jclass clsInstallers =
 			    (*jni_env)->FindClass(jni_env, "com/jarego/jayatana/FeatureManager");
 			if (clsInstallers != NULL)
@@ -125,7 +125,7 @@ static void JNICALL com_jarego_jayatana_Agent_threadStart(jvmtiEnv *jvmti_env, J
 }
 
 /**
- * Cargar agente para integración con Ubuntu/Linux
+ * Cargar agente para integracion con Ubuntu/Linux
  */
 JNIEXPORT jint JNICALL Agent_OnLoad(JavaVM *vm, char *options, void *reserved)
 {
@@ -133,7 +133,7 @@ JNIEXPORT jint JNICALL Agent_OnLoad(JavaVM *vm, char *options, void *reserved)
 }
 
 /**
- * Carga libreria nativa desde agente Java para integración
+ * Carga libreria nativa desde agente Java para integracion
  * con Ubuntu/Linux
  */
 jint JNI_OnLoad(JavaVM *vm, void *reserved)
@@ -143,7 +143,7 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
 }
 
 /**
- * Inicializar observadores de componentes para prevenir la integración
+ * Inicializar observadores de componentes para prevenir la integracion
  * con Ubuntu/Linux.
  */
 jvmtiError com_jarego_jayatana_Initialize(JavaVM *vm, int fromAgent)
@@ -152,7 +152,7 @@ jvmtiError com_jarego_jayatana_Initialize(JavaVM *vm, int fromAgent)
 	if (getenv("JAYATANA_CLASSPATH") == NULL && access(JAVADIR "/jayatana.jar", R_OK) != 0)
 		return JVMTI_ERROR_NONE;
 
-	// la librería si existe iniciar procedo de validación de integración
+	// la libreria si existe iniciar procedo de validacion de integracion
 	if (com_jarego_jayatana_Agent_CheckEnv("XDG_CURRENT_DESKTOP", "Unity", false)
 	        ? com_jarego_jayatana_Agent_CheckEnv("JAYATANA_FORCE", "true", true) &&
 	              com_jarego_jayatana_Agent_CheckEnv("JAYATANA", "1", true)
@@ -199,7 +199,7 @@ jvmtiError com_jarego_jayatana_Initialize(JavaVM *vm, int fromAgent)
 
 				// cargar ruta de clases jayatana
 				if (getenv("JAYATANA_CLASSPATH") != NULL)
-				{ // opción para desarrollo
+				{ // opcion para desarrollo
 					(*jvmti_env)
 					    ->AddToSystemClassLoaderSearch(
 					        jvmti_env, getenv("JAYATANA_CLASSPATH"));
@@ -215,7 +215,7 @@ jvmtiError com_jarego_jayatana_Initialize(JavaVM *vm, int fromAgent)
 				}
 			}
 
-			// liberar cadena de versión
+			// liberar cadena de version
 			(*jvmti_env)->Deallocate(jvmti_env, (unsigned char *)version);
 		}
 	}
@@ -223,8 +223,8 @@ jvmtiError com_jarego_jayatana_Initialize(JavaVM *vm, int fromAgent)
 }
 
 /**
- * Validar el valor de una variable de ambiente para más opciones o
- * variables de configuración.
+ * Validar el valor de una variable de ambiente para mas opciones o
+ * variables de configuracion.
  */
 int com_jarego_jayatana_Agent_CheckEnv(const char *envname, const char *envval, const int def)
 {

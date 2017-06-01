@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Jared González
+ * Copyright (c) 2014 Jared Gonzalez
  *
  * Permission is hereby granted, free of charge, to any
  * person obtaining a copy of this software and associated
@@ -32,10 +32,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Clase de envolutara de características para gestionar el numbero de desplieges y
+ * Clase de envolutara de caracteristicas para gestionar el numbero de desplieges y
  * control de errores durante este despliege.
  * 
- * @author Jared González
+ * @author Jared Gonzalez
  */
 public class FeatureWrapper {
 	private static List<FeatureWrapper> toFeatureWrapperArray(List<String> classNameList) {
@@ -51,7 +51,7 @@ public class FeatureWrapper {
 	private boolean deployed = false;
 	
 	/**
-	 * Crea una envolutara de característica basado en el nombre de la clase implementada de la
+	 * Crea una envolutara de caracteristica basado en el nombre de la clase implementada de la
 	 * interface <code>com.jarego.jayatana.Feature</code>.
 	 * 
 	 * @param className clase implementada de la interface <code>com.jarego.jayatana.Feature</code>
@@ -71,9 +71,9 @@ public class FeatureWrapper {
 	}
 	
 	/**
-	 * Obtiene la instancia de característica, se instancia por primera vez al invocar el método.
+	 * Obtiene la instancia de caracteristica, se instancia por primera vez al invocar el método.
 	 * 
-	 * @return retorna la interface de característica
+	 * @return retorna la interface de caracteristica
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalAccessException 
 	 * @throws InstantiationException 
@@ -86,7 +86,7 @@ public class FeatureWrapper {
 	}
 	
 	/**
-	 * Verifica si la característica ya ha sido desplegada.
+	 * Verifica si la caracteristica ya ha sido desplegada.
 	 * 
 	 * @return Regresa <code>True</code> si ha sido deplegado de lo
 	 * contrario regresa <code>False</code>.
@@ -96,7 +96,7 @@ public class FeatureWrapper {
 	}
 	
 	/**
-	 * Realiza el despliege de la característica una sola vez
+	 * Realiza el despliege de la caracteristica una sola vez
 	 * 
 	 * @return Regresa <code>True</code> si es desplegada por primera vez
 	 * de lo contrario regresa <code>False</code>.

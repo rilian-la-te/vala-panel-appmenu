@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Jared González
+ * Copyright (c) 2014 Jared Gonzalez
  *
  * Permission is hereby granted, free of charge, to any
  * person obtaining a copy of this software and associated
@@ -27,13 +27,13 @@ package com.jarego.jayatana;
 
 /**
  * Esta interface permite controlar el despliege de diferentes
- * características
+ * caracteristicas
  * 
- * @author Jared González
+ * @author Jared Gonzalez
  */
 public interface Feature {
 	/**
-	 * Desplegar característica
+	 * Desplegar caracteristica
 	 */
 	public void deploy();
 }

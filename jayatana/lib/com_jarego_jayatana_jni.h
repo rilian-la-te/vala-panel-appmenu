@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Jared González
+ * Copyright (c) 2014 Jared Gonzalez
  *
  * Permission is hereby granted, free of charge, to any
  * person obtaining a copy of this software and associated
@@ -24,7 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * File:   com_jarego_jayatana_jni.h
- * Author: Jared González
+ * Author: Jared Gonzalez
  */
 #include <jni.h>
 
@@ -34,7 +34,7 @@
 JavaVM *jayatana_jvm;
 
 /**
- * Obtener el putero JavaVM para permitr integración con Ubuntu/Linux
+ * Obtener el putero JavaVM para permitr integracion con Ubuntu/Linux
  */
 jint JNI_OnLoad(JavaVM *, void *);
 

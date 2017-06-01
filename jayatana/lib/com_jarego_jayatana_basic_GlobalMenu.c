@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Jared González
+ * Copyright (c) 2014 Jared Gonzalez
  *
  * Permission is hereby granted, free of charge, to any
  * person obtaining a copy of this software and associated
@@ -24,7 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * File:   com_jarego_jayatana_basic_GlobalMenu.c
- * Author: Jared González
+ * Author: Jared Gonzalez
  */
 #include "com_jarego_jayatana_basic_GlobalMenu.h"
 
@@ -232,7 +232,7 @@ JNIEXPORT jlong JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_getWindowXID(J
 }
 
 /**
- * Notificación de bus disponible para menu global
+ * Notificacion de bus disponible para menu global
  */
 void jayatana_on_registrar_available(GDBusConnection *connection, const gchar *name,
                                      const gchar *name_owner, gpointer user_data)
@@ -272,7 +272,7 @@ void jayatana_on_registrar_available(GDBusConnection *connection, const gchar *n
 		jint register_state = globalmenu_window->registerState;
 		if (globalmenu_window->registerState == REGISTER_STATE_REFRESH)
 			globalmenu_window->registerState = REGISTER_STATE_INITIAL;
-		// notificar a clase java la integración
+		// notificar a clase java la integracion
 		JNIEnv *env = NULL;
 		(*jayatana_jvm)->AttachCurrentThread(jayatana_jvm, (void **)&env, NULL);
 		jclass thatclass = (*env)->GetObjectClass(env, globalmenu_window->globalThat);
@@ -286,7 +286,7 @@ void jayatana_on_registrar_available(GDBusConnection *connection, const gchar *n
 }
 
 /**
- * Notificación de bus no disponible para menu global
+ * Notificacion de bus no disponible para menu global
  */
 void jayatana_on_registrar_unavailable(GDBusConnection *connection, const gchar *name,
                                        gpointer user_data)
@@ -381,7 +381,7 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_unregisterWatch
 }
 
 /**
- * Actualiza el bus para menus en caso de una recontrucción de menus
+ * Actualiza el bus para menus en caso de una recontruccion de menus
  */
 JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_refreshWatcher(JNIEnv *env,
                                                                                 jobject that,
@@ -397,8 +397,8 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_refreshWatcher(
 			if (globalmenu_window->gdBusProxyRegistered)
 			{
 				// liberar menus
-				// TODO: La liberación periva de los menus genera un crash en la
-				// aplicación
+				// TODO: La liberacion periva de los menus genera un crash en la
+				// aplicacion
 				// al momento de recontruir los menus, revisar posibles fugas de
 				// memoria.
 				// g_list_free_full(dbusmenu_menuitem_take_children(globalmenu_window->dbusMenuRoot),
@@ -431,7 +431,7 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_refreshWatcher(
 }
 
 /**
- * Invoar generación el momento de presionar la expanción del menu
+ * Invoar generacion el momento de presionar la expancion del menu
  */
 void jayatana_item_about_to_show(DbusmenuMenuitem *item)
 {
@@ -470,7 +470,7 @@ void jayatana_item_about_to_show(DbusmenuMenuitem *item)
 }
 
 /**
- * Invocar generación de menus desde HUD y cerrado de menus
+ * Invocar generacion de menus desde HUD y cerrado de menus
  */
 void jayatana_item_events(DbusmenuMenuitem *item, const char *event)
 {
@@ -541,7 +541,7 @@ void jayatana_item_events(DbusmenuMenuitem *item, const char *event)
 }
 
 /**
- * Invokar activación de menu
+ * Invokar activacion de menu
  */
 void jayatana_item_activated(DbusmenuMenuitem *item, guint timestamp, gpointer user_data)
 {
@@ -746,7 +746,7 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_addMenuItemRadi
 }
 
 /**
- * Agregar un nuevo elemento de menu tipo verificación
+ * Agregar un nuevo elemento de menu tipo verificacion
  */
 JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_addMenuItemCheck(
     JNIEnv *env, jobject that, jlong windowXID, jint menuParentID, jint menuID, jstring label,

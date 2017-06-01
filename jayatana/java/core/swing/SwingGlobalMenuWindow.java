@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Jared González
+ * Copyright (c) 2014 Jared Gonzalez
  *
  * Permission is hereby granted, free of charge, to any
  * person obtaining a copy of this software and associated
@@ -68,7 +68,7 @@ import com.jarego.jayatana.basic.GlobalMenuAdapter;
 /**
  * Esta clase permite controlar los menus asociados a una ventana Java Swing.
  * 
- * @author Jared González
+ * @author Jared Gonzalez
  */
 public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowListener,
 		AWTEventListener, ContainerListener, PropertyChangeListener, ComponentListener {
@@ -100,7 +100,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 						// ocular barra de menús
 						menubar.setVisible(false);
 						
-						// Correción para Netbeans
+						// Correcion para Netbeans
 						netbeansPlatform = "org.openide.awt.MenuBar".equals(
 								menubar.getClass().getName());
 						// -----------------------
@@ -242,7 +242,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 	}
 	
 	/**
-	 * Activación de menú.
+	 * Activacion de menú.
 	 */
 	@Override
 	protected void menuActivated(int parentMenuId, int menuId) {
@@ -265,7 +265,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 	 * Java Refelection.
 	 * 
 	 * @param cls Clase a comparar.
-	 * @param scls Clase o interface de comparación.
+	 * @param scls Clase o interface de comparacion.
 	 * @return Si es una instancia herededa o implementada regresa
 	 * <code>True</code> de lo contrario <code>False</code>.
 	 */
@@ -284,7 +284,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 	}
 	
 	/**
-	 * Invocación de menus de plataforma Netbeans, permite invocar contructores propios de la
+	 * Invocacion de menus de plataforma Netbeans, permite invocar contructores propios de la
 	 * plataforma para obtener los menús.
 	 * 
 	 * @param menu menú de plataforma Netbeans.
@@ -350,7 +350,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 						for (PopupMenuListener pl : popupMenu.getPopupMenuListeners())
 							if (pl != null) pl.popupMenuWillBecomeVisible(pevent);
 						
-						// Correción para Netbeans
+						// Correcion para Netbeans
 						if (netbeansPlatform)
 							menuAboutToShowForNetbeansPlatform(menu);
 						// -----------------------

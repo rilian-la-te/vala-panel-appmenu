@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Jared González
+ * Copyright (c) 2014 Jared Gonzalez
  *
  * Permission is hereby granted, free of charge, to any
  * person obtaining a copy of this software and associated
@@ -24,7 +24,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * File:   ayatana_Collections.c
- * Author: Jared González
+ * Author: Jared Gonzalez
  */
 #ifndef COM_JAREGO_JAYATANA_AGENT_H_
 #define COM_JAREGO_JAYATANA_AGENT_H_
@@ -32,12 +32,12 @@
 #include <jni.h>
 
 /**
- * Cargar agente para integración con Ubuntu/Linux
+ * Cargar agente para integracion con Ubuntu/Linux
  */
 JNIEXPORT jint JNICALL Agent_OnLoad(JavaVM *vm, char *options, void *reserved);
 
 /**
- * Carga libreria nativa desde agente Java para integración
+ * Carga libreria nativa desde agente Java para integracion
  * con Ubuntu/Linux
  */
 jint JNI_OnLoad(JavaVM *vm, void *reserved);

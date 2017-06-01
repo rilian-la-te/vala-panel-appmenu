@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Jared González
+ * Copyright (c) 2014 Jared Gonzalez
  *
  * Permission is hereby granted, free of charge, to any
  * person obtaining a copy of this software and associated
@@ -28,10 +28,10 @@ package com.jarego.jayatana.basic;
 import java.awt.Window;
 
 /**
- * Clase de integración de menu global Global basado en DBUS, permite interactuar con el
+ * Clase de integracion de menu global Global basado en DBUS, permite interactuar con el
  * menu global de Ubuntu con invocaciones nativas.
  * 
- * @author Jared González
+ * @author Jared Gonzalez
  */
 public abstract class GlobalMenu {
 	/**
@@ -44,20 +44,20 @@ public abstract class GlobalMenu {
 	public static final int REGISTER_STATE_REFRESH = 1;
 	
 	/**
-	 * Inicializa el las estructuras nativas para la integración con el menu global.
+	 * Inicializa el las estructuras nativas para la integracion con el menu global.
 	 */
 	native private static void initialize();
 	/**
-	 * Destruye las estructuras nativas para la integración con el menu global.
+	 * Destruye las estructuras nativas para la integracion con el menu global.
 	 */
 	native private static void uninitialize();
 	/**
-	 * Hilo del control de cierre de la aplicación.
+	 * Hilo del control de cierre de la aplicacion.
 	 */
 	public static Thread shutdownThread = null;
 	
 	/**
-	 * Inicializa las estructuras nativas además de registrar el hilo de cierre de aplicación
+	 * Inicializa las estructuras nativas ademas de registrar el hilo de cierre de aplicacion
 	 * para destruir las estructuras nativas.
 	 */
 	public static void nativeInitialize() {
@@ -83,14 +83,14 @@ public abstract class GlobalMenu {
 	
 	/**
 	 * Registra visualizador de bus de menu global. En caso de que el bus
-	 * exista se invocará el método <code>register</code>.
+	 * exista se invocara el método <code>register</code>.
 	 * 
 	 * @param windowXID identificador de ventana
 	 */
 	native synchronized public void registerWatcher(long windowXID);
 	/**
 	 * Elimina el visualizador de bus de menu global. En cas de que el bus
-	 * exista se invocará el método <code>unregister</code>.
+	 * exista se invocara el método <code>unregister</code>.
 	 * 
 	 * @param windowXID identificador de ventana
 	 */
@@ -107,7 +107,7 @@ public abstract class GlobalMenu {
 	/**
 	 * Este método es invocado cuando se registra el bus del menu global, si el menu global
 	 * no esta o se excluye por algun otro método como la variable de ambiente UBUNTU_MENUPROXY
-	 * este método nunca será invocado.
+	 * este método nunca sera invocado.
 	 * 
 	 * @param state estado de registro, cauando es la primera vez regresa el valor de
 	 * <code>REGISTER_STATE_INITIAL</code> si se esta registrando por un refresh regresa el
@@ -128,7 +128,7 @@ public abstract class GlobalMenu {
 	 * de menú el identificador del padre debe ser <code>-1</code>.
 	 * @param menuId identificador del menú.
 	 * @param label etiqueta del menú.
-	 * @param enabled estado de habilitación del menú.
+	 * @param enabled estado de habilitacion del menú.
 	 * @param visible estado de visibulidad del menú.
 	 */
 	native public void addMenu(long windowXID, int menuParentId, int menuId,
@@ -140,7 +140,7 @@ public abstract class GlobalMenu {
 	 * @param menuParentId identificador del menú padre.
 	 * @param menuId identificador del menú.
 	 * @param label etiqueta del menú.
-	 * @param enabled estado de habilitación del menú.
+	 * @param enabled estado de habilitacion del menú.
 	 * @param modifiers modificador del acelerador del menú (CTRL, ALT o SHIFT).
 	 * @param keycode acelerador del menú.
 	 */
@@ -153,10 +153,10 @@ public abstract class GlobalMenu {
 	 * @param menuParentId identificador del menú padre.
 	 * @param menuId identificador del menú.
 	 * @param label etiqueta del menú.
-	 * @param enabled estado de habilitación del menú.
+	 * @param enabled estado de habilitacion del menú.
 	 * @param modifiers modificador del acelerador del menú (CTRL, ALT o SHIFT).
 	 * @param keycode acelerador del menú.
-	 * @param selected estado de selección del menú.
+	 * @param selected estado de seleccion del menú.
 	 */
 	native public void addMenuItemRadio(long windowXID, int menuParentId, int menuId,
 			String label, boolean enabled, int modifiers, int keycode, boolean selected);
@@ -167,10 +167,10 @@ public abstract class GlobalMenu {
 	 * @param menuParentId identificador del menú padre.
 	 * @param menuId identificador del menú.
 	 * @param label etiqueta del menú.
-	 * @param enabled estado de habilitación del menú.
+	 * @param enabled estado de habilitacion del menú.
 	 * @param modifiers modificador del acelerador del menú (CTRL, ALT o SHIFT).
 	 * @param keycode acelerador del menú.
-	 * @param selected estado de selección del menú.
+	 * @param selected estado de seleccion del menú.
 	 */
 	native public void addMenuItemCheck(long windowXID, int menuParentId, int menuId,
 			String label, boolean enabled, int modifiers, int keycode, boolean selected);
@@ -182,12 +182,12 @@ public abstract class GlobalMenu {
 	 */
 	native public void addSeparator(long windowXID, int menuParentId);
 	/**
-	 * Actualización de estado del menú nativo.
+	 * Actualizacion de estado del menú nativo.
 	 * 
 	 * @param windowXID identificador de ventana
 	 * @param menuId identificador de menu
 	 * @param label nuevo valor de etiqueta
-	 * @param enabled nuevo valor de estado de habilitación del menú.
+	 * @param enabled nuevo valor de estado de habilitacion del menú.
 	 * @param visible nuevo valor de estado de visibilidad del menú.
 	 */
 	native public void updateMenu(long windowXID, int menuId, String label,
