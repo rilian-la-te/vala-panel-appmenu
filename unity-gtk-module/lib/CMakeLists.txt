@@ -36,3 +36,12 @@ if (GTK2_FOUND)
 	target_link_libraries(appmenu-gtk2-parser PRIVATE ${GLIB_LIBRARIES} ${GTK2_LIBRARIES} ${X11_LIBRARIES})
 	install(TARGETS appmenu-gtk2-parser DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
+
+set(LIB_PUBLIC_HEADERS
+	lib/unity-gtk-parser.h
+	lib/unity-gtk-menu-shell.h
+	lib/unity-gtk-action-group.h)
+
+set(GTK_MODULE_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR}/appmenu-gtk-module)
+
+install(FILES ${LIB_PUBLIC_HEADERS} DESTINATION ${GTK_MODULE_INCLUDE_DIR})

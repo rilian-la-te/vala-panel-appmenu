@@ -125,11 +125,7 @@ endif()
 cmake_dependent_option(ENABLE_BUDGIE "Enable budgie-desktop plugin" ON
     "BUDGIE_FOUND; PEAS_FOUND" OFF)
 
-option(ENABLE_UNITY_GTK_MODULE "Build unity-gtk-module" OFF)
-
-if(ENABLE_UNITY_GTK_MODULE)
-    add_subdirectory(unity-gtk-module)
-endif()
+add_subdirectory(unity-gtk-module)
 ADD_SUBDIRECTORY(jayatana)
 add_subdirectory(dbusmenu)
 ADD_SUBDIRECTORY(lib)
