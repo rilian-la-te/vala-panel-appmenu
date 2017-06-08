@@ -18,19 +18,19 @@ This is Global Menu for using in Vala Panel, xfce4-panel and mate-panel (Budgie 
 ---
 *Instructions for Compiling*
 ---
-  Once you've cloned this repository, cd into the directory, then:
-  * type git submodule init && git update to download the submodules
-  * type mkdir build && cd build 
-  * You're now ready to run cmake. Review the following flags:
+  Once you've cloned this repository, `cd` into the directory, then:
+  * type `git submodule init && git update` to download the submodules (this will download the cmake and dbus-menu submodules you see in the repository, above)
+  * type `mkdir build && cd build` 
+  * You're now ready to run `cmake`. Review the following flags:
     * CMAKE FLAGS:
-                    -- DENABLE_XFCE=[true/false]        Use 'True' to compile applet for XFCE Panel
-                    -- DENABLE_BUDGIE=[true/false]      Use 'True' to compile for budgie (experimental)
-                    -- DENABLE_VALAPANEL=[true/false]   Use 'True' to compile for Vala Panel
-                    -- DENABLE_MATE=[true/false]        Use 'True' to compile for MATE Panel
-                    -- DENABLE_JAYATANA=[true/false]    Use 'True' to include Jayatana library (enable global menu for java                                                             swing applications)
-                    -- DENABLE_UNITY_GTK_MODULE=ON      Use this flag if you are compiling for a distro other than Arch (see                                                           instructions below for including unity-gtk-module with Arch) or Ubuntu                                                         (Ubuntu users can install unity-gtk-module from the ubuntu repositories                                                         using sudo apt-get install unity-gtk-module-common).
-                    -- DCMAKE_INSTALL_PREFIX=[path]     Use this flag to install Vala-Panel-Appmenu in a directory other than                                                           /usr/local (the default install directory).
-  * once you've decided on any flags you want to include, type (from the build directory) cmake [flags] ..
+      -- `-DENABLE_XFCE=[ON/OFF]` Use `ON` to compile applet for XFCE Panel
+      -- `-DENABLE_BUDGIE=[ON/OFF]` Use `ON` to compile for budgie (experimental)
+      -- `-DENABLE_VALAPANEL=[ON/OFF]` Use `ON` to compile for Vala Panel
+      -- `-DENABLE_MATE=[ON/OFF]` Use `ON` to compile for MATE Panel
+      -- `-DENABLE_JAYATANA=[ON/OFF]` Use `ON` to include Jayatana library (enable global menu for java swing applications)
+      -- `-DENABLE_UNITY_GTK_MODULE=ON` Use this flag if you are compiling for a distro other than Arch (see instructions below for including unity-gtk-module with Arch) or Ubuntu (Ubuntu users can install unity-gtk-module from the ubuntu repositories using `sudo apt-get install unity-gtk-module-common`).
+      -- `-DCMAKE_INSTALL_PREFIX=[path]` By default, Vala-Panel-Appmenu will install in the `/usr/local` directory. You can use this flag to change that.
+  * once you've decided on any flags you want to include, type (from the build directory) `cmake [flags] ..`
   * once the build is successful, you can compile and install Vala-Panel-Appmenu by typing make && sudo make install
 ---
 *Installation after building*
