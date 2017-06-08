@@ -21,7 +21,7 @@ This is Global Menu for using in Vala Panel, xfce4-panel and mate-panel (Budgie 
   Once you've cloned this repository, `cd` into the directory, then:
   * type `git submodule init && git update` to download the submodules (this will download the cmake and dbus-menu submodules you see in the repository, above)
   * type `mkdir build && cd build` 
-  * You're now ready to run `cmake`. Review the following flags:
+  * You're **almost** ready to run `cmake`. First, review the following flags:
     * CMAKE FLAGS:
       * `-DENABLE_XFCE=[ON/OFF]` Use `ON` to compile applet for XFCE Panel
       * `-DENABLE_BUDGIE=[ON/OFF]` Use `ON` to compile for budgie (experimental)
