@@ -11,7 +11,27 @@ This is Global Menu for using in Vala Panel, xfce4-panel and mate-panel (Budgie 
  * GTK+ (>= 3.12.0)
  * valac (>= 0.24.0)
  * libbamf (>=0.5.0)
-
+ 
+ ** Note: ensure that you install the respective 'dev' components of the aforementioned dependencies. Some distros (such as    
+    Ubuntu) may split these up into separate packages. **
+    
+---
+*Instructions for Compiling*
+---
+  Once you've cloned this repository, cd into the directory, then:
+  * type git submodule init && git update to download the submodules
+  * type mkdir build && cd build 
+  * You're now ready to run cmake. Review the following flags:
+    * CMAKE FLAGS:
+                    -- DENABLE_XFCE=[true/false]        Use 'True' to compile applet for XFCE Panel
+                    -- DENABLE_BUDGIE=[true/false]      Use 'True' to compile for budgie (experimental)
+                    -- DENABLE_VALAPANEL=[true/false]   Use 'True' to compile for Vala Panel
+                    -- DENABLE_MATE=[true/false]        Use 'True' to compile for MATE Panel
+                    -- DENABLE_JAYATANA=[true/false]    Use 'True' to include Jayatana library (enable global menu for java                                                             swing applications)
+                    -- DENABLE_UNITY_GTK_MODULE=ON      Use this flag if you are compiling for a distro other than Arch (see                                                           instructions below for including unity-gtk-module with Arch) or Ubuntu                                                         (Ubuntu users can install unity-gtk-module from the ubuntu repositories                                                         using sudo apt-get install unity-gtk-module-common).
+                    -- DCMAKE_INSTALL_PREFIX=[path]     Use this flag to install Vala-Panel-Appmenu in a directory other than                                                           /usr/local (the default install directory).
+  * once you've decided on any flags you want to include, type (from the build directory) cmake [flags] ..
+  * once the build is successful, you can compile and install Vala-Panel-Appmenu by typing make && sudo make install
 ---
 *Installation after building*
 ---
