@@ -18,7 +18,8 @@ This is Global Menu for using in Vala Panel, xfce4-panel and mate-panel (Budgie 
 ---
 *Instructions for Compiling*
 ---
-  Once you've cloned this repository, `cd` into the directory, then:
+  * Clone this repository to your `home` directory by typing:
+  `git clone https://github.com/rilian-la-te/vala-panel-appmenu.git` then `cd` into the directory.
   * type `git submodule init && git submodule update` to download the submodules (this will download the cmake and dbus-menu submodules you see in the repository, above)
   * type `mkdir build && cd build` 
   * You're **almost** ready to run `cmake`. First, review the following flags:
@@ -35,19 +36,30 @@ This is Global Menu for using in Vala Panel, xfce4-panel and mate-panel (Budgie 
 ---
 *Installation after building*
 ---
-* Create a .gtkrc in your home(~) directory
+1. Enable the app-menu and menubar in gtk with these steps:
 * Create a .config/gtk-3.0/settings.ini file in your home(~) directory
-* Add to .config/gtk-3.0/settings.ini file in all distros:
+and add the following lines to it:
 `gtk-shell-shows-app-menu=true`
 `gtk-shell-shows-menubar=true`
-* It conflicts with [qt5ct](https://sourceforge.net/p/qt5ct/tickets/34/) before 21.04.2017, so, if you using old qt5ct, use another PlatformTheme
-* Add to .gtkrc-2.0 file in Ubuntu-based:
-`gtk-shell-shows-app-menu=1`
-`gtk-shell-shows-menubar=1`
-* For XFCE Only: 
+* NOTE * 
+Vala-Panel-Appmenu conflicts with [qt5ct](https://sourceforge.net/p/qt5ct/tickets/34/) before 21.04.2017, so, if you are using an older version of qt5ct, use another PlatformTheme.
+
+** FOR XFCE ONLY **
+2. If you are using Vala-Panel-Appmenu for XFCE-Panel, type the following lines into your console:
 `xfconf-query -c xsettings -p /Gtk/ShellShowsMenubar -n -t bool -s true`
 `xfconf-query -c xsettings -p /Gtk/ShellShowsAppmenu -n -t bool -s true`
-* Add to .profile and .bashrc on Ubuntu:
+
+These lines configure the appmenu to show in the panel applet, rather than on each individual menu. Thus,
+they should remove the any 'double' menus you may experience.
+
+** ON UBUNTU-BASED DISTROS **
+
+3. Create a .gtkrc in your home(~) directory, if there isn't one already.
+4. Add the following lines to this .gtkrc file:
+`gtk-shell-shows-app-menu=1`
+`gtk-shell-shows-menubar=1`
+5. Add the following lines to your .profile and .bashrc (in your home directory) in
+order to enable the unity-gtk-module:
 ```sh
 if [ -n "$GTK_MODULES" ]; then
     GTK_MODULES="${GTK_MODULES}:unity-gtk-module"
@@ -63,13 +75,13 @@ export GTK_MODULES
 export UBUNTU_MENUPROXY
 ```
 
-*Arch Linux*
+** ENABLE unity-gtk-module on ARCH-BASED DISTROS **
 * Install from AUR [unity-gtk-module-standalone-bzr](https://aur.archlinux.org/packages/unity-gtk-module-standalone-bzr/) for appmenu to work
 * Install [Appmenu](https://aur.archlinux.org/packages/appmenu-qt/) to get appmenu for Qt4 Applications to work. Qt 5.7 must work out of the box.
 * Install these [libdbusmenu-glib](https://aur.archlinux.org/packages/libdbusmenu-glib/) [libdbusmenu-gtk3](https://aur.archlinux.org/packages/libdbusmenu-gtk3/) [libdbusmenu-gtk2](https://aur.archlinux.org/packages/libdbusmenu-gtk2/) to get Chromium/Google Chrome to work
 
-*For distros other than Arch or Ubuntu*
-* Build vala-panel-appmenu with `-DENABLE_UNITY_GTK_MODULE=ON`
+** ENABLE unity-gtk-module ON DISTROS OTHER THAN ARCH OR UBUNTU **
+* When building vala-panel-appmenu with CMAKE, use the flag, `-DENABLE_UNITY_GTK_MODULE=ON`
 * Follow instructions into [README](unity-gtk-module/README.md)
 
 *For JAyatana*
