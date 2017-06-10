@@ -2,11 +2,10 @@
 Vala Panel Application Menu
 ---
 
-This is Global Menu for using in Vala Panel, xfce4-panel and mate-panel (Budgie 10.x also planned). unity-gtk-module is used as backend.
+Vala Panel Application Menu is a Global Menu applet for use with Vala Panel, xfce4-panel and mate-panel (Budgie 10.x is also planned). unity-gtk-module is used as a backend, and thus must also be installed (see instructions, below).
 
-*Dependencies:*
+** REQUIRED DEPENDENCES **
 
-*All:*
  * GLib (>= 2.40.0)
  * GTK+ (>= 3.12.0)
  * valac (>= 0.24.0)
@@ -16,7 +15,7 @@ This is Global Menu for using in Vala Panel, xfce4-panel and mate-panel (Budgie 
     Ubuntu) may split these up into separate packages. **
     
 ---
-*Instructions for Compiling*
+*Compilation Instructions*
 ---
   * Clone this repository to your `home` directory by typing:
   `git clone https://github.com/rilian-la-te/vala-panel-appmenu.git` then `cd` into the directory.
