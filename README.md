@@ -36,27 +36,28 @@ Vala Panel Application Menu is a Global Menu applet for use with Vala Panel, xfc
 *Post-Build Instructions*
 ---
 - Enable unity-gtk-module:
- - Create a .gtkrc in your home(~) directory, if there isn't one already.
- - Add the following lines to this .gtkrc file:
- `gtk-shell-shows-app-menu=1`
- `gtk-shell-shows-menubar=1`
- - Add the following lines to your .profile and .bashrc (in your home directory) in order to enable the unity-gtk-module:
-  ```sh
-  if [ -n "$GTK_MODULES" ]; then
-      GTK_MODULES="${GTK_MODULES}:unity-gtk-module"
-  else
-      GTK_MODULES="unity-gtk-module"
-  fi
+  - Create a .gtkrc in your home(~) directory, if there isn't one already.
+  - Add the following lines to this .gtkrc file:
+   `gtk-shell-shows-app-menu=1`
+   `gtk-shell-shows-menubar=1`
+  - Add the following lines to your .profile and .bashrc (in your home directory) in order to enable the unity-gtk-module:
+    ```sh
+    if [ -n "$GTK_MODULES" ]; then
+        GTK_MODULES="${GTK_MODULES}:unity-gtk-module"
+    else
+        GTK_MODULES="unity-gtk-module"
+    fi
  
-  if [ -z "$UBUNTU_MENUPROXY" ]; then
-      UBUNTU_MENUPROXY=1
-  fi
+    if [ -z "$UBUNTU_MENUPROXY" ]; then
+        UBUNTU_MENUPROXY=1
+    fi
 
-  export GTK_MODULES
-  export UBUNTU_MENUPROXY
-  ```
+    export GTK_MODULES
+    export UBUNTU_MENUPROXY
+    ```
   
 To install unity-gtk-module for your distro:
+
  **UBUNTU-BASED DISTROS**
  - Install unity-gtk-module by typing `sudo apt-get install unity-gtk-module-common unity-gtk2-module unity-gtk3-module`
 
