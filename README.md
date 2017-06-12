@@ -90,4 +90,4 @@ export UBUNTU_MENUPROXY
 
 Author
 ===
- * Athor <ria.freelander@gmail.com>
+ * Author <ria.freelander@gmail.com>
