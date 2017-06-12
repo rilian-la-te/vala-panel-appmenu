@@ -100,8 +100,8 @@ There are some problems with the implementation, notably that you need to includ
 Basic Instructions for Enabling JAyatana:
 * Install OpenJDK >= 7 or JDK >= 1.7
 * Build vala-panel-appmenu with `-DENABLE_JAYATANA=ON`
-* Find instructions on Internet and make a Pull Request:)))
+* Find instructions on Internet
 
 Author
 ===
- * Author <ria.freelander@gmail.com>
+ * Athor <ria.freelander@gmail.com>
