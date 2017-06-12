@@ -12,7 +12,7 @@ Vala Panel Application Menu is a Global Menu applet for use with Vala Panel, xfc
  * libbamf (>=0.5.0)
     
 ---
-*Compilation Instructions*
+Compilation Instructions
 ---
   * Clone this repository to your `home` directory by typing:
   `git clone https://github.com/rilian-la-te/vala-panel-appmenu.git` then `cd` into the directory.
@@ -30,7 +30,7 @@ Vala Panel Application Menu is a Global Menu applet for use with Vala Panel, xfc
   * once you've decided on any flags you want to include, type (from your build directory) `cmake [flags] ..`
   * once the build is successful, you can compile and install Vala-Panel-Appmenu by typing `make && sudo make install`
 ---
-*Post-Build Instructions*
+Post-Build Instructions
 ---
 - Enable unity-gtk-module:
   - Create a .gtkrc in your home(~) directory, if there isn't one already.
@@ -74,7 +74,7 @@ To install unity-gtk-module for your distro:
 Vala-Panel-Appmenu conflicts with [qt5ct](https://sourceforge.net/p/qt5ct/tickets/34/) before 21.04.2017, so, if you are using an older version of qt5ct, use another PlatformTheme.
 
 ---
-*Desktop Environment-Specific Settings*
+Desktop Environment-Specific Settings
 ---
 When using the Vala-panel-appmenu as an XFCE or MATE menu applet, you have to configure the appmenu to show in the panel applet, rather than on each individual window. This configuration should remove any 'double' menus you may experience:
 
@@ -90,7 +90,7 @@ When using the Vala-panel-appmenu as an XFCE or MATE menu applet, you have to co
   `gtk-shell-shows-menubar=true`
 
 ---
-*Unsupported, Experimental Features*
+Experimental Features
 ---
 **JAyatana**
 JAyatana allows for displaying global menus in Java Swing applications. Because Vala-Panel-Appmenu uses the unity-gtk-module backend, this should theoretically work with JAyatana, although applications such as Netbeans and the JetBrains suite of IDEs require some configuration, which you can figure out with a cursory internet search.
