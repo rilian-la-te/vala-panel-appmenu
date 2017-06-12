@@ -73,8 +73,9 @@ To install unity-gtk-module for your distro:
 **ALL DISTROS**
 - To get QT menus to work, install your distribution's qt4 and qt5 appmenu packages. In Ubuntu 17.04, for example, this involves typing `sudo apt-get install appmenu-qt`.
 
-**NOTE** 
+**NOTE**: 
 Vala-Panel-Appmenu conflicts with [qt5ct](https://sourceforge.net/p/qt5ct/tickets/34/) before 21.04.2017, so, if you are using an older version of qt5ct, use another PlatformTheme.
+
 ---
 *Desktop Environment-Specific Settings*
 ---
