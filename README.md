@@ -104,4 +104,4 @@ Basic Instructions for Enabling JAyatana:
 
 Author
 ===
- * Author <ria.freelander@gmail.com>
+ * Athor <ria.freelander@gmail.com>
