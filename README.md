@@ -96,6 +96,7 @@ When using the Vala-panel-appmenu as an XFCE or MATE menu applet, you have to co
 Experimental Features
 ---
 **JAyatana**
+
 JAyatana allows for displaying global menus in Java Swing applications. Because Vala-Panel-Appmenu uses the unity-gtk-module backend, this should theoretically work with JAyatana, although applications such as Netbeans and the JetBrains suite of IDEs require some configuration, which you can figure out with a cursory internet search.
 
 There are some problems with the implementation, notably that you need to include `env XDG_CURRENT_DESKTOP=Unity` to the beginning of your launch command.
