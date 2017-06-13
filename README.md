@@ -59,10 +59,9 @@ To install unity-gtk-module for your distro:
  - Install unity-gtk-module by typing `sudo apt-get install unity-gtk-module-common unity-gtk2-module unity-gtk3-module`
 
  **ARCH-BASED DISTROS**
- - Install from AUR [unity-gtk-module-standalone-bzr](https://aur.archlinux.org/packages/unity-gtk-module-standalone-bzr/) for appmenu to work
- - Install [Appmenu](https://aur.archlinux.org/packages/appmenu-qt/) to get Qt4 application menus to work. Qt 5.7 application menus should already work out of the box.
- - Install these [libdbusmenu-glib](https://aur.archlinux.org/packages/libdbusmenu-glib/) [libdbusmenu-gtk3](https://aur.archlinux.org/packages/libdbusmenu-gtk3/) [libdbusmenu-gtk2](https://aur.archlinux.org/packages/libdbusmenu-gtk2/) to get Chromium/Google Chrome to work
-
+* Install from AUR [appmenu-gtk-module-git](https://aur.archlinux.org/packages/appmenu-gtk-module-git/) for GTK applications to work
+* Install [Appmenu](https://aur.archlinux.org/packages/appmenu-qt/) to get appmenu for Qt4 Applications to work. Qt 5.7 must work out of the box.
+* Install these [libdbusmenu-glib](https://archlinux.org/packages/libdbusmenu-glib/) [libdbusmenu-gtk3](https://archlinux.org/packages/libdbusmenu-gtk3/) [libdbusmenu-gtk2](https://archlinux.org/packages/libdbusmenu-gtk2/) to get Chromium/Google Chrome to work
  **DISTROS OTHER THAN ARCH OR UBUNTU**
  - When building vala-panel-appmenu with CMAKE, use the flag, `-DENABLE_UNITY_GTK_MODULE=ON`
  - Follow instructions in the (unity-gtk-module) [README](unity-gtk-module/README.md)
@@ -85,9 +84,12 @@ When using the Vala-panel-appmenu as an XFCE or MATE menu applet, you have to co
 
 **MATE**
 - Enable the appmenu and menubar in gtk with these steps:
- - Create or edit .config/gtk-3.0/settings.ini file in your home(~) directory and add the following lines to it under `[Settings]`:
+- If you are using MATE>=1.19 (or 1.18 in Ubuntu), use this commands:
+`gsettings set org.mate.interface gtk-shell-shows-app-menu true`
+`gsettings set org.mate.interface gtk-shell-shows-menubar true`
+- If commands above does not work, create or edit .config/gtk-3.0/settings.ini file in your home(~) directory and add the following lines to it under `[Settings]`:
   `gtk-shell-shows-app-menu=true`
-  `gtk-shell-shows-menubar=true`
+  `gtk-shell-shows-menubar=true`  
 
 ---
 Experimental Features
