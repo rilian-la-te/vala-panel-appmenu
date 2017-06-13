@@ -32,7 +32,7 @@ Compilation Instructions
 ---
 Post-Build Instructions
 ---
-- Enable unity-gtk-module:
+- Enable unity-gtk-module on Ubuntu:
   - Create a .gtkrc in your home(~) directory, if there isn't one already.
   - Add the following lines to this .gtkrc file:
    `gtk-shell-shows-app-menu=1`
