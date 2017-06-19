@@ -38,11 +38,14 @@ create_javah(TARGET java-headers
         jayatana-java
     )
 install_jar(jayatana-java DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/java)
+configure_file(agent/MANIFEST.MF.in ${CMAKE_CURRENT_BINARY_DIR}/agent/MANIFEST.MF)
 add_jar(agent-java
     SOURCES
         agent/Agent.java
     OUTPUT_NAME
         jayatanaag
+    MANIFEST
+        ${CMAKE_CURRENT_BINARY_DIR}/agent/MANIFEST.MF
     )
 install_jar(agent-java DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/java)
 add_custom_target(java-files-ide SOURCES ${JAVA_SOURCES})

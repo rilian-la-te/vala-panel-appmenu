@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Created-By: @Java_VERSION_STRING@ (Oracle Corporation)
+Premain-Class: com.jarego.jayatana.Agent
