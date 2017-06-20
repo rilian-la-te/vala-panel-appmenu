@@ -3,3 +3,11 @@
     background-image: none;
     color: inherit;
 }
+
+.-vala-panel-appmenu-bold > * > GtkLabel,
+.-vala-panel-appmenu-bold > * > *  > GtkLabel {
+  font-weight: normal;
+}
+.-vala-panel-appmenu-bold:nth-child(1) > * > GtkLabel {
+  font-weight: 900;
+}

@@ -125,6 +125,10 @@ endif()
 cmake_dependent_option(ENABLE_BUDGIE "Enable budgie-desktop plugin" ON
     "BUDGIE_FOUND; PEAS_FOUND" OFF)
 
+option(MAKE_BOLD_APPNAME "Make application name bold, if you like it" OFF)
+if(MAKE_BOLD_APPNAME)
+    set(BOLD_DEFINE -D BOLD)
+endif()
 add_subdirectory(unity-gtk-module)
 ADD_SUBDIRECTORY(jayatana)
 add_subdirectory(dbusmenu)

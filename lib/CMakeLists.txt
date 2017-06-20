@@ -29,6 +29,7 @@ OPTIONS
     --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
     --thread
     ${WNCK_DEFINE}
+    ${BOLD_DEFINE}
 GENERATE_VAPI
     vala-panel-appmenu
 )
