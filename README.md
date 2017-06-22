@@ -26,6 +26,7 @@ Compilation Instructions
       * `-DENABLE_MATE=[ON/OFF]` Use `ON` to compile for MATE Panel
       * `-DENABLE_JAYATANA=[ON/OFF]` Use `ON` to include Jayatana library (enable global menu for java swing applications)
       * `-DENABLE_UNITY_GTK_MODULE=ON` Use this flag if you are compiling for a distro other than Arch (see instructions below for including unity-gtk-module with Arch) or Ubuntu (Ubuntu users can install unity-gtk-module from the ubuntu repositories--see 'Post-build Instructions', below).
+      * `-DMAKE_BOLD_APPNAME=[ON/OFF]` Use `ON` to make appname menu font bold (similar to macOS menu style).
       * `-DCMAKE_INSTALL_PREFIX=[path]` By default, Vala-Panel-Appmenu will install in the `/usr/local` directory. You can use this flag to change that.
   * once you've decided on any flags you want to include, type (from your build directory) `cmake [flags] ..`
   * once the build is successful, you can compile and install Vala-Panel-Appmenu by typing `make && sudo make install`
