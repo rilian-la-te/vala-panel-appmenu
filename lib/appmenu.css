@@ -3,3 +3,11 @@
     background-image: none;
     color: inherit;
 }
+
+.-vala-panel-appmenu-bold > * > label,
+.-vala-panel-appmenu-bold > * > *  > label {
+  font-weight: normal;
+}
+.-vala-panel-appmenu-bold:nth-child(1) > * > label {
+  font-weight: 900;
+}
