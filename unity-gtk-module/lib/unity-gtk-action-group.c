@@ -747,7 +747,6 @@ static gchar *unity_gtk_action_group_get_action_name(UnityGtkActionGroup *group,
                                                      UnityGtkMenuItem *item)
 {
 	GtkMenuItem *menu_item;
-	GtkAction *action;
 	const gchar *name;
 	gchar *normalized_name;
 	GHashTable *actions_by_name;
@@ -769,12 +768,13 @@ static gchar *unity_gtk_action_group_get_action_name(UnityGtkActionGroup *group,
 			menu_item = iter->data;
 	}
 
-	name   = NULL;
-	action = gtk_activatable_get_related_action(GTK_ACTIVATABLE(menu_item));
+	name = NULL;
+#if !GTK_CHECK_VERSION(3, 10, 0)
+	GtkAction *action = gtk_activatable_get_related_action(GTK_ACTIVATABLE(menu_item));
 
 	if (action != NULL)
 		name = gtk_action_get_name(action);
-
+#endif
 	if (name == NULL || name[0] == '\0')
 		name = gtk_menu_item_get_label(menu_item);
 
@@ -866,6 +866,7 @@ static gchar *unity_gtk_action_group_get_state_name(UnityGtkActionGroup *group,
 			else
 				name = normalized_label;
 		}
+#if !GTK_CHECK_VERSION(3, 10, 0)
 		else
 		{
 			GtkActivatable *activatable = GTK_ACTIVATABLE(item->menu_item);
@@ -921,6 +922,7 @@ static gchar *unity_gtk_action_group_get_state_name(UnityGtkActionGroup *group,
 				}
 			}
 		}
+#endif
 
 		if (name == NULL)
 		{
