@@ -241,12 +241,11 @@ static WindowData *gtk_window_get_window_data(GtkWindow *window)
 		GDBusConnection *session = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, NULL);
 		gchar *object_path       = g_strdup_printf(OBJECT_PATH "/%d", window_id);
 		gchar *old_unique_bus_name =
-            gtk_widget_get_property_string(GTK_WIDGET(window), _GTK_UNIQUE_BUS_NAME);
+		    gtk_widget_get_property_string(GTK_WIDGET(window), _GTK_UNIQUE_BUS_NAME);
 		gchar *old_unity_object_path =
-            gtk_widget_get_property_string(GTK_WIDGET(window), _UNITY_OBJECT_PATH);
+		    gtk_widget_get_property_string(GTK_WIDGET(window), _UNITY_OBJECT_PATH);
 		gchar *old_menubar_object_path =
-            gtk_widget_get_property_string(GTK_WIDGET(window),
-		                                       _GTK_MENUBAR_OBJECT_PATH);
+		    gtk_widget_get_property_string(GTK_WIDGET(window), _GTK_MENUBAR_OBJECT_PATH);
 		GDBusActionGroup *old_action_group = NULL;
 		GDBusMenuModel *old_menu_model     = NULL;
 
@@ -293,20 +292,19 @@ static WindowData *gtk_window_get_window_data(GtkWindow *window)
 		                                          NULL);
 
 		if (old_unique_bus_name == NULL)
-            gtk_widget_set_property_string(GTK_WIDGET(window),
-			                                   _GTK_UNIQUE_BUS_NAME,
-			                                   g_dbus_connection_get_unique_name(
-			                                       session));
+			gtk_widget_set_property_string(GTK_WIDGET(window),
+			                               _GTK_UNIQUE_BUS_NAME,
+			                               g_dbus_connection_get_unique_name(session));
 
 		if (old_unity_object_path == NULL)
-            gtk_widget_set_property_string(GTK_WIDGET(window),
-			                                   _UNITY_OBJECT_PATH,
-			                                   object_path);
+			gtk_widget_set_property_string(GTK_WIDGET(window),
+			                               _UNITY_OBJECT_PATH,
+			                               object_path);
 
 		if (old_menubar_object_path == NULL)
-            gtk_widget_set_property_string(GTK_WIDGET(window),
-			                                   _GTK_MENUBAR_OBJECT_PATH,
-			                                   object_path);
+			gtk_widget_set_property_string(GTK_WIDGET(window),
+			                               _GTK_MENUBAR_OBJECT_PATH,
+			                               object_path);
 
 		g_object_set_qdata_full(G_OBJECT(window),
 		                        window_data_quark(),
