@@ -21,6 +21,8 @@
 #include <gdk/gdkx.h>
 #include <gtk/gtk.h>
 
+#include "platform.h"
+
 /*
  * Default list of apps which should not be patched.
  * Use xprop | grep CLASS to find the name to use.
@@ -154,115 +156,6 @@ static gboolean is_true(const gchar *value)
 	       g_ascii_strcasecmp(value, "false") != 0;
 }
 
-static gchar *gtk_widget_get_x11_property_string(GtkWidget *widget, const gchar *name)
-{
-	GdkWindow *window;
-	GdkDisplay *display;
-	Display *xdisplay;
-	Window xwindow;
-	Atom property;
-	Atom actual_type;
-	int actual_format;
-	unsigned long nitems;
-	unsigned long bytes_after;
-	unsigned char *prop;
-
-	g_return_val_if_fail(GTK_IS_WIDGET(widget), NULL);
-
-	window   = gtk_widget_get_window(widget);
-	display  = gdk_window_get_display(window);
-	xdisplay = GDK_DISPLAY_XDISPLAY(display);
-	xwindow  = GDK_WINDOW_XID(window);
-
-	property = None;
-
-	if (display != NULL)
-		property = gdk_x11_get_xatom_by_name_for_display(display, name);
-
-	if (property == None)
-		property = gdk_x11_get_xatom_by_name(name);
-
-	g_return_val_if_fail(property != None, NULL);
-
-	if (XGetWindowProperty(xdisplay,
-	                       xwindow,
-	                       property,
-	                       0,
-	                       G_MAXLONG,
-	                       False,
-	                       AnyPropertyType,
-	                       &actual_type,
-	                       &actual_format,
-	                       &nitems,
-	                       &bytes_after,
-	                       &prop) == Success)
-	{
-		if (actual_format)
-		{
-			gchar *string = g_strdup((const gchar *)prop);
-
-			if (prop != NULL)
-				XFree(prop);
-
-			return string;
-		}
-		else
-			return NULL;
-	}
-
-	return NULL;
-}
-
-static void gtk_widget_set_x11_property_string(GtkWidget *widget, const gchar *name,
-                                               const gchar *value)
-{
-	GdkWindow *window;
-	GdkDisplay *display;
-	Display *xdisplay;
-	Window xwindow;
-	Atom property;
-	Atom type;
-
-	g_return_if_fail(GTK_IS_WIDGET(widget));
-
-	window   = gtk_widget_get_window(widget);
-	display  = gdk_window_get_display(window);
-	xdisplay = GDK_DISPLAY_XDISPLAY(display);
-	xwindow  = GDK_WINDOW_XID(window);
-
-	property = None;
-
-	if (display != NULL)
-		property = gdk_x11_get_xatom_by_name_for_display(display, name);
-
-	if (property == None)
-		property = gdk_x11_get_xatom_by_name(name);
-
-	g_return_if_fail(property != None);
-
-	type = None;
-
-	if (display != NULL)
-		type = gdk_x11_get_xatom_by_name_for_display(display, "UTF8_STRING");
-
-	if (type == None)
-		type = gdk_x11_get_xatom_by_name("UTF8_STRING");
-
-	g_return_if_fail(type != None);
-
-	if (value != NULL)
-		XChangeProperty(xdisplay,
-		                xwindow,
-		                property,
-		                type,
-		                8,
-		                PropModeReplace,
-		                (unsigned char *)value,
-		                g_utf8_strlen(value, -1));
-	else
-		XDeleteProperty(xdisplay, xwindow, property);
-}
-
 static WindowData *window_data_new(void)
 {
 	return g_slice_new0(WindowData);
@@ -348,11 +241,11 @@ static WindowData *gtk_window_get_window_data(GtkWindow *window)
 		GDBusConnection *session = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, NULL);
 		gchar *object_path       = g_strdup_printf(OBJECT_PATH "/%d", window_id);
 		gchar *old_unique_bus_name =
-		    gtk_widget_get_x11_property_string(GTK_WIDGET(window), _GTK_UNIQUE_BUS_NAME);
+            gtk_widget_get_property_string(GTK_WIDGET(window), _GTK_UNIQUE_BUS_NAME);
 		gchar *old_unity_object_path =
-		    gtk_widget_get_x11_property_string(GTK_WIDGET(window), _UNITY_OBJECT_PATH);
+            gtk_widget_get_property_string(GTK_WIDGET(window), _UNITY_OBJECT_PATH);
 		gchar *old_menubar_object_path =
-		    gtk_widget_get_x11_property_string(GTK_WIDGET(window),
+            gtk_widget_get_property_string(GTK_WIDGET(window),
 		                                       _GTK_MENUBAR_OBJECT_PATH);
 		GDBusActionGroup *old_action_group = NULL;
 		GDBusMenuModel *old_menu_model     = NULL;
@@ -400,18 +293,18 @@ static WindowData *gtk_window_get_window_data(GtkWindow *window)
 		                                          NULL);
 
 		if (old_unique_bus_name == NULL)
-			gtk_widget_set_x11_property_string(GTK_WIDGET(window),
+            gtk_widget_set_property_string(GTK_WIDGET(window),
 			                                   _GTK_UNIQUE_BUS_NAME,
 			                                   g_dbus_connection_get_unique_name(
 			                                       session));
 
 		if (old_unity_object_path == NULL)
-			gtk_widget_set_x11_property_string(GTK_WIDGET(window),
+            gtk_widget_set_property_string(GTK_WIDGET(window),
 			                                   _UNITY_OBJECT_PATH,
 			                                   object_path);
 
 		if (old_menubar_object_path == NULL)
-			gtk_widget_set_x11_property_string(GTK_WIDGET(window),
+            gtk_widget_set_property_string(GTK_WIDGET(window),
 			                                   _GTK_MENUBAR_OBJECT_PATH,
 			                                   object_path);
 

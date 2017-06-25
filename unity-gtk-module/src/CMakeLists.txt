@@ -1,4 +1,7 @@
-set(MODULE_SOURCES main.c)
+set(MODULE_SOURCES main.c
+    platform.c
+    platform.h
+    )
 
 set(GTK3_MODULEDIR ${GTK3_LIBDIR}/gtk-3.0/modules)
 add_library(appmenu-gtk3-module MODULE ${MODULE_SOURCES})
