@@ -131,7 +131,6 @@ G_GNUC_INTERNAL void gtk_widget_set_property_string(GtkWidget *widget, const gch
 	if (GDK_IS_X11_DISPLAY(gdk_display_get_default()))
 #endif
 		gtk_widget_set_x11_property_string(widget, name, value);
-	g_assert_not_reached();
 }
 
 G_GNUC_INTERNAL gchar *gtk_widget_get_property_string(GtkWidget *widget, const gchar *name)
