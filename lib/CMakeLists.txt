@@ -153,7 +153,7 @@ if(ENABLE_BUDGIE)
     target_link_libraries (appmenu-budgie ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${BUDGIE_LIBRARIES} m appmenu-core)
     link_directories (${CORE_LIBRARY_DIRS} ${WNCK_LIBRARY_DIRS} ${BUDGIE_LIBRARY_DIRS})
     # Install plugin stuffs
-    install(TARGETS appmenu-budgie DESTINATION ${CMAKE_INSTALL_LIBDIR}/budgie-desktop/plugins)
+    install(TARGETS appmenu-budgie DESTINATION ${CMAKE_INSTALL_LIBDIR}/budgie-desktop/plugins/budgie-vala-panel-appmenu-plugin)
 endif()
 ##########
 # MATE Part
