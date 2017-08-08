@@ -471,8 +471,12 @@ static void hijacked_window_realize(GtkWidget *widget)
 		(*pre_hijacked_window_realize)(widget);
 
 #if GTK_MAJOR_VERSION == 3
-	if (!GTK_IS_APPLICATION_WINDOW(widget))
+	if ((!GTK_IS_APPLICATION_WINDOW(widget))
+#else
+    if (1
 #endif
+        &&
+	    !(gtk_window_get_type_hint(GTK_WINDOW(widget)) == GDK_WINDOW_TYPE_HINT_DND))
 		gtk_window_get_window_data(GTK_WINDOW(widget));
 }
 
