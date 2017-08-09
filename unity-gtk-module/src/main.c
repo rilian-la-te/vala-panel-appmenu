@@ -467,15 +467,19 @@ static void hijacked_window_realize(GtkWidget *widget)
 {
 	g_return_if_fail(GTK_IS_WINDOW(widget));
 
+	GdkScreen *screen = gtk_widget_get_screen(widget);
+	GdkVisual *visual = gdk_screen_get_rgba_visual(screen);
+	if (visual)
+		gtk_widget_set_visual(widget, visual);
 	if (pre_hijacked_window_realize != NULL)
 		(*pre_hijacked_window_realize)(widget);
 
 #if GTK_MAJOR_VERSION == 3
 	if ((!GTK_IS_APPLICATION_WINDOW(widget))
 #else
-    if (1
+	if (1
 #endif
-        &&
+	    &&
 	    !(gtk_window_get_type_hint(GTK_WINDOW(widget)) == GDK_WINDOW_TYPE_HINT_DND))
 		gtk_window_get_window_data(GTK_WINDOW(widget));
 }
