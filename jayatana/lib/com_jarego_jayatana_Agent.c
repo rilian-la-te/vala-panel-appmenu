@@ -153,11 +153,8 @@ jvmtiError com_jarego_jayatana_Initialize(JavaVM *vm, int fromAgent)
 		return JVMTI_ERROR_NONE;
 
 	// la libreria si existe iniciar procedo de validacion de integracion
-	if (com_jarego_jayatana_Agent_CheckEnv("XDG_CURRENT_DESKTOP", "Unity", false)
-	        ? com_jarego_jayatana_Agent_CheckEnv("JAYATANA_FORCE", "true", true) &&
-	              com_jarego_jayatana_Agent_CheckEnv("JAYATANA", "1", true)
-	        : com_jarego_jayatana_Agent_CheckEnv("JAYATANA_FORCE", "true", false) ||
-	              com_jarego_jayatana_Agent_CheckEnv("JAYATANA", "1", false))
+	if (com_jarego_jayatana_Agent_CheckEnv("JAYATANA", "1", true) ||
+	    com_jarego_jayatana_Agent_CheckEnv("JAYATANA_FORCE", "true", true))
 	{
 		// inicializar entorno
 		jvmtiEnv *jvmti_env;
