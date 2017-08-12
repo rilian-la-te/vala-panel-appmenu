@@ -11,7 +11,7 @@ cmake_dependent_option(ENABLE_GTK_MODULE_DEMOS "Enable demo programs for gtk mod
 if(ENABLE_UNITY_GTK_MODULE)
 pkg_check_modules(DOC gtk-doc>=1.26)
 	if(DOC_FOUND)
-		add_subdirectory(docs)
+#		add_subdirectory(docs)
 	endif()
 	add_subdirectory(data)
 	add_subdirectory(lib)

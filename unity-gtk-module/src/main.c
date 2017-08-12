@@ -469,7 +469,7 @@ static void hijacked_window_realize(GtkWidget *widget)
 
 	GdkScreen *screen = gtk_widget_get_screen(widget);
 	GdkVisual *visual = gdk_screen_get_rgba_visual(screen);
-	if (visual)
+    if (visual && (gtk_window_get_type_hint(GTK_WINDOW(widget)) == GDK_WINDOW_TYPE_HINT_DND))
 		gtk_widget_set_visual(widget, visual);
 	if (pre_hijacked_window_realize != NULL)
 		(*pre_hijacked_window_realize)(widget);
