@@ -27,11 +27,20 @@
  * Default list of apps which should not be patched.
  * Use xprop | grep CLASS to find the name to use.
  */
-static const char *const BLACKLIST[] = { "acroread",       "emacs",
-	                                 "emacs23",        "emacs23-lucid",
-	                                 "emacs24",        "emacs24-lucid",
-	                                 "budgie-panel",   "mate-panel",
-	                                 "desktop_window", NULL };
+static const char *const BLACKLIST[] = { "acroread",
+	                                 "emacs",
+	                                 "emacs23",
+	                                 "emacs23-lucid",
+	                                 "emacs24",
+	                                 "emacs24-lucid",
+	                                 "budgie-panel",
+	                                 "mate-panel",
+	                                 "inidcator-applet",
+	                                 "mate-indicator-applet",
+	                                 "mate-indicator-applet-appmenu",
+	                                 "mate-indicator-applet-complete",
+	                                 "desktop_window",
+	                                 NULL };
 
 #define UNITY_GTK_MODULE_SCHEMA "org.valapanel.appmenu-gtk-module"
 #define BLACKLIST_KEY "blacklist"
