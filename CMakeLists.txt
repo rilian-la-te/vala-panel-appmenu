@@ -67,7 +67,7 @@ pkg_check_modules (CORE QUIET
   gmodule-2.0>=2.44
   libbamf3)
 
-pkg_check_modules(GTK3 REQUIRED
+pkg_check_modules(GTK REQUIRED
     gtk+-3.0>=3.10)
 
 pkg_check_modules(GLIB REQUIRED

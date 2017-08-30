@@ -1,5 +1,14 @@
+cmake_minimum_required (VERSION 2.8)
+cmake_policy (VERSION 2.8)
+project (appmenu-gtk-module C)
+enable_testing ()
+include(GNUInstallDirs)
+include(CMakeDependentOption)
+find_package (PkgConfig QUIET)
 pkg_check_modules(GTK2
 	gtk+-2.0>=2.24)
+pkg_check_modules(GTK3 REQUIRED QUIET
+	gtk+-3.0>=3.10)
 find_package(X11)
 
 cmake_dependent_option(ENABLE_UNITY_GTK_MODULE "Build unity-gtk-module" OFF
@@ -9,8 +18,8 @@ cmake_dependent_option(ENABLE_GTK_MODULE_DEMOS "Enable demo programs for gtk mod
 
 
 if(ENABLE_UNITY_GTK_MODULE)
-pkg_check_modules(DOC gtk-doc>=1.26)
-	if(DOC_FOUND)
+	find_package(GtkDoc REQUIRED)
+	if(GTKDOC_FOUND)
 #		add_subdirectory(docs)
 	endif()
 	add_subdirectory(data)
