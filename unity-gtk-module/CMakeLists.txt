@@ -11,13 +11,22 @@ pkg_check_modules(GTK3 REQUIRED QUIET
 	gtk+-3.0>=3.10)
 find_package(X11)
 
+cmake_dependent_option(STANDALONE "Build unity-gtk-module STANDALONE" ON
+	"NOT ENABLE_UNITY_GTK_MODULE;NOT CORE_FOUND;X11_FOUND" OFF)
 cmake_dependent_option(ENABLE_UNITY_GTK_MODULE "Build unity-gtk-module" OFF
 	"X11_FOUND" OFF)
 cmake_dependent_option(ENABLE_GTK_MODULE_DEMOS "Enable demo programs for gtk module" OFF
 	"ENABLE_UNITY_GTK_MODULE" OFF)
 
+if(STANDALONE)
+	set (CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}")
+	set (CPACK_SOURCE_IGNORE_FILES "/build/;/.gitmodules;/.git;/.gitignore;~$;${CPACK_SOURCE_IGNORE_FILES}")
+	include (CPack)
+	add_custom_target (dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
+endif()
 
-if(ENABLE_UNITY_GTK_MODULE)
+
+if(ENABLE_UNITY_GTK_MODULE OR STANDALONE)
 	find_package(GtkDoc REQUIRED)
 	if(GTKDOC_FOUND)
 #		add_subdirectory(docs)
