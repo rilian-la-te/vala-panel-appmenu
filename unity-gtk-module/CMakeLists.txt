@@ -15,7 +15,7 @@ cmake_dependent_option(STANDALONE "Build unity-gtk-module STANDALONE" ON
 	"NOT ENABLE_UNITY_GTK_MODULE;NOT CORE_FOUND;X11_FOUND" OFF)
 cmake_dependent_option(ENABLE_UNITY_GTK_MODULE "Build unity-gtk-module" OFF
 	"X11_FOUND" OFF)
-cmake_dependent_option(ENABLE_GTK_MODULE_DEMOS "Enable demo programs for gtk module" OFF
+cmake_dependent_option(ENABLE_GTK_MODULE_DEMOS "Enable demo programs and docs for gtk module" OFF
 	"ENABLE_UNITY_GTK_MODULE" OFF)
 
 if(STANDALONE)
@@ -25,12 +25,13 @@ if(STANDALONE)
 	add_custom_target (dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 endif()
 
-
-if(ENABLE_UNITY_GTK_MODULE OR STANDALONE)
-	find_package(GtkDoc REQUIRED)
+if(ENABLE_GTK_MODULE_DEMOS)
+	find_package(GtkDoc)
 	if(GTKDOC_FOUND)
 #		add_subdirectory(docs)
 	endif()
+endif()
+if(ENABLE_UNITY_GTK_MODULE OR STANDALONE)
 	add_subdirectory(data)
 	add_subdirectory(lib)
 	add_subdirectory(src)
