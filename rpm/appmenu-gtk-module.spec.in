@@ -72,7 +72,7 @@ Summary:	Common files for appmenu-gtk{2,3}-module
 BuildArch:	noarch
 BuildRequires:	systemd
 Requires:	/bin/sh
-Requires:	dbus
+Requires:	dbus-1
 Requires:	gawk
 Requires:	glib2
 Requires:	sed
@@ -103,7 +103,7 @@ This GTK 3 module exports GtkMenuShells over D-Bus.
 %setup -q -n @CMAKE_PROJECT_NAME@-%{version}
 
 %build
-cmake . -DGSETTINGS_COMPILE=OFF -DCMAKE_INSTALL_PREFIX=%{_prefix} -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir} -DCMAKE_INSTALL_LIBDIR=%{_libdir} -DCMAKE_INSTALL_SYSCONFDIR=%{_sysconfdir} -DCMAKE_INSTALL_DATAROOTDIR=%{_datarootdir} -DCMAKE_INSTALL_DATADIR=%{_datadir} -DENABLE_BUDGIE=OFF -DENABLE_XFCE=OFF -DENABLE_VALAPANEL=OFF -DENABLE_MATE=OFF -DENABLE_UNITY_GTK_MODULE=ON
+cmake unity-gtk-module -DCMAKE_INSTALL_PREFIX=%{_prefix} -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir} -DCMAKE_INSTALL_LIBDIR=%{_libdir} -DCMAKE_INSTALL_SYSCONFDIR=%{_sysconfdir} -DCMAKE_INSTALL_DATAROOTDIR=%{_datarootdir} -DCMAKE_INSTALL_DATADIR=%{_datadir} -DGSETTINGS_LOCALINSTALL=ON -DGSETTINGS_COMPILE=OFF -DSTANDALONE=ON
 make %{?_smp_mflags}
 
 %install

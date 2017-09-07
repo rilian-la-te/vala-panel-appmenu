@@ -35,7 +35,7 @@ and share all Unity limitations and advancements.
 %setup -q 
 
 %build
-cmake . -DGSETTINGS_COMPILE=OFF -DCMAKE_INSTALL_PREFIX=%{_prefix} -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir} -DCMAKE_INSTALL_LIBDIR=%{_libdir} -DCMAKE_INSTALL_SYSCONFDIR=%{_sysconfdir} -DCMAKE_INSTALL_DATAROOTDIR=%{_datarootdir} -DCMAKE_INSTALL_DATADIR=%{_datadir} -DCMAKE_INSTALL_LIBEXECDIR=%{_libexecdir}
+cmake . -DGSETTINGS_COMPILE=OFF -DCMAKE_INSTALL_PREFIX=%{_prefix} -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir} -DCMAKE_INSTALL_LIBDIR=%{_libdir} -DCMAKE_INSTALL_SYSCONFDIR=%{_sysconfdir} -DCMAKE_INSTALL_DATAROOTDIR=%{_datarootdir} -DCMAKE_INSTALL_DATADIR=%{_datadir} -DCMAKE_INSTALL_LIBEXECDIR=%{_libexecdir} -DGSETTINGS_LOCALINSTALL=ON -DGSETTINGS_COMPILE=OFF
 make %{?_smp_mflags}
 
 %install
@@ -128,8 +128,9 @@ and share all Unity limitations and advancements.
 %doc README.md
 %dir %{_libdir}/budgie-desktop
 %dir %{_libdir}/budgie-desktop/plugins
-%{_libdir}/budgie-desktop/plugins/libappmenu-budgie.so
-%{_libdir}/budgie-desktop/plugins/appmenu-budgie.plugin
+%dir %{_libdir}/budgie-desktop/plugins/budgie-vala-panel-appmenu-plugin
+%{_libdir}/budgie-desktop/plugins/budgie-vala-panel-appmenu-plugin/libappmenu-budgie.so
+%{_libdir}/budgie-desktop/plugins/budgie-vala-panel-appmenu-plugin/appmenu-budgie.plugin
 
 %changelog
 * Mon Apr 27 2015 Konstantin <ria.freelander@gmail.com> - @CPACK_PACKAGE_VERSION@

@@ -14,6 +14,10 @@ set(LIB_SOURCES
 )
 set(GTK3_SOURCES
     )
+if (STANDALONE)
+    set (VERSION_MAJOR "0")
+    set (VERSION "0")
+endif()
 
 add_library(appmenu-gtk3-parser SHARED
         ${LIB_SOURCES}

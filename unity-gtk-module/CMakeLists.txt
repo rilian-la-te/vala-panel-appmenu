@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 2.8)
 cmake_policy (VERSION 2.8)
 project (appmenu-gtk-module C)
+cmake_policy(SET CMP0054 NEW)
 enable_testing ()
 include(GNUInstallDirs)
 include(CMakeDependentOption)
