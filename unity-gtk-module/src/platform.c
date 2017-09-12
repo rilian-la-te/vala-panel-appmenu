@@ -3,8 +3,10 @@
 #include <gdk/gdkx.h>
 #include <gtk/gtk.h>
 
-#if GTK_CHECK_VERSION(3, 0, 0)
+#if GTK_MAJOR_VERSION == 3
+#ifdef GDK_WINDOWING_WAYLAND
 #include <gdk/gdkwayland.h>
+#endif
 #endif
 
 #ifdef GDK_WINDOWING_X11
