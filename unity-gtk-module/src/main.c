@@ -40,7 +40,6 @@ static const char *const BLACKLIST[] = { "acroread",
 	                                 "mate-indicator-applet",
 	                                 "mate-indicator-applet-appmenu",
 	                                 "mate-indicator-applet-complete",
-	                                 "desktop_window",
 	                                 NULL };
 
 #define UNITY_GTK_MODULE_SCHEMA "org.valapanel.appmenu-gtk-module"
