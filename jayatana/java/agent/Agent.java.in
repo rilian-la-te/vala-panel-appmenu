@@ -57,12 +57,12 @@ public class Agent {
 			String libjayatanaag;
 			try {
 				if ((libjayatanaag = System.getenv("JAYATANA_LIBAGPATH")) == null) {
-					libjayatanaag = "/usr/lib/jayatana/libjayatanaag.so";
+					libjayatanaag = "@CMAKE_INSTALL_FULL_LIBDIR@/jayatana/libjayatanaag.so";
 				} else {
 					System.err.println("JAYATANA_LIBAGPATH="+libjayatanaag);
 				}
 			} catch (Exception e) {
-				libjayatanaag = "/usr/lib/jayatana/libjayatanaag.so";
+				libjayatanaag = "@CMAKE_INSTALL_FULL_LIBDIR@/jayatana/libjayatanaag.so";
 			}
 			
 			try {

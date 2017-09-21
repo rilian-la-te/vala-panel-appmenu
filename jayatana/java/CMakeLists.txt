@@ -1,5 +1,6 @@
 include(UseJava)
 configure_file(core/basic/NativeLibraries.java.in ${CMAKE_CURRENT_BINARY_DIR}/core/basic/NativeLibraries.java)
+configure_file(agent/Agent.java.in ${CMAKE_CURRENT_BINARY_DIR}/agent/Agent.java)
 set(JAVA_SOURCES
     core/Feature.java
     core/FeatureManager.java
@@ -12,7 +13,7 @@ set(JAVA_SOURCES
     core/swing/SwingGTKFixed.java
     core/swing/SwingWMClass.java
     core/swing/SwingGlobalMenuWindow.java
-    agent/Agent.java
+    ${CMAKE_CURRENT_BINARY_DIR}/agent/Agent.java
     )
 add_jar(jayatana-java
     SOURCES
@@ -41,11 +42,11 @@ install_jar(jayatana-java DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/java)
 configure_file(agent/MANIFEST.MF.in ${CMAKE_CURRENT_BINARY_DIR}/agent/MANIFEST.MF)
 add_jar(agent-java
     SOURCES
-        agent/Agent.java
+        ${CMAKE_CURRENT_BINARY_DIR}/agent/Agent.java
     OUTPUT_NAME
         jayatanaag
     MANIFEST
         ${CMAKE_CURRENT_BINARY_DIR}/agent/MANIFEST.MF
     )
 install_jar(agent-java DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/java)
-add_custom_target(java-files-ide SOURCES ${JAVA_SOURCES})
+add_custom_target(java-files-ide SOURCES ${JAVA_SOURCES} agent/Agent.java.in core/basic/NativeLibraries.java.in)
