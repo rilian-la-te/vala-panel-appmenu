@@ -87,7 +87,8 @@ namespace Appmenu
         }
         ~BamfAppmenu()
         {
-            SignalHandler.disconnect_by_data(app,this);
+            if (app is Bamf.Application)
+                SignalHandler.disconnect_by_data(app,this);
             app = null;
             window_section = null;
         }
