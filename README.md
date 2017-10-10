@@ -33,6 +33,7 @@ Compilation Instructions
 ---
 Post-Build Instructions
 ---
+- Install bamfdaemon (if it is not bundled with libbamf)
 - Enable unity-gtk-module on Ubuntu:
   - Create a .gtkrc in your home(~) directory, if there isn't one already.
   - Add the following lines to this .gtkrc file:
