@@ -1,34 +1,64 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: \n"
-"PO-Revision-Date: \n"
-"Last-Translator: whonchen\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-04-02 13:41+0600\n"
+"PO-Revision-Date: 2017-10-20 12:15+0800\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.0.4\n"
+"Last-Translator: hosxy <hosxy@live.com>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "Language: zh_CN\n"
-"X-Generator: Poedit 2.0.3\n"
 
+#: ../lib/appmenu-desktop.vala:39
 msgid "_Desktop"
 msgstr "桌面"
 
-msgid "_Files"
-msgstr "文件"
+#: ../lib/appmenu-desktop.vala:153
+msgid "No files"
+msgstr "无文件"
 
-msgid "_Desktop Settings"
-msgstr "桌面设置(_D)"
-
-msgid "_System Settings"
-msgstr "系统设置(_S)"
-
+#: ../lib/appmenu-bamf.vala:37
 msgid "_New Window..."
-msgstr "新建窗口(_N)..."
+msgstr "新建窗口(_N)"
 
+#: ../lib/appmenu-bamf.vala:38
 msgid "Close _This"
 msgstr "关闭当前窗口(_T)"
 
+#: ../lib/appmenu-bamf.vala:39
 msgid "Close _All"
 msgstr "关闭所有窗口(_A)"
+
+#: ../lib/menu-widget-menumodel.vala:42
+msgid "_Application"
+msgstr "应用程序(_A)"
+
+#: ../lib/desktop-menus.ui:6
+msgid "_Desktop Settings"
+msgstr "桌面设置(_D)"
+
+#: ../lib/desktop-menus.ui:10
+msgid "_System Settings"
+msgstr "系统设置(_S)"
+
+#: ../lib/desktop-menus.ui:17
+msgid "_Files"
+msgstr "文件"
+
+#: ../data/xfce/appmenu.desktop.xfce.in:5
+msgid "AppMenu Plugin"
+msgstr "全局菜单插件"
+
+#: ../data/xfce/appmenu.desktop.xfce.in:6
+msgid "Display AppMenu (Global Menu)"
+msgstr "显示应用程序菜单(全局菜单)"
+
+# This is icon name, don't need to translate
+#: ../data/xfce/appmenu.desktop.xfce.in:7
+msgid "applications-system"
+msgstr " "
 
