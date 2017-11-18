@@ -40,7 +40,7 @@ namespace Appmenu
             base(null,window);
             var group = new SimpleActionGroup();
             group.add_action_entries(menu_entries,this);
-            this.insert_action_group("desktop",group);
+            this.insert_action_group("menu",group);
             var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
             if ((completed_menus & MenuWidgetCompletionFlags.APPMENU) == 0)
             {
@@ -155,7 +155,7 @@ namespace Appmenu
                                                +FileAttribute.STANDARD_IS_HIDDEN,
                                                FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
                     if (!info.get_is_hidden())
-                        files_menu.append(info.get_display_name(),"desktop.launch-uri('%s')".printf(file.get_uri()));
+                        files_menu.append(info.get_display_name(),"menu.launch-uri('%s')".printf(file.get_uri()));
                 }
             } catch (Error e) {
                 stderr.printf("%s\n",e.message);
