@@ -73,15 +73,15 @@ namespace Appmenu
         }
         internal void activate_menu_id(SimpleAction action, Variant? param)
         {
-            MenuMaker.activate_menu_launch_id(action,param,this);
+            Launcher.activate_menu_launch_id(action,param,this);
         }
         internal void activate_menu_uri(SimpleAction action, Variant? param)
         {
-            MenuMaker.activate_menu_launch_uri(action,param,this);
+            Launcher.activate_menu_launch_uri(action,param,this);
         }
         internal void activate_menu_command(SimpleAction action, Variant? param)
         {
-            MenuMaker.activate_menu_launch_command(action,param,this);
+            Launcher.activate_menu_launch_command(action,param,this);
         }
         public void activate_menu_launch_type(SimpleAction action, Variant? param)
         {
