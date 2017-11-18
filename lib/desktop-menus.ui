@@ -17,6 +17,22 @@
           <attribute name="label" translatable="yes">_Files</attribute>
           <attribute name="submenu-action">menu.populate-files</attribute>
       </submenu>
+      <submenu id="docs">
+          <attribute name="label" translatable="yes">_Documents</attribute>
+          <attribute name="submenu-action">menu.populate-docs</attribute>
+      </submenu>
+      <submenu id="music">
+          <attribute name="label" translatable="yes">_Music</attribute>
+          <attribute name="submenu-action">menu.populate-music</attribute>
+      </submenu>
+      <submenu id="picts">
+          <attribute name="label" translatable="yes">_Pictures</attribute>
+          <attribute name="submenu-action">menu.populate-picts</attribute>
+      </submenu>
+      <submenu id="video">
+          <attribute name="label" translatable="yes">_Video</attribute>
+          <attribute name="submenu-action">menu.populate-video</attribute>
+      </submenu>
   </menu>
   <menu id="appmenu-bamf">
     <section>

@@ -25,6 +25,10 @@ namespace Appmenu
     internal class MenuWidgetDesktop: MenuWidgetMenumodel
     {
         private GLib.Menu files_menu;
+        private GLib.Menu documents_menu;
+        private GLib.Menu pictures_menu;
+        private GLib.Menu music_menu;
+        private GLib.Menu videos_menu;
         private const GLib.ActionEntry[] menu_entries =
         {
             {"launch-id", activate_menu_id, "s", null, null},
@@ -33,7 +37,11 @@ namespace Appmenu
             {"launch-type", activate_menu_launch_type, "s", null, null},
             {"desktop-settings", activate_desktop, null, null, null},
             {"control-center", activate_control, null, null, null},
-            {"populate-files", null, "b", "false", state_populate_files}
+            {"populate-files", null, "b", "false", state_populate_files},
+            {"populate-docs", null, "b", "false", state_populate_docs},
+            {"populate-music", null, "b", "false", state_populate_music},
+            {"populate-picts", null, "b", "false", state_populate_picts},
+            {"populate-video", null, "b", "false", state_populate_video}
         };
         public MenuWidgetDesktop(Bamf.Application? app, Bamf.Window? window)
         {
@@ -64,6 +72,10 @@ namespace Appmenu
             if ((completed_menus & MenuWidgetCompletionFlags.MENUBAR) == 0)
             {
                 files_menu = builder.get_object("files") as GLib.Menu;
+                documents_menu = builder.get_object("docs") as GLib.Menu;
+                music_menu = builder.get_object("music") as GLib.Menu;
+                pictures_menu = builder.get_object("picts") as GLib.Menu;
+                videos_menu = builder.get_object("video") as GLib.Menu;
                 unowned GLib.Menu gmenu = builder.get_object("menubar") as GLib.Menu;
                 var menubar = new Gtk.MenuBar.from_model(gmenu);
                 completed_menus |= MenuWidgetCompletionFlags.MENUBAR;
@@ -143,8 +155,33 @@ namespace Appmenu
         }
         public void state_populate_files(SimpleAction action, Variant? param)
         {
-            var desktop_dir = Environment.get_user_special_dir(UserDirectory.DESKTOP);
-            files_menu.remove_all();
+            populate_menu(files_menu,UserDirectory.DOWNLOAD);
+            action.set_state(new Variant.boolean(true));
+        }
+        public void state_populate_docs(SimpleAction action, Variant? param)
+        {
+            populate_menu(documents_menu,UserDirectory.DOCUMENTS);
+            action.set_state(new Variant.boolean(true));
+        }
+        public void state_populate_music(SimpleAction action, Variant? param)
+        {
+            populate_menu(music_menu,UserDirectory.MUSIC);
+            action.set_state(new Variant.boolean(true));
+        }
+        public void state_populate_picts(SimpleAction action, Variant? param)
+        {
+            populate_menu(pictures_menu,UserDirectory.PICTURES);
+            action.set_state(new Variant.boolean(true));
+        }
+        public void state_populate_video(SimpleAction action, Variant? param)
+        {
+            populate_menu(videos_menu,UserDirectory.VIDEOS);
+            action.set_state(new Variant.boolean(true));
+        }
+        private void populate_menu(GLib.Menu menu, GLib.UserDirectory udir)
+        {
+            var desktop_dir = Environment.get_user_special_dir(udir);
+            menu.remove_all();
             try
             {
                 var dir = Dir.open(desktop_dir);
@@ -155,18 +192,21 @@ namespace Appmenu
                                                +FileAttribute.STANDARD_IS_HIDDEN,
                                                FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
                     if (!info.get_is_hidden())
-                        files_menu.append(info.get_display_name(),"menu.launch-uri('%s')".printf(file.get_uri()));
+                        menu.append(info.get_display_name(),"menu.launch-uri('%s')".printf(file.get_uri()));
                 }
             } catch (Error e) {
                 stderr.printf("%s\n",e.message);
             }
-            if (files_menu.get_n_items() == 0)
-                files_menu.append(_("No files"),"ls.this-should-not-be-reached");
-            action.set_state(new Variant.boolean(true));
+            if (menu.get_n_items() == 0)
+                menu.append(_("No files"),"ls.this-should-not-be-reached");
         }
         ~MenuWidgetDesktop()
         {
             files_menu = null;
+            documents_menu = null;
+            pictures_menu = null;
+            music_menu = null;
+            videos_menu = null;
         }
     }
 }
