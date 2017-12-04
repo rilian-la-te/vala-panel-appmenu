@@ -17,7 +17,8 @@
  *          William Hua <william.hua@canonical.com>
  */
 
-#include "unity-gtk-parser.h"
+#include <unity-gtk-action-group.h>
+#include <unity-gtk-menu-shell.h>
 #include <gdk/gdkx.h>
 #include <gtk/gtk.h>
 

@@ -20,7 +20,7 @@
 #ifndef __UNITY_GTK_PARSER_H__
 #define __UNITY_GTK_PARSER_H__
 
-#include <unity-gtk-action-group.h>
-#include <unity-gtk-menu-shell.h>
+#include <appmenu-gtk-action-group.h>
+#include <appmenu-gtk-menu-shell.h>
 
 #endif /* __UNITY_GTK_PARSER_H__ */
