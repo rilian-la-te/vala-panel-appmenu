@@ -46,6 +46,6 @@ set(LIB_PUBLIC_HEADERS
 	unity-gtk-menu-shell.h
 	unity-gtk-action-group.h)
 
-set(GTK_MODULE_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR}/appmenu-gtk-module)
+set(GTK_MODULE_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR}/appmenu-gtk-parser)
 
 install(FILES ${LIB_PUBLIC_HEADERS} DESTINATION ${GTK_MODULE_INCLUDE_DIR})

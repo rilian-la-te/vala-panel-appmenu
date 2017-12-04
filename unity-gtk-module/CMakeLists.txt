@@ -12,12 +12,12 @@ pkg_check_modules(GTK3 REQUIRED QUIET
 	gtk+-3.0>=3.10)
 find_package(X11)
 
-cmake_dependent_option(STANDALONE "Build unity-gtk-module STANDALONE" ON
-	"NOT ENABLE_UNITY_GTK_MODULE;NOT CORE_FOUND;X11_FOUND" OFF)
-cmake_dependent_option(ENABLE_UNITY_GTK_MODULE "Build unity-gtk-module" OFF
+cmake_dependent_option(STANDALONE "Build appmenu-gtk-module STANDALONE" ON
+        "NOT ENABLE_APPMENU_GTK_MODULE;NOT CORE_FOUND;X11_FOUND" OFF)
+cmake_dependent_option(ENABLE_APPMENU_GTK_MODULE "Build appmenu-gtk-module" ON
 	"X11_FOUND" OFF)
 cmake_dependent_option(ENABLE_GTK_MODULE_DEMOS "Enable demo programs and docs for gtk module" OFF
-	"ENABLE_UNITY_GTK_MODULE" OFF)
+        "ENABLE_APPMENU_GTK_MODULE" OFF)
 
 if(STANDALONE)
 	set (CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}")
@@ -32,7 +32,7 @@ if(ENABLE_GTK_MODULE_DEMOS)
 #		add_subdirectory(docs)
 	endif()
 endif()
-if(ENABLE_UNITY_GTK_MODULE OR STANDALONE)
+if(ENABLE_APPMENU_GTK_MODULE OR STANDALONE)
 	add_subdirectory(data)
 	add_subdirectory(lib)
 	add_subdirectory(src)
