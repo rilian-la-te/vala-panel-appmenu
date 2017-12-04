@@ -48,4 +48,6 @@ set(LIB_PUBLIC_HEADERS
 
 set(GTK_MODULE_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR}/appmenu-gtk-parser)
 
-install(FILES ${LIB_PUBLIC_HEADERS} DESTINATION ${GTK_MODULE_INCLUDE_DIR})
+install(FILES "unity-gtk-parser.h" DESTINATION ${GTK_MODULE_INCLUDE_DIR} RENAME "appmenu-gtk-parser.h")
+install(FILES "unity-gtk-menu-shell.h" DESTINATION ${GTK_MODULE_INCLUDE_DIR} RENAME "appmenu-gtk-menu-shell.h")
+install(FILES "unity-gtk-action-group.h" DESTINATION ${GTK_MODULE_INCLUDE_DIR} RENAME "appmenu-gtk-action-group.h")
