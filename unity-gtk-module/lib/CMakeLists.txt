@@ -1,10 +1,10 @@
 set(LIB_SOURCES
-	unity-gtk-action-group.h
+        appmenu-gtk-action-group.h
 	unity-gtk-action-group-private.h
 	unity-gtk-action-group.c
 	unity-gtk-action-private.h
 	unity-gtk-action.c
-	unity-gtk-menu-shell.h
+        appmenu-gtk-menu-shell.h
 	unity-gtk-menu-shell-private.h
 	unity-gtk-menu-shell.c
 	unity-gtk-menu-section-private.h
@@ -43,11 +43,9 @@ endif()
 
 set(LIB_PUBLIC_HEADERS
         appmenu-gtk-parser.h
-	unity-gtk-menu-shell.h
-	unity-gtk-action-group.h)
+        appmenu-gtk-menu-shell.h
+        appmenu-gtk-action-group.h)
 
 set(GTK_MODULE_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR}/appmenu-gtk-parser)
 
-install(FILES "appmenu-gtk-parser.h" DESTINATION ${GTK_MODULE_INCLUDE_DIR} RENAME "appmenu-gtk-parser.h")
-install(FILES "unity-gtk-menu-shell.h" DESTINATION ${GTK_MODULE_INCLUDE_DIR} RENAME "appmenu-gtk-menu-shell.h")
-install(FILES "unity-gtk-action-group.h" DESTINATION ${GTK_MODULE_INCLUDE_DIR} RENAME "appmenu-gtk-action-group.h")
+install(FILES ${LIB_PUBLIC_HEADERS} DESTINATION ${GTK_MODULE_INCLUDE_DIR})

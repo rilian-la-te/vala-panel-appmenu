@@ -40,7 +40,7 @@ typedef GMenuModelClass UnityGtkMenuShellClass;
 
 G_END_DECLS
 
-#include "unity-gtk-action-group.h"
+#include "appmenu-gtk-action-group.h"
 
 G_BEGIN_DECLS
 

@@ -41,7 +41,7 @@ typedef GObjectClass UnityGtkActionGroupClass;
 
 G_END_DECLS
 
-#include "unity-gtk-menu-shell.h"
+#include "appmenu-gtk-menu-shell.h"
 
 G_BEGIN_DECLS
 

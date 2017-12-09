@@ -20,7 +20,7 @@
 #ifndef __UNITY_GTK_ACTION_GROUP_PRIVATE_H__
 #define __UNITY_GTK_ACTION_GROUP_PRIVATE_H__
 
-#include "unity-gtk-action-group.h"
+#include "appmenu-gtk-action-group.h"
 #include "unity-gtk-menu-item-private.h"
 #include <glib.h>
 
