@@ -192,7 +192,11 @@ namespace Appmenu
                                                +FileAttribute.STANDARD_IS_HIDDEN,
                                                FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
                     if (!info.get_is_hidden())
-                        menu.append(info.get_display_name(),"menu.launch-uri('%s')".printf(file.get_uri()));
+                    {
+                        var item = new GLib.MenuItem(info.get_display_name(),null);
+                        item.set_action_and_target("menu.launch-uri", "s", file.get_uri() );
+                        menu.append_item(item);
+                    }
                 }
             } catch (Error e) {
                 stderr.printf("%s\n",e.message);
