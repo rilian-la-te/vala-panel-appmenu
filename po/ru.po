@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-02 13:41+0600\n"
+"POT-Creation-Date: 2017-12-18 01:33+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -12,29 +12,29 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Poedit 1.7.4\n"
+"X-Generator: Poedit 2.0.5\n"
 
-#: ../lib/appmenu-desktop.vala:39
+#: ../lib/appmenu-desktop.vala:39 ../lib/appmenu-desktop.vala:65
 msgid "_Desktop"
 msgstr "Рабочий _стол"
 
-#: ../lib/appmenu-desktop.vala:153
+#: ../lib/appmenu-desktop.vala:153 ../lib/appmenu-desktop.vala:205
 msgid "No files"
 msgstr "Нет файлов"
 
-#: ../lib/appmenu-bamf.vala:37
+#: ../lib/appmenu-bamf.vala:37 ../lib/desktop-menus.ui:40
 msgid "_New Window..."
 msgstr "_Новое окно..."
 
-#: ../lib/appmenu-bamf.vala:38
+#: ../lib/appmenu-bamf.vala:38 ../lib/desktop-menus.ui:45
 msgid "Close _This"
 msgstr "Закрыть это _окно"
 
-#: ../lib/appmenu-bamf.vala:39
+#: ../lib/appmenu-bamf.vala:39 ../lib/desktop-menus.ui:50
 msgid "Close _All"
 msgstr "Закрыть _все"
 
-#: ../lib/menu-widget-menumodel.vala:42
+#: ../lib/menu-widget-menumodel.vala:42 ../lib/menu-widget-menumodel.vala:63
 msgid "_Application"
 msgstr "_Приложение"
 
@@ -62,14 +62,30 @@ msgstr "Показывает меню приложений (Глобальное
 msgid "applications-system"
 msgstr "applications-system"
 
+#: ../lib/desktop-menus.ui:21
+msgid "_Documents"
+msgstr "_Документы"
+
+#: ../lib/desktop-menus.ui:25
+msgid "_Music"
+msgstr "_Музыка"
+
+#: ../lib/desktop-menus.ui:29
+msgid "_Pictures"
+msgstr "_Рисунки"
+
+#: ../lib/desktop-menus.ui:33
+msgid "_Video"
+msgstr "_Видео"
+
+#~ msgid "Desktop Settings"
+#~ msgstr "Параметры рабочего стола"
+
+#~ msgid "System Settings"
+#~ msgstr "Параметры системы"
+
+#~ msgid "Files"
+#~ msgstr "Файлы"
+
 #~ msgid "Application"
 #~ msgstr "Приложение"
-
-msgid "Desktop Settings"
-msgstr "Параметры рабочего стола"
-
-msgid "System Settings"
-msgstr "Параметры системы"
-
-msgid "Files"
-msgstr "Файлы"

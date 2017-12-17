@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-02 13:41+0600\n"
+"POT-Creation-Date: 2017-12-18 01:33+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,27 +17,27 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../lib/appmenu-desktop.vala:39
+#: ../lib/appmenu-desktop.vala:39 ../lib/appmenu-desktop.vala:65
 msgid "_Desktop"
 msgstr ""
 
-#: ../lib/appmenu-desktop.vala:153
+#: ../lib/appmenu-desktop.vala:153 ../lib/appmenu-desktop.vala:205
 msgid "No files"
 msgstr ""
 
-#: ../lib/appmenu-bamf.vala:37
+#: ../lib/appmenu-bamf.vala:37 ../lib/desktop-menus.ui:40
 msgid "_New Window..."
 msgstr ""
 
-#: ../lib/appmenu-bamf.vala:38
+#: ../lib/appmenu-bamf.vala:38 ../lib/desktop-menus.ui:45
 msgid "Close _This"
 msgstr ""
 
-#: ../lib/appmenu-bamf.vala:39
+#: ../lib/appmenu-bamf.vala:39 ../lib/desktop-menus.ui:50
 msgid "Close _All"
 msgstr ""
 
-#: ../lib/menu-widget-menumodel.vala:42
+#: ../lib/menu-widget-menumodel.vala:42 ../lib/menu-widget-menumodel.vala:63
 msgid "_Application"
 msgstr ""
 
@@ -63,4 +63,20 @@ msgstr ""
 
 #: ../data/xfce/appmenu.desktop.xfce.in:7
 msgid "applications-system"
+msgstr ""
+
+#: ../lib/desktop-menus.ui:21
+msgid "_Documents"
+msgstr ""
+
+#: ../lib/desktop-menus.ui:25
+msgid "_Music"
+msgstr ""
+
+#: ../lib/desktop-menus.ui:29
+msgid "_Pictures"
+msgstr ""
+
+#: ../lib/desktop-menus.ui:33
+msgid "_Video"
 msgstr ""
