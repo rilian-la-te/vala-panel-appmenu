@@ -31,6 +31,7 @@ public class AppmenuPlugin : Xfce.PanelPlugin {
         add(widget);
         add_action_widget(widget);
         this.width_request = -1;
+        this.set_expand(true);
         widget.show_all();
     }
     private Gtk.Widget widget;

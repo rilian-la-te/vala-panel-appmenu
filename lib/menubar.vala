@@ -20,7 +20,7 @@ using GLib;
 
 namespace Appmenu
 {
-    public class AppMenuBar : Gtk.Bin
+    public class AppMenuBar : Gtk.Viewport
     {
         private static DBusMenuRegistrarProxy proxy;
         private HashTable<uint,unowned Bamf.Window> desktop_menus;
@@ -40,6 +40,16 @@ namespace Appmenu
         }
         construct
         {
+            // Scroller setup
+            var adj = this.hadjustment.set_step_increment(20);
+            this.add_events(Gdk.EventMask.SCROLL_MASK);
+            //this.add_events(Gdk.EventMask.SMOOTH_SCROLL_MASK);
+            this.scroll_event.connect(on_scroll_event);
+            this.resize_mode = Gtk.ResizeMode.QUEUE;
+            this.set_shadow_type(Gtk.ShadowType.NONE);
+            // FIXME: smooth scrolling doesn't work properly, because deltas, coming in events, are absolute zero
+
+            // Content setup
             desktop_menus = new HashTable<uint,unowned Bamf.Window>(direct_hash,direct_equal);
             matcher = Bamf.Matcher.get_default();
             proxy.window_registered.connect(register_menu_window);
@@ -65,6 +75,27 @@ namespace Appmenu
             unowned Gtk.Settings gtksettings = this.get_settings();
             gtksettings.gtk_shell_shows_app_menu = false;
             gtksettings.gtk_shell_shows_menubar = false;
+        }
+        public bool on_scroll_event(Gdk.EventScroll event)
+        {
+            var adj = this.hadjustment;
+            if (event.direction == Gdk.ScrollDirection.UP)
+            {
+                adj.set_value(adj.value - adj.step_increment);
+                return false;
+            }
+            if (event.direction == Gdk.ScrollDirection.DOWN)
+            {
+                adj.set_value(adj.value + adj.step_increment);
+                return false;
+            }
+            if (event.direction == Gdk.ScrollDirection.SMOOTH)
+            {
+                // FIXME: all deltas in events are zero
+                adj.set_value(adj.value + event.delta_y);
+                return false;
+            }
+            return false;
         }
         public void register_menu_window(uint window_id, string sender, ObjectPath menu_object_path)
         {
