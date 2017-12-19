@@ -41,7 +41,7 @@ namespace Appmenu
         construct
         {
             // Scroller setup
-            var adj = this.hadjustment.set_step_increment(20);
+            this.hadjustment.set_step_increment(20);
             this.add_events(Gdk.EventMask.SCROLL_MASK);
             //this.add_events(Gdk.EventMask.SMOOTH_SCROLL_MASK);
             this.scroll_event.connect(on_scroll_event);
