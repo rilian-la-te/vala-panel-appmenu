@@ -47,7 +47,6 @@ namespace Appmenu
             this.scroll_event.connect(on_scroll_event);
             this.resize_mode = Gtk.ResizeMode.QUEUE;
             this.set_shadow_type(Gtk.ShadowType.NONE);
-            this.set_hexpand(true);
             // FIXME: smooth scrolling doesn't work properly, because deltas, coming in events, are absolute zero
 
             // Content setup
