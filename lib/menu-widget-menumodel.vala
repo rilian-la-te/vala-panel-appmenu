@@ -89,6 +89,7 @@ namespace Appmenu
             if (menubar_path != null)
             {
                 menubar = new Gtk.MenuBar.from_model(DBusMenuModel.get(dbusconn,gtk_unique_bus_name,menubar_path));
+                menubar.move_selected.connect(on_menubar_sel_move);
                 this.add(scroller);
                 scroller.add(menubar);
                 if (menubar.get_children().length() > 0)
@@ -107,6 +108,7 @@ namespace Appmenu
             style_context.add_class("-vala-panel-appmenu-bold");
 #endif
             style_context.add_class("-vala-panel-appmenu-private");
+
             if (appmenu_actions != null)
                 this.insert_action_group("app",appmenu_actions);
             if (menubar_actions != null)
@@ -147,6 +149,45 @@ namespace Appmenu
                 print("smooth %f %f\n", event.delta_x, event.delta_y);
                 scroll_adj.set_value(val + incr * (event.delta_y + event.delta_x));
                 return true;
+            }
+            return false;
+        }
+        bool on_menubar_sel_move(int distance)
+        {
+            Gtk.Allocation allocation;
+            var children = menubar.get_children();
+            var elem = menubar.get_selected_item();
+
+            if (distance > 0 && elem == children.last().data)
+            {
+                elem = children.first().data;
+                distance = -distance;
+            }
+            else if (distance < 0 && elem == children.first().data)
+            {
+                elem = children.last().data;
+                distance = -distance;
+            } else {
+                elem = (distance > 0) ? (children.find(elem).next.data) :
+                                        (children.find(elem).prev.data);
+            }
+
+            elem.get_allocation(out allocation);
+            var rect = (Gdk.Rectangle)allocation;
+            if (distance > 0)
+            {
+                double item_margin = rect.x + rect.width;
+                double scroll_margin = scroll_adj.get_value() + scroll_adj.get_page_size();
+                double page_size = scroll_adj.get_page_size();
+                if (scroll_margin < item_margin)
+                    scroll_adj.set_value(item_margin - page_size);
+            }
+            else if (distance < 0)
+            {
+                double item_margin = rect.x;
+                double scroll_margin = scroll_adj.get_value();
+                if (scroll_margin > item_margin)
+                    scroll_adj.set_value(item_margin);
             }
             return false;
         }
