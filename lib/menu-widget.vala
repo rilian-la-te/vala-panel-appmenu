@@ -49,10 +49,9 @@ namespace Appmenu
         construct
         {
             provider = new Gtk.CssProvider();
-            File ruri = File.new_for_uri("resource://org/vala-panel/appmenu/appmenu.css");
             try
             {
-                provider.load_from_file(ruri);
+                provider.load_from_resource("/org/vala-panel/appmenu/appmenu.css");
                 this.notify.connect((pspec)=>{
                     foreach(unowned Gtk.Widget ch in this.get_children())
                     {
