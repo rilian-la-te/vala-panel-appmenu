@@ -51,7 +51,6 @@ public class GlobalMenuApplet: Applet
 #endif
         var layout = new Appmenu.AppMenuBar();
         this.add(layout);
-        //this.set_hexpand(true);
         show_all();
     }
 } // End class
