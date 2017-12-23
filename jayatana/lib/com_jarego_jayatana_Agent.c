@@ -153,7 +153,7 @@ jvmtiError com_jarego_jayatana_Initialize(JavaVM *vm, int fromAgent)
 		return JVMTI_ERROR_NONE;
 
 	// la libreria si existe iniciar procedo de validacion de integracion
-	if (com_jarego_jayatana_Agent_CheckEnv("JAYATANA", "1", true) ||
+	if (com_jarego_jayatana_Agent_CheckEnv("JAYATANA_FORCE", "1", true) ||
 	    com_jarego_jayatana_Agent_CheckEnv("JAYATANA_FORCE", "true", true))
 	{
 		// inicializar entorno
