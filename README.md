@@ -106,9 +106,10 @@ There are some problems with the implementation, notably that you need to includ
 Basic Instructions for Enabling JAyatana:
 * Install OpenJDK >= 7 or JDK >= 1.7
 * Build vala-panel-appmenu with `-DENABLE_JAYATANA=ON`
-* Add following line to your ~/.profile:
+* Add following lines to your ~/.profile and ~/.bashrc, in any order:
 ```
 export _JAVA_OPTIONS="${_JAVA_OPTIONS} -javaagent:/usr/share/java/jayatanaag.jar"
+export JAYATANA_FORCE=1
 ```
 
 Author
