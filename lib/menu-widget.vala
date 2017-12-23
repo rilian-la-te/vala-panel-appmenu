@@ -52,15 +52,12 @@ namespace Appmenu
             try
             {
                 provider.load_from_resource("/org/vala-panel/appmenu/appmenu.css");
+                // FIXME: styling code moved to menu-widget-menumodel.vala, but out of this block
                 this.notify.connect((pspec)=>{
                     foreach(unowned Gtk.Widget ch in this.get_children())
                     {
                         unowned Gtk.StyleContext context = ch.get_style_context();
                         context.add_provider(provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-#if BOLD
-                        context.add_class("-vala-panel-appmenu-bold");
-#endif
-                        context.add_class("-vala-panel-appmenu-private");
                     }
                 });
             } catch (GLib.Error e) {}
