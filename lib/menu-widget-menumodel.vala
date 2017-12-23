@@ -26,6 +26,7 @@ namespace Appmenu
         private GLib.ActionGroup? appmenu_actions = null;
         private GLib.ActionGroup? menubar_actions = null;
         private GLib.ActionGroup? unity_actions = null;
+        private Gtk.Adjustment? scroll_adj = null;
         protected Gtk.MenuBar? appmenu = null;
         protected Gtk.MenuBar? menubar = null;
         public MenuWidgetMenumodel(Bamf.Application? app,Bamf.Window window)
@@ -63,6 +64,15 @@ namespace Appmenu
                 name = window.get_name();
             if (name == null)
                 name = _("_Application");
+
+            // Scroller setup
+            scroll_adj = new Gtk.Adjustment(0, 0, 0, 20, 20, 0);
+            var scroller = new Gtk.ScrolledWindow(scroll_adj, null);
+            scroller.set_hexpand(true);
+            scroller.set_policy(Gtk.PolicyType.EXTERNAL, Gtk.PolicyType.NEVER);
+            scroller.set_shadow_type(Gtk.ShadowType.NONE);
+            scroller.scroll_event.connect(on_scroll_event);
+
             if (app_menu_path != null)
             {
                 var menu = new GLib.Menu();
@@ -79,7 +89,8 @@ namespace Appmenu
             if (menubar_path != null)
             {
                 menubar = new Gtk.MenuBar.from_model(DBusMenuModel.get(dbusconn,gtk_unique_bus_name,menubar_path));
-                this.add(menubar);
+                this.add(scroller);
+                scroller.add(menubar);
                 if (menubar.get_children().length() > 0)
                     completed_menus |= MenuWidgetCompletionFlags.MENUBAR;
             } else
@@ -103,6 +114,41 @@ namespace Appmenu
             if (unity_actions != null)
                 this.insert_action_group("unity",unity_actions);
             this.show_all();
+        }
+        public bool on_scroll_event(Gdk.EventScroll event)
+        {
+            print("scroll event: ");
+            var val = scroll_adj.get_value();
+            var incr = scroll_adj.get_step_increment();
+            if (event.direction == Gdk.ScrollDirection.UP)
+            {
+                print ("up\n");
+                scroll_adj.set_value(val - incr);
+                return true;
+            }
+            if (event.direction == Gdk.ScrollDirection.DOWN)
+            {
+                print ("down\n");
+                scroll_adj.set_value(val + incr);
+                return true;
+            }
+            if (event.direction == Gdk.ScrollDirection.LEFT)
+            {
+                scroll_adj.set_value(val - incr);
+                return true;
+            }
+            if (event.direction == Gdk.ScrollDirection.RIGHT)
+            {
+                scroll_adj.set_value(val + incr);
+                return true;
+            }
+            if (event.direction == Gdk.ScrollDirection.SMOOTH)
+            {
+                print("smooth %f %f\n", event.delta_x, event.delta_y);
+                scroll_adj.set_value(val + incr * (event.delta_y + event.delta_x));
+                return true;
+            }
+            return false;
         }
     }
 }
