@@ -50,6 +50,7 @@ namespace Appmenu
             group.add_action_entries(menu_entries,this);
             this.insert_action_group("menu",group);
             var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
+            builder.set_translation_domain("vala-panel-appmenu");
             if ((completed_menus & MenuWidgetCompletionFlags.APPMENU) == 0)
             {
                 unowned GLib.Menu gmenu = builder.get_object("appmenu-desktop") as GLib.Menu;
