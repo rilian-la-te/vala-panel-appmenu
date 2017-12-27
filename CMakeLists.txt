@@ -60,7 +60,7 @@ add_definitions(-Wall -Wno-unused # Vala loves to create variables
 find_package (PkgConfig)
 
 pkg_check_modules (CORE QUIET
-  gtk+-3.0>=3.10
+  gtk+-3.0>=3.20
   glib-2.0>=2.44
   gio-2.0>=2.44
   gio-unix-2.0>=2.44
@@ -69,7 +69,7 @@ pkg_check_modules (CORE QUIET
   libbamf3)
 
 pkg_check_modules(GTK REQUIRED
-    gtk+-3.0>=3.10)
+    gtk+-3.0>=3.20)
 
 pkg_check_modules(GLIB REQUIRED
     glib-2.0>=2.44
