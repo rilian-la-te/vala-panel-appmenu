@@ -70,17 +70,13 @@ namespace Appmenu
             }
             else if (app != null)
                 appmenu = new BamfAppmenu(app);
-            if (appmenu != null)
-            {
-                this.add(appmenu);
-                completed_menus |= MenuWidgetCompletionFlags.APPMENU;
-            }
+            this.set_appmenu(appmenu);
             if (menubar_path != null)
             {
                 var menubar = new Gtk.MenuBar.from_model(DBusMenuModel.get(dbusconn,gtk_unique_bus_name,menubar_path));
-                this.add(menubar);
-                if (menubar.get_children().length() > 0)
-                    completed_menus |= MenuWidgetCompletionFlags.MENUBAR;
+                this.set_menubar(menubar);
+                if (menubar.get_children().length() == 0)
+                    this.completed_menus &= ~MenuWidgetCompletionFlags.MENUBAR;
             }
             if (appmenu_actions != null)
                 this.insert_action_group("app",appmenu_actions);

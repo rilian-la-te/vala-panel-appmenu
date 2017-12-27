@@ -67,8 +67,7 @@ namespace Appmenu
                 menu.append_submenu(name,gmenu);
                 menu.freeze();
                 var appmenu = new Gtk.MenuBar.from_model(menu);
-                this.add(appmenu);
-                completed_menus |= MenuWidgetCompletionFlags.APPMENU;
+                this.set_appmenu(appmenu);
             }
             if ((completed_menus & MenuWidgetCompletionFlags.MENUBAR) == 0)
             {
@@ -79,8 +78,7 @@ namespace Appmenu
                 videos_menu = builder.get_object("video") as GLib.Menu;
                 unowned GLib.Menu gmenu = builder.get_object("menubar") as GLib.Menu;
                 var menubar = new Gtk.MenuBar.from_model(gmenu);
-                completed_menus |= MenuWidgetCompletionFlags.MENUBAR;
-                this.add(menubar);
+                this.set_menubar(menubar);
             }
             this.show_all();
         }

@@ -40,7 +40,7 @@ namespace Appmenu
         APPMENU,
         MENUBAR
     }
-    public abstract class MenuWidget: Gtk.Box
+    public abstract class MenuWidget: Gtk.Paned
     {
         public uint window_id {get; protected set construct;}
         public MenuWidgetCompletionFlags completed_menus {get; internal set;}
@@ -49,21 +49,43 @@ namespace Appmenu
         construct
         {
             provider = new Gtk.CssProvider();
-            try
-            {
-                provider.load_from_resource("/org/vala-panel/appmenu/appmenu.css");
-                this.notify.connect((pspec)=>{
-                    foreach(unowned Gtk.Widget ch in this.get_children())
-                    {
-                        unowned Gtk.StyleContext context = ch.get_style_context();
-                        context.add_provider(provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+            provider.load_from_resource("/org/vala-panel/appmenu/appmenu.css");
+            unowned Gtk.StyleContext context = this.get_style_context();
+            context.add_provider_for_screen(this.get_screen(), provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+        }
+        private void apply_style(Gtk.Widget ch)
+        {
+            unowned Gtk.StyleContext context = ch.get_style_context();
 #if BOLD
-                        context.add_class("-vala-panel-appmenu-bold");
+            context.add_class("-vala-panel-appmenu-bold");
 #endif
-                        context.add_class("-vala-panel-appmenu-private");
-                    }
-                });
-            } catch (GLib.Error e) {}
+            context.add_class("-vala-panel-appmenu-private");
+        }
+        public void set_appmenu(Gtk.MenuBar? appmenu)
+        {
+            if (appmenu != null)
+            {
+                if (this.get_child1() is Gtk.Widget)
+                    this.get_child1().destroy();
+                this.pack1(appmenu,false,false);
+                apply_style(appmenu);
+                completed_menus |= MenuWidgetCompletionFlags.APPMENU;
+            }
+            else
+                completed_menus &= ~MenuWidgetCompletionFlags.APPMENU;
+        }
+        public void set_menubar(Gtk.MenuBar? appmenu)
+        {
+            if (appmenu != null)
+            {
+                if (this.get_child2() is Gtk.Widget)
+                    this.get_child2().destroy();
+                this.pack2(appmenu,true,false);
+                apply_style(appmenu);
+                completed_menus |= MenuWidgetCompletionFlags.MENUBAR;
+            }
+            else
+                completed_menus &= ~MenuWidgetCompletionFlags.MENUBAR;
         }
     }
     public class MenuWidgetAny : MenuWidget
@@ -71,9 +93,9 @@ namespace Appmenu
         public MenuWidgetAny(Bamf.Application app)
         {
             var appmenu = new BamfAppmenu(app);
-            this.add(appmenu);
+            this.set_appmenu(appmenu);
+            this.set_menubar(null);
             this.show_all();
-            completed_menus = MenuWidgetCompletionFlags.APPMENU;
         }
     }
 }

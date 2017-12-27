@@ -167,10 +167,8 @@ namespace Appmenu
                 if (menu != null && (menu.completed_menus & MenuWidgetCompletionFlags.APPMENU) == 0 && app != null)
                 {
                     var appmenu = new BamfAppmenu(app);
-                    menu.add(appmenu);
-                    menu.reorder_child(appmenu,0);
+                    menu.set_appmenu(appmenu);
                     appmenu.show();
-                    menu.completed_menus |= MenuWidgetCompletionFlags.APPMENU;
                 }
                 if (menu == null)
                 {
