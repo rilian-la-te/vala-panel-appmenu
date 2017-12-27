@@ -60,7 +60,7 @@ namespace Appmenu
             if (name == null)
                 name = window.get_name();
             if (name == null)
-                name = _("_Application");
+                name = GLib.dgettext(Config.GETTEXT_PACKAGE,"_Application");
             Gtk.MenuBar? appmenu = null;
             if (app_menu_path != null)
             {

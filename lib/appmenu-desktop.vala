@@ -50,7 +50,7 @@ namespace Appmenu
             group.add_action_entries(menu_entries,this);
             this.insert_action_group("menu",group);
             var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
-            builder.set_translation_domain("vala-panel-appmenu");
+            builder.set_translation_domain(Config.GETTEXT_PACKAGE);
             if ((completed_menus & MenuWidgetCompletionFlags.APPMENU) == 0)
             {
                 unowned GLib.Menu gmenu = builder.get_object("appmenu-desktop") as GLib.Menu;
@@ -63,7 +63,7 @@ namespace Appmenu
                         name = new DesktopAppInfo.from_filename(desktop_file).get_name();
                 }
                 if (name == null)
-                    name = _("_Desktop");
+                    name = GLib.dgettext(Config.GETTEXT_PACKAGE,"_Desktop");
                 menu.append_submenu(name,gmenu);
                 menu.freeze();
                 var appmenu = new Gtk.MenuBar.from_model(menu);
@@ -203,7 +203,7 @@ namespace Appmenu
                 stderr.printf("%s\n",e.message);
             }
             if (menu.get_n_items() == 0)
-                menu.append(_("No files"),"ls.this-should-not-be-reached");
+                menu.append(GLib.dgettext(Config.GETTEXT_PACKAGE,"No files"),"ls.this-should-not-be-reached");
         }
         ~MenuWidgetDesktop()
         {
