@@ -97,17 +97,6 @@ namespace Appmenu
             } else
                 menubar = new Gtk.MenuBar();
 
-            var style_provider = new Gtk.CssProvider();
-            style_provider.load_from_resource("/org/vala-panel/appmenu/appmenu.css");
-            var style_context = menubar.get_style_context();
-            style_context.add_provider(style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-            style_context.add_class("-vala-panel-appmenu-private");
-            style_context = appmenu.get_style_context();
-            style_context.add_provider(style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-#if BOLD
-            style_context.add_class("-vala-panel-appmenu-bold");
-#endif
-            style_context.add_class("-vala-panel-appmenu-private");
 
             if (appmenu_actions != null)
                 this.insert_action_group("app",appmenu_actions);
