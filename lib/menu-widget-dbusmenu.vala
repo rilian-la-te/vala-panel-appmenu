@@ -34,7 +34,7 @@ namespace Appmenu
             this.object_path = path;
             if (app != null)
             {
-                var appmenu = new BamfAppmenu(app);
+                appmenu = new BamfAppmenu(app);
                 this.add(appmenu);
                 appmenu.show();
                 completed_menus |= MenuWidgetCompletionFlags.APPMENU;
@@ -42,10 +42,15 @@ namespace Appmenu
             if (DBusMenu.GtkClient.check(name,(string)path))
             {
                 client = new DBusMenu.GtkClient(name,(string)path);
-                var menubar = new Gtk.MenuBar();
+                menubar = new Gtk.MenuBar();
                 client.attach_to_menu(menubar);
-                this.add(menubar);
+
+                menubar.move_selected.connect(on_menubar_sel_move);
+                scroller.add(menubar);
+                this.add(scroller);
                 menubar.show();
+                scroller.show();
+
                 completed_menus |= MenuWidgetCompletionFlags.MENUBAR;
             }
             this.show();
