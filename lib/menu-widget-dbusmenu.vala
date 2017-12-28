@@ -53,6 +53,7 @@ namespace Appmenu
 
                 completed_menus |= MenuWidgetCompletionFlags.MENUBAR;
             }
+            init_style();
             this.show();
         }
     }

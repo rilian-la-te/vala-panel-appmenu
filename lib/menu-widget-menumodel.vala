@@ -83,6 +83,7 @@ namespace Appmenu
             } else
                 menubar = new Gtk.MenuBar();
 
+            init_style();
 
             this.add(appmenu);
             this.add(scroller);

@@ -77,6 +77,21 @@ namespace Appmenu
                 });
             } catch (GLib.Error e) {}
         }
+        protected void init_style()
+        {
+            unowned Gtk.StyleContext context;
+            if (menubar != null) {
+                context = menubar.get_style_context();
+                context.add_class("-vala-panel-appmenu-private");
+            }
+            if (appmenu != null) {
+                context = appmenu.get_style_context();
+#if BOLD
+                context.add_class("-vala-panel-appmenu-bold");
+#endif
+                context.add_class("-vala-panel-appmenu-private");
+            }
+        }
         // Common functions for derived classes
         protected bool on_scroll_event(Gdk.EventScroll event)
         {
@@ -159,6 +174,7 @@ namespace Appmenu
         {
             appmenu = new BamfAppmenu(app);
             this.add(appmenu);
+            init_style();
             this.show_all();
             completed_menus = MenuWidgetCompletionFlags.APPMENU;
         }
