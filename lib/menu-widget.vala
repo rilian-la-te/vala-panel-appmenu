@@ -77,14 +77,20 @@ namespace Appmenu
                 });
             } catch (GLib.Error e) {}
         }
-        protected void init_style()
+        protected void conf_menus()
         {
             unowned Gtk.StyleContext context;
-            if (menubar != null) {
+            if ((completed_menus & MenuWidgetCompletionFlags.MENUBAR) == 0)
+            {
                 context = menubar.get_style_context();
                 context.add_class("-vala-panel-appmenu-private");
+
+                // Usually appmenu created more probably, than menubar
+                menubar.move_selected.connect(on_menubar_sel_move);
+                appmenu.move_selected.connect(on_appmenu_sel_move);
             }
-            if (appmenu != null) {
+            if ((completed_menus & MenuWidgetCompletionFlags.APPMENU) == 0)
+            {
                 context = appmenu.get_style_context();
 #if BOLD
                 context.add_class("-vala-panel-appmenu-bold");
@@ -174,7 +180,7 @@ namespace Appmenu
         {
             appmenu = new BamfAppmenu(app);
             this.add(appmenu);
-            init_style();
+            conf_menus();
             this.show_all();
             completed_menus = MenuWidgetCompletionFlags.APPMENU;
         }

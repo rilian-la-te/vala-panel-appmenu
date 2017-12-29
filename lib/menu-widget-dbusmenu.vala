@@ -45,7 +45,6 @@ namespace Appmenu
                 menubar = new Gtk.MenuBar();
                 client.attach_to_menu(menubar);
 
-                menubar.move_selected.connect(on_menubar_sel_move);
                 scroller.add(menubar);
                 this.add(scroller);
                 menubar.show();
@@ -53,7 +52,7 @@ namespace Appmenu
 
                 completed_menus |= MenuWidgetCompletionFlags.MENUBAR;
             }
-            init_style();
+            conf_menus();
             this.show();
         }
     }

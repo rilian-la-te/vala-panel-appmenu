@@ -77,17 +77,15 @@ namespace Appmenu
             if (menubar_path != null)
             {
                 menubar = new Gtk.MenuBar.from_model(DBusMenuModel.get(dbusconn,gtk_unique_bus_name,menubar_path));
-                menubar.move_selected.connect(on_menubar_sel_move);
                 if (menubar.get_children().length() > 0)
                     completed_menus |= MenuWidgetCompletionFlags.MENUBAR;
             } else
                 menubar = new Gtk.MenuBar();
 
-            init_style();
-
             this.add(appmenu);
             this.add(scroller);
             scroller.add(menubar);
+            conf_menus();
 
             if (appmenu_actions != null)
                 this.insert_action_group("app",appmenu_actions);
