@@ -136,41 +136,71 @@ namespace Appmenu
         }
         protected bool on_menubar_sel_move(int distance)
         {
-            Gtk.Allocation allocation;
+            Gdk.Rectangle rect;
             var children = menubar.get_children();
             var elem = menubar.get_selected_item();
 
-            if (distance > 0 && elem == children.last().data)
-            {
-                elem = children.first().data;
-                distance = -distance;
-            }
-            else if (distance < 0 && elem == children.first().data)
-            {
-                elem = children.last().data;
-                distance = -distance;
-            } else {
-                elem = (distance > 0) ? (children.find(elem).next.data) :
-                                        (children.find(elem).prev.data);
-            }
-
-            elem.get_allocation(out allocation);
-            var rect = (Gdk.Rectangle)allocation;
             if (distance > 0)
             {
-                double item_margin = rect.x + rect.width;
-                double scroll_margin = scroll_adj.get_value() + scroll_adj.get_page_size();
-                double page_size = scroll_adj.get_page_size();
-                if (scroll_margin < item_margin)
-                    scroll_adj.set_value(item_margin - page_size);
+                if (elem == children.last().data)
+                {
+                    distance = -distance;
+                    menubar.deselect();
+                    appmenu.select_first(true);
+                    elem = children.first().data;
+                } else
+                    elem = children.find(elem).next.data;
             }
             else if (distance < 0)
             {
-                double item_margin = rect.x;
-                double scroll_margin = scroll_adj.get_value();
-                if (scroll_margin > item_margin)
-                    scroll_adj.set_value(item_margin);
+                if (elem == children.first().data)
+                {
+                    menubar.deselect();
+                    appmenu.select_first(true);
+                    return false;
+                } else
+                    elem = children.find(elem).prev.data;
             }
+            elem.get_allocation(out rect);
+
+            if (distance == 0)
+            {
+                // Artificial case, for ability to manually update scroller position
+                if (rect.x < scroll_adj.get_value())
+                    scroll_adj.set_value(rect.x);
+                else if (rect.x > scroll_adj.get_value())
+                    scroll_adj.set_value(rect.x + scroll_adj.get_page_size());
+                return true;
+            }
+            if (distance > 0)
+            {
+                double item_margin = rect.x + rect.width;
+                double page_size = scroll_adj.get_page_size();
+                double scroll_margin = scroll_adj.get_value() + page_size;
+                if (scroll_margin < item_margin)
+                    scroll_adj.set_value(item_margin - page_size);
+                return false;
+            }
+            if (distance < 0)
+            {
+                double scroll_margin = scroll_adj.get_value();
+                if (scroll_margin > rect.x)
+                    scroll_adj.set_value(rect.x);
+                return false;
+            }
+            return false;
+        }
+        // Don't use this handler, if menubar is not ready
+        // It is just to include appmenu into menubar's keynav order
+        protected bool on_appmenu_sel_move(int distance)
+        {
+            var children = menubar.get_children();
+            appmenu.deselect();
+            if (distance > 0)
+                menubar.select_item(children.first().data);
+            else if (distance < 0)
+                menubar.select_item(children.last().data);
+            menubar.move_selected(0);
             return false;
         }
     }
