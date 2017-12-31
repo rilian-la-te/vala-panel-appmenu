@@ -126,9 +126,9 @@ namespace Appmenu
             return -1;
         }
         public override bool dbus_register (DBusConnection connection, string object_path) throws Error {
-            base.dbus_register (connection, object_path);
+            bool ret = base.dbus_register (connection, object_path);
             dbusmenu_binding = connection.register_object (DBUSMENU_REG_OBJECT, registrar);
-            return true;
+            return ret && dbusmenu_binding > 0;
         }
 
         public override void dbus_unregister (DBusConnection connection, string object_path) {
