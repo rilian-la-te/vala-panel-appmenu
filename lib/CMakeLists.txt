@@ -3,6 +3,8 @@
 #####
 add_definitions(-fPIC)
 add_definitions(-DWNCK_I_KNOW_THIS_IS_UNSTABLE)
+set(REGISTRAR_VALA_FILES
+    registrar-new.vala)
 set(CORE_VALA_FILES
     appmenu-bamf.vala
     appmenu-desktop.vala
@@ -49,7 +51,32 @@ set(PLUGIN_VALA_FILES
 add_library(appmenu-core STATIC ${CORE_C_FILES} ${VALA_C_CORE} $<TARGET_OBJECTS:vala-dbusmenu-o>)
 target_link_libraries (appmenu-core ${CORE_LIBRARIES} ${WNCK_LIBRARIES} m)
 target_include_directories (appmenu-core PRIVATE ${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_BINARY_DIR}/dbusmenu)
-add_custom_target(vala-files-ide SOURCES ${VALA_FILES_DBUSMENU} ${CORE_VALA_FILES} ${PLUGIN_VALA_FILES})
+add_custom_target(vala-files-ide SOURCES ${VALA_FILES_DBUSMENU} ${CORE_VALA_FILES} ${REGISTRAR_VALA_FILES} ${PLUGIN_VALA_FILES})
+vala_precompile(VALA_C_REGISTRAR appmenu-registrar
+    ${REGISTRAR_VALA_FILES}
+PACKAGES
+    ${CORE_PACKAGES}
+    gio-addons-2.0
+    vala-dbusmenu
+    vala-panel-appmenu
+OPTIONS
+    --vapidir=${CMAKE_SOURCE_DIR}/vapi
+    --vapidir=${CMAKE_CURRENT_BINARY_DIR}
+    --vapidir=${CMAKE_BINARY_DIR}/dbusmenu
+    --target-glib=2.44
+    --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
+    --thread
+)
+add_executable (appmenu-registrar
+    ${VALA_C_REGISTRAR}
+    ${CMAKE_BINARY_DIR}/lib/config.c
+    ${RESOURCES}
+)
+target_link_libraries (appmenu-registrar ${CORE_LIBRARIES} m appmenu-core)
+target_include_directories (appmenu-registrar PRIVATE ${CORE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_BINARY_DIR}/dbusmenu)
+add_dependencies(appmenu-registrar appmenu-core)
+# Install plugin stuffs
+install(TARGETS appmenu-registrar DESTINATION ${CMAKE_INSTALL_LIBEXECDIR}/vala-panel)
 ##########
 # XFCE Part
 ##########

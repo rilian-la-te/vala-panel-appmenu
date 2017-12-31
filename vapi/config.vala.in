@@ -1,4 +1,5 @@
 namespace Config {
    public const string GETTEXT_PACKAGE = "@GETTEXT_PACKAGE@";
    public const string LOCALE_DIR = "@CMAKE_INSTALL_PREFIX@/share/locale";
+   public const string VERSION = "@VERSION@";
 }
