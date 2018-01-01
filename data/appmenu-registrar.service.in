@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=com.canonical.AppMenu.Registrar
+Exec=@CMAKE_INSTALL_FULL_LIBEXECDIR@/vala-panel/appmenu-registrar
