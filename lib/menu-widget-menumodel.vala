@@ -61,7 +61,7 @@ namespace Appmenu
                 name = window.get_name();
             if (name == null)
                 name = _("_Application");
-
+            Gtk.MenuBar? appmenu = null;
             if (app_menu_path != null)
             {
                 var menu = new GLib.Menu();
@@ -70,23 +70,14 @@ namespace Appmenu
             }
             else if (app != null)
                 appmenu = new BamfAppmenu(app);
-            if (appmenu != null)
-                completed_menus |= MenuWidgetCompletionFlags.APPMENU;
-            else
-                appmenu = new Gtk.MenuBar();
+            this.set_appmenu(appmenu);
             if (menubar_path != null)
             {
-                menubar = new Gtk.MenuBar.from_model(DBusMenuModel.get(dbusconn,gtk_unique_bus_name,menubar_path));
-                if (menubar.get_children().length() > 0)
-                    completed_menus |= MenuWidgetCompletionFlags.MENUBAR;
-            } else
-                menubar = new Gtk.MenuBar();
-
-            this.add(appmenu);
-            this.add(scroller);
-            scroller.add(menubar);
-            conf_menus();
-
+                var menubar = new Gtk.MenuBar.from_model(DBusMenuModel.get(dbusconn,gtk_unique_bus_name,menubar_path));
+                this.set_menubar(menubar);
+                if (menubar.get_children().length() == 0)
+                    this.completed_menus &= ~MenuWidgetCompletionFlags.MENUBAR;
+            }
             if (appmenu_actions != null)
                 this.insert_action_group("app",appmenu_actions);
             if (menubar_actions != null)

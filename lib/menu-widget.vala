@@ -40,65 +40,64 @@ namespace Appmenu
         APPMENU,
         MENUBAR
     }
-    public abstract class MenuWidget: Gtk.Box
+    public abstract class MenuWidget: Gtk.Paned
     {
         public uint window_id {get; protected set construct;}
         public MenuWidgetCompletionFlags completed_menus {get; internal set;}
         public bool compact_mode {get; set;}
-        protected Gtk.Adjustment? scroll_adj = null;
-        protected Gtk.ScrolledWindow? scroller = null;
-        protected Gtk.MenuBar? appmenu = null;
-        protected Gtk.MenuBar? menubar = null;
+        private Gtk.Adjustment? scroll_adj = null;
+        private Gtk.ScrolledWindow? scroller = null;
         private Gtk.CssProvider provider;
         construct
         {
-            // Scroller setup
             scroll_adj = new Gtk.Adjustment(0, 0, 0, 20, 20, 0);
             scroller = new Gtk.ScrolledWindow(scroll_adj, null);
             scroller.set_hexpand(true);
             scroller.set_policy(Gtk.PolicyType.EXTERNAL, Gtk.PolicyType.NEVER);
             scroller.set_shadow_type(Gtk.ShadowType.NONE);
             scroller.scroll_event.connect(on_scroll_event);
+            this.pack2(scroller,true,false);
 
             provider = new Gtk.CssProvider();
-            try
-            {
-                provider.load_from_resource("/org/vala-panel/appmenu/appmenu.css");
-                this.notify.connect((pspec)=>{
-                    foreach(unowned Gtk.Widget ch in this.get_children())
-                    {
-                        unowned Gtk.StyleContext context = ch.get_style_context();
-                        context.add_provider(provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-#if BOLD
-                        context.add_class("-vala-panel-appmenu-bold");
-#endif
-                        context.add_class("-vala-panel-appmenu-private");
-                    }
-                });
-            } catch (GLib.Error e) {}
+            provider.load_from_resource("/org/vala-panel/appmenu/appmenu.css");
+            unowned Gtk.StyleContext context = this.get_style_context();
+            context.add_provider_for_screen(this.get_screen(), provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
         }
-        protected void conf_menus()
+        public void set_appmenu(Gtk.MenuBar? appmenu)
         {
-            unowned Gtk.StyleContext context;
-            if ((completed_menus & MenuWidgetCompletionFlags.MENUBAR) == 0)
+            if (this.get_child1() is Gtk.Widget)
+                this.get_child1().destroy();
+            if (appmenu != null)
             {
-                context = menubar.get_style_context();
-                context.add_class("-vala-panel-appmenu-private");
-
-                // Usually appmenu created more probably, than menubar
-                menubar.move_selected.connect(on_menubar_sel_move);
-                appmenu.move_selected.connect(on_appmenu_sel_move);
-            }
-            if ((completed_menus & MenuWidgetCompletionFlags.APPMENU) == 0)
-            {
-                context = appmenu.get_style_context();
+                this.pack1(appmenu,false,false);
+                unowned Gtk.StyleContext context = appmenu.get_style_context();
 #if BOLD
                 context.add_class("-vala-panel-appmenu-bold");
 #endif
                 context.add_class("-vala-panel-appmenu-private");
+                completed_menus |= MenuWidgetCompletionFlags.APPMENU;
+            }
+            else
+                completed_menus &= ~MenuWidgetCompletionFlags.APPMENU;
+        }
+        public void set_menubar(Gtk.MenuBar? menubar)
+        {
+            if (scroller.get_child() is Gtk.Widget)
+                scroller.get_child().destroy();
+            if (menubar != null)
+            {
+                scroller.add(menubar);
+                unowned Gtk.StyleContext context = menubar.get_style_context();
+                context.add_class("-vala-panel-appmenu-private");
+                completed_menus |= MenuWidgetCompletionFlags.MENUBAR;
+                scroller.show();
+            }
+            else
+            {
+                scroller.hide();
+                completed_menus &= ~MenuWidgetCompletionFlags.MENUBAR;
             }
         }
-        // Common functions for derived classes
         protected bool on_scroll_event(Gdk.EventScroll event)
         {
             print("scroll event: ");
@@ -134,85 +133,15 @@ namespace Appmenu
             }
             return false;
         }
-        protected bool on_menubar_sel_move(int distance)
-        {
-            Gdk.Rectangle rect;
-            var children = menubar.get_children();
-            var elem = menubar.get_selected_item();
-
-            if (distance > 0)
-            {
-                if (elem == children.last().data)
-                {
-                    distance = -distance;
-                    menubar.deselect();
-                    appmenu.select_first(true);
-                    elem = children.first().data;
-                } else
-                    elem = children.find(elem).next.data;
-            }
-            else if (distance < 0)
-            {
-                if (elem == children.first().data)
-                {
-                    menubar.deselect();
-                    appmenu.select_first(true);
-                    return false;
-                } else
-                    elem = children.find(elem).prev.data;
-            }
-            elem.get_allocation(out rect);
-
-            if (distance == 0)
-            {
-                // Artificial case, for ability to manually update scroller position
-                if (rect.x < scroll_adj.get_value())
-                    scroll_adj.set_value(rect.x);
-                else if (rect.x > scroll_adj.get_value())
-                    scroll_adj.set_value(rect.x + scroll_adj.get_page_size());
-                return true;
-            }
-            if (distance > 0)
-            {
-                double item_margin = rect.x + rect.width;
-                double page_size = scroll_adj.get_page_size();
-                double scroll_margin = scroll_adj.get_value() + page_size;
-                if (scroll_margin < item_margin)
-                    scroll_adj.set_value(item_margin - page_size);
-                return false;
-            }
-            if (distance < 0)
-            {
-                double scroll_margin = scroll_adj.get_value();
-                if (scroll_margin > rect.x)
-                    scroll_adj.set_value(rect.x);
-                return false;
-            }
-            return false;
-        }
-        // Don't use this handler, if menubar is not ready
-        // It is just to include appmenu into menubar's keynav order
-        protected bool on_appmenu_sel_move(int distance)
-        {
-            var children = menubar.get_children();
-            appmenu.deselect();
-            if (distance > 0)
-                menubar.select_item(children.first().data);
-            else if (distance < 0)
-                menubar.select_item(children.last().data);
-            menubar.move_selected(0);
-            return false;
-        }
     }
     public class MenuWidgetAny : MenuWidget
     {
         public MenuWidgetAny(Bamf.Application app)
         {
-            appmenu = new BamfAppmenu(app);
-            this.add(appmenu);
-            conf_menus();
+            var appmenu = new BamfAppmenu(app);
+            this.set_appmenu(appmenu);
+            this.set_menubar(null);
             this.show_all();
-            completed_menus = MenuWidgetCompletionFlags.APPMENU;
         }
     }
 }

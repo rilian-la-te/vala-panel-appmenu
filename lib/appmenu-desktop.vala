@@ -65,8 +65,8 @@ namespace Appmenu
                     name = _("_Desktop");
                 menu.append_submenu(name,gmenu);
                 menu.freeze();
-                appmenu.bind_model(menu, null, true);
-                completed_menus |= MenuWidgetCompletionFlags.APPMENU;
+                var appmenu = new Gtk.MenuBar.from_model(menu);
+                this.set_appmenu(appmenu);
             }
             if ((completed_menus & MenuWidgetCompletionFlags.MENUBAR) == 0)
             {
@@ -76,8 +76,8 @@ namespace Appmenu
                 pictures_menu = builder.get_object("picts") as GLib.Menu;
                 videos_menu = builder.get_object("video") as GLib.Menu;
                 unowned GLib.Menu gmenu = builder.get_object("menubar") as GLib.Menu;
-                menubar.bind_model(gmenu, null, true);
-                completed_menus |= MenuWidgetCompletionFlags.MENUBAR;
+                var menubar = new Gtk.MenuBar.from_model(gmenu);
+                this.set_menubar(menubar);
             }
             this.show_all();
         }

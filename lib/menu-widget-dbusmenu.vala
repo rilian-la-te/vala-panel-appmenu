@@ -32,27 +32,22 @@ namespace Appmenu
             this.window_id = window_id;
             this.object_name = name;
             this.object_path = path;
+            this.set_appmenu(null);
+            this.set_menubar(null);
             if (app != null)
             {
-                appmenu = new BamfAppmenu(app);
-                this.add(appmenu);
+                var appmenu = new BamfAppmenu(app);
+                this.set_appmenu(appmenu);
                 appmenu.show();
-                completed_menus |= MenuWidgetCompletionFlags.APPMENU;
             }
             if (DBusMenu.GtkClient.check(name,(string)path))
             {
                 client = new DBusMenu.GtkClient(name,(string)path);
-                menubar = new Gtk.MenuBar();
+                var menubar = new Gtk.MenuBar();
                 client.attach_to_menu(menubar);
-
-                scroller.add(menubar);
-                this.add(scroller);
+                this.set_menubar(menubar);
                 menubar.show();
-                scroller.show();
-
-                completed_menus |= MenuWidgetCompletionFlags.MENUBAR;
             }
-            conf_menus();
             this.show();
         }
     }
