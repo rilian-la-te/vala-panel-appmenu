@@ -48,6 +48,7 @@ namespace Appmenu
             this.insert_action_group("conf",configurator);
             var desktop_file = app.get_desktop_file();
             var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
+            builder.set_translation_domain(Config.GETTEXT_PACKAGE);
             unowned GLib.Menu menu = builder.get_object("appmenu-bamf") as GLib.Menu;
             if (desktop_file != null)
             {
