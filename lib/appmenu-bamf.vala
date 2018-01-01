@@ -90,8 +90,6 @@ namespace Appmenu
         {
             if (app is Bamf.Application)
                 SignalHandler.disconnect_by_data(app,this);
-            app = null;
-            window_section = null;
         }
         private void on_window_added(Bamf.Window window)
         {
