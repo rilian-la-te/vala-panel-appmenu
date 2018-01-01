@@ -98,7 +98,7 @@ namespace Appmenu
                 completed_menus &= ~MenuWidgetCompletionFlags.MENUBAR;
             }
         }
-        protected bool on_scroll_event(Gdk.EventScroll event)
+        protected bool on_scroll_event(Gtk.Widget w, Gdk.EventScroll event)
         {
             print("scroll event: ");
             var val = scroll_adj.get_value();
