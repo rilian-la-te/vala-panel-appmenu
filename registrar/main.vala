@@ -36,7 +36,7 @@ namespace Appmenu
         };
         public App()
         {
-            Object(application_id: "com.canonical.AppMenu.Registrar",
+            Object(application_id: "org.valapanel.AppMenu.Registrar",
 //                    flags: GLib.ApplicationFlags.HANDLES_COMMAND_LINE,
                     resource_base_path: "/org/valapanel/registrar");
         }
@@ -57,7 +57,14 @@ namespace Appmenu
         }
         public override bool dbus_register (DBusConnection connection, string object_path) throws Error {
             bool ret = base.dbus_register (connection, object_path);
-            dbusmenu_binding = connection.register_object (DBUSMENU_REG_OBJECT, registrar);
+            dbusmenu_binding = Bus.own_name_on_connection (connection, DBUSMENU_REG_IFACE, BusNameOwnerFlags.NONE,
+                () => {
+                    connection.register_object (DBUSMENU_REG_OBJECT, registrar);
+                    this.hold();
+                },
+                () => {
+                    this.release();
+                });
             ret = ret && dbusmenu_binding > 0;
             return ret;
         }
@@ -70,7 +77,8 @@ namespace Appmenu
             // Do our own stuff here, e.g. unexport any D-Bus objects we exported in the dbus_register
             //  hook above. Be sure to check that we actually did export them, since the hook
             //  above might have returned early due to the parent class' hook returning false!
-            connection.unregister_object (dbusmenu_binding);
+            Bus.unown_name(dbusmenu_binding);
+            dbusmenu_binding = 0;
             this.release();
             base.dbus_unregister (connection, object_path);
         }
