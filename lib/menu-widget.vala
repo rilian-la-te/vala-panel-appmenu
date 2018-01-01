@@ -87,6 +87,7 @@ namespace Appmenu
             if (menubar != null)
             {
                 scroller.add(menubar);
+                menubar.move_selected.connect(on_menubar_sel_move);
                 unowned Gtk.StyleContext context = menubar.get_style_context();
                 context.add_class("-vala-panel-appmenu-private");
                 completed_menus |= MenuWidgetCompletionFlags.MENUBAR;
@@ -130,6 +131,52 @@ namespace Appmenu
                 print("smooth %f %f\n", event.delta_x, event.delta_y);
                 scroll_adj.set_value(val + incr * (event.delta_y + event.delta_x));
                 return true;
+            }
+            return false;
+        }
+        private bool on_menubar_sel_move(Gtk.MenuShell w, int distance)
+        {
+            Gdk.Rectangle rect;
+            var children = w.get_children();
+            var elem = w.get_selected_item();
+
+            if (distance > 0)
+            {
+                if (elem == children.last().data)
+                {
+                    distance = -distance;
+                    elem = children.first().data;
+                }
+                else
+                    elem = children.find(elem).next.data;
+            }
+            else if (distance < 0)
+            {
+                if (elem == children.first().data)
+                {
+                    distance = -distance;
+                    elem = children.last().data;
+                }
+                else
+                    elem = children.find(elem).prev.data;
+            }
+            elem.get_allocation(out rect);
+
+            if (distance > 0)
+            {
+                double item_margin = rect.x + rect.width;
+                double page_size = scroll_adj.get_page_size();
+                double scroll_margin = scroll_adj.get_value() + page_size;
+                if (scroll_margin < item_margin)
+                    scroll_adj.set_value(item_margin - page_size);
+                return false;
+            }
+            if (distance < 0)
+            {
+                double scroll_margin = scroll_adj.get_value();
+                if (scroll_margin > rect.x)
+                    scroll_adj.set_value(rect.x);
+                return false;
             }
             return false;
         }
