@@ -51,7 +51,7 @@ namespace Appmenu
                 outer_registrar = Bus.get_proxy_sync(BusType.SESSION,REG_IFACE,REG_OBJECT);
                 watched_name = Bus.watch_name(BusType.SESSION,REG_IFACE,GLib.BusNameWatcherFlags.NONE,
                                                         () => {
-s                                                            have_registrar = true;
+                                                            have_registrar = true;
                                                             },
                                                         () => {
                                                             have_registrar = false;
