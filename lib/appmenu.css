@@ -4,6 +4,6 @@
     color: inherit;
 }
 
-.-vala-panel-appmenu-bold:first-child > * > label  {
+.-vala-panel-appmenu-bold:first-child > * > label {
   font-weight: bolder;
 }
