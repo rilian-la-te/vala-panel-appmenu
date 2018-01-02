@@ -201,6 +201,10 @@ namespace Appmenu
             {
                 Wnck.Screen.get_default().force_update();
                 window = Wnck.Window.@get ((ulong)widget.window_id);
+                if (window == null)
+                {
+                    window = Wnck.Screen.get_default().get_active_window();
+                }
             }
             if (window != null && !window.is_skip_tasklist ())
                 window.close (Gtk.get_current_event_time ());

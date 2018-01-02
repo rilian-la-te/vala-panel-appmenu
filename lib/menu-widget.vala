@@ -82,10 +82,10 @@ namespace Appmenu
         }
         public void set_menubar(Gtk.MenuBar? menubar)
         {
-            if (scroller.get_child() is Gtk.Widget)
-                scroller.get_child().destroy();
             if (menubar != null)
             {
+                if (scroller.get_child() is Gtk.Widget)
+                    scroller.get_child().destroy();
                 scroller.add(menubar);
                 menubar.move_selected.connect(on_menubar_sel_move);
                 unowned Gtk.StyleContext context = menubar.get_style_context();
@@ -101,18 +101,15 @@ namespace Appmenu
         }
         protected bool on_scroll_event(Gtk.Widget w, Gdk.EventScroll event)
         {
-            print("scroll event: ");
             var val = scroll_adj.get_value();
             var incr = scroll_adj.get_step_increment();
             if (event.direction == Gdk.ScrollDirection.UP)
             {
-                print ("up\n");
                 scroll_adj.set_value(val - incr);
                 return true;
             }
             if (event.direction == Gdk.ScrollDirection.DOWN)
             {
-                print ("down\n");
                 scroll_adj.set_value(val + incr);
                 return true;
             }
@@ -128,7 +125,6 @@ namespace Appmenu
             }
             if (event.direction == Gdk.ScrollDirection.SMOOTH)
             {
-                print("smooth %f %f\n", event.delta_x, event.delta_y);
                 scroll_adj.set_value(val + incr * (event.delta_y + event.delta_x));
                 return true;
             }
@@ -139,7 +135,6 @@ namespace Appmenu
             Gdk.Rectangle rect;
             var children = w.get_children();
             var elem = w.get_selected_item();
-
             if (distance > 0)
             {
                 if (elem == children.last().data)
@@ -161,7 +156,6 @@ namespace Appmenu
                     elem = children.find(elem).prev.data;
             }
             elem.get_allocation(out rect);
-
             if (distance > 0)
             {
                 double item_margin = rect.x + rect.width;

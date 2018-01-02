@@ -26,3 +26,6 @@ add_dependencies(appmenu-registrar appmenu-core)
 # Install plugin stuffs
 install(TARGETS appmenu-registrar DESTINATION ${CMAKE_INSTALL_LIBEXECDIR}/vala-panel)
 add_custom_target(vala-files-ide-registrar SOURCES ${REGISTRAR_VALA_FILES})
+
+configure_file(${CMAKE_SOURCE_DIR}/data/appmenu-registrar.service.in ${CMAKE_CURRENT_BINARY_DIR}/appmenu-registrar.serivce)
+install (FILES ${CMAKE_CURRENT_BINARY_DIR}/appmenu-registrar.serivce DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/dbus-1/services/ RENAME com.canonical.AppMenu.Registrar.service)

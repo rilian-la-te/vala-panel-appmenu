@@ -13,6 +13,3 @@ endif()
 if (ENABLE_BUDGIE)
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/appmenu-budgie.plugin DESTINATION ${CMAKE_INSTALL_LIBDIR}/budgie-desktop/plugins/budgie-vala-panel-appmenu-plugin)
 endif()
-
-configure_file(${CMAKE_SOURCE_DIR}/data/appmenu-registrar.service.in ${CMAKE_BINARY_DIR}/data/appmenu-registrar.serivce)
-install (FILES ${CMAKE_CURRENT_BINARY_DIR}/appmenu-registrar.serivce DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/dbus-1/services/ RENAME com.canonical.AppMenu.Registrar.service)
