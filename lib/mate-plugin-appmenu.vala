@@ -44,6 +44,7 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
 void main(string[] args) {
     GLib.Intl.bindtextdomain(Config.GETTEXT_PACKAGE,Config.LOCALE_DIR);
     GLib.Intl.bind_textdomain_codeset(Config.GETTEXT_PACKAGE,"UTF-8");
+    Gdk.disable_multidevice();
     Gtk.init(ref args);
     MatePanel.Applet.factory_main("AppmenuAppletFactory", true, typeof (MatePanel.Applet), factory_callback);
 }
