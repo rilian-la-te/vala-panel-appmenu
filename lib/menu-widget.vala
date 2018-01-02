@@ -65,10 +65,10 @@ namespace Appmenu
         }
         public void set_appmenu(Gtk.MenuBar? appmenu)
         {
-            if (this.get_child1() is Gtk.Widget)
-                this.get_child1().destroy();
             if (appmenu != null)
             {
+                if (this.get_child1() is Gtk.Widget)
+                    this.get_child1().destroy();
                 this.pack1(appmenu,false,false);
                 unowned Gtk.StyleContext context = appmenu.get_style_context();
 #if BOLD
