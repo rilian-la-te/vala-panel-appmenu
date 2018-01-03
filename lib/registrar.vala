@@ -56,7 +56,6 @@ namespace Appmenu
                                                         () => {
                                                             have_registrar = false;
                                                             Bus.unwatch_name(watched_name);
-                                                            create_outer_registrar();
                                                             }
                                                         );
                 outer_registrar.window_registered.connect((w,s,p)=>{this.window_registered(w,s,p);});
