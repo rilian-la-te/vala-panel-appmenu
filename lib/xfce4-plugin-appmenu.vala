@@ -41,3 +41,8 @@ public class AppmenuPlugin : Xfce.PanelPlugin {
 public Type xfce_panel_module_init (TypeModule module) {
     return typeof (AppmenuPlugin);
 }
+
+public bool xfce_panel_module_preinit (string[] args) {
+    Gdk.disable_multidevice();
+    return true;
+}
