@@ -61,7 +61,7 @@ namespace Appmenu
             provider = new Gtk.CssProvider();
             provider.load_from_resource("/org/vala-panel/appmenu/appmenu.css");
             unowned Gtk.StyleContext context = this.get_style_context();
-            context.add_class("-vala-panel-appmenu-private");
+            context.add_class("-vala-panel-appmenu-core");
             Gtk.StyleContext.add_provider_for_screen(this.get_screen(), provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
         }
         public void set_appmenu(Gtk.MenuBar? appmenu)

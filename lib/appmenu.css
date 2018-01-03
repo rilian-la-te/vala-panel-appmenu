@@ -5,7 +5,7 @@
     box-shadow: inset 0 0px;
 }
 
-.-vala-panel-appmenu-private scrolledwindow,
+.-vala-panel-appmenu-core scrolledwindow,
 .-vala-panel-appmenu-private > menuitem,
 .-vala-panel-appmenu-private:first-child > * > label {
     margin-top: 0;
@@ -14,7 +14,7 @@
     padding-bottom: 0;
 }
 
-.-vala-panel-appmenu-private paned > separator {
+.-vala-panel-appmenu-core > separator {
     background-color: rgba(0,0,0,0);
     background-image: none;
 }
