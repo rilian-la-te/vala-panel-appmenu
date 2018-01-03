@@ -5,6 +5,15 @@
     box-shadow: inset 0 0px;
 }
 
+scrolledwindow,
+.-vala-panel-appmenu-private > menuitem,
+.-vala-panel-appmenu-private:first-child > * > label {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
 .-vala-panel-appmenu-bold:first-child > * > label {
   font-weight: bolder;
 }
