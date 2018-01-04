@@ -47,6 +47,8 @@ namespace Appmenu
         public bool compact_mode {get; set;}
         private Gtk.Adjustment? scroll_adj = null;
         private Gtk.ScrolledWindow? scroller = null;
+        private Gtk.MenuBar? appmenu = null;
+        private Gtk.MenuBar? menubar = null;
         private Gtk.CssProvider provider;
         construct
         {
@@ -71,6 +73,16 @@ namespace Appmenu
                 if (this.get_child1() is Gtk.Widget)
                     this.get_child1().destroy();
                 this.pack1(appmenu,false,false);
+                appmenu.move_selected.connect((distance)=>{
+                    var children = menubar.get_children();
+                    appmenu.deselect();
+                    if (distance > 0)
+                        menubar.select_item(children.first().data);
+                    else if (distance < 0)
+                        menubar.select_item(children.last().data);
+                    menubar.move_selected(0);
+                    return false;
+                });
                 unowned Gtk.StyleContext context = appmenu.get_style_context();
 #if BOLD
                 context.add_class("-vala-panel-appmenu-bold");
@@ -80,6 +92,7 @@ namespace Appmenu
             }
             else
                 completed_menus &= ~MenuWidgetCompletionFlags.APPMENU;
+            this.appmenu = appmenu;
         }
         public void set_menubar(Gtk.MenuBar? menubar)
         {
@@ -99,6 +112,7 @@ namespace Appmenu
                 scroller.hide();
                 completed_menus &= ~MenuWidgetCompletionFlags.MENUBAR;
             }
+            this.menubar = menubar;
         }
         protected bool on_scroll_event(Gtk.Widget w, Gdk.EventScroll event)
         {
@@ -142,6 +156,8 @@ namespace Appmenu
                 {
                     distance = -distance;
                     elem = children.first().data;
+                    menubar.deselect();
+                    appmenu.select_first(true);
                 }
                 else
                     elem = children.find(elem).next.data;
@@ -150,13 +166,23 @@ namespace Appmenu
             {
                 if (elem == children.first().data)
                 {
-                    distance = -distance;
-                    elem = children.last().data;
+                    menubar.deselect();
+                    appmenu.select_first(true);
+                    return false;
                 }
                 else
                     elem = children.find(elem).prev.data;
             }
             elem.get_allocation(out rect);
+            if (distance == 0)
+            {
+                // Artificial case, for ability to manually update scroller position
+                if (rect.x < scroll_adj.get_value())
+                    scroll_adj.set_value(rect.x);
+                else if (rect.x > scroll_adj.get_value())
+                    scroll_adj.set_value(rect.x + scroll_adj.get_page_size());
+                return true;
+            }
             if (distance > 0)
             {
                 double item_margin = rect.x + rect.width;
