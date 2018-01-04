@@ -47,8 +47,6 @@ namespace Appmenu
         public bool compact_mode {get; set;}
         private Gtk.Adjustment? scroll_adj = null;
         private Gtk.ScrolledWindow? scroller = null;
-        private Gtk.MenuBar? appmenu = null;
-        private Gtk.MenuBar? menubar = null;
         private Gtk.CssProvider provider;
         construct
         {
@@ -74,6 +72,7 @@ namespace Appmenu
                     this.get_child1().destroy();
                 this.pack1(appmenu,false,false);
                 appmenu.move_selected.connect((distance)=>{
+                    unowned Gtk.MenuBar? menubar = scroller.get_child() as Gtk.MenuBar;
                     var children = menubar.get_children();
                     appmenu.deselect();
                     if (distance > 0)
@@ -92,7 +91,6 @@ namespace Appmenu
             }
             else
                 completed_menus &= ~MenuWidgetCompletionFlags.APPMENU;
-            this.appmenu = appmenu;
         }
         public void set_menubar(Gtk.MenuBar? menubar)
         {
@@ -112,7 +110,6 @@ namespace Appmenu
                 scroller.hide();
                 completed_menus &= ~MenuWidgetCompletionFlags.MENUBAR;
             }
-            this.menubar = menubar;
         }
         protected bool on_scroll_event(Gtk.Widget w, Gdk.EventScroll event)
         {
@@ -150,6 +147,8 @@ namespace Appmenu
             Gdk.Rectangle rect;
             var children = w.get_children();
             var elem = w.get_selected_item();
+            unowned Gtk.MenuBar? appmenu = this.get_child1() as Gtk.MenuBar;
+            unowned Gtk.MenuBar? menubar = scroller.get_child() as Gtk.MenuBar;
             if (distance > 0)
             {
                 if (elem == children.last().data)
