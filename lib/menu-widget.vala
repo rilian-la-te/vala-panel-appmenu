@@ -72,7 +72,7 @@ namespace Appmenu
                     this.get_child1().destroy();
                 this.pack1(appmenu,false,false);
                 appmenu.move_selected.connect((distance)=>{
-                    unowned Gtk.MenuBar? menubar = scroller.get_child() as Gtk.MenuBar;
+                    unowned Gtk.MenuBar? menubar = (scroller.get_child() as Gtk.Viewport).get_child() as Gtk.MenuBar;
                     var children = menubar.get_children();
                     appmenu.deselect();
                     if (distance > 0)
@@ -148,7 +148,7 @@ namespace Appmenu
             var children = w.get_children();
             var elem = w.get_selected_item();
             unowned Gtk.MenuBar? appmenu = this.get_child1() as Gtk.MenuBar;
-            unowned Gtk.MenuBar? menubar = scroller.get_child() as Gtk.MenuBar;
+            unowned Gtk.MenuBar? menubar = (scroller.get_child() as Gtk.Viewport).get_child() as Gtk.MenuBar;
             if (distance > 0)
             {
                 if (elem == children.last().data)
