@@ -47,15 +47,14 @@ include (ValaPrecompile)
 
 add_definitions(-DVALA_VERSION="${VALA_SHORTVER}")
 #add_definitions(-w) #Suppress all GCC warnings
-add_definitions(-Wall -Wno-unused # Vala loves to create variables
+add_definitions(-Wall -Wextra -Wno-unused # Vala loves to create variables
                 -Wno-unused-parameter
 #		-pedantic
                 -Wno-ignored-qualifiers
                 -Wno-incompatible-pointer-types
                 -Wno-missing-field-initializers
                 -Wno-discarded-qualifiers
-                -Wno-sign-compare
-                -Wextra) #Vala often forgot cast to GtkWidget or gpointer
+                -Wno-sign-compare) #Vala often forgot cast to GtkWidget or gpointer
 
 find_package (PkgConfig)
 

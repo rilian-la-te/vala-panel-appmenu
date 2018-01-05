@@ -59,8 +59,15 @@ namespace Appmenu
             bool ret = base.dbus_register (connection, object_path);
             dbusmenu_binding = Bus.own_name_on_connection (connection, DBUSMENU_REG_IFACE, BusNameOwnerFlags.NONE,
                 () => {
-                    connection.register_object (DBUSMENU_REG_OBJECT, registrar);
-                    this.hold();
+                    try
+                    {
+                        connection.register_object (DBUSMENU_REG_OBJECT, registrar);
+                        this.hold();
+                    }
+                    catch(GLib.IOError e)
+                    {
+                        debug("%s\n",e.message);
+                    }
                 },
                 () => {
                     this.release();
