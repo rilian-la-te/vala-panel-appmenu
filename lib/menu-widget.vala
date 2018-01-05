@@ -71,6 +71,17 @@ namespace Appmenu
                 if (this.get_child1() is Gtk.Widget)
                     this.get_child1().destroy();
                 this.pack1(appmenu,false,false);
+                appmenu.move_selected.connect((distance)=>{
+                    unowned Gtk.MenuBar? menubar = scroller.get_child() as Gtk.MenuBar;
+                    var children = menubar.get_children();
+                    appmenu.deselect();
+                    if (distance > 0)
+                        menubar.select_item(children.first().data);
+                    else if (distance < 0)
+                        menubar.select_item(children.last().data);
+                    menubar.move_selected(0);
+                    return false;
+                });
                 unowned Gtk.StyleContext context = appmenu.get_style_context();
 #if BOLD
                 context.add_class("-vala-panel-appmenu-bold");
@@ -136,12 +147,16 @@ namespace Appmenu
             Gdk.Rectangle rect;
             var children = w.get_children();
             var elem = w.get_selected_item();
+            unowned Gtk.MenuBar? appmenu = this.get_child1() as Gtk.MenuBar;
+            unowned Gtk.MenuBar? menubar = scroller.get_child() as Gtk.MenuBar;
             if (distance > 0)
             {
                 if (elem == children.last().data)
                 {
                     distance = -distance;
                     elem = children.first().data;
+                    menubar.deselect();
+                    appmenu.select_first(true);
                 }
                 else
                     elem = children.find(elem).next.data;
@@ -150,13 +165,23 @@ namespace Appmenu
             {
                 if (elem == children.first().data)
                 {
-                    distance = -distance;
-                    elem = children.last().data;
+                    menubar.deselect();
+                    appmenu.select_first(true);
+                    return false;
                 }
                 else
                     elem = children.find(elem).prev.data;
             }
             elem.get_allocation(out rect);
+            if (distance == 0)
+            {
+                // Artificial case, for ability to manually update scroller position
+                if (rect.x < scroll_adj.get_value())
+                    scroll_adj.set_value(rect.x);
+                else if (rect.x > scroll_adj.get_value())
+                    scroll_adj.set_value(rect.x + scroll_adj.get_page_size());
+                return true;
+            }
             if (distance > 0)
             {
                 double item_margin = rect.x + rect.width;
