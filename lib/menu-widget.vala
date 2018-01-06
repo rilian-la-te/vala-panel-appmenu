@@ -56,6 +56,10 @@ namespace Appmenu
             scroller.set_policy(Gtk.PolicyType.EXTERNAL, Gtk.PolicyType.NEVER);
             scroller.set_shadow_type(Gtk.ShadowType.NONE);
             scroller.scroll_event.connect(on_scroll_event);
+            scroller.set_min_content_width(16);
+            scroller.set_min_content_height(16);
+            scroller.set_propagate_natural_height(true);
+            scroller.set_propagate_natural_width(true);
             this.pack2(scroller,true,false);
 
             provider = new Gtk.CssProvider();
