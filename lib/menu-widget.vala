@@ -142,13 +142,12 @@ namespace Appmenu
             }
             return false;
         }
-        private bool on_menubar_sel_move(Gtk.MenuShell w, int distance)
+        private bool on_menubar_sel_move(Gtk.MenuShell menubar, int distance)
         {
             Gdk.Rectangle rect;
-            var children = w.get_children();
-            var elem = w.get_selected_item();
+            var children = menubar.get_children();
+            var elem = menubar.get_selected_item();
             unowned Gtk.MenuBar? appmenu = this.get_child1() as Gtk.MenuBar;
-            unowned Gtk.MenuBar? menubar = (scroller.get_child() as Gtk.Viewport).get_child() as Gtk.MenuBar;
             if (distance > 0)
             {
                 if (elem == children.last().data)
