@@ -21,12 +21,12 @@
  *          Konstantin Pugin <ria.freelander@gmail.com>
  */
 
-#ifndef PLATFORM_H
-#define PLATFORM_H
+#define UNITY_GTK_MODULE_SCHEMA "org.valapanel.appmenu-gtk-module"
+#define BLACKLIST_KEY "blacklist"
+#define WHITELIST_KEY "whitelist"
+#define SHELL_SHOWS_MENUBAR_KEY "gtk2-shell-shows-menubar"
 
-#include <gtk/gtk.h>
-
-void gtk_widget_set_property_string(GtkWidget *widget, const gchar *name, const gchar *value);
-
-gchar *gtk_widget_get_property_string(GtkWidget *widget, const gchar *name);
-#endif // PLATFORM_H
+#define _GTK_UNIQUE_BUS_NAME "_GTK_UNIQUE_BUS_NAME"
+#define _UNITY_OBJECT_PATH "_UNITY_OBJECT_PATH"
+#define _GTK_MENUBAR_OBJECT_PATH "_GTK_MENUBAR_OBJECT_PATH"
+#define OBJECT_PATH "/org/valapanel/appmenu/gtk/window"

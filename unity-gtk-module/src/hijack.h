@@ -21,12 +21,8 @@
  *          Konstantin Pugin <ria.freelander@gmail.com>
  */
 
-#ifndef PLATFORM_H
-#define PLATFORM_H
+#include <glib-object.h>
+#include <glib.h>
 
-#include <gtk/gtk.h>
-
-void gtk_widget_set_property_string(GtkWidget *widget, const gchar *name, const gchar *value);
-
-gchar *gtk_widget_get_property_string(GtkWidget *widget, const gchar *name);
-#endif // PLATFORM_H
+G_GNUC_INTERNAL void store_pre_hijacked();
+G_GNUC_INTERNAL void hijack_menu_bar_class_vtable(GType type);

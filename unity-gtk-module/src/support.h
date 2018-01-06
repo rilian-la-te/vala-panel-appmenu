@@ -21,12 +21,11 @@
  *          Konstantin Pugin <ria.freelander@gmail.com>
  */
 
-#ifndef PLATFORM_H
-#define PLATFORM_H
-
 #include <gtk/gtk.h>
+#include <stdbool.h>
 
-void gtk_widget_set_property_string(GtkWidget *widget, const gchar *name, const gchar *value);
-
-gchar *gtk_widget_get_property_string(GtkWidget *widget, const gchar *name);
-#endif // PLATFORM_H
+G_GNUC_INTERNAL bool gtk_widget_shell_shows_menubar(GtkWidget *widget);
+G_GNUC_INTERNAL void gtk_widget_connect_settings(GtkWidget *widget);
+G_GNUC_INTERNAL void gtk_widget_disconnect_settings(GtkWidget *widget);
+G_GNUC_INTERNAL bool gtk_module_should_run();
+G_GNUC_INTERNAL void enable_debug();
