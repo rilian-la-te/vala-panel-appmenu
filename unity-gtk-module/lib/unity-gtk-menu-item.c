@@ -217,12 +217,12 @@ static GIcon *gtk_image_get_icon(GtkImage *image)
 			GtkTextDirection direction = gtk_widget_get_direction(GTK_WIDGET(image));
 			GtkStateType state         = gtk_widget_get_state(GTK_WIDGET(image));
 			GdkPixbuf *pixbuf          = gtk_icon_set_render_icon(set,
-			                                             style,
-			                                             direction,
-			                                             state,
-			                                             size,
-			                                             GTK_WIDGET(image),
-			                                             NULL);
+                                                                     style,
+                                                                     direction,
+                                                                     state,
+                                                                     size,
+                                                                     GTK_WIDGET(image),
+                                                                     NULL);
 
 			if (pixbuf != NULL)
 				icon = G_ICON(pixbuf);
@@ -264,14 +264,14 @@ static GIcon *gtk_image_get_icon(GtkImage *image)
 		{
 			GdkColormap *colourmap = gtk_widget_get_colormap(GTK_WIDGET(image));
 			GdkPixbuf *pixbuf      = gdk_pixbuf_get_from_image(NULL,
-			                                              gdk_image,
-			                                              colourmap,
-			                                              0,
-			                                              0,
-			                                              0,
-			                                              0,
-			                                              gdk_image->width,
-			                                              gdk_image->height);
+                                                                      gdk_image,
+                                                                      colourmap,
+                                                                      0,
+                                                                      0,
+                                                                      0,
+                                                                      0,
+                                                                      gdk_image->width,
+                                                                      gdk_image->height);
 
 			if (pixbuf != NULL)
 				icon = G_ICON(pixbuf);
@@ -296,14 +296,14 @@ static GIcon *gtk_image_get_icon(GtkImage *image)
 			gdk_pixmap_get_size(pixmap, &width, &height);
 			colourmap = gtk_widget_get_colormap(GTK_WIDGET(image));
 			pixbuf    = gdk_pixbuf_get_from_drawable(NULL,
-			                                      pixmap,
-			                                      colourmap,
-			                                      0,
-			                                      0,
-			                                      0,
-			                                      0,
-			                                      width,
-			                                      height);
+                                                              pixmap,
+                                                              colourmap,
+                                                              0,
+                                                              0,
+                                                              0,
+                                                              0,
+                                                              width,
+                                                              height);
 
 			if (pixbuf != NULL)
 				icon = G_ICON(pixbuf);

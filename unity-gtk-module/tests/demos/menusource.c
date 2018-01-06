@@ -60,9 +60,9 @@ static void menu_source_update(MenuSource *menu_source)
 	{
 		GDBusMenuModel *proxy;
 
-		proxy = g_dbus_menu_model_get(menu_source->session,
-		                              menu_source->properties[0],
-		                              menu_source->properties[1]);
+		proxy             = g_dbus_menu_model_get(menu_source->session,
+                                              menu_source->properties[0],
+                                              menu_source->properties[1]);
 		menu_source->menu = G_MENU_MODEL(proxy);
 	}
 	else

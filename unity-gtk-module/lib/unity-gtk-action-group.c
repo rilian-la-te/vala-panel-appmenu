@@ -241,7 +241,7 @@ static gchar **unity_gtk_action_group_list_actions(GActionGroup *action_group)
 				names     = g_malloc_n(i + n + 1, sizeof(gchar *));
 				new_names = names + i;
 
-				for (i           = 0; old_names[i] != NULL; i++)
+				for (i = 0; old_names[i] != NULL; i++)
 					names[i] = old_names[i];
 
 				g_free(old_names);
@@ -254,7 +254,7 @@ static gchar **unity_gtk_action_group_list_actions(GActionGroup *action_group)
 			new_names = names = g_malloc_n(n + 1, sizeof(gchar *));
 
 		g_hash_table_iter_init(&iter, group->actions_by_name);
-		for (i               = 0; i < n && g_hash_table_iter_next(&iter, &key, NULL); i++)
+		for (i = 0; i < n && g_hash_table_iter_next(&iter, &key, NULL); i++)
 			new_names[i] = g_strdup(key);
 
 		new_names[i] = NULL;
