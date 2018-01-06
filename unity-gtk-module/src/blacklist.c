@@ -21,7 +21,6 @@
  *          Konstantin Pugin <ria.freelander@gmail.com>
  */
 
-
 #include <gtk/gtk.h>
 
 #include "blacklist.h"

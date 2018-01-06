@@ -72,7 +72,6 @@ G_GNUC_INTERNAL void enable_debug()
 	unity_gtk_action_group_set_debug(is_true(g_getenv("UNITY_GTK_ACTION_GROUP_DEBUG")));
 }
 
-#if GTK_MAJOR_VERSION == 3
 G_GNUC_INTERNAL bool gtk_widget_shell_shows_menubar(GtkWidget *widget)
 {
 	GtkSettings *settings;
@@ -115,57 +114,114 @@ G_GNUC_INTERNAL void gtk_widget_disconnect_settings(GtkWidget *widget)
 	if (settings != NULL)
 		g_signal_handlers_disconnect_by_data(settings, widget);
 }
+
+#if GTK_MAJOR_VERSION < 3
+static uint watcher_id = 0;
+
+static gboolean is_dbus_present()
+{
+	GDBusConnection *connection;
+	GVariant *ret, *names;
+	GVariantIter *iter;
+	gchar *name;
+	gboolean is_present;
+	GError *error = NULL;
+
+	is_present = FALSE;
+
+	connection = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &error);
+	if (connection == NULL)
+	{
+		g_warning("Unable to connect to dbus: %s", error->message);
+		g_error_free(error);
+		return FALSE;
+	}
+
+	ret = g_dbus_connection_call_sync(connection,
+	                                  "org.freedesktop.DBus",
+	                                  "/org/freedesktop/DBus",
+	                                  "org.freedesktop.DBus",
+	                                  "ListNames",
+	                                  NULL,
+	                                  G_VARIANT_TYPE("(as)"),
+	                                  G_DBUS_CALL_FLAGS_NONE,
+	                                  -1,
+	                                  NULL,
+	                                  &error);
+	if (ret == NULL)
+	{
+		g_warning("Unable to query dbus: %s", error->message);
+		g_error_free(error);
+		return FALSE;
+	}
+	names = g_variant_get_child_value(ret, 0);
+	g_variant_get(names, "as", &iter);
+	while (g_variant_iter_loop(iter, "s", &name))
+	{
+		if (g_str_equal(name, "com.canonical.AppMenu.Registrar"))
+		{
+			is_present = TRUE;
+			break;
+		}
+	}
+	g_variant_iter_free(iter);
+	g_variant_unref(names);
+	g_variant_unref(ret);
+
+	return is_present;
+}
+
+static bool set_gtk_shell_shows_menubar(bool shows)
+{
+	GtkSettings *settings;
+	GParamSpec *pspec;
+
+	settings = gtk_settings_get_default();
+
+	g_return_val_if_fail(GTK_IS_SETTINGS(settings), FALSE);
+
+	pspec =
+	    g_object_class_find_property(G_OBJECT_GET_CLASS(settings), "gtk-shell-shows-menubar");
+
+	g_return_val_if_fail(G_IS_PARAM_SPEC(pspec), FALSE);
+	g_return_val_if_fail(pspec->value_type == G_TYPE_BOOLEAN, FALSE);
+
+	g_object_set(settings, "gtk-shell-shows-menubar", shows, NULL);
+	return true;
+}
+
+static void on_name_appeared(GDBusConnection *connection, const gchar *name,
+                             const gchar *name_owner, gpointer user_data)
+{
+	g_debug("Name %s on the session bus is owned by %s\n", name, name_owner);
+
+	set_gtk_shell_shows_menubar(true);
+}
+
+static void on_name_vanished(GDBusConnection *connection, const gchar *name, gpointer user_data)
+{
+	g_debug("Name %s does not exist on the session bus\n", name);
+
+	set_gtk_shell_shows_menubar(FALSE);
+}
+
+G_GNUC_INTERNAL void watch_registrar_dbus()
+{
+	set_gtk_shell_shows_menubar(is_dbus_present());
+
+	if (watcher_id == 0)
+	{
+		watcher_id = g_bus_watch_name(G_BUS_TYPE_SESSION,
+		                              "com.canonical.AppMenu.Registrar",
+		                              G_BUS_NAME_WATCHER_FLAGS_NONE,
+		                              on_name_appeared,
+		                              on_name_vanished,
+		                              NULL,
+		                              NULL);
+	}
+}
 #else
-static void g_settings_handle_gtk_shell_shows_menubar(GSettings *settings, gchar *key,
-                                                      gpointer user_data)
+G_GNUC_INTERNAL void watch_registrar_dbus()
 {
-	gtk_widget_queue_resize(user_data);
-}
-
-G_GNUC_INTERNAL bool gtk_widget_shell_shows_menubar(GtkWidget *widget)
-{
-	GSettings *settings =
-	    G_SETTINGS(g_object_get_data(G_OBJECT(widget), UNITY_GTK_MODULE_SCHEMA));
-	if (settings == NULL)
-	{
-		settings = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
-		g_object_set_data_full(G_OBJECT(widget),
-		                       UNITY_GTK_MODULE_SCHEMA,
-		                       (gpointer)settings,
-		                       (GDestroyNotify)g_object_unref);
-		g_signal_connect(settings,
-		                 "changed::" SHELL_SHOWS_MENUBAR_KEY,
-		                 G_CALLBACK(g_settings_handle_gtk_shell_shows_menubar),
-		                 widget);
-	}
-	return g_settings_get_boolean(settings, SHELL_SHOWS_MENUBAR_KEY);
-}
-G_GNUC_INTERNAL void gtk_widget_connect_settings(GtkWidget *widget)
-{
-	GSettings *settings =
-	    G_SETTINGS(g_object_get_data(G_OBJECT(widget), UNITY_GTK_MODULE_SCHEMA));
-	if (settings == NULL)
-	{
-		settings = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
-		g_object_set_data_full(G_OBJECT(widget),
-		                       UNITY_GTK_MODULE_SCHEMA,
-		                       (gpointer)settings,
-		                       (GDestroyNotify)g_object_unref);
-		g_signal_connect(settings,
-		                 "changed::" SHELL_SHOWS_MENUBAR_KEY,
-		                 G_CALLBACK(g_settings_handle_gtk_shell_shows_menubar),
-		                 widget);
-	}
-}
-
-G_GNUC_INTERNAL void gtk_widget_disconnect_settings(GtkWidget *widget)
-{
-	GSettings *settings =
-	    G_SETTINGS(g_object_get_data(G_OBJECT(widget), UNITY_GTK_MODULE_SCHEMA));
-	if (settings != NULL)
-	{
-		g_signal_handlers_disconnect_by_data(settings, widget);
-		g_object_set_data(G_OBJECT(widget), UNITY_GTK_MODULE_SCHEMA, NULL);
-	}
 }
 #endif

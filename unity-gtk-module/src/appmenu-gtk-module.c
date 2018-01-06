@@ -26,10 +26,34 @@
 #include "hijack.h"
 #include "support.h"
 
+static void sync_gtk2_settings()
+{
+#if GTK_MAJOR_VERSION < 3
+	GtkSettings *settings;
+	GParamSpec *pspec;
+
+	pspec = g_object_class_find_property(g_type_class_ref(GTK_TYPE_SETTINGS),
+	                                     "gtk-shell-shows-menubar");
+
+	if (!G_IS_PARAM_SPEC(pspec))
+	{
+		gtk_settings_install_property(
+		    g_param_spec_boolean("gtk-shell-shows-menubar",
+		                         "Desktop shell shows the menubar",
+		                         "Set to TRUE if the desktop environment is displaying the "
+		                         "menubar, FALSE if the app should display it itself.",
+		                         FALSE,
+		                         G_PARAM_READWRITE));
+	}
+#endif
+}
+
 void gtk_module_init(void)
 {
 	if (gtk_module_should_run())
 	{
+		sync_gtk2_settings();
+		watch_registrar_dbus();
 		enable_debug();
 		store_pre_hijacked();
 		hijack_menu_bar_class_vtable(GTK_TYPE_MENU_BAR);
