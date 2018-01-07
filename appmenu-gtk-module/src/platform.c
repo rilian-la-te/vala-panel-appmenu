@@ -248,15 +248,15 @@ G_GNUC_INTERNAL WindowData *gtk_wayland_window_get_window_data(GtkWindow *window
 	window_data = g_object_get_qdata(G_OBJECT(window), window_data_quark());
 	if (window_data == NULL)
 	{
-		window_data             = window_data_new();
-		window_data->menu_model = g_menu_new();
+		window_data                 = window_data_new();
+		window_data->menu_model     = g_menu_new();
+		GtkApplication *application = gtk_window_get_application(window);
 
-		if (GTK_IS_APPLICATION_WINDOW(window))
+		if (application != NULL)
 		{
 			GDBusMenuModel *old_menu_model     = NULL;
 			GDBusActionGroup *old_action_group = NULL;
 			static guint window_id;
-			GtkApplication *application;
 			GApplication *gApp;
 			GDBusConnection *connection;
 			gchar *object_path;
@@ -264,7 +264,6 @@ G_GNUC_INTERNAL WindowData *gtk_wayland_window_get_window_data(GtkWindow *window
 			gchar *menubar_object_path;
 			gchar *unique_bus_name;
 
-			application = gtk_window_get_application(window);
 			g_return_val_if_fail(GTK_IS_APPLICATION(application), NULL);
 
 			window_data->action_group = NULL;
