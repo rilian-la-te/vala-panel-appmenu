@@ -28,11 +28,10 @@
 
 #include <appmenu-gtk-menu-shell.h>
 
-G_GNUC_INTERNAL G_DEFINE_QUARK(window_data, window_data) G_GNUC_INTERNAL
-    G_DEFINE_QUARK(menu_shell_data, menu_shell_data)
-
-        G_DEFINE_BOXED_TYPE(WindowData, window_data, (GBoxedCopyFunc)window_data_copy,
-                            (GBoxedFreeFunc)window_data_free);
+G_GNUC_INTERNAL G_DEFINE_QUARK(window_data, window_data);
+G_DEFINE_BOXED_TYPE(WindowData, window_data, (GBoxedCopyFunc)window_data_copy,
+                    (GBoxedFreeFunc)window_data_free);
+G_GNUC_INTERNAL G_DEFINE_QUARK(menu_shell_data, menu_shell_data);
 G_DEFINE_BOXED_TYPE(MenuShellData, menu_shell_data, (GBoxedCopyFunc)menu_shell_data_copy,
                     (GBoxedFreeFunc)menu_shell_data_free);
 
