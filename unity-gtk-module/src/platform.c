@@ -277,10 +277,10 @@ G_GNUC_INTERNAL WindowData *gtk_wayland_window_get_window_data(GtkWindow *window
 			                         G_IS_MENU_MODEL(window_data->menu_model),
 			                     NULL);
 
-			connection = g_application_get_dbus_connection(gApp);
+			connection             = g_application_get_dbus_connection(gApp);
 			window_data->window_id = window_id++; // IN THE GNOME IMPLEMENTATION THIS IS
-			                                      // STARTED IN ONE NOT CERO (So, we make
-			                                      // is similar)
+			                                      // STARTED IN ONE NOT CERO (So, we
+			                                      // make is similar)
 			object_path = g_strdup_printf(OBJECT_PATH "/%d", window_id);
 
 			unique_bus_name =

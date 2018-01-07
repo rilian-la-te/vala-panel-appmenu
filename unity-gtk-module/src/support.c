@@ -205,9 +205,11 @@ static void on_name_vanished(GDBusConnection *connection, const gchar *name, gpo
 
 	set_gtk_shell_shows_menubar(FALSE);
 }
+#endif
 
 G_GNUC_INTERNAL void watch_registrar_dbus()
 {
+#if GTK_MAJOR_VERSION < 3
 	set_gtk_shell_shows_menubar(is_dbus_present());
 
 	if (watcher_id == 0)
@@ -220,9 +222,5 @@ G_GNUC_INTERNAL void watch_registrar_dbus()
 		                              NULL,
 		                              NULL);
 	}
-}
-#else
-G_GNUC_INTERNAL void watch_registrar_dbus()
-{
-}
 #endif
+}
