@@ -6,7 +6,7 @@ Vala Panel Application Menu is a Global Menu applet for use with Vala Panel, xfc
 
 **REQUIRED DEPENDENCES**
 
- * GLib (>= 2.40.0)
+ * GLib (>= 2.44.0)
  * GTK+ (>= 3.12.0)
  * valac (>= 0.24.0)
  * libbamf (>=0.5.0)
@@ -27,13 +27,14 @@ Compilation Instructions
       * `-DENABLE_JAYATANA=[ON/OFF]` Use `ON` to include Jayatana library (enable global menu for java swing applications)
       * `-DENABLE_UNITY_GTK_MODULE=ON` Use this flag if you are compiling for a distro other than Arch (see instructions below for including unity-gtk-module with Arch) or Ubuntu (Ubuntu users can install unity-gtk-module from the ubuntu repositories--see 'Post-build Instructions', below).
       * `-DMAKE_BOLD_APPNAME=[ON/OFF]` Use `ON` to make appname menu font bold (similar to macOS menu style).
-      * `-DCMAKE_INSTALL_PREFIX=[path]` By default, Vala-Panel-Appmenu will install in the `/usr/local` directory. You can use this flag to change that.
+      * `-DCMAKE_INSTALL_PREFIX=[path]` By default, Vala-Panel-Appmenu will install in the `/usr/local` directory. You can use this flag to change that. For some DEs (XFCE, for example), it is required to match install prefix with panel prefix (`/usr` in most distros), so, do not forget it.
   * once you've decided on any flags you want to include, type (from your build directory) `cmake [flags] ..`
   * once the build is successful, you can compile and install Vala-Panel-Appmenu by typing `make && sudo make install`
 ---
 Post-Build Instructions
 ---
 - Install bamfdaemon (if it is not bundled with libbamf)
+  - It is strongly recommend to add bamfdaemon to autostart
 - Enable unity-gtk-module on Ubuntu:
   - Create a .gtkrc in your home(~) directory, if there isn't one already.
   - Add the following lines to this .gtkrc file:
@@ -82,8 +83,8 @@ To install unity-gtk-module for your distro:
 * Install these [libdbusmenu-glib](https://archlinux.org/packages/libdbusmenu-glib/) [libdbusmenu-gtk3](https://archlinux.org/packages/libdbusmenu-gtk3/) [libdbusmenu-gtk2](https://archlinux.org/packages/libdbusmenu-gtk2/) to get Chromium/Google Chrome to work
 
  **DISTROS OTHER THAN ARCH OR UBUNTU**
- - When building vala-panel-appmenu with CMAKE, use the flag, `-DENABLE_UNITY_GTK_MODULE=ON`
- - Follow instructions in the (unity-gtk-module) [README](unity-gtk-module/README.md)
+ - When building vala-panel-appmenu with CMAKE, use the flag, `-DENABLE_APPMENU_GTK_MODULE=ON`
+ - Follow instructions in the (appmenu-gtk-module) [README](appmenu-gtk-module/README.md)
 
 **ALL DISTROS**
 - To get QT menus to work, install your distribution's qt4 and qt5 appmenu packages. In Ubuntu 17.04, for example, this involves typing `sudo apt-get install appmenu-qt`.
