@@ -22,17 +22,26 @@
  *          Lester Carballo Perez <lestcape@gmail.com>
  */
 
-#ifndef SUPPORT_H
-#define SUPPORT_H
+#ifndef DATASTRUCTSPRIVATE_H
+#define DATASTRUCTSPRIVATE_H
 
+#include <appmenu-gtk-action-group.h>
 #include <gtk/gtk.h>
-#include <stdbool.h>
 
-G_GNUC_INTERNAL bool gtk_widget_shell_shows_menubar(GtkWidget *widget);
-G_GNUC_INTERNAL void gtk_widget_connect_settings(GtkWidget *widget);
-G_GNUC_INTERNAL void gtk_widget_disconnect_settings(GtkWidget *widget);
-G_GNUC_INTERNAL bool gtk_module_should_run();
-G_GNUC_INTERNAL void watch_registrar_dbus();
-G_GNUC_INTERNAL void enable_debug();
+struct _WindowData
+{
+	guint window_id;
+	GMenu *menu_model;
+	guint menu_model_export_id;
+	GSList *menus;
+	GMenuModel *old_model;
+	UnityGtkActionGroup *action_group;
+	guint action_group_export_id;
+};
 
-#endif
+struct _MenuShellData
+{
+	GtkWindow *window;
+};
+
+#endif // DATASTRUCTSPRIVATE_H

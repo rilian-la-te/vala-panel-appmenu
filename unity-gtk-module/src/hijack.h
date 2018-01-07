@@ -19,10 +19,16 @@
  * Authors: Ryan Lortie <desrt@desrt.ca>
  *          William Hua <william.hua@canonical.com>
  *          Konstantin Pugin <ria.freelander@gmail.com>
+ *          Lester Carballo Perez <lestcape@gmail.com>
  */
+
+#ifndef HIJACK_H
+#define HIJACK_H
 
 #include <glib-object.h>
 #include <glib.h>
 
 G_GNUC_INTERNAL void store_pre_hijacked();
 G_GNUC_INTERNAL void hijack_menu_bar_class_vtable(GType type);
+
+#endif

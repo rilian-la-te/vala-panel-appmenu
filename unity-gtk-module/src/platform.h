@@ -19,14 +19,29 @@
  * Authors: Ryan Lortie <desrt@desrt.ca>
  *          William Hua <william.hua@canonical.com>
  *          Konstantin Pugin <ria.freelander@gmail.com>
+ *          Lester Carballo Perez <lestcape@gmail.com>
  */
 
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
+#include <gdk/gdkx.h>
 #include <gtk/gtk.h>
 
-void gtk_widget_set_property_string(GtkWidget *widget, const gchar *name, const gchar *value);
+#if GTK_MAJOR_VERSION >= 3
+#ifdef GDK_WINDOWING_WAYLAND
+#include <gdk/gdkwayland.h>
+#endif
+#endif
 
-gchar *gtk_widget_get_property_string(GtkWidget *widget, const gchar *name);
+#include "datastructs.h"
+
+#ifdef GDK_WINDOWING_X11
+G_GNUC_INTERNAL WindowData *gtk_x11_window_get_window_data(GtkWindow *window);
+#endif
+
+#ifdef GDK_WINDOWING_WAYLAND
+G_GNUC_INTERNAL WindowData *gtk_wayland_window_get_window_data(GtkWindow *window);
+#endif
+
 #endif // PLATFORM_H

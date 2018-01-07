@@ -19,7 +19,11 @@
  * Authors: Ryan Lortie <desrt@desrt.ca>
  *          William Hua <william.hua@canonical.com>
  *          Konstantin Pugin <ria.freelander@gmail.com>
+ *          Lester Carballo Perez <lestcape@gmail.com>
  */
+
+#ifndef CONSTS_H
+#define CONSTS_H
 
 #define UNITY_GTK_MODULE_SCHEMA "org.valapanel.appmenu-gtk-module"
 #define BLACKLIST_KEY "blacklist"
@@ -30,3 +34,5 @@
 #define _UNITY_OBJECT_PATH "_UNITY_OBJECT_PATH"
 #define _GTK_MENUBAR_OBJECT_PATH "_GTK_MENUBAR_OBJECT_PATH"
 #define OBJECT_PATH "/org/valapanel/appmenu/gtk/window"
+
+#endif

@@ -1,5 +1,8 @@
 set(MODULE_SOURCES
     appmenu-gtk-module.c
+    datastructs.c
+    datastructs.h
+    datastructs-private.h
     hijack.c
     hijack.h
     support.c

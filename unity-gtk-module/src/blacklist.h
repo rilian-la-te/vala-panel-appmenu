@@ -19,9 +19,15 @@
  * Authors: Ryan Lortie <desrt@desrt.ca>
  *          William Hua <william.hua@canonical.com>
  *          Konstantin Pugin <ria.freelander@gmail.com>
+ *          Lester Carballo Perez <lestcape@gmail.com>
  */
+
+#ifndef BLACKLIST_H
+#define BLACKLIST_H
 
 #include <glib.h>
 #include <stdbool.h>
 
 G_GNUC_INTERNAL bool is_blacklisted(const char *name);
+
+#endif
