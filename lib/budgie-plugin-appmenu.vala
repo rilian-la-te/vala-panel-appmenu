@@ -58,6 +58,8 @@ public class GlobalMenuApplet: Applet
             add_budgie_style(layout);
         });
         this.add(layout);
+        this.hexpand_set = true;
+        this.vexpand_set = true;
         add_budgie_style(layout);
         show_all();
     }
