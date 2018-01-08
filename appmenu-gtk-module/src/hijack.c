@@ -29,6 +29,7 @@
 #include "consts.h"
 #include "datastructs.h"
 #include "hijack.h"
+#include "platform.h"
 #include "support.h"
 
 static void (*pre_hijacked_window_realize)(GtkWidget *widget);
@@ -69,20 +70,32 @@ static void hijacked_window_realize(GtkWidget *widget)
 {
 	g_return_if_fail(GTK_IS_WINDOW(widget));
 
-	GdkScreen *screen = gtk_widget_get_screen(widget);
-	GdkVisual *visual = gdk_screen_get_rgba_visual(screen);
-	if (visual && (gtk_window_get_type_hint(GTK_WINDOW(widget)) == GDK_WINDOW_TYPE_HINT_DND))
+	GdkScreen *screen      = gtk_widget_get_screen(widget);
+	GdkVisual *visual      = gdk_screen_get_rgba_visual(screen);
+	GdkWindowTypeHint hint = gtk_window_get_type_hint(GTK_WINDOW(widget));
+	bool is_hint_viable =
+	    ((hint == GDK_WINDOW_TYPE_HINT_NORMAL) || (hint == GDK_WINDOW_TYPE_HINT_DIALOG));
+	if (visual && (hint == GDK_WINDOW_TYPE_HINT_DND))
 		gtk_widget_set_visual(widget, visual);
+
+// In Wayland the DBUS Menu need to be register before realize the window.
+#ifdef GDK_WINDOWING_WAYLAND
+	if (GDK_IS_WAYLAND_DISPLAY(gdk_display_get_default()) && is_hint_viable &&
+	    (!GTK_IS_APPLICATION_WINDOW(GTK_WINDOW(widget))))
+		gtk_window_get_window_data(GTK_WINDOW(widget));
+#endif
+
 	if (pre_hijacked_window_realize != NULL)
 		(*pre_hijacked_window_realize)(widget);
 
+#ifdef GDK_WINDOWING_X11
+	if (is_hint_viable
 #if GTK_MAJOR_VERSION == 3
-	if ((!GTK_IS_APPLICATION_WINDOW(widget))
-#else
-	if (1
+	    && GDK_IS_X11_DISPLAY(gdk_display_get_default()) && (!GTK_IS_APPLICATION_WINDOW(widget))
 #endif
-	    && !(gtk_window_get_type_hint(GTK_WINDOW(widget)) == GDK_WINDOW_TYPE_HINT_DND))
+	)
 		gtk_window_get_window_data(GTK_WINDOW(widget));
+#endif
 }
 
 static void hijacked_window_unrealize(GtkWidget *widget)
@@ -100,10 +113,18 @@ static void hijacked_application_window_realize(GtkWidget *widget)
 {
 	g_return_if_fail(GTK_IS_APPLICATION_WINDOW(widget));
 
+#ifdef GDK_WINDOWING_WAYLAND
+	if (GDK_IS_WAYLAND_DISPLAY(gdk_display_get_default()))
+		gtk_window_get_window_data(GTK_WINDOW(widget));
+#endif
+
 	if (pre_hijacked_application_window_realize != NULL)
 		(*pre_hijacked_application_window_realize)(widget);
 
-	gtk_window_get_window_data(GTK_WINDOW(widget));
+#ifdef GDK_WINDOWING_X11
+	if (GDK_IS_X11_DISPLAY(gdk_display_get_default()))
+		gtk_window_get_window_data(GTK_WINDOW(widget));
+#endif
 }
 #endif
 
