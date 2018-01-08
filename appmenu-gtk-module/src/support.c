@@ -116,7 +116,7 @@ G_GNUC_INTERNAL void gtk_widget_disconnect_settings(GtkWidget *widget)
 		g_signal_handlers_disconnect_by_data(settings, widget);
 }
 
-#if GTK_MAJOR_VERSION < 3
+#if (GTK_MAJOR_VERSION < 3) || defined(GDK_WINDOWING_WAYLAND)
 static uint watcher_id = 0;
 
 static gboolean is_dbus_present()
@@ -209,7 +209,7 @@ static void on_name_vanished(GDBusConnection *connection, const gchar *name, gpo
 
 G_GNUC_INTERNAL void watch_registrar_dbus()
 {
-#if GTK_MAJOR_VERSION < 3
+#if (GTK_MAJOR_VERSION < 3) || defined(GDK_WINDOWING_WAYLAND)
 	set_gtk_shell_shows_menubar(is_dbus_present());
 
 	if (watcher_id == 0)
