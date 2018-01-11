@@ -35,6 +35,7 @@ G_GNUC_INTERNAL WindowData *window_data_new(void);
 G_GNUC_INTERNAL WindowData *window_data_copy(WindowData *source);
 G_GNUC_INTERNAL WindowData *gtk_window_get_window_data(GtkWindow *window);
 G_GNUC_INTERNAL void window_data_free(gpointer data);
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(WindowData, window_data_free);
 
 typedef struct _MenuShellData MenuShellData;
 
@@ -44,6 +45,7 @@ G_GNUC_INTERNAL MenuShellData *gtk_menu_shell_get_menu_shell_data(GtkMenuShell *
 G_GNUC_INTERNAL bool menu_shell_data_has_window(MenuShellData *source);
 G_GNUC_INTERNAL GtkWindow *menu_shell_data_get_window(MenuShellData *source);
 G_GNUC_INTERNAL void menu_shell_data_free(gpointer data);
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(MenuShellData, menu_shell_data_free);
 
 G_GNUC_INTERNAL void gtk_window_connect_menu_shell(GtkWindow *window, GtkMenuShell *menu_shell);
 G_GNUC_INTERNAL void gtk_window_disconnect_menu_shell(GtkWindow *window, GtkMenuShell *menu_shell);
