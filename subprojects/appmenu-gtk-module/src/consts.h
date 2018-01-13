@@ -25,14 +25,13 @@
 #ifndef CONSTS_H
 #define CONSTS_H
 
-#define UNITY_GTK_MODULE_SCHEMA "org.valapanel.appmenu-gtk-module"
+#define UNITY_GTK_MODULE_SCHEMA "org.appmenu.gtk-module"
 #define BLACKLIST_KEY "blacklist"
 #define WHITELIST_KEY "whitelist"
-#define SHELL_SHOWS_MENUBAR_KEY "gtk2-shell-shows-menubar"
 
 #define _GTK_UNIQUE_BUS_NAME "_GTK_UNIQUE_BUS_NAME"
 #define _UNITY_OBJECT_PATH "_UNITY_OBJECT_PATH"
 #define _GTK_MENUBAR_OBJECT_PATH "_GTK_MENUBAR_OBJECT_PATH"
-#define OBJECT_PATH "/org/valapanel/appmenu/gtk/window"
+#define OBJECT_PATH "/org/appmenu/gtk/window"
 
 #endif

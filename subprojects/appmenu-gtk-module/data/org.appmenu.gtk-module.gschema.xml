@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
-  <schema id="org.valapanel.appmenu-gtk-module" path="/org/valapanel/appmenu-gtk-module/">
+  <schema id="org.appmenu.gtk-module" path="/org/appmenu/gtk-module/">
     <key name="blacklist" type="as">
       <summary>Application blacklist</summary>
       <description>List of applications where appmenu-gtk-module should be disabled.</description>
@@ -10,11 +10,6 @@
       <summary>Application whitelist</summary>
       <description>List of applications where appmenu-gtk-module should be enabled.</description>
       <default>[]</default>
-    </key>
-    <key name="gtk2-shell-shows-menubar" type="b">
-      <summary>Determines GTK2 menus behaviour</summary>
-      <description>This key is ubuntu gtk patch replacement.</description>
-      <default>true</default>
     </key>
   </schema>
 </schemalist>

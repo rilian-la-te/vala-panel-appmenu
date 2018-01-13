@@ -1,4 +1,4 @@
-add_custom_target(data-files-module SOURCES org.valapanel.appmenu-gtk-module.gschema.xml appmenu-gtk-module.service)
+add_custom_target(data-files-module SOURCES org.appmenu.gtk-module.gschema.xml appmenu-gtk-module.service)
 
 #----------------------------GSettings macro from CMake repo---------------------------------------
 option (GSETTINGS_LOCALINSTALL "Install GSettings Schemas locally instead of to the GLib prefix" ON)
@@ -44,7 +44,7 @@ macro(add_schema SCHEMA_NAME)
 endmacro()
 #---------------------------------------------------endmacro------------------------------------------------------
 
-add_schema("org.valapanel.appmenu-gtk-module.gschema.xml" "bin")
+add_schema("org.appmenu.gtk-module.gschema.xml" "bin")
 pkg_check_modules(SYSTEMD "systemd")
 if (SYSTEMD_FOUND AND "${SYSTEMD_SERVICES_INSTALL_DIR}" STREQUAL "")
     execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE}
