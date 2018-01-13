@@ -13,7 +13,7 @@ pkg_check_modules(GTK3 REQUIRED QUIET
 find_package(X11)
 
 cmake_dependent_option(STANDALONE "Build appmenu-gtk-module STANDALONE" ON
-        "NOT ENABLE_APPMENU_GTK_MODULE;NOT CORE_FOUND;X11_FOUND" OFF)
+        "NOT CORE_FOUND;X11_FOUND" OFF)
 cmake_dependent_option(ENABLE_APPMENU_GTK_MODULE "Build appmenu-gtk-module" ON
 	"X11_FOUND" OFF)
 cmake_dependent_option(ENABLE_GTK_MODULE_DEMOS "Enable demo programs and docs for gtk module" OFF
