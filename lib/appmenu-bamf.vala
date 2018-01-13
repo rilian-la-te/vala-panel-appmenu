@@ -86,7 +86,7 @@ namespace Appmenu
             this.bind_model(gmenu,null,true);
             this.show_all();
         }
-        ~BamfAppmenu()
+        protected override void destroy()
         {
             if (app is Bamf.Application)
                 SignalHandler.disconnect_by_data(app,this);
