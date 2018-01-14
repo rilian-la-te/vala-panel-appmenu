@@ -86,11 +86,6 @@ namespace Appmenu
             this.bind_model(gmenu,null,true);
             this.show_all();
         }
-        protected override void destroy()
-        {
-            if (app is Bamf.Application)
-                SignalHandler.disconnect_by_data(app,this);
-        }
         private void on_window_added(Bamf.Window window)
         {
             var menuitem = new GLib.MenuItem(window.get_name(),null);
