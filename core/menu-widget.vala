@@ -48,8 +48,8 @@ namespace Appmenu
         private Gtk.Adjustment? scroll_adj = null;
         private Gtk.ScrolledWindow? scroller = null;
         private Gtk.CssProvider provider;
-        internal unowned Gtk.MenuBar appmenu {get; private set;};
-        internal unowned Gtk.MenuBar menubar {get; private set;};
+        internal unowned Gtk.MenuBar appmenu {get; private set;}
+        internal unowned Gtk.MenuBar menubar {get; private set;}
         construct
         {
             scroll_adj = new Gtk.Adjustment(0, 0, 0, 20, 20, 0);
