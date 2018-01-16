@@ -23,9 +23,13 @@ namespace Appmenu
     public const string DBUS_NAME = "com.canonical.AppMenu.Registrar";
     public const string REG_IFACE = "com.canonical.AppMenu.Registrar";
     public const string REG_OBJECT = "/com/canonical/AppMenu/Registrar";
+    public const string KDE_APPMENU_NAME = "org.kde.kappmenu";
+    public const string KDE_APPMENU_VIEW_NAME = "org.kde.kappmenuview";
+    public const string KDE_APPMENU_OBJECT = "/KAppMenu";
+
 
     [DBus (name = "com.canonical.AppMenu.Registrar")]
-    public interface OuterRegistrar : Object
+    public interface OuterRegistrar : DBusProxy
     {
         public signal void window_registered(uint window_id, string service, ObjectPath path);
         public signal void window_unregistered(uint window_id);
@@ -33,6 +37,16 @@ namespace Appmenu
         public abstract void unregister_window(uint window) throws Error;
         public abstract void get_menu_for_window(uint window, out string service, out ObjectPath path) throws Error;
         public abstract void get_menus([DBus (signature="a(uso)")] out Variant menus) throws Error;
+    }
+    [DBus (name = "org.kde.kappmenu")]
+    public interface KDEAppMenu : DBusProxy
+    {
+        public abstract void show_menu(int x,int y,string service, ObjectPath path,int actionId);
+        public abstract void reconfigure();
+        public signal void reconfigured();
+        public signal void show_request(string service, ObjectPath path,int actionId);
+        public signal void menu_shown(string service, ObjectPath path);
+        public signal void menu_hidden(string service, ObjectPath path);
     }
     public class DBusMenuRegistrarProxy: Object
     {
