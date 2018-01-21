@@ -28,7 +28,8 @@ static GIcon *g_icon_new_pixbuf_from_variant(GVariant *variant)
 	return G_ICON(pixbuf);
 }
 
-G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id, DBusMenuXml *xml)
+G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id, DBusMenuXml *xml,
+                                                               GActionGroup *action_group)
 {
 	DBusMenuItem *item = g_slice_new0(DBusMenuItem);
 	item->is_section   = true;
@@ -36,7 +37,8 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id, DBu
 	    g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)g_variant_unref);
 	item->links =
 	    g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)g_object_unref);
-	item->referenced_action = dbus_menu_action_new(xml, id, DBUS_MENU_TOGGLE_TYPE_RADIO);
+	item->referenced_action       = dbus_menu_action_new(xml, id, DBUS_MENU_TOGGLE_TYPE_RADIO);
+	item->referenced_action_group = action_group;
 	g_action_map_add_action(G_ACTION_MAP(item->referenced_action_group),
 	                        item->referenced_action);
 	item->is_section = true;
@@ -63,6 +65,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
 	             "xml",
 	             &xml,
 	             NULL);
+	g_variant_iter_init(&iter, props);
 	// Iterate by immutable properties, it is construct_only
 	while (g_variant_iter_next(&iter, "{&sv}", &prop, &value))
 	{

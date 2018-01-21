@@ -21,7 +21,8 @@ typedef struct
 
 G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *section_item,
                                                  DBusMenuModel *parent_model, GVariant *props);
-G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id, DBusMenuXml *xml);
+G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id, DBusMenuXml *xml,
+                                                               GActionGroup *action_group);
 
 G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data);
 

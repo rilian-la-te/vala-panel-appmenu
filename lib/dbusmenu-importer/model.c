@@ -15,28 +15,29 @@ struct _DBusMenuModel
 	GHashTable *dbusmenu_section_items;
 	DBusMenuXml *xml;
 	GActionGroup *received_action_group;
-	GArray *items;
+	GPtrArray *items;
 };
 
 static const gchar *property_names[] = { "accessible-desc",
-                                     "children-display",
-                                     "disposition",
-                                     "enabled",
-                                     "icon-data",
-                                     "icon-name",
-                                     "label",
-                                     "shortcut",
-                                     "toggle-type",
-                                     "toggle-state",
-                                     "type",
-                                     "visible",
-                                     NULL };
+	                                 "children-display",
+	                                 "disposition",
+	                                 "enabled",
+	                                 "icon-data",
+	                                 "icon-name",
+	                                 "label",
+	                                 "shortcut",
+	                                 "toggle-type",
+	                                 "toggle-state",
+	                                 "type",
+	                                 "visible",
+	                                 NULL };
 enum
 {
-	PROP_XML,
-	PROP_ACTION_GROUP,
-	PROP_PARENT_ID,
-	PROP_IS_SECTION_MODEL,
+	PROP_NULL             = 0,
+	PROP_XML              = 1,
+	PROP_ACTION_GROUP     = 2,
+	PROP_PARENT_ID        = 3,
+	PROP_IS_SECTION_MODEL = 4,
 	NUM_PROPS
 };
 
@@ -58,14 +59,16 @@ static void dbus_menu_model_get_item_attributes(GMenuModel *model, gint position
 {
 	DBusMenuModel *menu = (DBusMenuModel *)(model);
 
-	*table = g_hash_table_ref(g_array_index(menu->items, DBusMenuItem *, position)->attributes);
+	*table = g_hash_table_ref(
+	    ((DBusMenuItem *)g_ptr_array_index(menu->items, position))->attributes);
 }
 
 static void dbus_menu_model_get_item_links(GMenuModel *model, gint position, GHashTable **table)
 {
 	DBusMenuModel *menu = (DBusMenuModel *)(model);
 
-	*table = g_hash_table_ref(g_array_index(menu->items, DBusMenuItem *, position)->links);
+	*table =
+	    g_hash_table_ref(((DBusMenuItem *)g_ptr_array_index(menu->items, position))->links);
 }
 
 static void layout_parse(DBusMenuModel *menu, GVariant *layout)
@@ -93,8 +96,10 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 	                                             menu->xml,
 	                                             menu->received_action_group));
 	DBusMenuItem *current_section_item =
-	    dbus_menu_item_new_first_section(menu->parent_id, menu->xml);
-	g_array_append_val(menu->items, current_section_item);
+	    dbus_menu_item_new_first_section(menu->parent_id,
+	                                     menu->xml,
+	                                     menu->received_action_group);
+	g_ptr_array_add(menu->items, current_section_item);
 	g_hash_table_insert(current_section_item->links,
 	                    g_strdup(G_MENU_LINK_SECTION),
 	                    current_section);
@@ -108,11 +113,13 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		guint cid;
 		GVariant *cprops;
 		GVariant *citems;
-        g_variant_get(value, "(i@a{sv}@av)", &cid, &cprops, &citems);
+		g_variant_get(value, "(i@a{sv}@av)", &cid, &cprops, &citems);
 		g_variant_unref(citems);
 
 		DBusMenuItem *new_item =
 		    dbus_menu_item_new(cid, current_section_item, menu, cprops);
+		g_autofree char *pr = g_variant_print(cprops, true);
+		g_print("%u,%s\n", cid, pr);
 		if (new_item->is_section)
 		{
 			current_section =
@@ -121,7 +128,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 			                                             menu->xml,
 			                                             menu->received_action_group));
 			current_section_item = new_item;
-			g_array_append_val(menu->items, current_section_item);
+			g_ptr_array_add(menu->items, current_section_item);
 			g_hash_table_insert(current_section_item->links,
 			                    g_strdup(G_MENU_LINK_SECTION),
 			                    current_section);
@@ -131,7 +138,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		}
 		else
 		{
-			g_array_append_val(((DBusMenuModel *)current_section)->items, new_item);
+			g_ptr_array_add(((DBusMenuModel *)current_section)->items, new_item);
 			g_hash_table_insert(menu->dbusmenu_section_items,
 			                    GUINT_TO_POINTER(menu->parent_id),
 			                    new_item);
@@ -171,7 +178,7 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 	}
 	uint n = menu->items->len;
 	g_hash_table_remove_all(menu->dbusmenu_section_items);
-	g_array_unref(menu->items);
+	g_ptr_array_free(menu->items, true);
 	layout_parse(menu, layout);
 	g_menu_model_items_changed(G_MENU_MODEL(menu), 0, n, 0);
 	g_variant_unref(layout);
@@ -189,7 +196,7 @@ G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
 
 static void layout_updated_cb(DBusMenuXml *proxy, guint revision, gint parent, DBusMenuModel *menu)
 {
-    if ((uint)parent == menu->parent_id)
+	if ((uint)parent == menu->parent_id)
 	{
 		dbus_menu_model_update_layout(menu);
 	}
@@ -238,6 +245,8 @@ static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_pr
 
 static void on_xml_property_changed(DBusMenuModel *model)
 {
+	if (!DBUS_MENU_IS_XML(model->xml))
+		return;
 	if (!model->is_section_model)
 	{
 		g_signal_connect(model->xml,
@@ -256,7 +265,7 @@ static void on_xml_property_changed(DBusMenuModel *model)
 		                 model);
 		dbus_menu_model_update_layout(model);
 	}
-    g_array_set_clear_func(model->items, dbus_menu_item_free);
+	g_ptr_array_set_free_func(model->items, dbus_menu_item_free);
 }
 
 static DBusMenuModel *dbus_menu_model_new_section(uint parent_id, DBusMenuModel *parent,
@@ -298,7 +307,7 @@ static void dbus_menu_model_finalize(GObject *object)
 	DBusMenuModel *menu = (DBusMenuModel *)(object);
 	g_cancellable_cancel(menu->cancellable);
 	g_clear_object(&menu->cancellable);
-	g_clear_pointer(&menu->items, g_array_unref);
+	g_ptr_array_free(menu->items, true);
 
 	G_OBJECT_CLASS(dbus_menu_model_parent_class)->finalize(object);
 }
@@ -328,8 +337,10 @@ static void dbus_menu_model_set_property(GObject *object, guint property_id, con
 		break;
 	case PROP_PARENT_ID:
 		menu->parent_id = g_value_get_uint(value);
+		break;
 	case PROP_IS_SECTION_MODEL:
 		menu->is_section_model = g_value_get_boolean(value);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
 		break;
@@ -348,8 +359,12 @@ static void dbus_menu_model_get_property(GObject *object, guint property_id, GVa
 	case PROP_XML:
 		g_value_set_object(value, menu->xml);
 		break;
+	case PROP_ACTION_GROUP:
+		g_value_set_object(value, menu->received_action_group);
+		break;
 	case PROP_IS_SECTION_MODEL:
 		g_value_set_boolean(value, menu->is_section_model);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
 		break;
@@ -359,7 +374,7 @@ static void dbus_menu_model_get_property(GObject *object, guint property_id, GVa
 static void dbus_menu_model_init(DBusMenuModel *menu)
 {
 	menu->cancellable            = g_cancellable_new();
-	menu->items                  = g_array_new(FALSE, FALSE, sizeof(gpointer));
+	menu->items                  = g_ptr_array_new();
 	menu->dbusmenu_section_items = g_hash_table_new(g_direct_hash, g_direct_equal);
 }
 
@@ -379,7 +394,7 @@ static void install_properties(GObjectClass *object_class)
 	                        "action-group",
 	                        g_action_group_get_type(),
 	                        (GParamFlags)(G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE |
-	                                      G_PARAM_STATIC_STRINGS));
+	                                      G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 	properties[PROP_PARENT_ID] =
 	    g_param_spec_uint("parent-id",
 	                      "parent-id",

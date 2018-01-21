@@ -110,8 +110,9 @@ G_GNUC_INTERNAL GAction *dbus_menu_action_new(DBusMenuXml *xml, u_int32_t id,
 		g_autofree char *name = g_strdup_printf(ACTION_PREFIX "%u", id);
 		ret = g_simple_action_new_stateful(name, NULL, g_variant_new_boolean(false));
 		unsigned long handler =
-		    g_signal_connect(ret, "activated", G_CALLBACK(activate_checkbox_cb), xml);
+		    g_signal_connect(ret, "activate", G_CALLBACK(activate_checkbox_cb), xml);
 		g_object_set_data(ret, ACTIVATE_ID_QUARK_STR, GUINT_TO_POINTER(handler));
+		return ret;
 	}
 	else if (!g_strcmp0(action_type, DBUS_MENU_TOGGLE_TYPE_RADIO))
 	{
@@ -120,20 +121,23 @@ G_GNUC_INTERNAL GAction *dbus_menu_action_new(DBusMenuXml *xml, u_int32_t id,
                                                    G_VARIANT_TYPE_UINT32,
                                                    g_variant_new_uint32(0));
 		unsigned long handler =
-		    g_signal_connect(ret, "activated", G_CALLBACK(activate_radio_cb), xml);
+		    g_signal_connect(ret, "activate", G_CALLBACK(activate_radio_cb), xml);
 		g_object_set_data(ret, ACTIVATE_ID_QUARK_STR, GUINT_TO_POINTER(handler));
+		return ret;
 	}
 	else if (!g_strcmp0(action_type, DBUS_MENU_CHILDREN_DISPLAY_SUBMENU))
 	{
 		g_autofree char *name = g_strdup_printf(SUBMENU_PREFIX "%u", id);
 		ret = g_simple_action_new_stateful(name, NULL, g_variant_new_boolean(false));
-		g_signal_connect(ret, "state-changed", G_CALLBACK(state_submenu_cb), xml);
+		g_signal_connect(ret, "change-state", G_CALLBACK(state_submenu_cb), xml);
+		return ret;
 	}
 	else
 	{
 		g_autofree char *name = g_strdup_printf(ACTION_PREFIX "%u", id);
 		ret                   = g_simple_action_new(name, NULL);
-		g_signal_connect(ret, "activated", G_CALLBACK(activate_ordinary_cb), xml);
+		g_signal_connect(ret, "activate", G_CALLBACK(activate_ordinary_cb), xml);
+		return ret;
 	}
 	g_assert_not_reached();
 }

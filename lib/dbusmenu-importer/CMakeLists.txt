@@ -17,7 +17,8 @@ find_package (PkgConfig)
 
 pkg_check_modules(GLIB REQUIRED QUIET
     glib-2.0>=2.50
-    gio-2.0>=2.50)
+    gio-2.0>=2.50
+    gio-unix-2.0>=2.50)
 
 pkg_check_modules(PIXBUF REQUIRED QUIET
     gdk-pixbuf-2.0)
@@ -27,8 +28,8 @@ set(DBUS_NAME "dbusmenu-interface")
 set(NAMESPACE "DBusMenu")
 set(XML "com.canonical.dbusmenu.xml")
 set(DBUS_GENERATED_SOURCES
-    ${DBUS_NAME}".c"
-    ${DBUS_NAME}".h")
+    ${CMAKE_CURRENT_BINARY_DIR}/${DBUS_NAME}.c
+    ${CMAKE_CURRENT_BINARY_DIR}/${DBUS_NAME}.h)
 add_custom_target(dbus-xml
     COMMAND
         "${GDBUS-CODEGEN_EXECUTABLE}"
@@ -54,9 +55,9 @@ set(DBUSMENU_C_SOURCES
     utils.h
     )
 
-add_library(dbusmenu-translator-o SHARED
+add_library(dbusmenu-translator-o STATIC
+    ${DBUS_GENERATED_SOURCES}
     ${DBUSMENU_C_SOURCES}
-    ${GENERATED_SOURCES}
     )
 add_dependencies(dbusmenu-translator-o dbus-xml)
 set_target_properties(dbusmenu-translator-o PROPERTIES
