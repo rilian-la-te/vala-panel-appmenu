@@ -1,0 +1,74 @@
+cmake_minimum_required (VERSION 2.8.8)
+cmake_policy (VERSION 2.8)
+cmake_policy (SET CMP0063 NEW)
+project (dbusmenu-translator C)
+list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
+# Vala
+find_package(GLibTools REQUIRED)
+include(GLibHelpers)
+add_definitions(-Wall -Wextra
+                -Wno-unused
+                -Wno-unused-parameter# Vala loves to create variables
+               #-pedantic
+                -Wno-ignored-qualifiers
+                -Wno-incompatible-pointer-types
+                -Wno-missing-field-initializers
+                -Wno-discarded-qualifiers
+                -Wno-sign-compare
+                ) #Vala often forgot cast to GtkWidget or gpointer
+
+find_package (PkgConfig)
+
+pkg_check_modules(GLIB REQUIRED QUIET
+    glib-2.0>=2.50
+    gio-2.0>=2.50)
+
+pkg_check_modules(PIXBUF REQUIRED QUIET
+    gdk-pixbuf-2.0)
+
+set(DBUS_PROXY)
+set(DBUS_NAME "dbusmenu-interface")
+set(NAMESPACE "DBusMenu")
+set(XML "com.canonical.dbusmenu.xml")
+set(DBUS_GENERATED_SOURCES
+    ${DBUS_NAME}".c"
+    ${DBUS_NAME}".h")
+add_custom_target(dbus-xml
+    COMMAND
+        "${GDBUS-CODEGEN_EXECUTABLE}"
+        --generate-c-code=${DBUS_NAME}
+        --c-namespace ${NAMESPACE}
+        --c-generate-autocleanup=all
+        --output-directory ${CMAKE_CURRENT_BINARY_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/${XML}
+    BYPRODUCTS
+        ${DBUS_GENERATED_SOURCES}
+    SOURCES
+        ${XML}
+        )
+set(DBUSMENU_C_SOURCES
+    definitions.h
+    item.c
+    item.h
+    importer.c
+    model.h
+    importer.h
+    model.c
+    utils.c
+    utils.h
+    )
+
+add_library(dbusmenu-translator-o SHARED
+    ${DBUSMENU_C_SOURCES}
+    ${GENERATED_SOURCES}
+    )
+add_dependencies(dbusmenu-translator-o dbus-xml)
+set_target_properties(dbusmenu-translator-o PROPERTIES
+#        C_VISIBILITY_PRESET hidden	# Make global variables and functions HIDDEN by default.
+        POSITION_INDEPENDENT_CODE ON	# Compile this object code position independent.
+)
+target_include_directories (dbusmenu-translator-o PRIVATE ${GLIB_INCLUDE_DIRS} ${PIXBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(dbusmenu-translator-o PRIVATE ${GLIB_LIBRARIES} ${PIXBUF_LIBRARIES})
+
+add_subdirectory(mate-dbusmenu)
