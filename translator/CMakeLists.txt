@@ -71,4 +71,4 @@ set_target_properties(dbusmenu-translator-o PROPERTIES
 target_include_directories (dbusmenu-translator-o PRIVATE ${GLIB_INCLUDE_DIRS} ${PIXBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(dbusmenu-translator-o PRIVATE ${GLIB_LIBRARIES} ${PIXBUF_LIBRARIES})
 
-add_subdirectory(mate-dbusmenu)
+#xadd_subdirectory(mate-dbusmenu)
