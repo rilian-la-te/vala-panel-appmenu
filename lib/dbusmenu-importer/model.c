@@ -18,8 +18,19 @@ struct _DBusMenuModel
 	GArray *items;
 };
 
-static const gchar *property_names[] = { "children-display", "toggle-type", "type", NULL };
-
+static const gchar *property_names[] = { "accessible-desc",
+                                     "children-display",
+                                     "disposition",
+                                     "enabled",
+                                     "icon-data",
+                                     "icon-name",
+                                     "label",
+                                     "shortcut",
+                                     "toggle-type",
+                                     "toggle-state",
+                                     "type",
+                                     "visible",
+                                     NULL };
 enum
 {
 	PROP_XML,
@@ -97,7 +108,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		guint cid;
 		GVariant *cprops;
 		GVariant *citems;
-		g_variant_get(layout, "(i@a{sv}@av)", &cid, &cprops, &citems);
+        g_variant_get(value, "(i@a{sv}@av)", &cid, &cprops, &citems);
 		g_variant_unref(citems);
 
 		DBusMenuItem *new_item =
@@ -178,7 +189,7 @@ G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
 
 static void layout_updated_cb(DBusMenuXml *proxy, guint revision, gint parent, DBusMenuModel *menu)
 {
-	if (parent == menu->parent_id)
+    if ((uint)parent == menu->parent_id)
 	{
 		dbus_menu_model_update_layout(menu);
 	}
@@ -245,8 +256,7 @@ static void on_xml_property_changed(DBusMenuModel *model)
 		                 model);
 		dbus_menu_model_update_layout(model);
 	}
-	else
-		g_array_set_clear_func(model->items, dbus_menu_item_free);
+    g_array_set_clear_func(model->items, dbus_menu_item_free);
 }
 
 static DBusMenuModel *dbus_menu_model_new_section(uint parent_id, DBusMenuModel *parent,

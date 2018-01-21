@@ -53,7 +53,6 @@ add_definitions(-Wall -Wextra -Wno-unused # Vala loves to create variables
                 -Wno-ignored-qualifiers
                 -Wno-incompatible-pointer-types
                 -Wno-missing-field-initializers
-                -Wno-discarded-qualifiers
                 -Wno-sign-compare) #Vala often forgot cast to GtkWidget or gpointer
 
 find_package (PkgConfig)
@@ -131,7 +130,6 @@ if(MAKE_BOLD_APPNAME)
     set(BOLD_DEFINE -D BOLD)
 endif()
 add_subdirectory(subprojects)
-add_subdirectory(translator)
 ADD_SUBDIRECTORY(registrar)
 add_subdirectory(dbusmenu)
 ADD_SUBDIRECTORY(lib)

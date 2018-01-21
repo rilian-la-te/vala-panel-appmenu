@@ -6,7 +6,7 @@
 
 G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data);
 G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_copy(DBusMenuItem *src);
-G_DEFINE_BOXED_TYPE(DBusMenuItem, dbus_menu_item, dbus_menu_item_copy, dbus_menu_item_free);
+G_DEFINE_BOXED_TYPE(DBusMenuItem, dbus_menu_item, dbus_menu_item_copy, dbus_menu_item_free)
 
 static GIcon *g_icon_new_pixbuf_from_variant(GVariant *variant)
 {
@@ -145,8 +145,6 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
 			const char *type = g_variant_get_string(value, NULL);
 			if (!g_strcmp0(type, DBUS_MENU_TYPE_SEPARATOR))
 			{
-				g_autofree char *name =
-				    g_strdup_printf(RADIO_ACTION_PREFIX "%u", id);
 				item->referenced_action =
 				    dbus_menu_action_new(xml, id, DBUS_MENU_TOGGLE_TYPE_RADIO);
 				g_action_map_add_action(G_ACTION_MAP(item->referenced_action_group),
@@ -155,7 +153,6 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
 			}
 			else if (!g_strcmp0(type, DBUS_MENU_TYPE_NORMAL))
 			{
-				g_autofree char *name = g_strdup_printf(ACTION_PREFIX "%u", id);
 				item->referenced_action =
 				    dbus_menu_action_new(xml, id, DBUS_MENU_TYPE_NORMAL);
 				g_action_map_add_action(G_ACTION_MAP(item->referenced_action_group),
@@ -170,7 +167,6 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
 		{
 			item->is_section = true;
 			g_hash_table_insert(item->attributes, g_strdup("label"), value);
-			g_autofree char *name = g_strdup_printf(RADIO_ACTION_PREFIX "%u", id);
 			item->referenced_action =
 			    dbus_menu_action_new(xml, id, DBUS_MENU_TOGGLE_TYPE_RADIO);
 			g_action_map_add_action(G_ACTION_MAP(item->referenced_action_group),
@@ -178,7 +174,6 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
 		}
 		else if (!action_creator_found)
 		{
-			g_autofree char *name = g_strdup_printf(ACTION_PREFIX "%u", id);
 			item->referenced_action =
 			    dbus_menu_action_new(xml, id, DBUS_MENU_TYPE_NORMAL);
 			g_action_map_add_action(G_ACTION_MAP(item->referenced_action_group),
@@ -221,7 +216,6 @@ G_GNUC_INTERNAL void dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 	GVariantIter iter;
 	const char *prop;
 	GVariant *value;
-	const char *action_name = g_action_get_name(item->referenced_action);
 
 	g_variant_iter_init(&iter, props);
 	while (g_variant_iter_next(&iter, "{&sv}", &prop, &value))

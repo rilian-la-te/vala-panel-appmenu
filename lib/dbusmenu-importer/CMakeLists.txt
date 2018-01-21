@@ -8,14 +8,9 @@ list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 find_package(GLibTools REQUIRED)
 include(GLibHelpers)
 add_definitions(-Wall -Wextra
-                -Wno-unused
                 -Wno-unused-parameter# Vala loves to create variables
-               #-pedantic
-                -Wno-ignored-qualifiers
+                -pedantic
                 -Wno-incompatible-pointer-types
-                -Wno-missing-field-initializers
-                -Wno-discarded-qualifiers
-                -Wno-sign-compare
                 ) #Vala often forgot cast to GtkWidget or gpointer
 
 find_package (PkgConfig)
