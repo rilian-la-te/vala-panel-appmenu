@@ -10,7 +10,7 @@ G_DECLARE_FINAL_TYPE(DBusMenuModel, dbus_menu_model, DBusMenu, Model, GMenuModel
 
 DBusMenuModel *dbus_menu_model_new(uint parent_id, DBusMenuModel *parent, DBusMenuXml *xml,
                                    GActionGroup *action_group);
-G_GNUC_INTERNAL void update_layout(DBusMenuModel *menu);
+G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu);
 
 G_END_DECLS
 

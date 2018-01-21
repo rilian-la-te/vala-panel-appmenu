@@ -165,7 +165,7 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 	g_menu_model_items_changed(G_MENU_MODEL(menu), 0, n, 0);
 	g_variant_unref(layout);
 }
-G_GNUC_INTERNAL void update_layout(DBusMenuModel *menu)
+G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
 {
 	dbus_menu_xml_call_get_layout(menu->xml,
 	                              menu->parent_id,
@@ -180,7 +180,7 @@ static void layout_updated_cb(DBusMenuXml *proxy, guint revision, gint parent, D
 {
 	if (parent == menu->parent_id)
 	{
-		update_layout(menu);
+		dbus_menu_model_update_layout(menu);
 	}
 }
 
@@ -243,7 +243,7 @@ static void on_xml_property_changed(DBusMenuModel *model)
 		                 "item-activation-requested",
 		                 G_CALLBACK(item_activation_requested_cb),
 		                 model);
-		update_layout(model);
+		dbus_menu_model_update_layout(model);
 	}
 	else
 		g_array_set_clear_func(model->items, dbus_menu_item_free);

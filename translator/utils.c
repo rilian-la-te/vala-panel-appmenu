@@ -3,6 +3,7 @@
 #include <utils.h>
 
 #include "definitions.h"
+#include "model.h"
 
 static void activate_ordinary_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
@@ -63,6 +64,10 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 		dbus_menu_xml_call_about_to_show_sync(xml, 0, (gboolean *)&need_update, NULL, NULL);
 		if (need_update)
 		{
+			DBusMenuModel *model =
+			    (DBusMenuModel *)g_object_get_data(action,
+			                                       SUBMENU_ACTION_MENUMODEL_QUARK_STR);
+			dbus_menu_model_update_layout(model);
 			// TODD: Populate layout after request;
 		}
 		g_simple_action_set_state(action, g_variant_new_boolean(true));

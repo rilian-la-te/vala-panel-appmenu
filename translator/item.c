@@ -96,6 +96,9 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
                                                         parent_model,
                                                         xml,
                                                         item->referenced_action_group));
+				g_object_set_data(item->referenced_action,
+				                  SUBMENU_ACTION_MENUMODEL_QUARK_STR,
+				                  submenu);
 				g_hash_table_insert(item->links,
 				                    g_strdup(G_MENU_LINK_SUBMENU),
 				                    submenu);
