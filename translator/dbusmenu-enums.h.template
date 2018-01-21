@@ -1,6 +1,6 @@
 /*** BEGIN file-header ***/
-#ifndef VALA_PANEL_ENUM_TYPES_H
-#define VALA_PANEL_ENUM_TYPES_H
+#ifndef DBUS_MENU_ENUM_TYPES_H
+#define DBUS_MENU_ENUM_TYPES_H
 
 #include <glib-object.h>
 
@@ -14,7 +14,7 @@ G_BEGIN_DECLS
 /*** END file-production ***/
 
 /*** BEGIN enumeration-production ***/
-#define VALA_PANEL_TYPE_@ENUMSHORT@	(@enum_name@_get_type())
+#define DBUS_MENU_TYPE_@ENUMSHORT@	(@enum_name@_get_type())
 GType @enum_name@_get_type	(void) G_GNUC_CONST;
 
 /*** END enumeration-production ***/
