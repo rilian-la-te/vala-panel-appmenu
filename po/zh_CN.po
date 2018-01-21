@@ -23,7 +23,7 @@ msgstr "无文件"
 
 #: ../lib/appmenu-bamf.vala:37
 msgid "_New Window..."
-msgstr "新建窗口(_N)"
+msgstr "新建窗口(_N)..."
 
 #: ../lib/appmenu-bamf.vala:38
 msgid "Close _This"
@@ -62,3 +62,18 @@ msgstr "显示应用程序菜单(全局菜单)"
 msgid "applications-system"
 msgstr " "
 
+#: ../lib/desktop-menus.ui:21
+msgid "_Documents"
+msgstr "文档"
+
+#: ../lib/desktop-menus.ui:25
+msgid "_Music"
+msgstr "音乐"
+
+#: ../lib/desktop-menus.ui:29
+msgid "_Pictures"
+msgstr "图片"
+
+#: ../lib/desktop-menus.ui:33
+msgid "_Video"
+msgstr "视频"
