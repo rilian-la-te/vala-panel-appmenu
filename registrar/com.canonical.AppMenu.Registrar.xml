@@ -1,0 +1,27 @@
+<node>
+  <interface name="com.canonical.AppMenu.Registrar">
+    <method name="RegisterWindow">
+      <arg type="u" name="window_id" direction="in"/>
+      <arg type="o" name="menu_object_path" direction="in"/>
+    </method>
+    <method name="UnregisterWindow">
+      <arg type="u" name="window_id" direction="in"/>
+    </method>
+    <method name="GetMenuForWindow">
+      <arg type="u" name="window" direction="in"/>
+      <arg type="s" name="service" direction="out"/>
+      <arg type="o" name="path" direction="out"/>
+    </method>
+    <method name="GetMenus">
+      <arg type="a(uso)" name="menus" direction="out"/>
+    </method>
+    <signal name="WindowRegistered">
+      <arg type="u" name="window_id"/>
+      <arg type="s" name="service"/>
+      <arg type="o" name="path"/>
+    </signal>
+    <signal name="WindowUnregistered">
+      <arg type="u" name="window_id"/>
+    </signal>
+  </interface>
+</node>
