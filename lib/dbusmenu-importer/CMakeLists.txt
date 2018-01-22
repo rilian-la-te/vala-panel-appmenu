@@ -53,6 +53,8 @@ set(DBUSMENU_C_SOURCES
     model.c
     utils.c
     utils.h
+    debug.c
+    debug.h
     )
 
 add_library(dbusmenu-translator-o STATIC

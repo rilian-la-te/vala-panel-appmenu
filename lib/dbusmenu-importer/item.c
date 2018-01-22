@@ -67,7 +67,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
 	             NULL);
 	g_variant_iter_init(&iter, props);
 	// Iterate by immutable properties, it is construct_only
-	while (g_variant_iter_next(&iter, "{&sv}", &prop, &value))
+    while (g_variant_iter_loop(&iter, "{&sv}", &prop, &value))
 	{
 		bool action_creator_found = false;
 		g_autofree char *name     = NULL;
@@ -160,9 +160,9 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
 				    dbus_menu_action_new(xml, id, DBUS_MENU_TYPE_NORMAL);
 				g_action_map_add_action(G_ACTION_MAP(item->referenced_action_group),
 				                        item->referenced_action);
-				g_hash_table_insert(item->attributes,
-				                    g_strdup(prop),
-				                    g_variant_ref_sink(value));
+                g_hash_table_insert(item->attributes,
+                                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
+                                    g_variant_new_string(g_action_get_name(item->referenced_action)));
 				action_creator_found = true;
 			}
 		}
@@ -181,13 +181,13 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
 			    dbus_menu_action_new(xml, id, DBUS_MENU_TYPE_NORMAL);
 			g_action_map_add_action(G_ACTION_MAP(item->referenced_action_group),
 			                        item->referenced_action);
-			g_hash_table_insert(item->attributes,
-			                    g_strdup(prop),
-			                    g_variant_ref_sink(value));
+            g_hash_table_insert(item->attributes,
+                                g_strdup(G_MENU_ATTRIBUTE_ACTION),
+                                g_variant_new_string(g_action_get_name(item->referenced_action)));
 			action_creator_found = true;
 		}
-		g_variant_unref(value);
-	}
+    }
+    dbus_menu_item_update_props(item,props);
 	return item;
 }
 
@@ -221,112 +221,111 @@ G_GNUC_INTERNAL void dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 	GVariant *value;
 
 	g_variant_iter_init(&iter, props);
-	while (g_variant_iter_next(&iter, "{&sv}", &prop, &value))
+    while (g_variant_iter_loop(&iter, "{&sv}", &prop, &value))
 	{
-		if (g_strcmp0(prop, "accessible-desc") == 0)
-		{
-			// TODO: Can we supported this property?
-		}
-		if (g_strcmp0(prop, "enabled") == 0)
-		{
-			bool en = g_variant_get_boolean(value);
-			g_simple_action_set_enabled(G_SIMPLE_ACTION(item->referenced_action), en);
-			if (!en)
-				g_hash_table_insert(item->attributes,
-				                    g_strdup(HAS_DISABLED),
-				                    g_variant_new_boolean(true));
-		}
-		else if (g_strcmp0(prop, "icon-data") == 0)
-		{
-			// icon-name has more priority
-			if (!g_hash_table_lookup(item->links, G_MENU_ATTRIBUTE_ICON))
-			{
-				GIcon *icon = g_icon_new_pixbuf_from_variant(value);
-				g_hash_table_insert(item->attributes,
-				                    g_strdup(G_MENU_ATTRIBUTE_ICON),
-				                    icon);
-				g_hash_table_insert(item->attributes, g_strdup("verb-icon"), icon);
-			}
-		}
-		else if (g_strcmp0(prop, "icon-name") == 0)
-		{
-			GIcon *icon = g_themed_icon_new(g_variant_get_string(value, NULL));
-			g_hash_table_insert(item->attributes,
-			                    g_strdup(G_MENU_ATTRIBUTE_ICON),
-			                    icon);
-			g_hash_table_insert(item->attributes, g_strdup("verb-icon"), icon);
-			g_hash_table_insert(item->attributes,
-			                    g_strdup("has-icon-name"),
-			                    g_variant_new_boolean(true));
-		}
-		else if (g_strcmp0(prop, "label") == 0)
-		{
-			g_hash_table_insert(item->attributes,
-			                    g_strdup(G_MENU_ATTRIBUTE_LABEL),
-			                    g_variant_dup_string(value, NULL));
-		}
-		else if (g_strcmp0(prop, "shortcut") == 0)
-		{
-			g_hash_table_insert(item->attributes,
-			                    g_strdup("accel"),
-			                    g_variant_dup_string(value, NULL));
-		}
-		else if (g_strcmp0(prop, "toggle-state") == 0)
-		{
-			int toggle_state = g_variant_get_int32(value);
-			if (g_str_equal(g_action_get_state_type(item->referenced_action), "u"))
-			{
-				if (toggle_state)
-				{
-					ulong handler = GPOINTER_TO_UINT(
-					    g_object_get_data(item->referenced_action,
-					                      ACTIVATE_ID_QUARK_STR));
-					g_signal_handler_block(item->referenced_action, handler);
-					g_simple_action_set_state(G_SIMPLE_ACTION(
-					                              item->referenced_action),
-					                          g_variant_new_int32(item->id));
-					g_signal_handler_unblock(item->referenced_action, handler);
-				}
-			}
-			else if (g_str_equal(g_action_get_state_type(item->referenced_action),
-			                     "b") &&
-			         !g_hash_table_lookup(item->attributes, "submenu-action"))
-			{
-				ulong handler =
-				    GPOINTER_TO_UINT(g_object_get_data(item->referenced_action,
-				                                       ACTIVATE_ID_QUARK_STR));
-				g_signal_handler_block(item->referenced_action, handler);
-				g_simple_action_set_state(G_SIMPLE_ACTION(item->referenced_action),
-				                          g_variant_new_boolean(toggle_state));
-				g_signal_handler_unblock(item->referenced_action, handler);
-			}
-		}
-		else if (g_strcmp0(prop, "visible") == 0)
-		{
-			bool vis = g_variant_get_boolean(value);
-			if (vis)
-			{
-				g_hash_table_remove(item->attributes, "hidden-when");
-				if (!g_hash_table_lookup(item->attributes, HAS_DISABLED))
-					g_simple_action_set_enabled(G_SIMPLE_ACTION(
-					                                item->referenced_action),
-					                            true);
-			}
-			else
-			{
-				g_hash_table_insert(item->attributes,
-				                    g_strdup("hidden-when"),
-				                    g_variant_new_string("action-disabled"));
-				g_simple_action_set_enabled(G_SIMPLE_ACTION(
-				                                item->referenced_action),
-				                            false);
-			}
-		}
-		else
-		{
-			g_debug("updating unsupported property - '%s'", prop);
-		}
-		g_variant_unref(value);
+        if (g_strcmp0(prop, "accessible-desc") == 0)
+        {
+            // TODO: Can we supported this property?
+        }
+        if (g_strcmp0(prop, "enabled") == 0)
+        {
+            bool en = g_variant_get_boolean(value);
+            g_simple_action_set_enabled(G_SIMPLE_ACTION(item->referenced_action), en);
+            if (!en)
+                g_hash_table_insert(item->attributes,
+                                    g_strdup(HAS_DISABLED),
+                                    g_variant_new_boolean(true));
+        }
+        else if (g_strcmp0(prop, "icon-data") == 0)
+        {
+            // icon-name has more priority
+            if (!g_hash_table_lookup(item->attributes, G_MENU_ATTRIBUTE_ICON))
+            {
+                GIcon *icon = g_icon_new_pixbuf_from_variant(value);
+                g_hash_table_insert(item->attributes,
+                                    g_strdup(G_MENU_ATTRIBUTE_ICON),
+                                    g_icon_serialize(icon));
+                g_hash_table_insert(item->attributes, g_strdup("verb-icon"), g_icon_serialize(icon));
+            }
+        }
+        else if (g_strcmp0(prop, "icon-name") == 0)
+        {
+            GIcon *icon = g_themed_icon_new(g_variant_get_string(value, NULL));
+            g_hash_table_insert(item->attributes,
+                                g_strdup(G_MENU_ATTRIBUTE_ICON),
+                                g_icon_serialize(icon));
+            g_hash_table_insert(item->attributes, g_strdup("verb-icon"), g_icon_serialize(icon));
+            g_hash_table_insert(item->attributes,
+                                g_strdup(HAS_ICON_NAME),
+                                g_variant_new_boolean(true));
+        }
+        else if (g_strcmp0(prop, "label") == 0)
+        {
+            g_hash_table_insert(item->attributes,
+                                g_strdup(G_MENU_ATTRIBUTE_LABEL),
+                                g_variant_ref_sink (value));
+        }
+        else if (g_strcmp0(prop, "shortcut") == 0)
+        {
+            g_hash_table_insert(item->attributes,
+                                g_strdup("accel"),
+                                g_variant_ref_sink (value));
+        }
+//        else if (g_strcmp0(prop, "toggle-state") == 0)
+//        {
+//            int toggle_state = g_variant_get_int32(value);
+//            if (g_str_equal(g_action_get_state_type(item->referenced_action), "u"))
+//            {
+//                if (toggle_state)
+//                {
+//                    ulong handler = GPOINTER_TO_UINT(
+//                        g_object_get_data(item->referenced_action,
+//                                          ACTIVATE_ID_QUARK_STR));
+//                    g_signal_handler_block(item->referenced_action, handler);
+//                    g_simple_action_set_state(G_SIMPLE_ACTION(
+//                                                  item->referenced_action),
+//                                              g_variant_new_int32(item->id));
+//                    g_signal_handler_unblock(item->referenced_action, handler);
+//                }
+//            }
+//            else if (g_str_equal(g_action_get_state_type(item->referenced_action),
+//                                 "b") &&
+//                     !g_hash_table_lookup(item->attributes, "submenu-action"))
+//            {
+//                ulong handler =
+//                    GPOINTER_TO_UINT(g_object_get_data(item->referenced_action,
+//                                                       ACTIVATE_ID_QUARK_STR));
+//                g_signal_handler_block(item->referenced_action, handler);
+//                g_simple_action_set_state(G_SIMPLE_ACTION(item->referenced_action),
+//                                          g_variant_new_boolean(toggle_state));
+//                g_signal_handler_unblock(item->referenced_action, handler);
+//            }
+//        }
+        else if (g_strcmp0(prop, "visible") == 0)
+        {
+            bool vis = g_variant_get_boolean(value);
+            if (vis)
+            {
+                g_hash_table_remove(item->attributes, "hidden-when");
+                if (!g_hash_table_lookup(item->attributes, HAS_DISABLED))
+                    g_simple_action_set_enabled(G_SIMPLE_ACTION(
+                                                    item->referenced_action),
+                                                true);
+            }
+            else
+            {
+                g_hash_table_insert(item->attributes,
+                                    g_strdup("hidden-when"),
+                                    g_variant_new_string("action-disabled"));
+                g_simple_action_set_enabled(G_SIMPLE_ACTION(
+                                                item->referenced_action),
+                                            false);
+            }
+        }
+        else
+        {
+            g_debug("updating unsupported property - '%s'", prop);
+        }
 	}
 }
 

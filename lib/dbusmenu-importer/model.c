@@ -4,6 +4,7 @@
 #include "definitions.h"
 #include "item.h"
 #include "model.h"
+#include "debug.h"
 
 struct _DBusMenuModel
 {
@@ -142,6 +143,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 			                    new_item);
 		}
 		g_variant_unref(cprops);
+        g_variant_unref(citems);
 		g_variant_unref(child);
 	}
 	g_variant_unref(items);
@@ -178,8 +180,12 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 		g_ptr_array_remove_range(menu->items, 0, old_num);
 	layout_parse(menu, layout);
 	uint new_num = menu->items->len;
-	g_menu_model_items_changed(G_MENU_MODEL(menu), 0, old_num, new_num);
-	g_variant_unref(layout);
+    g_menu_model_items_changed(G_MENU_MODEL(menu), 0, old_num, new_num);
+    GString* str = g_string_new(NULL);
+    g_menu_markup_print_string(str, menu, 4, 4);
+    char* cstr = g_string_free(str,false);
+    g_print("%s\n",cstr);
+    g_variant_unref(layout);
 }
 G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
 {
