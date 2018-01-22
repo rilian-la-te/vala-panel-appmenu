@@ -20,6 +20,7 @@ enum
 	PROP_BUS_NAME,
 	PROP_OBJECT_PATH,
 	PROP_MODEL,
+	PROP_ACTION_GROUP,
 	LAST_PROP
 };
 
@@ -142,6 +143,9 @@ static void dbus_menu_importer_get_property(GObject *object, guint property_id, 
 	case PROP_MODEL:
 		g_value_set_object(value, menu->top_model);
 		break;
+	case PROP_ACTION_GROUP:
+		g_value_set_object(value, menu->all_actions);
+		break;
 
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -169,6 +173,12 @@ static void install_properties(GObjectClass *object_class)
 	                                             "model",
 	                                             G_TYPE_MENU_MODEL,
 	                                             G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+	properties[PROP_ACTION_GROUP] =
+	    g_param_spec_object("action-group",
+	                        "action-group",
+	                        "action-group",
+	                        G_TYPE_ACTION_GROUP,
+	                        G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
 	g_object_class_install_properties(object_class, LAST_PROP, properties);
 }

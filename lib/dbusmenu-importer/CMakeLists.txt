@@ -67,4 +67,12 @@ set_target_properties(dbusmenu-translator-o PROPERTIES
 target_include_directories (dbusmenu-translator-o PRIVATE ${GLIB_INCLUDE_DIRS} ${PIXBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(dbusmenu-translator-o PRIVATE ${GLIB_LIBRARIES} ${PIXBUF_LIBRARIES})
 
+
+pkg_check_modules(GTK REQUIRED QUIET
+    gtk+-3.0)
+add_executable(dbusmenu-test test.c)
+target_link_libraries(dbusmenu-test PRIVATE ${GTK_LIBRARIES} dbusmenu-translator-o)
+target_include_directories (dbusmenu-test PRIVATE ${GLIB_INCLUDE_DIRS} ${GTK_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+
+
 #xadd_subdirectory(mate-dbusmenu)
