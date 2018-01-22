@@ -236,29 +236,29 @@ G_GNUC_INTERNAL void dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
                                     g_strdup(HAS_DISABLED),
                                     g_variant_new_boolean(true));
         }
-        else if (g_strcmp0(prop, "icon-data") == 0)
-        {
-            // icon-name has more priority
-            if (!g_hash_table_lookup(item->attributes, G_MENU_ATTRIBUTE_ICON))
-            {
-                GIcon *icon = g_icon_new_pixbuf_from_variant(value);
-                g_hash_table_insert(item->attributes,
-                                    g_strdup(G_MENU_ATTRIBUTE_ICON),
-                                    g_icon_serialize(icon));
-                g_hash_table_insert(item->attributes, g_strdup("verb-icon"), g_icon_serialize(icon));
-            }
-        }
-        else if (g_strcmp0(prop, "icon-name") == 0)
-        {
-            GIcon *icon = g_themed_icon_new(g_variant_get_string(value, NULL));
-            g_hash_table_insert(item->attributes,
-                                g_strdup(G_MENU_ATTRIBUTE_ICON),
-                                g_icon_serialize(icon));
-            g_hash_table_insert(item->attributes, g_strdup("verb-icon"), g_icon_serialize(icon));
-            g_hash_table_insert(item->attributes,
-                                g_strdup(HAS_ICON_NAME),
-                                g_variant_new_boolean(true));
-        }
+//        else if (g_strcmp0(prop, "icon-data") == 0)
+//        {
+//            // icon-name has more priority
+//            if (!g_hash_table_lookup(item->attributes, G_MENU_ATTRIBUTE_ICON))
+//            {
+//                GIcon *icon = g_icon_new_pixbuf_from_variant(value);
+//                g_hash_table_insert(item->attributes,
+//                                    g_strdup(G_MENU_ATTRIBUTE_ICON),
+//                                    g_icon_serialize(icon));
+//                g_hash_table_insert(item->attributes, g_strdup("verb-icon"), g_icon_serialize(icon));
+//            }
+//        }
+//        else if (g_strcmp0(prop, "icon-name") == 0)
+//        {
+//            GIcon *icon = g_themed_icon_new(g_variant_get_string(value, NULL));
+//            g_hash_table_insert(item->attributes,
+//                                g_strdup(G_MENU_ATTRIBUTE_ICON),
+//                                g_icon_serialize(icon));
+//            g_hash_table_insert(item->attributes, g_strdup("verb-icon"), g_icon_serialize(icon));
+//            g_hash_table_insert(item->attributes,
+//                                g_strdup(HAS_ICON_NAME),
+//                                g_variant_new_boolean(true));
+//        }
         else if (g_strcmp0(prop, "label") == 0)
         {
             g_hash_table_insert(item->attributes,
@@ -271,36 +271,36 @@ G_GNUC_INTERNAL void dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
                                 g_strdup("accel"),
                                 g_variant_ref_sink (value));
         }
-//        else if (g_strcmp0(prop, "toggle-state") == 0)
-//        {
-//            int toggle_state = g_variant_get_int32(value);
-//            if (g_str_equal(g_action_get_state_type(item->referenced_action), "u"))
-//            {
-//                if (toggle_state)
-//                {
-//                    ulong handler = GPOINTER_TO_UINT(
-//                        g_object_get_data(item->referenced_action,
-//                                          ACTIVATE_ID_QUARK_STR));
-//                    g_signal_handler_block(item->referenced_action, handler);
-//                    g_simple_action_set_state(G_SIMPLE_ACTION(
-//                                                  item->referenced_action),
-//                                              g_variant_new_int32(item->id));
-//                    g_signal_handler_unblock(item->referenced_action, handler);
-//                }
-//            }
-//            else if (g_str_equal(g_action_get_state_type(item->referenced_action),
-//                                 "b") &&
-//                     !g_hash_table_lookup(item->attributes, "submenu-action"))
-//            {
-//                ulong handler =
-//                    GPOINTER_TO_UINT(g_object_get_data(item->referenced_action,
-//                                                       ACTIVATE_ID_QUARK_STR));
-//                g_signal_handler_block(item->referenced_action, handler);
-//                g_simple_action_set_state(G_SIMPLE_ACTION(item->referenced_action),
-//                                          g_variant_new_boolean(toggle_state));
-//                g_signal_handler_unblock(item->referenced_action, handler);
-//            }
-//        }
+        else if (g_strcmp0(prop, "toggle-state") == 0)
+        {
+            int toggle_state = g_variant_get_int32(value);
+            if (!g_strcmp0(g_action_get_state_type(item->referenced_action), "u"))
+            {
+                if (toggle_state)
+                {
+                    ulong handler = GPOINTER_TO_UINT(
+                        g_object_get_data(item->referenced_action,
+                                          ACTIVATE_ID_QUARK_STR));
+                    g_signal_handler_block(item->referenced_action, handler);
+                    g_simple_action_set_state(G_SIMPLE_ACTION(
+                                                  item->referenced_action),
+                                              g_variant_new_uint32(item->id));
+                    g_signal_handler_unblock(item->referenced_action, handler);
+                }
+            }
+            else if (!g_strcmp0(g_action_get_state_type(item->referenced_action),
+                                 "b") &&
+                     !g_hash_table_lookup(item->attributes, "submenu-action"))
+            {
+                ulong handler =
+                    GPOINTER_TO_UINT(g_object_get_data(item->referenced_action,
+                                                       ACTIVATE_ID_QUARK_STR));
+                g_signal_handler_block(item->referenced_action, handler);
+                g_simple_action_set_state(G_SIMPLE_ACTION(item->referenced_action),
+                                          g_variant_new_boolean(toggle_state));
+                g_signal_handler_unblock(item->referenced_action, handler);
+            }
+        }
         else if (g_strcmp0(prop, "visible") == 0)
         {
             bool vis = g_variant_get_boolean(value);
