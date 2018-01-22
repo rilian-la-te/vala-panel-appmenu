@@ -144,7 +144,7 @@ G_GNUC_INTERNAL MenuShellData *gtk_menu_shell_get_menu_shell_data(GtkMenuShell *
 
 G_GNUC_INTERNAL WindowData *gtk_window_get_window_data(GtkWindow *window)
 {
-    WindowData *window_data = NULL;
+	WindowData *window_data = NULL;
 
 	g_return_val_if_fail(GTK_IS_WINDOW(window), NULL);
 

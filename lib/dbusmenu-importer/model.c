@@ -1,10 +1,10 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
+#include "debug.h"
 #include "definitions.h"
 #include "item.h"
 #include "model.h"
-#include "debug.h"
 
 struct _DBusMenuModel
 {
@@ -17,6 +17,7 @@ struct _DBusMenuModel
 	DBusMenuXml *xml;
 	GActionGroup *received_action_group;
 	GPtrArray *items;
+	bool constructed;
 };
 
 static const gchar *property_names[] = { "accessible-desc",
@@ -143,7 +144,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 			                    new_item);
 		}
 		g_variant_unref(cprops);
-        g_variant_unref(citems);
+		g_variant_unref(citems);
 		g_variant_unref(child);
 	}
 	g_variant_unref(items);
@@ -180,12 +181,12 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 		g_ptr_array_remove_range(menu->items, 0, old_num);
 	layout_parse(menu, layout);
 	uint new_num = menu->items->len;
-    g_menu_model_items_changed(G_MENU_MODEL(menu), 0, old_num, new_num);
-    GString* str = g_string_new(NULL);
-    g_menu_markup_print_string(str, menu, 4, 4);
-    char* cstr = g_string_free(str,false);
-    g_print("%s\n",cstr);
-    g_variant_unref(layout);
+	g_menu_model_items_changed(G_MENU_MODEL(menu), 0, old_num, new_num);
+	GString *str = g_string_new(NULL);
+	g_menu_markup_print_string(str, menu, 4, 4);
+	char *cstr = g_string_free(str, false);
+	g_print("%s\n", cstr);
+	g_variant_unref(layout);
 }
 G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
 {
@@ -245,6 +246,8 @@ static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_pr
 
 		g_variant_unref(props);
 	}
+	uint n = menu->items->len;
+	g_menu_model_items_changed(G_MENU_MODEL(menu), 0, n, n);
 }
 
 static void on_xml_property_changed(DBusMenuModel *model)
@@ -302,7 +305,7 @@ DBusMenuModel *dbus_menu_model_new(uint parent_id, DBusMenuModel *parent, DBusMe
 	                                                   NULL);
 	if (parent != NULL)
 		g_object_bind_property(parent, "xml", ret, "xml", G_BINDING_SYNC_CREATE);
-	dbus_menu_model_update_layout(ret);
+	ret->constructed = true;
 	return ret;
 }
 
@@ -331,8 +334,8 @@ static void dbus_menu_model_set_property(GObject *object, guint property_id, con
 	{
 	case PROP_XML:
 		menu->xml = DBUS_MENU_XML(g_value_get_object(value));
-		//        if (menu->xml != NULL && old_xml != menu->xml)
-		//			on_xml_property_changed(menu);
+		if (menu->xml != NULL && old_xml != menu->xml)
+			on_xml_property_changed(menu);
 		break;
 	case PROP_ACTION_GROUP:
 		menu->received_action_group = G_ACTION_GROUP(g_value_get_object(value));
@@ -375,6 +378,7 @@ static void dbus_menu_model_get_property(GObject *object, guint property_id, GVa
 
 static void dbus_menu_model_init(DBusMenuModel *menu)
 {
+	menu->constructed            = false;
 	menu->cancellable            = g_cancellable_new();
 	menu->items                  = g_ptr_array_new_with_free_func(dbus_menu_item_free);
 	menu->dbusmenu_section_items = g_hash_table_new(g_direct_hash, g_direct_equal);
