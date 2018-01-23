@@ -1,4 +1,5 @@
 #include <gdk-pixbuf/gdk-pixbuf.h>
+#include <stdbool.h>
 
 #include "definitions.h"
 #include "item.h"
@@ -80,18 +81,19 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
 			else if (g_strcmp0(g_variant_get_string(value, NULL),
 			                   DBUS_MENU_CHILDREN_DISPLAY_SUBMENU) == 0)
 			{
-				g_autofree char *name = g_strdup_printf(SUBMENU_PREFIX "%u", id);
+				g_autofree char *name =
+				    g_strdup_printf(DBUS_MENU_ACTION_NAMESPACE_PREFIX SUBMENU_PREFIX
+				                    "%u",
+				                    id);
 				item->referenced_action =
 				    dbus_menu_action_new(xml,
 				                         id,
 				                         DBUS_MENU_CHILDREN_DISPLAY_SUBMENU);
 				g_action_map_add_action(G_ACTION_MAP(item->referenced_action_group),
 				                        item->referenced_action);
-				char *detailed_name =
-				    g_strdup_printf(DBUS_MENU_ACTION_NAMESPACE_PREFIX "%s", name);
 				g_hash_table_insert(item->attributes,
 				                    g_strdup("submenu-action"),
-				                    g_variant_new_take_string(detailed_name));
+				                    g_variant_new_string(name));
 				action_creator_found = true;
 				GMenuModel *submenu  = G_MENU_MODEL(
                                     dbus_menu_model_new(item->id,
@@ -108,7 +110,9 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
 		}
 		else if (g_strcmp0(prop, DBUS_MENU_PROP_TOGGLE_TYPE) == 0)
 		{
-			g_autofree char *name = g_strdup_printf(ACTION_PREFIX "%u", id);
+			g_autofree char *name =
+			    g_strdup_printf(DBUS_MENU_ACTION_NAMESPACE_PREFIX ACTION_PREFIX "%u",
+			                    id);
 			if (value == NULL)
 			{
 				g_hash_table_remove(item->attributes, prop);
@@ -131,12 +135,15 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
 			{
 				item->referenced_action =
 				    dbus_menu_action_new(xml, id, DBUS_MENU_TOGGLE_TYPE_RADIO);
+				g_action_map_add_action(G_ACTION_MAP(item->referenced_action_group),
+				                        item->referenced_action);
 				g_hash_table_insert(item->attributes,
 				                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
 				                    g_variant_new_string(name));
 				g_hash_table_insert(item->attributes,
 				                    g_strdup(G_MENU_ATTRIBUTE_TARGET),
-				                    g_variant_new_uint32(id));
+				                    g_variant_new_string(
+				                        DBUS_MENU_ACTION_RADIO_SELECTED));
 				action_creator_found = true;
 			}
 		}
@@ -153,14 +160,17 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
 			}
 			else if (!g_strcmp0(type, DBUS_MENU_TYPE_NORMAL))
 			{
+				g_autofree char *name =
+				    g_strdup_printf(DBUS_MENU_ACTION_NAMESPACE_PREFIX ACTION_PREFIX
+				                    "%u",
+				                    id);
 				item->referenced_action =
 				    dbus_menu_action_new(xml, id, DBUS_MENU_TYPE_NORMAL);
 				g_action_map_add_action(G_ACTION_MAP(item->referenced_action_group),
 				                        item->referenced_action);
 				g_hash_table_insert(item->attributes,
 				                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
-				                    g_variant_new_string(g_action_get_name(
-				                        item->referenced_action)));
+				                    g_variant_new_string(name));
 				action_creator_found = true;
 			}
 		}
@@ -175,14 +185,16 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
 		}
 		else if (!action_creator_found)
 		{
+			g_autofree char *name =
+			    g_strdup_printf(DBUS_MENU_ACTION_NAMESPACE_PREFIX ACTION_PREFIX "%u",
+			                    id);
 			item->referenced_action =
 			    dbus_menu_action_new(xml, id, DBUS_MENU_TYPE_NORMAL);
 			g_action_map_add_action(G_ACTION_MAP(item->referenced_action_group),
 			                        item->referenced_action);
 			g_hash_table_insert(item->attributes,
 			                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
-			                    g_variant_new_string(
-			                        g_action_get_name(item->referenced_action)));
+			                    g_variant_new_string(name));
 			action_creator_found = true;
 		}
 	}
@@ -263,6 +275,7 @@ G_GNUC_INTERNAL void dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 		}
 		else if (g_strcmp0(prop, "shortcut") == 0)
 		{
+			// TODO: Shortcut translator to Gtk without Gtk linked
 			g_hash_table_insert(item->attributes,
 			                    g_strdup("accel"),
 			                    g_variant_ref_sink(value));
@@ -270,30 +283,18 @@ G_GNUC_INTERNAL void dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 		else if (g_strcmp0(prop, "toggle-state") == 0)
 		{
 			int toggle_state = g_variant_get_int32(value);
-			if (!g_strcmp0(g_action_get_state_type(item->referenced_action), "u"))
+			if (!g_strcmp0(g_action_get_state_type(item->referenced_action), "s"))
 			{
-				if (toggle_state)
-				{
-					ulong handler = GPOINTER_TO_UINT(
-					    g_object_get_data(item->referenced_action,
-					                      ACTIVATE_ID_QUARK_STR));
-					g_signal_handler_block(item->referenced_action, handler);
-					g_simple_action_set_state(G_SIMPLE_ACTION(
-					                              item->referenced_action),
-					                          g_variant_new_uint32(item->id));
-					g_signal_handler_unblock(item->referenced_action, handler);
-				}
-				else
-				{
-					ulong handler = GPOINTER_TO_UINT(
-					    g_object_get_data(item->referenced_action,
-					                      ACTIVATE_ID_QUARK_STR));
-					g_signal_handler_block(item->referenced_action, handler);
-					g_simple_action_set_state(G_SIMPLE_ACTION(
-					                              item->referenced_action),
-					                          g_variant_new_uint32(0));
-					g_signal_handler_unblock(item->referenced_action, handler);
-				}
+				ulong handler =
+				    GPOINTER_TO_UINT(g_object_get_data(item->referenced_action,
+				                                       ACTIVATE_ID_QUARK_STR));
+				g_signal_handler_block(item->referenced_action, handler);
+				g_action_change_state((item->referenced_action),
+				                      g_variant_new_string(
+				                          (toggle_state > 0)
+				                              ? DBUS_MENU_ACTION_RADIO_SELECTED
+				                              : DBUS_MENU_ACTION_RADIO_UNSELECTED));
+				g_signal_handler_unblock(item->referenced_action, handler);
 			}
 			else if (!g_strcmp0(g_action_get_state_type(item->referenced_action),
 			                    "b") &&
@@ -303,8 +304,8 @@ G_GNUC_INTERNAL void dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 				    GPOINTER_TO_UINT(g_object_get_data(item->referenced_action,
 				                                       ACTIVATE_ID_QUARK_STR));
 				g_signal_handler_block(item->referenced_action, handler);
-				g_simple_action_set_state(G_SIMPLE_ACTION(item->referenced_action),
-				                          g_variant_new_boolean(toggle_state));
+				g_action_change_state((item->referenced_action),
+				                      g_variant_new_boolean(toggle_state));
 				g_signal_handler_unblock(item->referenced_action, handler);
 			}
 		}
@@ -313,11 +314,13 @@ G_GNUC_INTERNAL void dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 			bool vis = g_variant_get_boolean(value);
 			if (vis)
 			{
+				g_autofree char *name =
+				    g_strdup_printf(DBUS_MENU_ACTION_NAMESPACE_PREFIX "%s",
+				                    g_action_get_name(item->referenced_action));
 				g_hash_table_remove(item->attributes, "hidden-when");
 				g_hash_table_insert(item->attributes,
 				                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
-				                    g_variant_new_string(g_action_get_name(
-				                        item->referenced_action)));
+				                    g_variant_new_string(name));
 			}
 			else
 			{

@@ -46,6 +46,7 @@ namespace Appmenu
                 importer.notify["model"].connect((s, p)=>{
                     var menubar = new Gtk.MenuBar.from_model(importer.model);
                     this.set_menubar(menubar);
+                    this.insert_action_group("dbusmenu",importer.action_group);
                     menubar.show();
                 });
 //            }

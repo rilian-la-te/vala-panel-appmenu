@@ -29,6 +29,8 @@ namespace DBusMenu
 		public string object_path {construct;}
 		[NoAccessorMethod]
 		public GLib.MenuModel model {owned get;}
+		[NoAccessorMethod]
+		public GLib.ActionGroup action_group {owned get;}
 		public Importer(string bus_name, string object_path);
 	}
 }

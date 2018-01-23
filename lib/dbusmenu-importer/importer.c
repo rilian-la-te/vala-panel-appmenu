@@ -43,8 +43,7 @@ static void proxy_ready_cb(GObject *source_object, GAsyncResult *res, gpointer u
 		g_warning("%s", error->message);
 		return;
 	}
-	menu->top_model =
-	    dbus_menu_model_new(0, NULL, menu->proxy, G_ACTION_GROUP(menu->all_actions));
+	g_object_set(menu->top_model, "xml", proxy, NULL);
 	g_object_notify_by_pspec(menu, properties[PROP_MODEL]);
 }
 
@@ -201,9 +200,10 @@ static void dbus_menu_importer_class_init(DBusMenuImporterClass *menu_class)
 static void dbus_menu_importer_init(DBusMenuImporter *menu)
 {
 	menu->proxy       = NULL;
-	menu->top_model   = NULL;
-	menu->cancellable = g_cancellable_new();
 	menu->all_actions = g_simple_action_group_new();
+	menu->top_model =
+	    dbus_menu_model_new(0, NULL, menu->proxy, G_ACTION_GROUP(menu->all_actions));
+	menu->cancellable = g_cancellable_new();
 }
 
 DBusMenuImporter *dbus_menu_importer_new(const gchar *bus_name, const gchar *object_path)

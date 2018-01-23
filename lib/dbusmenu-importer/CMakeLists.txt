@@ -48,8 +48,8 @@ set(DBUSMENU_C_SOURCES
     item.c
     item.h
     importer.c
-    model.h
     importer.h
+    model.h
     model.c
     utils.c
     utils.h
