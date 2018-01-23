@@ -14,6 +14,7 @@ typedef struct
 	u_int32_t id;
 	bool is_section;
 	GActionGroup *referenced_action_group;
+	// FIXME: Cannot have activatable submenu item.
 	GAction *referenced_action;
 	GHashTable *attributes;
 	GHashTable *links;

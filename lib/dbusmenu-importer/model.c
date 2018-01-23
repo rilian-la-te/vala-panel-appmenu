@@ -182,10 +182,10 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 	layout_parse(menu, layout);
 	uint new_num = menu->items->len;
 	g_menu_model_items_changed(G_MENU_MODEL(menu), 0, old_num, new_num);
-	GString *str = g_string_new(NULL);
-	g_menu_markup_print_string(str, menu, 4, 4);
-	char *cstr = g_string_free(str, false);
-	g_print("%s\n", cstr);
+	//	GString *str = g_string_new(NULL);
+	//	g_menu_markup_print_string(str, menu, 4, 4);
+	//	char *cstr = g_string_free(str, false);
+	//	g_print("%s\n", cstr);
 	g_variant_unref(layout);
 }
 G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
@@ -224,27 +224,24 @@ static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_pr
 	DBusMenuItem *item;
 
 	g_variant_iter_init(&iter, updated_props);
-	while (g_variant_iter_next(&iter, "(i@a{sv})", &id, &props))
+	g_autofree char *pr = g_variant_print(updated_props, true);
+	g_print("%s\n", pr);
+	while (g_variant_iter_loop(&iter, "(i@a{sv})", &id, &props))
 	{
 		item = (DBusMenuItem *)g_hash_table_lookup(menu->dbusmenu_section_items,
 		                                           GUINT_TO_POINTER(id));
 
 		if (item != NULL)
 			dbus_menu_item_update_props(item, props);
-
-		g_variant_unref(props);
 	}
-
 	g_variant_iter_init(&iter, removed_props);
-	while (g_variant_iter_next(&iter, "(i@as)", &id, &props))
+	while (g_variant_iter_loop(&iter, "(i@as)", &id, &props))
 	{
 		item = (DBusMenuItem *)g_hash_table_lookup(menu->dbusmenu_section_items,
 		                                           GUINT_TO_POINTER(id));
 
 		if (item != NULL)
 			dbus_menu_item_remove_props(item, props);
-
-		g_variant_unref(props);
 	}
 	uint n = menu->items->len;
 	g_menu_model_items_changed(G_MENU_MODEL(menu), 0, n, n);
@@ -284,8 +281,6 @@ static DBusMenuModel *dbus_menu_model_new_section(uint parent_id, DBusMenuModel 
 	                                                   action_group,
 	                                                   "parent-id",
 	                                                   parent_id,
-	                                                   "is-section-model",
-	                                                   true,
 	                                                   NULL);
 	if (parent != NULL)
 		g_object_bind_property(parent, "xml", ret, "xml", G_BINDING_SYNC_CREATE);
@@ -302,16 +297,19 @@ DBusMenuModel *dbus_menu_model_new(uint parent_id, DBusMenuModel *parent, DBusMe
 	                                                   action_group,
 	                                                   "parent-id",
 	                                                   parent_id,
+	                                                   "is-section-model",
+	                                                   false,
 	                                                   NULL);
 	if (parent != NULL)
 		g_object_bind_property(parent, "xml", ret, "xml", G_BINDING_SYNC_CREATE);
-	ret->constructed = true;
 	return ret;
 }
 
 static void dbus_menu_model_finalize(GObject *object)
 {
 	DBusMenuModel *menu = (DBusMenuModel *)(object);
+	g_signal_handlers_disconnect_by_data(menu, menu);
+	g_hash_table_unref(menu->dbusmenu_section_items);
 	g_cancellable_cancel(menu->cancellable);
 	g_clear_object(&menu->cancellable);
 	g_ptr_array_free(menu->items, true);
@@ -414,7 +412,7 @@ static void install_properties(GObjectClass *object_class)
 	    g_param_spec_boolean("is-section-model",
 	                         "is-section-model",
 	                         "is-section-model",
-	                         false,
+	                         true,
 	                         (GParamFlags)(G_PARAM_CONSTRUCT_ONLY | G_PARAM_READABLE |
 	                                       G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS));
 

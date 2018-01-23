@@ -116,7 +116,7 @@ G_GNUC_INTERNAL GAction *dbus_menu_action_new(DBusMenuXml *xml, u_int32_t id,
 	}
 	else if (!g_strcmp0(action_type, DBUS_MENU_TOGGLE_TYPE_RADIO))
 	{
-		g_autofree char *name = g_strdup_printf(RADIO_ACTION_PREFIX "%u", id);
+		g_autofree char *name = g_strdup_printf(ACTION_PREFIX "%u", id);
 		ret                   = g_simple_action_new_stateful(name,
                                                    G_VARIANT_TYPE_UINT32,
                                                    g_variant_new_uint32(0));

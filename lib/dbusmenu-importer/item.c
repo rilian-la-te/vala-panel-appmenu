@@ -67,10 +67,9 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
 	             NULL);
 	g_variant_iter_init(&iter, props);
 	// Iterate by immutable properties, it is construct_only
+	bool action_creator_found = false;
 	while (g_variant_iter_loop(&iter, "{&sv}", &prop, &value))
 	{
-		bool action_creator_found = false;
-		g_autofree char *name     = NULL;
 		if (g_strcmp0(prop, DBUS_MENU_PROP_CHILDREN_DISPLAY) == 0)
 		{
 			if (value == NULL)
@@ -109,6 +108,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
 		}
 		else if (g_strcmp0(prop, DBUS_MENU_PROP_TOGGLE_TYPE) == 0)
 		{
+			g_autofree char *name = g_strdup_printf(ACTION_PREFIX "%u", id);
 			if (value == NULL)
 			{
 				g_hash_table_remove(item->attributes, prop);
@@ -117,7 +117,6 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
 			else if (g_strcmp0(g_variant_get_string(value, NULL),
 			                   DBUS_MENU_TOGGLE_TYPE_CHECK) == 0)
 			{
-				g_autofree char *name = g_strdup_printf(ACTION_PREFIX "%u", id);
 				item->referenced_action =
 				    dbus_menu_action_new(xml, id, DBUS_MENU_TOGGLE_TYPE_CHECK);
 				g_action_map_add_action(G_ACTION_MAP(item->referenced_action_group),
@@ -127,13 +126,11 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
 				                    g_variant_new_string(name));
 				action_creator_found = true;
 			}
-			// FIXME: Radio buttons should use section ids, not self ids. We need to
-			// send section id.
 			else if (g_strcmp0(g_variant_get_string(value, NULL),
 			                   DBUS_MENU_TOGGLE_TYPE_RADIO) == 0)
 			{
 				item->referenced_action =
-				    G_ACTION(g_object_ref(section_item->referenced_action));
+				    dbus_menu_action_new(xml, id, DBUS_MENU_TOGGLE_TYPE_RADIO);
 				g_hash_table_insert(item->attributes,
 				                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
 				                    g_variant_new_string(name));
@@ -149,7 +146,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
 			if (!g_strcmp0(type, DBUS_MENU_TYPE_SEPARATOR))
 			{
 				item->referenced_action =
-				    dbus_menu_action_new(xml, id, DBUS_MENU_TOGGLE_TYPE_RADIO);
+				    dbus_menu_action_new(xml, id, DBUS_MENU_TYPE_NORMAL);
 				g_action_map_add_action(G_ACTION_MAP(item->referenced_action_group),
 				                        item->referenced_action);
 				item->is_section = true;
@@ -172,7 +169,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
 			item->is_section = true;
 			g_hash_table_insert(item->attributes, g_strdup("label"), value);
 			item->referenced_action =
-			    dbus_menu_action_new(xml, id, DBUS_MENU_TOGGLE_TYPE_RADIO);
+			    dbus_menu_action_new(xml, id, DBUS_MENU_TYPE_NORMAL);
 			g_action_map_add_action(G_ACTION_MAP(item->referenced_action_group),
 			                        item->referenced_action);
 		}
@@ -233,10 +230,6 @@ G_GNUC_INTERNAL void dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 		{
 			bool en = g_variant_get_boolean(value);
 			g_simple_action_set_enabled(G_SIMPLE_ACTION(item->referenced_action), en);
-			if (!en)
-				g_hash_table_insert(item->attributes,
-				                    g_strdup(HAS_DISABLED),
-				                    g_variant_new_boolean(true));
 		}
 		//        else if (g_strcmp0(prop, "icon-data") == 0)
 		//        {
@@ -290,6 +283,17 @@ G_GNUC_INTERNAL void dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 					                          g_variant_new_uint32(item->id));
 					g_signal_handler_unblock(item->referenced_action, handler);
 				}
+				else
+				{
+					ulong handler = GPOINTER_TO_UINT(
+					    g_object_get_data(item->referenced_action,
+					                      ACTIVATE_ID_QUARK_STR));
+					g_signal_handler_block(item->referenced_action, handler);
+					g_simple_action_set_state(G_SIMPLE_ACTION(
+					                              item->referenced_action),
+					                          g_variant_new_uint32(0));
+					g_signal_handler_unblock(item->referenced_action, handler);
+				}
 			}
 			else if (!g_strcmp0(g_action_get_state_type(item->referenced_action),
 			                    "b") &&
@@ -310,19 +314,20 @@ G_GNUC_INTERNAL void dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 			if (vis)
 			{
 				g_hash_table_remove(item->attributes, "hidden-when");
-				if (!g_hash_table_lookup(item->attributes, HAS_DISABLED))
-					g_simple_action_set_enabled(G_SIMPLE_ACTION(
-					                                item->referenced_action),
-					                            true);
+				g_hash_table_insert(item->attributes,
+				                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
+				                    g_variant_new_string(g_action_get_name(
+				                        item->referenced_action)));
 			}
 			else
 			{
 				g_hash_table_insert(item->attributes,
 				                    g_strdup("hidden-when"),
-				                    g_variant_new_string("action-disabled"));
-				g_simple_action_set_enabled(G_SIMPLE_ACTION(
-				                                item->referenced_action),
-				                            false);
+				                    g_variant_new_string("action-missing"));
+				g_hash_table_insert(item->attributes,
+				                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
+				                    g_variant_new_string(
+				                        DBUS_MENU_DISABLED_ACTION));
 			}
 		}
 		else
@@ -347,7 +352,6 @@ G_GNUC_INTERNAL void dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *p
 		else if (g_strcmp0(prop, "enabled") == 0)
 		{
 			g_simple_action_set_enabled(G_SIMPLE_ACTION(item->referenced_action), true);
-			g_hash_table_remove(item->attributes, HAS_DISABLED);
 		}
 		else if (g_strcmp0(prop, "icon-name") == 0)
 		{
@@ -391,10 +395,10 @@ G_GNUC_INTERNAL void dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *p
 		else if (g_strcmp0(prop, "visible") == 0)
 		{
 			g_hash_table_remove(item->attributes, "hidden-when");
-			if (!g_hash_table_lookup(item->attributes, HAS_DISABLED))
-				g_simple_action_set_enabled(G_SIMPLE_ACTION(
-				                                item->referenced_action),
-				                            true);
+			g_hash_table_insert(item->attributes,
+			                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
+			                    g_variant_new_string(
+			                        g_action_get_name(item->referenced_action)));
 		}
 		else
 		{

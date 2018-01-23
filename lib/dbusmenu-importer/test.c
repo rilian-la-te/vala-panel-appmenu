@@ -27,7 +27,9 @@ int main(int argc, char *argv[])
 	gtk_container_add(GTK_CONTAINER(window), vbox);
 
 	GtkMenuBar *menubar        = gtk_menu_bar_new();
-	DBusMenuImporter *importer = dbus_menu_importer_new(":1.48", "/MenuBar/2");
+	DBusMenuImporter *importer = dbus_menu_importer_new(":1.59", "/MenuBar/2");
+	//	DBusMenuImporter *importer =
+	//	    dbus_menu_importer_new(":1.120", "/com/canonical/menu/2a000ee");
 	g_signal_connect(importer, "notify::model", G_CALLBACK(on_importer_model_changed), menubar);
 	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 	gtk_box_pack_start(GTK_BOX(vbox), menubar, FALSE, FALSE, 0);
