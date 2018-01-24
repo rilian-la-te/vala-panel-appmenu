@@ -17,7 +17,6 @@ vala_precompile(VALA_C_CORE appmenu-core
     ${CORE_VALA_FILES}
 PACKAGES
     ${CORE_PACKAGES}
-    vala-dbusmenu
     dbus-menu-importer
     gio-addons-2.0
     launcher
