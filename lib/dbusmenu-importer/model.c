@@ -10,7 +10,9 @@ struct _DBusMenuModel
 	GMenuModel parent_instance;
 
 	uint parent_id;
+	uint current_revision;
 	bool is_section_model;
+	bool layout_is_updating;
 	GCancellable *cancellable;
 	DBusMenuXml *xml;
 	GActionGroup *received_action_group;
@@ -163,8 +165,10 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 	if (old_num > 0)
 		g_ptr_array_remove_range(menu->items, 0, old_num);
 	layout_parse(menu, layout);
-	uint new_num = menu->items->len;
+	uint new_num           = menu->items->len;
+	menu->current_revision = revision;
 	g_menu_model_items_changed(G_MENU_MODEL(menu), 0, old_num, new_num);
+	menu->layout_is_updating = false;
 	//	GString *str = g_string_new(NULL);
 	//	g_menu_markup_print_string(str, menu, 4, 4);
 	//	char *cstr = g_string_free(str, false);
@@ -173,6 +177,8 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 
 G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
 {
+	g_return_if_fail(DBUS_MENU_IS_MODEL(menu));
+	menu->layout_is_updating = true;
 	dbus_menu_xml_call_get_layout(menu->xml,
 	                              menu->parent_id,
 	                              1,
@@ -184,7 +190,7 @@ G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
 
 static void layout_updated_cb(DBusMenuXml *proxy, guint revision, gint parent, DBusMenuModel *menu)
 {
-	if ((uint)parent == menu->parent_id)
+	if (((uint)parent == menu->parent_id) && revision > menu->current_revision)
 	{
 		dbus_menu_model_update_layout(menu);
 	}
@@ -206,7 +212,7 @@ struct pos_data
 
 static bool items_properties_updated_idle(struct pos_data *data)
 {
-	if (DBUS_MENU_IS_MODEL(data->model))
+	if (DBUS_MENU_IS_MODEL(data->model) && !data->model->layout_is_updating)
 		g_menu_model_items_changed(G_MENU_MODEL(data->model), data->position, 1, 1);
 	return G_SOURCE_REMOVE;
 }
@@ -218,16 +224,15 @@ static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_pr
 	guint id;
 	GVariant *props;
 	DBusMenuItem *item;
-
 	g_variant_iter_init(&iter, updated_props);
 	while (g_variant_iter_loop(&iter, "(i@a{sv})", &id, &props))
 	{
 		int sect_n = 0, position = 0;
 		item = (DBusMenuItem *)dbus_menu_model_find(menu, id, &sect_n, &position);
-
+		bool is_item_updated = false;
 		if (item != NULL)
 		{
-			dbus_menu_item_update_props(item, props);
+			is_item_updated       = dbus_menu_item_update_props(item, props);
 			struct pos_data *data = g_new0(struct pos_data, 1);
 			if (sect_n >= 0)
 			{
@@ -239,7 +244,8 @@ static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_pr
 			else
 				data->model = menu;
 			data->position = position;
-			g_idle_add_full(500, items_properties_updated_idle, data, g_free);
+			if (!menu->layout_is_updating && is_item_updated)
+				g_idle_add_full(500, items_properties_updated_idle, data, g_free);
 		}
 	}
 	g_variant_iter_init(&iter, removed_props);
@@ -247,10 +253,10 @@ static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_pr
 	{
 		int sect_n = 0, position = 0;
 		item = (DBusMenuItem *)dbus_menu_model_find(menu, id, &sect_n, &position);
-
+		bool is_item_updated = false;
 		if (item != NULL)
 		{
-			dbus_menu_item_remove_props(item, props);
+			is_item_updated       = dbus_menu_item_remove_props(item, props);
 			struct pos_data *data = g_new0(struct pos_data, 1);
 			if (sect_n >= 0)
 			{
@@ -262,7 +268,8 @@ static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_pr
 			else
 				data->model = menu;
 			data->position = position;
-			g_idle_add_full(500, items_properties_updated_idle, data, g_free);
+			if (!menu->layout_is_updating && is_item_updated)
+				g_idle_add_full(500, items_properties_updated_idle, data, g_free);
 		}
 	}
 }
@@ -322,18 +329,6 @@ DBusMenuModel *dbus_menu_model_new(uint parent_id, DBusMenuModel *parent, DBusMe
 	if (parent != NULL)
 		g_object_bind_property(parent, "xml", ret, "xml", G_BINDING_SYNC_CREATE);
 	return ret;
-}
-
-static void dbus_menu_model_finalize(GObject *object)
-{
-	DBusMenuModel *menu = (DBusMenuModel *)(object);
-	if (DBUS_MENU_IS_XML(menu->xml))
-		g_signal_handlers_disconnect_by_data(menu->xml, menu);
-	g_cancellable_cancel(menu->cancellable);
-	g_clear_object(&menu->cancellable);
-	g_ptr_array_free(menu->items, true);
-
-	G_OBJECT_CLASS(dbus_menu_model_parent_class)->finalize(object);
 }
 
 static bool dbus_menu_model_is_mutable(GMenuModel *model)
@@ -424,9 +419,23 @@ static DBusMenuItem *dbus_menu_model_find(DBusMenuModel *menu, uint item_id, int
 
 static void dbus_menu_model_init(DBusMenuModel *menu)
 {
-	menu->cancellable = g_cancellable_new();
-	menu->parent_id   = UINT_MAX;
-	menu->items       = g_ptr_array_new_with_free_func(dbus_menu_item_free);
+	menu->cancellable        = g_cancellable_new();
+	menu->parent_id          = UINT_MAX;
+	menu->items              = g_ptr_array_new_with_free_func(dbus_menu_item_free);
+	menu->current_revision   = 0;
+	menu->layout_is_updating = false;
+}
+
+static void dbus_menu_model_finalize(GObject *object)
+{
+	DBusMenuModel *menu = (DBusMenuModel *)(object);
+	if (DBUS_MENU_IS_XML(menu->xml))
+		g_signal_handlers_disconnect_by_data(menu->xml, menu);
+	g_cancellable_cancel(menu->cancellable);
+	g_clear_object(&menu->cancellable);
+	g_ptr_array_free(menu->items, true);
+
+	G_OBJECT_CLASS(dbus_menu_model_parent_class)->finalize(object);
 }
 
 static void install_properties(GObjectClass *object_class)

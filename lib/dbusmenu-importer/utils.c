@@ -71,8 +71,9 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 			    (DBusMenuModel *)g_object_get_data(action,
 			                                       SUBMENU_ACTION_MENUMODEL_QUARK_STR);
 			g_object_set_data(action, POPULATED_QUARK, POPULATED_QUARK);
-			dbus_menu_model_update_layout(model);
 			// TODD: Populate layout after request;
+			if (DBUS_MENU_IS_MODEL(model))
+				dbus_menu_model_update_layout(model);
 		}
 		g_simple_action_set_state(action, g_variant_new_boolean(true));
 		// TODO: change state to false after menu closing, not by time

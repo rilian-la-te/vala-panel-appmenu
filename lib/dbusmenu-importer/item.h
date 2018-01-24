@@ -27,9 +27,9 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id, DBu
 
 G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data);
 
-G_GNUC_INTERNAL void dbus_menu_item_update_props(DBusMenuItem *item, GVariant *props);
+G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *props);
 
-G_GNUC_INTERNAL void dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *props);
+G_GNUC_INTERNAL bool dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *props);
 
 G_END_DECLS
 

@@ -7,7 +7,7 @@
 
 .-vala-panel-appmenu-core scrolledwindow,
 .-vala-panel-appmenu-private > menuitem,
-.-vala-panel-appmenu-private:first-child > * > label {
+.-vala-panel-appmenu-private > menuitem:first-child > label {
     margin-top: 0;
     margin-bottom: 0;
     padding-top: 0;

@@ -46,7 +46,7 @@
          <arg name="propertyNames" type="as" direction="in" />
       </method>
       <method name="AboutToShow">
-         <arg type="b" direction="out" />
+         <arg name="needUpdate" type="b" direction="out" />
          <arg name="id" type="i" direction="in" />
       </method>
       <method name="AboutToShowGroup">

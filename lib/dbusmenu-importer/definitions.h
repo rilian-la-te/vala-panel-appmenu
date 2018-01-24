@@ -28,4 +28,22 @@
 #define DBUS_MENU_ACTION_RADIO_SELECTED "+"
 #define DBUS_MENU_ACTION_RADIO_UNSELECTED "-"
 
+#define g_signal_handlers_block_by_data(instance, data)                                            \
+	g_signal_handlers_block_matched((instance),                                                \
+	                                (GSignalMatchType)(G_SIGNAL_MATCH_DATA),                   \
+	                                0,                                                         \
+	                                0,                                                         \
+	                                NULL,                                                      \
+	                                NULL,                                                      \
+	                                (data))
+
+#define g_signal_handlers_unblock_by_data(instance, data)                                          \
+	g_signal_handlers_unblock_matched((instance),                                              \
+	                                  (GSignalMatchType)(G_SIGNAL_MATCH_DATA),                 \
+	                                  0,                                                       \
+	                                  0,                                                       \
+	                                  NULL,                                                    \
+	                                  NULL,                                                    \
+	                                  (data))
+
 #endif // DEFINITIONS_H

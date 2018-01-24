@@ -36,8 +36,9 @@ add_custom_target(dbus-xml
         --generate-c-code=${DBUS_NAME}
         --c-namespace ${NAMESPACE}
         --c-generate-autocleanup=all
-        --output-directory ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/${XML}
+    WORKING_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}
     BYPRODUCTS
         ${DBUS_GENERATED_SOURCES}
     SOURCES

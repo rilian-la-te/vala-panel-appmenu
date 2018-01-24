@@ -13,7 +13,7 @@ void on_importer_model_changed(GObject *obj, GParamSpec *pspec, gpointer data)
 	{
 		GtkMenuShell *menubar = GTK_MENU_SHELL(data);
 		gtk_widget_insert_action_group(menubar, "dbusmenu", action_group);
-		gtk_menu_shell_bind_model(menubar, model, "dbusmenu", true);
+		gtk_menu_shell_bind_model(menubar, model, NULL, true);
 	}
 	else if (GTK_IS_MENU_BUTTON(data))
 	{
@@ -36,9 +36,10 @@ int main(int argc, char *argv[])
 	GtkBox *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 	gtk_container_add(GTK_CONTAINER(window), vbox);
 
-	GtkMenuBar *menubar        = gtk_menu_bar_new();
-	GtkMenuButton *menu        = gtk_menu_button_new();
-	DBusMenuImporter *importer = dbus_menu_importer_new("org.krusader", "/MenuBar/2");
+	GtkMenuBar *menubar = gtk_menu_bar_new();
+	GtkMenuButton *menu = gtk_menu_button_new();
+	//	DBusMenuImporter *importer = dbus_menu_importer_new("org.krusader", "/MenuBar/2");
+	DBusMenuImporter *importer = dbus_menu_importer_new(":1.64", "/com/canonical/menu/380003e");
 	g_signal_connect(importer, "notify::model", G_CALLBACK(on_importer_model_changed), menubar);
 	g_signal_connect(importer, "notify::model", G_CALLBACK(on_importer_model_changed), menu);
 	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);

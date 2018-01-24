@@ -225,11 +225,12 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_copy(DBusMenuItem *src)
 	return dst;
 }
 
-G_GNUC_INTERNAL void dbus_menu_item_update_props(DBusMenuItem *item, GVariant *props)
+G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *props)
 {
 	GVariantIter iter;
 	const char *prop;
 	GVariant *value;
+	bool properties_is_updated = false;
 
 	g_variant_iter_init(&iter, props);
 	while (g_variant_iter_loop(&iter, "{&sv}", &prop, &value))
@@ -237,6 +238,7 @@ G_GNUC_INTERNAL void dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 		if (g_strcmp0(prop, "accessible-desc") == 0)
 		{
 			// TODO: Can we supported this property?
+			// properties_is_updated = true;
 		}
 		if (g_strcmp0(prop, "enabled") == 0)
 		{
@@ -272,6 +274,7 @@ G_GNUC_INTERNAL void dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 			g_hash_table_insert(item->attributes,
 			                    g_strdup(G_MENU_ATTRIBUTE_LABEL),
 			                    g_variant_ref_sink(value));
+			properties_is_updated = true;
 		}
 		else if (g_strcmp0(prop, "shortcut") == 0)
 		{
@@ -279,6 +282,7 @@ G_GNUC_INTERNAL void dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 			g_hash_table_insert(item->attributes,
 			                    g_strdup("accel"),
 			                    g_variant_ref_sink(value));
+			properties_is_updated = true;
 		}
 		else if (g_strcmp0(prop, "toggle-state") == 0)
 		{
@@ -332,18 +336,21 @@ G_GNUC_INTERNAL void dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 				                    g_variant_new_string(
 				                        DBUS_MENU_DISABLED_ACTION));
 			}
+			properties_is_updated = true;
 		}
 		else
 		{
 			g_debug("updating unsupported property - '%s'", prop);
 		}
 	}
+	return properties_is_updated;
 }
 
-G_GNUC_INTERNAL void dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *props)
+G_GNUC_INTERNAL bool dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *props)
 {
 	GVariantIter iter;
 	const gchar *prop;
+	bool properties_is_updated = false;
 
 	g_variant_iter_init(&iter, props);
 	while (g_variant_iter_next(&iter, "&s", &prop))
@@ -351,6 +358,7 @@ G_GNUC_INTERNAL void dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *p
 		if (g_strcmp0(prop, "accessible-desc") == 0)
 		{
 			// TODO: Can we supported this property?
+			// properties_is_updated = true;
 		}
 		else if (g_strcmp0(prop, "enabled") == 0)
 		{
@@ -363,6 +371,7 @@ G_GNUC_INTERNAL void dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *p
 				g_hash_table_remove(item->attributes, G_MENU_ATTRIBUTE_ICON);
 				g_hash_table_remove(item->attributes, "verb-icon");
 				g_hash_table_remove(item->attributes, HAS_ICON_NAME);
+				properties_is_updated = true;
 			}
 		}
 		else if (g_strcmp0(prop, "icon-data") == 0)
@@ -371,15 +380,18 @@ G_GNUC_INTERNAL void dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *p
 			{
 				g_hash_table_remove(item->attributes, G_MENU_ATTRIBUTE_ICON);
 				g_hash_table_remove(item->attributes, "verb-icon");
+				properties_is_updated = true;
 			}
 		}
 		else if (g_strcmp0(prop, "label") == 0)
 		{
 			g_hash_table_remove(item->attributes, G_MENU_ATTRIBUTE_LABEL);
+			properties_is_updated = true;
 		}
 		else if (g_strcmp0(prop, "shortcut") == 0)
 		{
 			g_hash_table_remove(item->attributes, "accel");
+			properties_is_updated = true;
 		}
 		else if (g_strcmp0(prop, "toggle-state") == 0)
 		{
@@ -402,10 +414,12 @@ G_GNUC_INTERNAL void dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *p
 			                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
 			                    g_variant_new_string(
 			                        g_action_get_name(item->referenced_action)));
+			properties_is_updated = true;
 		}
 		else
 		{
 			g_debug("removing unsupported property - '%s'", prop);
 		}
 	}
+	return properties_is_updated;
 }
