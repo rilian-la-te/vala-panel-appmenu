@@ -22,13 +22,14 @@ using Appmenu;
 
 namespace Appmenu
 {
-    internal class MenuWidgetDesktop: MenuWidgetMenumodel
+    internal class DesktopHelper: Helper
     {
         private GLib.Menu files_menu;
         private GLib.Menu documents_menu;
         private GLib.Menu pictures_menu;
         private GLib.Menu music_menu;
         private GLib.Menu videos_menu;
+        private unowned MenuWidget widget;
         private const GLib.ActionEntry[] menu_entries =
         {
             {"launch-id", activate_menu_id, "s", null, null},
@@ -43,15 +44,17 @@ namespace Appmenu
             {"populate-picts", null, "b", "false", state_populate_picts},
             {"populate-video", null, "b", "false", state_populate_video}
         };
-        public MenuWidgetDesktop(Bamf.Application? app, Bamf.Window? window)
+        public DesktopHelper(MenuWidget w, Bamf.Application? app, Bamf.Window? window)
         {
-            base(null,window);
+//            if(window != null)
+//                base(w,null,window);
+            this.widget = w;
             var group = new SimpleActionGroup();
             group.add_action_entries(menu_entries,this);
-            this.insert_action_group("menu",group);
+            w.insert_action_group("menu",group);
             var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
             builder.set_translation_domain(Config.GETTEXT_PACKAGE);
-            if ((completed_menus & MenuWidgetCompletionFlags.APPMENU) == 0)
+            if ((widget.completed_menus & MenuWidgetCompletionFlags.APPMENU) == 0)
             {
                 unowned GLib.Menu gmenu = builder.get_object("appmenu-desktop") as GLib.Menu;
                 var menu = new GLib.Menu();
@@ -66,10 +69,9 @@ namespace Appmenu
                     name = GLib.dgettext(Config.GETTEXT_PACKAGE,"_Desktop");
                 menu.append_submenu(name,gmenu);
                 menu.freeze();
-                var appmenu = new Gtk.MenuBar.from_model(menu);
-                this.set_appmenu(appmenu);
+                widget.set_appmenu(menu);
             }
-            if ((completed_menus & MenuWidgetCompletionFlags.MENUBAR) == 0)
+            if ((widget.completed_menus & MenuWidgetCompletionFlags.MENUBAR) == 0)
             {
                 files_menu = builder.get_object("files") as GLib.Menu;
                 documents_menu = builder.get_object("docs") as GLib.Menu;
@@ -77,10 +79,8 @@ namespace Appmenu
                 pictures_menu = builder.get_object("picts") as GLib.Menu;
                 videos_menu = builder.get_object("video") as GLib.Menu;
                 unowned GLib.Menu gmenu = builder.get_object("menubar") as GLib.Menu;
-                var menubar = new Gtk.MenuBar.from_model(gmenu);
-                this.set_menubar(menubar);
+                widget.set_menubar(gmenu);
             }
-            this.show_all();
         }
         internal void activate_menu_id(SimpleAction action, Variant? param)
         {
@@ -98,7 +98,7 @@ namespace Appmenu
         {
             unowned string type = param.get_string();
             var info = GLib.AppInfo.get_default_for_type(type,false) as DesktopAppInfo;
-			MenuMaker.launch(info,null,this);
+            MenuMaker.launch(info,null,widget);
         }
         public void activate_desktop(SimpleAction action, Variant? param)
         {
@@ -123,7 +123,7 @@ namespace Appmenu
                         AppInfoCreateFlags.SUPPORTS_STARTUP_NOTIFICATION) as DesktopAppInfo;
                         break;
                 }
-				MenuMaker.launch(info,null,this);
+                MenuMaker.launch(info,null,widget);
             } catch (GLib.Error e){stderr.printf("%s\n",e.message);}
         }
         public void activate_control(SimpleAction action, Variant? param)
@@ -149,7 +149,7 @@ namespace Appmenu
                         AppInfoCreateFlags.SUPPORTS_STARTUP_NOTIFICATION) as DesktopAppInfo;
 		                break;
 		        }
-				MenuMaker.launch(info,null,this);
+                MenuMaker.launch(info,null,widget);
             } catch (GLib.Error e){stderr.printf("%s\n",e.message);}
         }
         public void state_populate_files(SimpleAction action, Variant? param)
@@ -203,7 +203,7 @@ namespace Appmenu
             if (menu.get_n_items() == 0)
                 menu.append(GLib.dgettext(Config.GETTEXT_PACKAGE,"No files"),"ls.this-should-not-be-reached");
         }
-        ~MenuWidgetDesktop()
+        ~DesktopHelper()
         {
             files_menu = null;
             documents_menu = null;

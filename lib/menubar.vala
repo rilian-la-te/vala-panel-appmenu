@@ -25,10 +25,11 @@ namespace Appmenu
         private static DBusMenuRegistrarProxy proxy;
         private HashTable<uint,unowned Bamf.Window> desktop_menus;
         private Bamf.Matcher matcher;
+        private Helper helper;
+        private Helper bamf_helper;
         private unowned MenuWidget? menu
         {
             get {return this.get_child() as MenuWidget;}
-            set {replace_menu(value);}
         }
         static construct
         {
@@ -42,6 +43,8 @@ namespace Appmenu
         {
             desktop_menus = new HashTable<uint,unowned Bamf.Window>(direct_hash,direct_equal);
             matcher = Bamf.Matcher.get_default();
+            var mw = new MenuWidget();
+            this.add(mw);
             proxy.window_registered.connect(register_menu_window);
             proxy.window_unregistered.connect(unregister_menu_window);
             matcher.active_window_changed.connect(on_active_window_changed);
@@ -68,44 +71,22 @@ namespace Appmenu
         }
         public void register_menu_window(uint window_id, string sender, ObjectPath menu_object_path)
         {
-            if (window_id != matcher.get_active_window().get_xid() || window_id == menu.window_id)
+            if (window_id != matcher.get_active_window().get_xid())
                 return;
-            menu = create_dbusmenu(window_id,sender,menu_object_path);
+            create_dbusmenu(window_id,sender,menu_object_path);
         }
-        private MenuWidget create_dbusmenu(uint window_id, string sender, ObjectPath menu_object_path)
+        private void create_dbusmenu(uint window_id, string sender, ObjectPath menu_object_path)
         {
             unowned Bamf.Application app = matcher.get_application_for_xid(window_id);
-            MenuWidget dbusmenu = new MenuWidgetDbusmenu(window_id,sender,menu_object_path,app);
-            return dbusmenu;
+            helper = new DBusMenuHelper(menu,window_id,sender,menu_object_path,app);
         }
         public void unregister_menu_window(uint window_id)
         {
             if (menu.window_id == window_id)
             {
-                this.menu.destroy();
-                menu = show_dummy_menu();
+                helper = new DesktopHelper(menu,null,null);
             }
             desktop_menus.remove(window_id);
-        }
-        private void replace_menu(MenuWidget? menu)
-        {
-            if (this.menu != null)
-                this.menu.destroy();
-            if (menu != null)
-                this.add(menu);
-        }
-        private MenuWidget? show_dummy_menu()
-        {
-            MenuWidget? menu = null;
-            if (desktop_menus.length > 0)
-            {
-                desktop_menus.foreach((k,v)=>{
-                    menu = new MenuWidgetDesktop(null,v);;
-                    if (menu != null)
-                        return;
-                });
-            }
-            return menu;
         }
         private void on_window_opened(Bamf.View view)
         {
@@ -124,63 +105,72 @@ namespace Appmenu
         private void on_active_window_changed(Bamf.Window? prev, Bamf.Window? next)
         {
             unowned Bamf.Window win = next != null ? next : matcher.get_active_window();
-            if (menu != null)
-                menu.destroy();
-            menu = lookup_menu(win);
-            if (menu != null)
-                menu.show();
+            lookup_menu(win);
         }
-        private MenuWidget lookup_menu(Bamf.Window? window)
+        private void lookup_menu(Bamf.Window? window)
         {
-            MenuWidget? menu = null;
             uint xid = 0;
-            while (window != null && menu == null)
+            bool found = false;
+            Bamf.Window? win = window;
+            menu.completed_menus = 0;
+            menu.set_menubar(null);
+            while (win != null && found == false)
             {
                 xid = window.get_xid();
-                unowned Bamf.Application app = matcher.get_application_for_window(window);
-                /* First look to see if we can get these from the
-                   GMenuModel access */
-                if (menu == null)
-                {
-                    var uniquename = window.get_utf8_prop ("_GTK_UNIQUE_BUS_NAME");
-                    if (uniquename != null)
-                    {
-                        if (window.get_window_type() == Bamf.WindowType.DESKTOP)
-                            menu = new MenuWidgetDesktop(app,window);
-                        else
-                            menu = new MenuWidgetMenumodel(app,window);
-                        return menu;
-                    }
-                }
-                if (menu == null)
+                unowned Bamf.Application app = matcher.get_application_for_window(win);
+                if (!found)
                 {
                     string name;
                     ObjectPath path;
                     proxy.get_menu_for_window(xid,out name, out path);
                     /* Check DBusMenu sanity to differ it from MenuModel*/
                     if (!(name.length <= 0 && path == "/"))
-                        menu = create_dbusmenu(xid,name,path);
+                    {
+                        create_dbusmenu(xid,name,path);
+                        found = true;
+                    }
+                }
+                /* First look to see if we can get these from the
+                   GMenuModel access */
+                if (!found)
+                {
+                    var uniquename = window.get_utf8_prop ("_GTK_UNIQUE_BUS_NAME");
+                    if (uniquename != null)
+                    {
+                        if (window.get_window_type() == Bamf.WindowType.DESKTOP)
+                        {
+                            helper = new DesktopHelper(menu,app,win);
+                        }
+                        else
+                        {
+                            helper = new MenuModelHelper(menu,app,win);
+                        }
+                        found = true;
+                    }
                 }
                 /* Appmenu hack, because BAMF does not always send a correct Application
                 * DBusMenu registration always happened BEFORE a BAMF register application.
                 */
-                if (menu != null && (menu.completed_menus & MenuWidgetCompletionFlags.APPMENU) == 0 && app != null)
+                if (found && (menu.completed_menus & MenuWidgetCompletionFlags.APPMENU) == 0 && app != null)
                 {
-                    var appmenu = new BamfAppmenu(app);
-                    menu.set_appmenu(appmenu);
-                    appmenu.show();
+                    bamf_helper = new BamfAppmenu(menu,app);
                 }
-                if (menu == null)
+                if ((menu.completed_menus & MenuWidgetCompletionFlags.APPMENU) == 0 && (menu.completed_menus & MenuWidgetCompletionFlags.MENUBAR) == 0)
                 {
                     debug("Looking for parent window on XID %u", xid);
-                    window = window.get_transient();
-                    if (window == null && app != null)
-                        menu = new MenuWidgetAny(app);
+                    win = win.get_transient();
+                    if (win == null && app != null)
+                    {
+                        bamf_helper = new BamfAppmenu(menu,app);
+                        found = true;
+                    }
                 }
             }
-            if (menu == null)
-                menu = show_dummy_menu();
-            return menu;
+            if (found == false)
+            {
+                helper = new DesktopHelper(menu,null,window);
+            }
+            return;
         }
     }
 }

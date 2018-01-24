@@ -14,11 +14,6 @@
     padding-bottom: 0;
 }
 
-.-vala-panel-appmenu-core > separator {
-    background-color: rgba(0,0,0,0);
-    background-image: none;
-}
-
-.-vala-panel-appmenu-bold:first-child > * > label {
+menubar.-vala-panel-appmenu-bold:first-child > menuitem > label {
    font-weight: bolder;
 }

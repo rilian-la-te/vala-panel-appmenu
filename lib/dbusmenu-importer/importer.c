@@ -27,6 +27,13 @@ enum
 static GParamSpec *properties[LAST_PROP] = { NULL };
 G_DEFINE_TYPE(DBusMenuImporter, dbus_menu_importer, G_TYPE_OBJECT)
 
+static bool dbus_menu_importer_check(DBusMenuImporter *menu)
+{
+	if (DBUS_MENU_IS_XML(menu->proxy))
+		return dbus_menu_xml_get_version(menu->proxy);
+	return false;
+}
+
 static void proxy_ready_cb(GObject *source_object, GAsyncResult *res, gpointer user_data)
 {
 	g_autoptr(GError) error = NULL;
@@ -43,7 +50,8 @@ static void proxy_ready_cb(GObject *source_object, GAsyncResult *res, gpointer u
 		g_warning("%s", error->message);
 		return;
 	}
-	g_object_set(menu->top_model, "xml", proxy, NULL);
+	if (dbus_menu_importer_check(menu))
+		g_object_set(menu->top_model, "xml", proxy, NULL);
 	g_object_notify_by_pspec(menu, properties[PROP_MODEL]);
 }
 

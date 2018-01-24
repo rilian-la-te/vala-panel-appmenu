@@ -71,12 +71,12 @@ namespace Appmenu
                 service = "";
                 path = new ObjectPath("/");
             }
-            if (menu != null && !DBusMenu.GtkClient.check(service,path))
-            {
-                service = "";
-                path = new ObjectPath("/");
-                unregister_window(window);
-            }
+//            if (menu != null && !DBusMenu.GtkClient.check(service,path))
+//            {
+//                service = "";
+//                path = new ObjectPath("/");
+//                unregister_window(window);
+//            }
         }
         public void get_menus([DBus (signature="a(uso)")] out Variant menus)
         {

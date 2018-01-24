@@ -21,7 +21,7 @@ using Gtk;
 
 namespace Appmenu
 {
-    public class BamfAppmenu : Gtk.MenuBar
+    internal class BamfAppmenu : Helper
     {
         private const string UNITY_QUICKLISTS_KEY = "X-Ayatana-Desktop-Shortcuts";
         private const string UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME = "%s Shortcut Group";
@@ -29,6 +29,8 @@ namespace Appmenu
         private const string UNITY_QUICKLISTS_TARGET_VALUE = "Unity";
         private unowned Bamf.Application app;
         private GLib.Menu window_section;
+        private unowned MenuWidget widget;
+        private GLib.Menu all_menu = new GLib.Menu();
         private const GLib.ActionEntry[] entries =
         {
             {"new-window", activate_new, null, null, null},
@@ -40,12 +42,13 @@ namespace Appmenu
             {"activate-action", activate_action, "s", null, null},
             {"activate-unity-desktop-shortcut",activate_unity,"s",null,null}
         };
-        public BamfAppmenu(Bamf.Application app)
+        public BamfAppmenu(MenuWidget w, Bamf.Application app)
         {
             this.app = app;
+            this.widget = w;
             var configurator = new SimpleActionGroup();
             configurator.add_action_entries(entries,this);
-            this.insert_action_group("conf",configurator);
+            widget.insert_action_group("conf",configurator);
             var desktop_file = app.get_desktop_file();
             var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
             builder.set_translation_domain(Config.GETTEXT_PACKAGE);
@@ -77,14 +80,12 @@ namespace Appmenu
             window_section = builder.get_object("active-windows") as GLib.Menu;
             foreach(unowned Bamf.Window window in app.get_windows())
                 on_window_added(window);
-            var gmenu = new GLib.Menu();
             menu.freeze();
             var name = app.get_name();
             if (desktop_file == null && name.length >= 28)
                 name = name[0:25]+"...";
-            gmenu.append_submenu(name,menu);
-            this.bind_model(gmenu,null,true);
-            this.show_all();
+            all_menu.append_submenu(name,menu);
+            widget.set_appmenu(all_menu);
         }
         private void on_window_added(Bamf.Window window)
         {
@@ -113,7 +114,7 @@ namespace Appmenu
                 try {
                     var info = new DesktopAppInfo.from_filename(desktop_file);
                     info.launch_uris_as_manager(new List<string>(),
-                                                this.get_display().get_app_launch_context(),
+                                                widget.get_display().get_app_launch_context(),
                                                 SpawnFlags.SEARCH_PATH,
                                                 data.child_spawn_func,(a,b)=>{});
                 } catch (Error e) {
@@ -128,7 +129,7 @@ namespace Appmenu
             if (desktop_file != null)
             {
                 var info = new DesktopAppInfo.from_filename(desktop_file);
-                info.launch_action(action_name,this.get_display().get_app_launch_context());
+                info.launch_action(action_name,widget.get_display().get_app_launch_context());
             }
         }
         private void activate_unity(GLib.SimpleAction action, Variant? param)
@@ -144,7 +145,7 @@ namespace Appmenu
                     var exec = keyfile.get_string(UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME.printf(action_name),KeyFileDesktop.KEY_EXEC);
                     var info  = AppInfo.create_from_commandline(exec,null,0) as DesktopAppInfo;
                     info.launch_uris_as_manager(new List<string>(),
-                                                this.get_display().get_app_launch_context(),
+                                                widget.get_display().get_app_launch_context(),
                                                 SpawnFlags.SEARCH_PATH,
                                                 data.child_spawn_func,(a,b)=>{});
                 } catch (Error e) {
@@ -190,7 +191,6 @@ namespace Appmenu
         }
         private void activate_close_this(SimpleAction action, Variant? param)
         {
-            unowned MenuWidget widget = this.get_parent() as MenuWidget;
             unowned Wnck.Window window = Wnck.Window.@get ((ulong)widget.window_id);
             if (window == null)
             {

@@ -32,6 +32,7 @@ namespace DBusMenu
 		[NoAccessorMethod]
 		public GLib.ActionGroup action_group {owned get;}
 		public Importer(string bus_name, string object_path);
+		public bool check();
 	}
 }
 

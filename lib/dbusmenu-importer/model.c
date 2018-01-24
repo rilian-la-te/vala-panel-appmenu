@@ -165,10 +165,10 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 	layout_parse(menu, layout);
 	uint new_num = menu->items->len;
 	g_menu_model_items_changed(G_MENU_MODEL(menu), 0, old_num, new_num);
-	GString *str = g_string_new(NULL);
-	g_menu_markup_print_string(str, menu, 4, 4);
-	char *cstr = g_string_free(str, false);
-	g_print("%s\n", cstr);
+	//	GString *str = g_string_new(NULL);
+	//	g_menu_markup_print_string(str, menu, 4, 4);
+	//	char *cstr = g_string_free(str, false);
+	//	g_print("%s\n", cstr);
 }
 
 G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)

@@ -2,6 +2,7 @@
 #define IMPORTER_H
 
 #include <gio/gio.h>
+#include <stdbool.h>
 
 G_BEGIN_DECLS
 

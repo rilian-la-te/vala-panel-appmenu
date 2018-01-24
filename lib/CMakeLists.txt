@@ -10,9 +10,7 @@ set(CORE_VALA_FILES
     registrar.vala
     menubar.vala
     menu-widget.vala
-    menu-widget-dbusmenu.vala
     menu-widget-menumodel.vala
-    menu-widget-importer.vala
     ${CMAKE_BINARY_DIR}/vapi/config.vala
 )
 vala_precompile(VALA_C_CORE appmenu-core
@@ -50,7 +48,7 @@ set(PLUGIN_VALA_FILES
     mate-plugin-appmenu.vala
     budgie-plugin-appmenu.vala
     )
-add_library(appmenu-core STATIC ${CORE_C_FILES} ${VALA_C_CORE} $<TARGET_OBJECTS:vala-dbusmenu-o>)
+add_library(appmenu-core STATIC ${CORE_C_FILES} ${VALA_C_CORE})
 target_link_libraries (appmenu-core ${CORE_LIBRARIES} ${WNCK_LIBRARIES} m dbusmenu-translator-o)
 target_include_directories (appmenu-core PRIVATE ${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR}/dbusmenu)
 add_custom_target(vala-files-ide SOURCES ${VALA_FILES_DBUSMENU} ${CORE_VALA_FILES} ${PLUGIN_VALA_FILES})
