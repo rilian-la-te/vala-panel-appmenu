@@ -96,7 +96,6 @@ if(ENABLE_VALAPANEL)
         ${WNCK_PACKAGES}
         vala-panel
         libpeas-1.0
-        vala-dbusmenu
     OPTIONS
         --vapidir=${CMAKE_SOURCE_DIR}/vapi
         --vapidir=${CMAKE_CURRENT_BINARY_DIR}

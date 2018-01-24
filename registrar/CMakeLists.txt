@@ -7,7 +7,6 @@ vala_precompile(VALA_C_REGISTRAR appmenu-registrar
 PACKAGES
     ${CORE_PACKAGES}
     gio-addons-2.0
-    vala-dbusmenu
 OPTIONS
     --vapidir=${CMAKE_SOURCE_DIR}/vapi
     --vapidir=${CMAKE_CURRENT_BINARY_DIR}
