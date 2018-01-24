@@ -10,7 +10,7 @@ set(CORE_VALA_FILES
     registrar.vala
     menubar.vala
     menu-widget.vala
-    menu-widget-menumodel.vala
+    menu-widget-helpers.vala
     ${CMAKE_BINARY_DIR}/vapi/config.vala
 )
 vala_precompile(VALA_C_CORE appmenu-core
