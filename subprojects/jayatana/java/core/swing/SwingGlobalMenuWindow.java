@@ -66,8 +66,8 @@ import com.jarego.jayatana.basic.GlobalMenu;
 import com.jarego.jayatana.basic.GlobalMenuAdapter;
 
 /**
- * Esta clase permite controlar los menus asociados a una ventana Java Swing.
- * 
+ * This class allows you to control the menus associated with a Java Swing window.
+ *
  * @author Jared Gonzalez
  */
 public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowListener,
@@ -77,10 +77,10 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 	private boolean fullscreen = false;
 	
 	/**
-	 * Instanciar clase de controlador de menús para ventanas java Swing.
-	 * 
-	 * @param window ventana.
-	 * @param menubar barra de menús.
+         * Instance class of menu driver for java Swing windows.
+         *
+         * @param window window.
+         * @param menubar menu bar.
 	 */
 	public SwingGlobalMenuWindow(Window window, JMenuBar menubar) {
 		super(window);
@@ -88,7 +88,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 	}
 	
 	/**
-	 * Registrar le menú de Java Swing.
+         * Register Java Swing menu.
 	 */
 	@Override
 	protected void register(final int state) {
@@ -128,8 +128,8 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 		}
 	}
 	/**
-	 * Deregistrar escuchadores, cuando el bus del menú global se cierra.
-	 */
+         * Deregister listeners, when the global menu bus closes.
+         */
 	@Override
 	protected void unregister() {
 		// eliminar escuchadores de eventos
@@ -148,8 +148,8 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 	}
 	
 	/**
-	 * Crear menus de nivel 1, directamente a la barra de menús.
-	 */
+         * Create level 1 menus, directly to the menu bar.
+         */
 	private void createMenuBarMenus() {
 		for (Component comp : menubar.getComponents()) {
 			if (comp instanceof JMenu) {
@@ -159,10 +159,10 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 	}
 	
 	/**
-	 * Agregar menú de folder.
-	 * 
-	 * @param parent menú padre
-	 * @param menu menú
+         * Add submenu.
+         *
+         * @param parent parent menu
+         * @param menu
 	 */
 	private void addMenu(JMenu parent, JMenu menu) {
 		if (parent == null)
@@ -172,9 +172,9 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 	}
 	
 	/**
-	 * Agregar elemento de menú
-	 * @param parent menú padre
-	 * @param menuitem elemento de menú
+         * Add menu item
+         * @param parent parent menu
+         * @param menuitem menu item
 	 */
 	private void addMenuItem(JMenu parent, JMenuItem menuitem) {
 		Dimension size = menuitem.getPreferredSize();
@@ -204,11 +204,11 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 	}
 	
 	/**
-	 * Obtener el menú basado en el hashcode de este.
-	 * 
-	 * @param hashcode identificador de menú.
-	 * @return Retorna el menú encontrado en caso de que no se encuentra 
-	 * retorna <code>NULL</code>.
+         * Get the menu based on this hashcode.
+         *
+         * @param hashcode menu identifier.
+         * @return Returns the found menu in case it is not found
+         * returns <code> NULL </code>.
 	 */
 	private JMenuItem getJMenuItem(int hashcode) {
 		for (Component comp : menubar.getComponents())
@@ -220,12 +220,12 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 		return null;
 	}
 	/**
-	 * Obtener el menú basado en el hashcode de este.
-	 * 
-	 * @param menu menú padre
-	 * @param hashcode identificador de menú.
-	 * @return Retorna el menú encontrado en caso de que no se encuentra 
-	 * retorna <code>NULL</code>.
+         * Get the menu item based on this hashcode.
+         *
+         * @param menu parent menu
+         * @param hashcode menu identifier.
+         * @return Returns the found menuitem in case it is not found
+         * returns <code> NULL </code>.
 	 */
 	private JMenuItem getJMenuItem(JMenuItem menu, int hashcode) {
 		if (menu.hashCode() == hashcode) {
@@ -242,7 +242,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 	}
 	
 	/**
-	 * Activacion de menú.
+         * Activate menu.
 	 */
 	@Override
 	protected void menuActivated(int parentMenuId, int menuId) {
@@ -261,13 +261,13 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 	}
 	
 	/**
-	 * Verificar si una clase es instancia de otra basado en
-	 * Java Refelection.
-	 * 
-	 * @param cls Clase a comparar.
-	 * @param scls Clase o interface de comparacion.
-	 * @return Si es una instancia herededa o implementada regresa
-	 * <code>True</code> de lo contrario <code>False</code>.
+         * Verify if one class is an instance of another based on
+         * Java Refelection
+         *
+         * @param cls Class to compare.
+         * @param scls Class or comparison interface.
+         * @return If it is an inherited or implemented instance, it returns
+         * <code> True </code> otherwise <code> False </code>.
 	 */
 	private boolean isInstanceReflection(Class<?> cls, String scls) {
 		if ("java.lang.Object".equals(cls.getName())) {
@@ -284,10 +284,10 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 	}
 	
 	/**
-	 * Invocacion de menus de plataforma Netbeans, permite invocar contructores propios de la
-	 * plataforma para obtener los menús.
-	 * 
-	 * @param menu menú de plataforma Netbeans.
+         * Invocation of Netbeans platform menus, allows to invoke own constructors of the
+         * platform to get the menus.
+         *
+         * @param menu Netbeans platform menu.
 	 */
 	private void menuAboutToShowForNetbeansPlatform(JMenu menu) {
 		if (isInstanceReflection(menu.getClass(), "org.openide.awt.MenuBar$LazyMenu")) {
@@ -332,7 +332,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 	// ----------------------
 	
 	/**
-	 * Apertura de menu de folder.
+         * About to show a submenu.
 	 */
 	@Override
 	protected void menuAboutToShow(int parentMenuId, final int menuId) {
@@ -378,7 +378,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 		}
 	}
 	/**
-	 * Cierre de menu de folder.
+         * After closing submenu.
 	 */
 	@Override
 	protected void menuAfterClose(int parentMenuId, final int menuId) {
@@ -409,7 +409,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 	@Override
 	public void windowClosing(WindowEvent e) {}
 	/**
-	 * La ventana es cerrada.
+         * The window is closed.
 	 */
 	@Override
 	public void windowClosed(WindowEvent e) {
@@ -425,11 +425,11 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 	public void windowDeactivated(WindowEvent e) {}
 	
 	/**
-	 * Obtiene la ventana a la cual pertenece un componente.
-	 * 
-	 * @param comp componente
-	 * @return Si el componente tiene una ventana asociada regresa
-	 * la ventana de lo contrario regresa <code>NULL</code>.
+         * Get the window to which a component belongs.
+         *
+         * @param comp component
+         * @return If the component has an associated window, it returns
+         * the window otherwise returns <code> NULL </ code>.
 	 */
 	private Window getWindow(Component comp) {
 		if (comp == null)
@@ -443,7 +443,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 	}
 	
 	/**
-	 * Procesando eventos de aceleradores de teclado.
+         * Processing keyboard accelerator events.
 	 */
 	@Override
 	public void eventDispatched(AWTEvent event) {
@@ -484,7 +484,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 	}
 
 	/**
-	 * Se agrega un nuevo menú a la barra de menús.
+         *A new menu is added to the menu bar.
 	 */
 	@Override
 	public void componentAdded(ContainerEvent e) {
@@ -495,7 +495,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 		}
 	}
 	/**
-	 * Se elimina un menúe de la barra de menús.
+         * A menu is removed from the menu bar.
 	 */
 	@Override
 	public void componentRemoved(ContainerEvent e) {
@@ -506,7 +506,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 		}
 	}
 	/**
-	 * Cambia el atributo de un menú de la barra de menús.
+         * Change the attribute of a menu in the menu bar.
 	 */
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
@@ -516,7 +516,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 		}
 	}
 	/**
-	 * Un menú de la barra de menús se oculta.
+         * A menu bar menu is hidden.
 	 */
 	@Override
 	public void componentHidden(ComponentEvent e) {
@@ -526,7 +526,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 		}
 	}
 	/**
-	 * Un menú de la barra de menús se hace visible.
+         * A menu bar menu becomes visible.
 	 */
 	@Override
 	public void componentShown(ComponentEvent e) {

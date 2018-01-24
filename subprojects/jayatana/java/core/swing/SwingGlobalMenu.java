@@ -47,15 +47,15 @@ import com.jarego.jayatana.FeatureManager;
 import com.jarego.jayatana.basic.GlobalMenu;
 
 /**
- * Clase de carateristica para desplegar la integracion con el menú global
- * de Ubuntu para aplicaciones Java Swing.
- * 
+ * Feature class to deploy the integration with the global menu
+ * from Ubuntu for Java Swing applications.
+ *
  * @author Jared Gonzalez
  */
 public class SwingGlobalMenu implements Feature, AWTEventListener {
 	/**
-	 * Iniciar despliege de caracteristica para la integracion del menú global
-	 * de Ubuntu.
+         * Start feature deployment for global menu integration
+         * from Ubuntu.
 	 */
 	@Override
 	public void deploy() {
@@ -65,8 +65,8 @@ public class SwingGlobalMenu implements Feature, AWTEventListener {
 	}
 	
 	/**
-	 * Escucha de evento de apertura de ventana para lazar integracion
-	 * para cada ventana nueva lanzada.
+         * Listen to window opening event to link integration
+         * for each new window launched.
 	 */
 	@Override
 	public void eventDispatched(AWTEvent event) {
@@ -79,20 +79,20 @@ public class SwingGlobalMenu implements Feature, AWTEventListener {
 	}
 	
 	/**
-	 * Instalar sobre ventana de <code>JFrame</code>.
-	 * 
-	 * @param jframe ventana
+         * Install over <code> JFrame </code> window.
+         *
+         * @param jframe window
 	 */
 	protected void installOnWindow(JFrame jframe) {
 		JMenuBar menubar;
 		if ((menubar = retriveMenuBar(jframe)) != null)
 			tryInstallGlobalMenu(jframe, menubar);
 	}
-	/**
-	 * Instalar sobre ventana de <code>JDialog</code>.
-	 * 
-	 * @param jdialog ventana.
-	 */
+        /**
+         * Install over <code> JDialog </code> window.
+         *
+         * @param jframe window
+         */
 	protected void installOnWindow(JDialog jdialog) {
 		JMenuBar menubar;
 		if ((menubar = retriveMenuBar(jdialog)) != null) {
@@ -105,10 +105,10 @@ public class SwingGlobalMenu implements Feature, AWTEventListener {
 	}
 	
 	/**
-	 * Recuperar barra de menús de la ventana.
-	 * 
-	 * @param jframe ventana.
-	 * @return Barra de menús.
+         * Retrieve menu bar from the window.
+         *
+         * @param jframe window.
+         * @return Menu bar.
 	 */
 	protected JMenuBar retriveMenuBar(JFrame jframe) {
 		JMenuBar menuBar = null;
@@ -119,10 +119,10 @@ public class SwingGlobalMenu implements Feature, AWTEventListener {
 		return menuBar;
 	}
 	/**
-	 * Recuperar barra de menús de la ventana.
-	 * 
-	 * @param jdialog ventana.
-	 * @return Barra de menús.
+         * Retrieve menu bar from the window.
+         *
+         * @param jdialog window.
+         * @return Menu bar.
 	 */
 	protected JMenuBar retriveMenuBar(JDialog jdialog) {
 		JMenuBar menuBar = null;
@@ -134,10 +134,10 @@ public class SwingGlobalMenu implements Feature, AWTEventListener {
 	}
 	
 	/**
-	 * Tratar de instalar siempre y cuando este en ejecucion el bus del menú global.
-	 * 
-	 * @param window ventana.
-	 * @param menubar barra de menús.
+         * Try to install as long as the bus is running on the global menu.
+         *
+         * @param window window.
+         * @param menubar menu bar.
 	 */
 	private void tryInstallGlobalMenu(Window window, JMenuBar menubar) {
 		FeatureManager.deployOnce(FeatureManager.FEATURE_GMAINLOOP);
@@ -147,10 +147,10 @@ public class SwingGlobalMenu implements Feature, AWTEventListener {
 	}
 	
 	/**
-	 * Instala el bloqueo de menus sobre la ventana padre.
-	 * 
-	 * @param parent Ventana padre
-	 * @param child Ventana hijo
+         * Install the menu lock on the parent window.
+         *
+         * @param parent Parent window
+         * @param child child window
 	 */
 	private void installLockParentGlobalMenu(Window parent, final Window child) {
 		if (parent != null) {
@@ -178,10 +178,10 @@ public class SwingGlobalMenu implements Feature, AWTEventListener {
 	}
 	
 	/**
-	 * Establece el controlador de menus sobre la ventana.
-	 * 
-	 * @param window ventana 
-	 * @param sgm controlador de menus
+         * Set the menu controller on the window.
+         *
+         * @param window window
+         * @param sgm menu controller
 	 */
 	private void setSwingGlobalMenuWindowController(Window window, SwingGlobalMenuWindow sgm) {
 		if (window instanceof JFrame)
@@ -192,12 +192,12 @@ public class SwingGlobalMenu implements Feature, AWTEventListener {
 				.getRootPane().putClientProperty("jayatana.globalmenu.controller", sgm);
 	}
 	
-	/**
-	 * Obtiene el controlador de menus de la ventana.
-	 * 
-	 * @param window ventana
-	 * @return controlador de menus
-	 */
+        /**
+         * Get the menu controller on the window.
+         *
+         * @param window window
+         * @return menu controller
+         */
 	private SwingGlobalMenuWindow getSwingGlobalMenuWindowController(Window window) {
 		SwingGlobalMenuWindow swingGlobalMenuWindow = null;
 		if (window instanceof JFrame)
@@ -210,8 +210,8 @@ public class SwingGlobalMenu implements Feature, AWTEventListener {
 	}
 	
 	/**
-	 * Clase para liberar el bloque de menus una vez cerrada la ventana MODAL.
-	 * 
+         * Class to release the menu block once the MODAL window is closed.
+         *
 	 * @author Jared Gonzalez
 	 */
 	private class ApplicationModalWindowListener implements WindowListener, ComponentListener {

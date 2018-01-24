@@ -26,14 +26,14 @@
 package com.jarego.jayatana;
 
 /**
- * Esta interface permite controlar el despliege de diferentes
- * caracteristicas
- * 
+ * This interface allows you to control the deployment of different
+ * characteristics
+ *
  * @author Jared Gonzalez
  */
 public interface Feature {
 	/**
-	 * Desplegar caracteristica
+         * Deploy characteristic
 	 */
 	public void deploy();
 }

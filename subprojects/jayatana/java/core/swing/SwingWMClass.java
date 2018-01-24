@@ -33,23 +33,23 @@ import java.util.logging.Logger;
 import com.jarego.jayatana.Feature;
 
 /**
- * Esta clase es un caracteristica para modificar el valor del STARTUP WINDOW MANAGER CLASS
- * el cual puede permite integrarse a un archivo lanzador *.desktop para integracion con la
- * barra de menús de Ubuntu.
- * 
- * Este valor se puede modificar con el parametro de maquina virtal:
- * 		jayatana.wmclass
- * O con la variable de ambiente:
- * 		JAYATANA_WMCLASS
- * 
- * Este valor puede usarse en convinacion con el parametro StartupWMClass del archivo .desktop
- * Para permitir integrar con la barra de lanzamiento unity.
- * 
+ * This class is a feature to modify the value of the STARTUP WINDOW MANAGER CLASS
+ * which can be integrated into a * .desktop launcher file for integration with the
+ * Ubuntu menu bar.
+ *
+ * This value can be modified with the virtual machine parameter:
+ * jayatana.wmclass
+ * Or with the environment variable:
+ * JAYATANA_WMCLASS
+ *
+ * This value can be used in conjunction with the StartupWMClass parameter in the .desktop file
+ * To allow to integrate with the Unity launch bar.
+ *
  * @author Jared Gonzalez.
  */
 public class SwingWMClass implements Feature {
 	/**
-	 * Despliege de caracteristica para permitir integracion con el lanzador de Unity.
+         * Feature display to allow integration with the Unity launcher.
 	 */
 	@Override
 	public void deploy() {

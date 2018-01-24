@@ -28,37 +28,37 @@ package com.jarego.jayatana.basic;
 import java.awt.Window;
 
 /**
- * Clase de integracion de menu global Global basado en DBUS, permite interactuar con el
- * menu global de Ubuntu con invocaciones nativas.
- * 
+ * Integration class of Global global menu based on DBUS, allows to interact with the
+ * Ubuntu global menu with native invocations.
+ *
  * @author Jared Gonzalez
  */
 public abstract class GlobalMenu {
 	/**
-	 * El menu se registro por primera vez.
+          * The menu was registered for the first time.
 	 */
 	public static final int REGISTER_STATE_INITIAL = 0;
 	/**
-	 * El menu se actualizo por un cambio en la estructura de la barra de menu.
+          * The menu was updated by a change in the structure of the menu bar.
 	 */
 	public static final int REGISTER_STATE_REFRESH = 1;
 	
 	/**
-	 * Inicializa el las estructuras nativas para la integracion con el menu global.
+          * Initialize the native structures for integration with the global menu.
 	 */
 	native private static void initialize();
 	/**
-	 * Destruye las estructuras nativas para la integracion con el menu global.
+          * Destroy the native structures for integration with the global menu.
 	 */
 	native private static void uninitialize();
 	/**
-	 * Hilo del control de cierre de la aplicacion.
+          * Thread of the closing control of the application.
 	 */
 	public static Thread shutdownThread = null;
 	
 	/**
-	 * Inicializa las estructuras nativas ademas de registrar el hilo de cierre de aplicacion
-	 * para destruir las estructuras nativas.
+          * Initializes the native structures in addition to registering the application closing thread
+          * to destroy the native structures.
 	 */
 	public static void nativeInitialize() {
 		Runtime.getRuntime().addShutdownHook(shutdownThread = new Thread() {
@@ -73,147 +73,147 @@ public abstract class GlobalMenu {
 		GlobalMenu.initialize();
 	}
 	
-	/**
-	 * Obtiene el identificador de ventana de una clase Window de Java.
-	 * 
-	 * @param window objecto ventana
-	 * @return Regresa el identificador de ventana
-	 */
+        /**
+          * Gets the window handle of a Java Window class.
+          *
+          * @param window object window
+          * @return Returns the window handle
+          */
 	native public static long getWindowXID(Window window);
 	
-	/**
-	 * Registra visualizador de bus de menu global. En caso de que el bus
-	 * exista se invocara el método <code>register</code>.
-	 * 
-	 * @param windowXID identificador de ventana
-	 */
+        /**
+          * Registers global menu bus viewer. In case the bus
+          * exists the <code>register</code> method will be invoked.
+          *
+          * @param windowXID window identifier
+          */
 	native synchronized public void registerWatcher(long windowXID);
-	/**
-	 * Elimina el visualizador de bus de menu global. En cas de que el bus
-	 * exista se invocara el método <code>unregister</code>.
-	 * 
-	 * @param windowXID identificador de ventana
-	 */
+        /**
+          * Removes the global menu bus viewer. In case the bus
+          * existing, the <code> unregister </code> method will be invoked.
+          *
+          * @param windowXID window identifier
+          */
 	native synchronized public void unregisterWatcher(long windowXID);
-	/**
-	 * Este método regenera el visualizador de Bus, y debe ser usado si algun
-	 * menu (de nivel 0) agregado directamente a la barra de menus cambia,
-	 * puesto que Ubuntu tiene problemas con los métodos de agregar o eliminar estos.
-	 * 
-	 * @param windowXID identificador de ventana
-	 */
+        /**
+          * This method regenerates the Bus viewer, and should be used if some
+          * menu (level 0) added directly to the menu bar changes,
+          * since Ubuntu has problems with the methods of adding or deleting these.
+          *
+          * @param windowXID window identifier
+          */
 	native synchronized public void refreshWatcher(long windowXID);
 	
-	/**
-	 * Este método es invocado cuando se registra el bus del menu global, si el menu global
-	 * no esta o se excluye por algun otro método como la variable de ambiente UBUNTU_MENUPROXY
-	 * este método nunca sera invocado.
-	 * 
-	 * @param state estado de registro, cauando es la primera vez regresa el valor de
-	 * <code>REGISTER_STATE_INITIAL</code> si se esta registrando por un refresh regresa el
-	 * valor de <code>REGISTER_STATE_REFRESH</code>.
-	 */
+        /**
+          * This method is invoked when the global menu bus is registered, if the global menu
+          * is not or is excluded by some other method such as the environment variable UBUNTU_MENUPROXY
+          * this method will never be invoked.
+          *
+          * @param state registration status, when it is the first time returns the value of
+          * <code> REGISTER_STATE_INITIAL </code> if you are registering for a refresh returns the
+          * value of <code> REGISTER_STATE_REFRESH </code>.
+          */
 	abstract protected void register(int state);
-	/**
-	 * Este método es invocado cuando se elimina el visualizador de Bus o si el bus es cerrado
-	 * externamente.
-	 */
+        /**
+          * This method is invoked when the bus viewer is deleted or if the bus is closed
+          * externally
+          */
 	abstract protected void unregister();
 	
-	/**
-	 * Agrega un nuevo menú de folder nativo.
-	 * 
-	 * @param windowXID identificador de ventana.
-	 * @param menuParentId identificador del menu padre, para especificar un menu directamente en la barra
-	 * de menú el identificador del padre debe ser <code>-1</code>.
-	 * @param menuId identificador del menú.
-	 * @param label etiqueta del menú.
-	 * @param enabled estado de habilitacion del menú.
-	 * @param visible estado de visibulidad del menú.
-	 */
-	native public void addMenu(long windowXID, int menuParentId, int menuId,
-			String label, boolean enabled, boolean visible);
-	/**
-	 * Agrega un elemento de menú nativo.
-	 * 
-	 * @param windowXID identificador de ventana.
-	 * @param menuParentId identificador del menú padre.
-	 * @param menuId identificador del menú.
-	 * @param label etiqueta del menú.
-	 * @param enabled estado de habilitacion del menú.
-	 * @param modifiers modificador del acelerador del menú (CTRL, ALT o SHIFT).
-	 * @param keycode acelerador del menú.
-	 */
-	native public void addMenuItem(long windowXID, int menuParentId, int menuId,
-			String label, boolean enabled, int modifiers, int keycode);
-	/**
-	 * Agrega un elemento de menú radio nativo.
-	 * 
-	 * @param windowXID identificador de ventana.
-	 * @param menuParentId identificador del menú padre.
-	 * @param menuId identificador del menú.
-	 * @param label etiqueta del menú.
-	 * @param enabled estado de habilitacion del menú.
-	 * @param modifiers modificador del acelerador del menú (CTRL, ALT o SHIFT).
-	 * @param keycode acelerador del menú.
-	 * @param selected estado de seleccion del menú.
-	 */
-	native public void addMenuItemRadio(long windowXID, int menuParentId, int menuId,
-			String label, boolean enabled, int modifiers, int keycode, boolean selected);
-	/**
-	 * Agrega un elemento de menú check nativo.
-	 * 
-	 * @param windowXID identificador de ventana.
-	 * @param menuParentId identificador del menú padre.
-	 * @param menuId identificador del menú.
-	 * @param label etiqueta del menú.
-	 * @param enabled estado de habilitacion del menú.
-	 * @param modifiers modificador del acelerador del menú (CTRL, ALT o SHIFT).
-	 * @param keycode acelerador del menú.
-	 * @param selected estado de seleccion del menú.
-	 */
-	native public void addMenuItemCheck(long windowXID, int menuParentId, int menuId,
-			String label, boolean enabled, int modifiers, int keycode, boolean selected);
-	/**
-	 * Agrega un elmemento de menú de separador nativo.
-	 * 
-	 * @param windowXID identificador del ventana.
-	 * @param menuParentId identificador del menú padre.
-	 */
-	native public void addSeparator(long windowXID, int menuParentId);
-	/**
-	 * Actualizacion de estado del menú nativo.
-	 * 
-	 * @param windowXID identificador de ventana
-	 * @param menuId identificador de menu
-	 * @param label nuevo valor de etiqueta
-	 * @param enabled nuevo valor de estado de habilitacion del menú.
-	 * @param visible nuevo valor de estado de visibilidad del menú.
-	 */
-	native public void updateMenu(long windowXID, int menuId, String label,
-			boolean enabled, boolean visible);
-	
-	/**
-	 * Este método es invocado cuando un menú nativo es seleccionado.
-	 * 
-	 * @param parentMenuId identificador del pardre del menú.
-	 * @param menuId identificador del menú seleccionado.
-	 */
-	abstract protected void menuActivated(int parentMenuId, int menuId);
-	/**
-	 * Este método es invocado cuando un menú folder es abierto.
-	 * 
-	 * @param parentMenuId identificador del padre del menú, si el menú esta
-	 * directamente a la barra de menu el valor del padre es <code>-1</code>
-	 * @param menuId identificador del menú.
-	 */
-	abstract protected void menuAboutToShow(int parentMenuId, int menuId);
-	/**
-	 * Este método es invocado cuando un menú folder es cerrado.
-	 * 
-	 * @param parentMenuId identificador del padre del menú, si el menú esta
-	 * directamente a la barra de menu el valor del padre es <code>-1</code>
-	 * @param menuId identificador del menú.
-	 */
-	abstract protected void menuAfterClose(int parentMenuId, int menuId);
+        /**
+         * Add a new native menu.
+         *
+         * @param windowXID window identifier.
+         * @param menuParentId identifier of the parent menu, to specify a menu directly in the bar
+         * from menu the parent identifier must be <code> -1 </code>.
+         * @param menuId menu identifier.
+         * @param label menu label.
+         * @param enabled menu enable status.
+         * @param visible visibulity status of the menu.
+         */
+        native public void addMenu (long windowXID, int menuParentId, int menuId,
+                                    String label, boolean enabled, boolean visible);
+        /**
+         * Add a native menu item.
+         *
+         * @param windowXID window identifier.
+         * @param menuParentId identifier of the parent menu.
+         * @param menuId menu identifier.
+         * @param label menu label.
+         * @param enabled menu enable status.
+         * @param modifiers throttle modifier menu (CTRL, ALT or SHIFT).
+         * @param keycode accelerator menu.
+         */
+        native public void addMenuItem (long windowXID, int menuParentId, int menuId,
+                                        String label, boolean enabled, int modifiers, int keycode);
+        /**
+         * Add a native radio menu item.
+         *
+         * @param windowXID window identifier.
+         * @param menuParentId identifier of the parent menu.
+         * @param menuId menu identifier.
+         * @param label menu label.
+         * @param enabled menu enable status.
+         * @param modifiers throttle modifier menu (CTRL, ALT or SHIFT).
+         * @param keycode accelerator menu.
+         * @param selected menu selection status.
+         */
+        native public void addMenuItemRadio (long windowXID, int menuParentId, int menuId,
+                                             String label, boolean enabled, int modifiers, int keycode, boolean selected);
+        /**
+         * Add a native check menu item.
+         *
+         * @param windowXID window identifier.
+         * @param menuParentId identifier of the parent menu.
+         * @param menuId menu identifier.
+         * @param label menu label.
+         * @param enabled menu enable status.
+         * @param modifiers throttle modifier menu (CTRL, ALT or SHIFT).
+         * @param keycode accelerator menu.
+         * @param selected menu selection status.
+         */
+        native public void addMenuItemCheck (long windowXID, int menuParentId, int menuId,
+                                             String label, boolean enabled, int modifiers, int keycode, boolean selected);
+        /**
+         * Add a menu item of native separator.
+         *
+         * @param windowXID window identifier.
+         * @param menuParentId identifier of the parent menu.
+         */
+        native public void addSeparator (long windowXID, int menuParentId);
+        /**
+         * Status update of the native menu.
+         *
+         * @param windowXID window identifier
+         * @param menuId menu identifier
+         * @param label new tag value
+         * @param enabled new status value of menu enable.
+         * @param visible new visibility status value of the menu.
+         */
+        native public void updateMenu (long windowXID, int menuId, String label,
+                                       boolean enabled, boolean visible);
+
+        /**
+         * This method is invoked when a native menu is selected.
+         *
+         * @param parentMenuId identifier of the menu parent.
+         * @param menuId identifier of the selected menu.
+         */
+        abstract protected void menuActivated (int parentMenuId, int menuId);
+        /**
+         * This method is invoked when a menu is opened.
+         *
+         * @param parentMenuId identifier of the parent of the menu, if the menu is
+         * directly to the menu bar the value of the parent is <code> -1 </code>
+         * @param menuId menu identifier.
+         */
+        abstract protected void menuAboutToShow (int parentMenuId, int menuId);
+        /**
+         * This method is invoked when a menu is closed.
+         *
+         * @param parentMenuId identifier of the parent of the menu, if the menu is
+         * directly to the menu bar the value of the parent is <code> -1 </code>
+         * @param menuId menu identifier.
+         */
+        abstract protected void menuAfterClose (int parentMenuId, int menuId);
 }

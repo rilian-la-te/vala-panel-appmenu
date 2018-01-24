@@ -31,29 +31,29 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Este agente java permite evaluar si la arquitectura de las librerias nativas
- * de integracion son de la misma arquitectura de la maquina virtual. En caso
- * de que conincidan inicia los procesos nativos de integracion de lo contrario
- * solo se ignoran
+ * This java agent allows to evaluate if the architecture of the native libraries
+ * of integration are of the same architecture of the virtual machine. In case
+ * of which they coincide initiate the native processes of integration otherwise
+ * only ignored
  * 
  * @author Jared Gonzalez
  */
 public class Agent {
 	/**
-	 * Evalua si la arquitectura de la librerias nativas de Jayatana coninciden con
-	 * la arquitectura de la maquia virutal de Java.
-	 * 
-	 * @param agentArgs argumentos de agente
-	 * @param inst Control de la intrumentacion de Java
+         * Evaluates if the architecture of Jayatana native libraries coincides with
+         * the architecture of Java's virutal machine.
+         *
+         * @param agentArgs agent arguments
+         * @param inst Control of the Java intrumentation
 	 */
 	public static void premain(String agentArgs, Instrumentation inst) {
 		try {
-			// excluir versiones 1.5 y 1.4 pues no esta soportadas
+                        // exclude versions 1.5 and 1.4 as they are not supported
 			if (System.getProperty("java.version").startsWith("1.5") ||
 					System.getProperty("java.version").startsWith("1.4"))
 				return;
 			
-			// obtienen el archivo de la libreria nativa de integracion
+                        // get the file from the native library of integration
 			String libjayatanaag;
 			try {
 				if ((libjayatanaag = System.getenv("JAYATANA_LIBAGPATH")) == null) {
@@ -66,7 +66,7 @@ public class Agent {
 			}
 			
 			try {
-				// obtener arquitectura de la libreria
+                                // get architecture from the library
 				String libjayatanaagarch = "--";
 				FileInputStream fis = new FileInputStream(libjayatanaag);
 				try {
@@ -80,7 +80,7 @@ public class Agent {
 					fis.close();
 				}
 				
-				// verificar si la arquitectura conicide con la maquina virtual
+                                // verify if the architecture matches the virtual machine
 				if (libjayatanaagarch.equals(System.getProperty("sun.arch.data.model")))
 					System.load(libjayatanaag);
 			} catch (Exception e) {}

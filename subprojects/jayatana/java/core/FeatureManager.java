@@ -29,40 +29,40 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Esta clase declara cada una de las caracteristicas y permite gestionarlas para
- * controlar los desplieges de estas. Permite gestionar las caracteristicas son
- * instanciar las clases hasta que estas son requeridas.
- * 
+ * This class declares each of the characteristics and allows to manage them for
+ * control the deployments of these. It allows to manage the features are
+ * instantiate the classes until they are required.
+ *
  * @author Jared Gonzalez
  */
 public class FeatureManager {
 	/**
-	 * Caracteristica de GMainLoop.
+         * GMainLoop feature.
 	 */
 	public static final String FEATURE_GMAINLOOP = "gMainLoop";
 	/**
-	 * Caracteristica de correcion de bordes de menus para el LookAndFeel de
+         * Menu edge correction feature for the Look and Feel of
 	 * GTK.
 	 */
 	public static final String FEATURE_SWINGGTKFIX = "swingGtkFix";
 	/**
-	 * Caracteristica de integracion de menu global con Ubuntu.
+         * Integration feature of global menu with Ubuntu.
 	 */
 	public static final String FEATURE_SWINGGMENU = "swingGMenu";
 	/**
-	 * Caracteristica de cambio de Startup Window Manager Class usando
-	 * la varaible de ambiente JAYATAN_WMCLASS
+         * Startup Window Manager Class change feature using
+         * the ambient varaible JAYATAN_WMCLASS
 	 */
 	public static final String FEATURE_SWINGWMCLASS = "swingWMClass";
 	
 	/**
-	 * Tabla hash de caracteristicas
+         * Map of features
 	 */
 	private static Map<String, FeatureWrapper> features = new HashMap<String, FeatureWrapper>();
 	
 	static {
-		// registrar carcateristicas de integracion
-		FeatureWrapper basicNativeLibraries = new FeatureWrapper(
+                // register integration features
+                FeatureWrapper basicNativeLibraries = new FeatureWrapper(
 				"com.jarego.jayatana.basic.NativeLibraries");
 		
 		features.put(FEATURE_GMAINLOOP,
@@ -80,8 +80,8 @@ public class FeatureManager {
 	}
 	
 	/**
-	 * Despliega todas caracteristicas compatibles para Swing.
-	 */
+         * Display all compatible features for Swing.
+         */
 	public static void deployForSwing() {
 		// desplegar carcateristicas de integracion
 		deployOnce(FEATURE_SWINGWMCLASS);
@@ -89,23 +89,23 @@ public class FeatureManager {
 		deployOnce(FEATURE_SWINGGMENU);
 	}
 	
-	/**
-	 * Despliege una caracteristica solo una vez.
-	 * 
-	 * @param featureId identificador de la caracteristica.
-	 * @return Retrona <code>True</code> si la caracteristica es
-	 * desplegada o <code>False</code> si ya estaba desplegada.
-	 */
+        /**
+         * Deploy a feature only once.
+         *
+         * @param featureId identifier of the feature.
+         * @return Retrona <code> True </code> if the feature is
+         * deployed or <code> False </code> if it was already deployed.
+         */
 	public static boolean deployOnce(String featureId) {
 		return features.get(featureId).deployOnce();
 	}
-	/**
-	 * Verifica si una caracteristica ya ha sido desplegada.
-	 * 
-	 * @param featureId identificador de la caracteristica.
-	 * @return Retrona <code>True</code> si la caracteristica es
-	 * desplegada o <code>False</code> si ya estaba desplegada.
-	 */
+        /**
+         * Check if a feature has already been deployed.
+         *
+         * @param featureId identifier of the feature.
+         * @return Retrona <code> True </code> if the feature is
+         * deployed or <code> False </code> if it was already deployed.
+         */
 	public static boolean isDeployed(String featureId) {
 		return features.get(featureId).isDeployed();
 	}

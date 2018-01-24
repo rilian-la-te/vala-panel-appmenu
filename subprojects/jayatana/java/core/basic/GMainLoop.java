@@ -31,24 +31,24 @@ import java.util.logging.Logger;
 import com.jarego.jayatana.Feature;
 
 /**
- * Esta clase inicia un GMainLoop para integracion con el bus de linux.
- * 
+ * This class starts a GMainLoop for integration with the linux bus.
+ *
  * @author Jared Gonzalez
  */
 public class GMainLoop implements Feature {
 	/**
-	 * Inicia el proceso de GMainLoop.
+         * Start the GMainLoop process.
 	 */
 	native private static void installGMainLoop();
 	/**
-	 * Detiene el proceso de GMain Loop.
+         * Stops the GMain Loop process.
 	 */
 	native private static void uninstallGMainLoop();
 	
 	@Override
 	public void deploy() {
-		// registra el hilo de salida de la aplicacion para 
-		// detener el GMainLoop
+                // register the output thread of the application for
+                // stop the GMainLoop
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			{
 				setDaemon(true);
@@ -56,8 +56,8 @@ public class GMainLoop implements Feature {
 			}
 			@Override
 			public void run() {
-				// en caso de que el hilo del menu global este
-				// activo esperar el cierre de este.
+                                // in case the global menu thread is
+                                // active wait for the closure of this.
 				if (GlobalMenu.shutdownThread != null)
 					try {
 						GlobalMenu.shutdownThread.join();
@@ -65,11 +65,11 @@ public class GMainLoop implements Feature {
 						Logger.getLogger(GMainLoop.class.getName())
 							.log(Level.WARNING, "can't wait Global Menu end", e);
 					}
-				// terminar el GMainLoop
-				uninstallGMainLoop();
+                                // finish the GMainLoop
+                                uninstallGMainLoop();
 			}
 		});
-		// iniciar el GMainLoop
-		installGMainLoop();
+                // start the GMainLoop
+                installGMainLoop();
 	}
 }

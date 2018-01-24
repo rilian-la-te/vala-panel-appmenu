@@ -32,8 +32,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Clase de envolutara de caracteristicas para gestionar el numbero de desplieges y
- * control de errores durante este despliege.
+ * Feature wrapper class to manage the number of deployments and
+ * error handling during this deployment.
  * 
  * @author Jared Gonzalez
  */
@@ -51,10 +51,10 @@ public class FeatureWrapper {
 	private boolean deployed = false;
 	
 	/**
-	 * Crea una envolutara de caracteristica basado en el nombre de la clase implementada de la
-	 * interface <code>com.jarego.jayatana.Feature</code>.
-	 * 
-	 * @param className clase implementada de la interface <code>com.jarego.jayatana.Feature</code>
+         * Creates a feature wrap based on the name of the implemented class of the
+         * interface <code> com.jarego.jayatana.Feature </code>.
+         *
+         * @param className implemented class of the interface <code> com.jarego.jayatana.Feature </code>
 	 */
 	public FeatureWrapper(String className) {
 		this(className, (List<FeatureWrapper>)null);
@@ -71,9 +71,9 @@ public class FeatureWrapper {
 	}
 	
 	/**
-	 * Obtiene la instancia de caracteristica, se instancia por primera vez al invocar el método.
-	 * 
-	 * @return retorna la interface de caracteristica
+         * Gets the feature instance, is instantiated for the first time when invoking the method.
+         *
+         * @return returns the feature interface
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalAccessException 
 	 * @throws InstantiationException 
@@ -85,21 +85,21 @@ public class FeatureWrapper {
 		return featrue;
 	}
 	
-	/**
-	 * Verifica si la caracteristica ya ha sido desplegada.
-	 * 
-	 * @return Regresa <code>True</code> si ha sido deplegado de lo
-	 * contrario regresa <code>False</code>.
+        /**
+         * Check if the feature has already been deployed.
+         *
+         * @return Return <code> True </code> if it has been deployed from
+         * opposite returns <code> False </code>.
 	 */
 	public synchronized boolean isDeployed() {
 		return deployed;
 	}
 	
 	/**
-	 * Realiza el despliege de la caracteristica una sola vez
-	 * 
-	 * @return Regresa <code>True</code> si es desplegada por primera vez
-	 * de lo contrario regresa <code>False</code>.
+         * Perform the one time feature deployment
+         *
+         * @return Return <code> True </code> if it is deployed for the first time
+         * otherwise return <code> False </code>.
 	 */
 	public synchronized boolean deployOnce() {
 		if (!deployed) {
