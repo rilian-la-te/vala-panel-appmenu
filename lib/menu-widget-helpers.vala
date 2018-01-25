@@ -98,9 +98,11 @@ namespace Appmenu
             if (app != null)
                 bamf_helper = new BamfAppmenu(w,app);
             importer = new DBusMenu.Importer(name,(string)path);
+            bool is_model_set = false;
             importer.notify["model"].connect((s, p)=>{
-                if((w.completed_menus & MenuWidgetCompletionFlags.MENUBAR) == 0)
+                if(!is_model_set)
                     w.set_menubar(importer.model);
+                is_model_set = true;
                 w.insert_action_group("dbusmenu",importer.action_group);
             });
         }

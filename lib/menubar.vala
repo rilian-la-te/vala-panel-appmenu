@@ -78,12 +78,16 @@ namespace Appmenu
         private void create_dbusmenu(uint window_id, string sender, ObjectPath menu_object_path)
         {
             unowned Bamf.Application app = matcher.get_application_for_xid(window_id);
+            helper = null;
             helper = new DBusMenuHelper(menu,window_id,sender,menu_object_path,app);
         }
         public void unregister_menu_window(uint window_id)
         {
             if (menu.window_id == window_id)
+            {
+                helper = null;
                 helper = new DesktopHelper(menu,null,null);
+            }
             desktop_menus.remove(window_id);
         }
         private void on_window_opened(Bamf.View view)
@@ -134,6 +138,7 @@ namespace Appmenu
                     var uniquename = window.get_utf8_prop ("_GTK_UNIQUE_BUS_NAME");
                     if (uniquename != null)
                     {
+                        helper = null;
                         if (window.get_window_type() == Bamf.WindowType.DESKTOP)
                             helper = new DesktopHelper(menu,app,win);
                         else
@@ -162,6 +167,7 @@ namespace Appmenu
             }
             if (found == false)
             {
+                helper = null;
                 helper = new DesktopHelper(menu,null,window);
             }
             return;
