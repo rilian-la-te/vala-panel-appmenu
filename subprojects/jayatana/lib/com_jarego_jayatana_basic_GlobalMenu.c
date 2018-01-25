@@ -40,7 +40,7 @@
 #include <stdlib.h>
 
 /**
- * Estructura de control de menu global
+ * Control structure of global menu
  */
 typedef struct
 {
@@ -63,27 +63,27 @@ typedef struct
 #define REGISTER_STATE_REFRESH 1
 
 /**
- * Generar nueva instancia de jayatana_globalmenu_window
+ * Generate new instance of jayatana_globalmenu_window
  */
 #define jayatana_globalmenu_window_new                                                             \
 	(jayatana_globalmenu_window *)malloc(sizeof(jayatana_globalmenu_window))
 ListIndex *jayatana_globalmenu_windows;
 
 /**
- * Obtener la ubicacion de la ventana
+ * Get the location of the window
  */
 gchar *jayatana_get_windowxid_path(long xid);
 /**
- * Destruir todos los menus
+ * Destroy all the menus
  */
 void jayatana_destroy_menuitem(gpointer data);
 /**
- * Encuentra un menu basado en el identificador
+ * Find a menu based on the id
  */
 DbusmenuMenuitem *jayatana_find_menuid(DbusmenuMenuitem *parent, jint menuId);
 
 /**
- * Inicializar estructuras para GlobalMenu
+ * Initialize structures for GlobalMenu
  */
 JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_initialize(JNIEnv *env,
                                                                             jclass thatclass)
@@ -91,12 +91,12 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_initialize(JNIE
 	jayatana_globalmenu_windows = collection_list_index_new();
 }
 /**
- * Termina las estructuras para GlobalMenu
+ * Ends of the structures for GlobalMenu
  */
 JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_uninitialize(JNIEnv *env,
                                                                               jclass thatclass)
 {
-	// eliminar las instancias que se hayan quedado
+	// delete the instances that have been
 	int i;
 	jayatana_globalmenu_window *globalmenu_window;
 	for (i = 0; i < jayatana_globalmenu_windows->size; i++)
@@ -107,13 +107,13 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_uninitialize(JN
 		{
 			if (globalmenu_window->gdBusProxyRegistered)
 			{
-				// liberar menus
+				// free menus
 				g_object_unref(G_OBJECT(globalmenu_window->dbusMenuRoot));
 				g_object_unref(G_OBJECT(globalmenu_window->dbusMenuServer));
-				// liberar bus
+				// release bus
 				g_variant_unref(globalmenu_window->dbBusProxyCallSync);
 				g_object_unref(G_OBJECT(globalmenu_window->dbBusProxy));
-				// liberar ruta de ventana
+				// release window path
 				free(globalmenu_window->windowXIDPath);
 			}
 			(*env)->DeleteGlobalRef(env, globalmenu_window->globalThat);
@@ -125,7 +125,7 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_uninitialize(JN
 }
 
 /**
- * Obtener la ubicacion de la ventana
+ * Get the location of the window
  */
 gchar *jayatana_get_windowxid_path(long xid)
 {
@@ -135,7 +135,7 @@ gchar *jayatana_get_windowxid_path(long xid)
 	return xid_path;
 }
 /**
- * Destruir todos los menus
+ * Destroy all the menus
  */
 void jayatana_destroy_menuitem(gpointer data)
 {
@@ -143,7 +143,7 @@ void jayatana_destroy_menuitem(gpointer data)
 }
 
 /**
- * Encuentra un menu basado en el identificador
+ * Find a menu based on the id
  */
 DbusmenuMenuitem *jayatana_find_menuid(DbusmenuMenuitem *parent, jint menuId)
 {
@@ -174,7 +174,7 @@ DbusmenuMenuitem *jayatana_find_menuid(DbusmenuMenuitem *parent, jint menuId)
 }
 
 /**
- * Configurar aceleradores sobre el menu
+ * Set up accelerators on menu
  */
 void jayatana_set_menuitem_shortcut(DbusmenuMenuitem *item, jint modifiers, jint keycode)
 {
@@ -198,7 +198,7 @@ void jayatana_set_menuitem_shortcut(DbusmenuMenuitem *item, jint modifiers, jint
 }
 
 /**
- * Obtener el identificar X de una ventana AWT
+ * Obtain identify X of a window, AWT
  */
 JNIEXPORT jlong JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_getWindowXID(JNIEnv *env,
                                                                                jclass thatclass,
@@ -232,16 +232,16 @@ JNIEXPORT jlong JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_getWindowXID(J
 }
 
 /**
- * Notificacion de bus disponible para menu global
+ * Notification of bus available for global menu
  */
 void jayatana_on_registrar_available(GDBusConnection *connection, const gchar *name,
                                      const gchar *name_owner, gpointer user_data)
 {
-	// recuperar el controlador
+	// retrieve the controller
 	jayatana_globalmenu_window *globalmenu_window = (jayatana_globalmenu_window *)user_data;
 	if (!globalmenu_window->gdBusProxyRegistered)
 	{
-		// generar menus
+		// generate menus
 		globalmenu_window->windowXIDPath =
 		    jayatana_get_windowxid_path(globalmenu_window->windowXID);
 		globalmenu_window->dbusMenuServer =
@@ -249,7 +249,7 @@ void jayatana_on_registrar_available(GDBusConnection *connection, const gchar *n
 		globalmenu_window->dbusMenuRoot = dbusmenu_menuitem_new();
 		dbusmenu_server_set_root(globalmenu_window->dbusMenuServer,
 		                         globalmenu_window->dbusMenuRoot);
-		// registrar bus
+		// register bus
 		globalmenu_window->dbBusProxy =
 		    g_dbus_proxy_new_for_bus_sync(G_BUS_TYPE_SESSION,
 		                                  G_DBUS_PROXY_FLAGS_NONE,
@@ -272,7 +272,7 @@ void jayatana_on_registrar_available(GDBusConnection *connection, const gchar *n
 		jint register_state = globalmenu_window->registerState;
 		if (globalmenu_window->registerState == REGISTER_STATE_REFRESH)
 			globalmenu_window->registerState = REGISTER_STATE_INITIAL;
-		// notificar a clase java la integracion
+		// notify java class about integration
 		JNIEnv *env = NULL;
 		(*jayatana_jvm)->AttachCurrentThread(jayatana_jvm, (void **)&env, NULL);
 		jclass thatclass = (*env)->GetObjectClass(env, globalmenu_window->globalThat);
@@ -280,24 +280,24 @@ void jayatana_on_registrar_available(GDBusConnection *connection, const gchar *n
 		(*env)->CallVoidMethod(env, globalmenu_window->globalThat, mid, register_state);
 		(*env)->DeleteLocalRef(env, thatclass);
 		(*jayatana_jvm)->DetachCurrentThread(jayatana_jvm);
-		// marcar como instalado
+		// mark as installed
 		globalmenu_window->gdBusProxyRegistered = TRUE;
 	}
 }
 
 /**
- * Notificacion de bus no disponible para menu global
+ * Notification of bus is not available for global menu
  */
 void jayatana_on_registrar_unavailable(GDBusConnection *connection, const gchar *name,
                                        gpointer user_data)
 {
-	// recuperar el controlador
+	// retrieve the controller
 	jayatana_globalmenu_window *globalmenu_window = (jayatana_globalmenu_window *)user_data;
 	if (globalmenu_window != NULL)
 	{
 		if (globalmenu_window->gdBusProxyRegistered)
 		{
-			// notificar a java el deregistro
+			// notify java about deregistration
 			JNIEnv *env = NULL;
 			(*jayatana_jvm)->AttachCurrentThread(jayatana_jvm, (void **)&env, NULL);
 			jclass thatclass =
@@ -306,21 +306,21 @@ void jayatana_on_registrar_unavailable(GDBusConnection *connection, const gchar 
 			(*env)->CallVoidMethod(env, globalmenu_window->globalThat, mid);
 			(*env)->DeleteLocalRef(env, thatclass);
 			(*jayatana_jvm)->DetachCurrentThread(jayatana_jvm);
-			// liberar menus
+			// free menus
 			g_object_unref(G_OBJECT(globalmenu_window->dbusMenuRoot));
 			g_object_unref(G_OBJECT(globalmenu_window->dbusMenuServer));
 			g_variant_unref(globalmenu_window->dbBusProxyCallSync);
 			g_object_unref(G_OBJECT(globalmenu_window->dbBusProxy));
-			// liberar ruta de ventana
+			// free window path
 			free(globalmenu_window->windowXIDPath);
-			// marcar como desinstaldo
+			// mark as unregistered
 			globalmenu_window->gdBusProxyRegistered = FALSE;
 		}
 	}
 }
 
 /**
- * Registrar un control de bus para menu global
+ * Register a control bus for global menu
  */
 JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_registerWatcher(JNIEnv *env,
                                                                                  jobject that,
