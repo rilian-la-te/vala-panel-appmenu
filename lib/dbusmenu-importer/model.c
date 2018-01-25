@@ -376,6 +376,9 @@ static void dbus_menu_model_get_property(GObject *object, guint property_id, GVa
 	case PROP_XML:
 		g_value_set_object(value, menu->xml);
 		break;
+	case PROP_PARENT_ID:
+		g_value_set_uint(value, menu->parent_id);
+		break;
 	case PROP_ACTION_GROUP:
 		g_value_set_object(value, menu->received_action_group);
 		break;
@@ -463,7 +466,7 @@ static void install_properties(GObjectClass *object_class)
 	                      UINT_MAX,
 	                      0,
 	                      (GParamFlags)(G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE |
-	                                    G_PARAM_STATIC_STRINGS));
+	                                    G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 	properties[PROP_IS_SECTION_MODEL] =
 	    g_param_spec_boolean("is-section-model",
 	                         "is-section-model",

@@ -30,20 +30,31 @@ set(XML "com.canonical.dbusmenu.xml")
 set(DBUS_GENERATED_SOURCES
     ${CMAKE_CURRENT_BINARY_DIR}/${DBUS_NAME}.c
     ${CMAKE_CURRENT_BINARY_DIR}/${DBUS_NAME}.h)
-add_custom_target(dbus-xml
-    COMMAND
-        "${GDBUS-CODEGEN_EXECUTABLE}"
-        --generate-c-code=${DBUS_NAME}
-        --c-namespace ${NAMESPACE}
-        --c-generate-autocleanup=all
-        ${CMAKE_CURRENT_SOURCE_DIR}/${XML}
-    WORKING_DIRECTORY
-        ${CMAKE_CURRENT_BINARY_DIR}
-    BYPRODUCTS
-        ${DBUS_GENERATED_SOURCES}
-    SOURCES
-        ${XML}
-        )
+add_custom_command(
+OUTPUT
+    dbus.stamp
+COMMAND
+    ${GDBUS-CODEGEN_EXECUTABLE}
+ARGS
+    --generate-c-code=${DBUS_NAME}
+    --c-namespace ${NAMESPACE}
+    --c-generate-autocleanup=all
+    ${CMAKE_CURRENT_SOURCE_DIR}/${XML}
+WORKING_DIRECTORY
+    ${CMAKE_CURRENT_BINARY_DIR}
+COMMAND
+    touch
+ARGS
+    dbus.stamp
+DEPENDS
+    ${XML}
+COMMENT
+    "Generating ${DBUS_GENERATED_SOURCES}"
+)
+add_custom_target(dbus-xml DEPENDS ${XML})
+# This command will be run twice for some reason (pass a non-empty string to COMMENT
+# in order to see it). Since valac is not executed from here, this won't be a problem.
+add_custom_command(OUTPUT ${DBUS_GENERATED_SOURCES} DEPENDS dbus.stamp COMMENT "")
 set(DBUSMENU_C_SOURCES
     definitions.h
     item.c

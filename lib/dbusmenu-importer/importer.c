@@ -74,7 +74,7 @@ static void name_vanished_cb(GDBusConnection *connection, const gchar *name, gpo
 	DBusMenuImporter *menu = (DBusMenuImporter *)(user_data);
 
 	g_clear_object(&menu->proxy);
-	g_clear_object(&menu->top_model);
+	g_object_set(menu->top_model, "xml", menu->proxy, NULL);
 	g_object_notify_by_pspec(menu, properties[PROP_MODEL]);
 }
 
