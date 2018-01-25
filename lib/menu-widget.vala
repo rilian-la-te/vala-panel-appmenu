@@ -102,18 +102,26 @@ namespace Appmenu
         {
             this.appmenu = appmenu_model;
             if (appmenu_model != null)
+            {
                 completed_menus |= MenuWidgetCompletionFlags.APPMENU;
+            }
             else
+            {
                 completed_menus &= ~MenuWidgetCompletionFlags.APPMENU;
+            }
             restock();
         }
         public void set_menubar(GLib.MenuModel? menubar_model)
         {
             this.menubar = menubar_model;
             if (menubar_model != null)
+            {
                 completed_menus |= MenuWidgetCompletionFlags.MENUBAR;
+            }
             else
+            {
                 completed_menus &= ~MenuWidgetCompletionFlags.MENUBAR;
+            }
             restock();
         }
         protected bool on_scroll_event(Gtk.Widget w, Gdk.EventScroll event)

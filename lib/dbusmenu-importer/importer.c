@@ -30,7 +30,7 @@ G_DEFINE_TYPE(DBusMenuImporter, dbus_menu_importer, G_TYPE_OBJECT)
 static bool dbus_menu_importer_check(DBusMenuImporter *menu)
 {
 	if (DBUS_MENU_IS_XML(menu->proxy))
-		return dbus_menu_xml_get_version(menu->proxy);
+		return dbus_menu_xml_get_version(menu->proxy) >= 3;
 	return false;
 }
 

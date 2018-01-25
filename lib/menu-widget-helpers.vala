@@ -91,7 +91,7 @@ namespace Appmenu
     }
     internal class DBusMenuHelper: Helper
     {
-        private DBusMenu.Importer? importer = null;
+        private DBusMenu.Importer importer = null;
         private Helper bamf_helper = null;
         public DBusMenuHelper(MenuWidget w, uint window_id, string name, ObjectPath path, Bamf.Application? app)
         {
@@ -99,7 +99,8 @@ namespace Appmenu
                 bamf_helper = new BamfAppmenu(w,app);
             importer = new DBusMenu.Importer(name,(string)path);
             importer.notify["model"].connect((s, p)=>{
-                w.set_menubar(importer.model);
+                if((w.completed_menus & MenuWidgetCompletionFlags.MENUBAR) == 0)
+                    w.set_menubar(importer.model);
                 w.insert_action_group("dbusmenu",importer.action_group);
             });
         }

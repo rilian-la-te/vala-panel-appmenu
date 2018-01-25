@@ -83,9 +83,7 @@ namespace Appmenu
         public void unregister_menu_window(uint window_id)
         {
             if (menu.window_id == window_id)
-            {
                 helper = new DesktopHelper(menu,null,null);
-            }
             desktop_menus.remove(window_id);
         }
         private void on_window_opened(Bamf.View view)
@@ -113,7 +111,6 @@ namespace Appmenu
             bool found = false;
             Bamf.Window? win = window;
             menu.completed_menus = 0;
-            menu.set_menubar(null);
             while (win != null && found == false)
             {
                 xid = window.get_xid();
@@ -138,23 +135,19 @@ namespace Appmenu
                     if (uniquename != null)
                     {
                         if (window.get_window_type() == Bamf.WindowType.DESKTOP)
-                        {
                             helper = new DesktopHelper(menu,app,win);
-                        }
                         else
-                        {
                             helper = new MenuModelHelper(menu,app,win);
-                        }
                         found = true;
                     }
                 }
                 /* Appmenu hack, because BAMF does not always send a correct Application
                 * DBusMenu registration always happened BEFORE a BAMF register application.
                 */
-                if (found && (menu.completed_menus & MenuWidgetCompletionFlags.APPMENU) == 0 && app != null)
-                {
-                    bamf_helper = new BamfAppmenu(menu,app);
-                }
+//                if (found && (menu.completed_menus & MenuWidgetCompletionFlags.APPMENU) == 0 && app != null)
+//                {
+//                    bamf_helper = new BamfAppmenu(menu,app);
+//                }
                 if ((menu.completed_menus & MenuWidgetCompletionFlags.APPMENU) == 0 && (menu.completed_menus & MenuWidgetCompletionFlags.MENUBAR) == 0)
                 {
                     debug("Looking for parent window on XID %u", xid);
@@ -162,6 +155,7 @@ namespace Appmenu
                     if (win == null && app != null)
                     {
                         bamf_helper = new BamfAppmenu(menu,app);
+                        menu.set_menubar(null);
                         found = true;
                     }
                 }
