@@ -13,7 +13,6 @@ struct _DBusMenuModel
 	uint current_revision;
 	bool is_section_model;
 	bool layout_is_updating;
-	bool layout_update_required;
 	GCancellable *cancellable;
 	DBusMenuXml *xml;
 	GActionGroup *received_action_group;
@@ -162,9 +161,6 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 			g_warning("%s", error->message);
 		return;
 	}
-	menu->layout_is_updating     = true;
-	menu->layout_update_required = false;
-	// TODO: Replace simple dropping by more intelligent mech in parse_layout
 	uint old_num = menu->items->len;
 	if (old_num > 0)
 		g_ptr_array_remove_range(menu->items, 0, old_num);
@@ -172,41 +168,30 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 	uint new_num           = menu->items->len;
 	menu->current_revision = revision;
 	g_menu_model_items_changed(G_MENU_MODEL(menu), 0, old_num, new_num);
-	if (menu->layout_update_required)
-		dbus_menu_model_update_layout(menu);
-	else
-		menu->layout_is_updating = false;
-	g_print("Layout updated on %d\n", menu->parent_id);
-	//        GString *str = g_string_new(NULL);
-	//        g_menu_markup_print_string(str, menu, 4, 4);
-	//        char *cstr = g_string_free(str, false);
-	//        g_print("%s\n", cstr);
+	menu->layout_is_updating = false;
+	//	GString *str = g_string_new(NULL);
+	//	g_menu_markup_print_string(str, menu, 4, 4);
+	//	char *cstr = g_string_free(str, false);
+	//	g_print("%s\n", cstr);
 }
 
 G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
 {
 	g_return_if_fail(DBUS_MENU_IS_MODEL(menu));
-	if (menu->layout_is_updating)
-		menu->layout_update_required = true;
-	else
-	{
-		menu->layout_is_updating = true;
-		g_print("Layout updating on %d\n", menu->parent_id);
-		dbus_menu_xml_call_get_layout(menu->xml,
-		                              menu->parent_id,
-		                              1,
-		                              property_names,
-		                              menu->cancellable,
-		                              get_layout_cb,
-		                              menu);
-	}
+	menu->layout_is_updating = true;
+	dbus_menu_xml_call_get_layout(menu->xml,
+	                              menu->parent_id,
+	                              1,
+	                              property_names,
+	                              menu->cancellable,
+	                              get_layout_cb,
+	                              menu);
 }
 
 static void layout_updated_cb(DBusMenuXml *proxy, guint revision, gint parent, DBusMenuModel *menu)
 {
 	if (((uint)parent == menu->parent_id) && revision > menu->current_revision)
 	{
-		g_print("Layout updated signal from %d\n", parent);
 		dbus_menu_model_update_layout(menu);
 	}
 }
@@ -328,8 +313,8 @@ static DBusMenuModel *dbus_menu_model_new_section(uint parent_id, DBusMenuModel 
 	return ret;
 }
 
-G_GNUC_INTERNAL DBusMenuModel *dbus_menu_model_new(uint parent_id, DBusMenuModel *parent,
-                                                   DBusMenuXml *xml, GActionGroup *action_group)
+DBusMenuModel *dbus_menu_model_new(uint parent_id, DBusMenuModel *parent, DBusMenuXml *xml,
+                                   GActionGroup *action_group)
 {
 	DBusMenuModel *ret = (DBusMenuModel *)g_object_new(dbus_menu_model_get_type(),
 	                                                   "parent-id",
@@ -397,9 +382,6 @@ static void dbus_menu_model_get_property(GObject *object, guint property_id, GVa
 	case PROP_IS_SECTION_MODEL:
 		g_value_set_boolean(value, menu->is_section_model);
 		break;
-	case PROP_PARENT_ID:
-		g_value_set_uint(value, menu->parent_id);
-		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
 		break;
@@ -437,12 +419,11 @@ static DBusMenuItem *dbus_menu_model_find(DBusMenuModel *menu, uint item_id, int
 
 static void dbus_menu_model_init(DBusMenuModel *menu)
 {
-	menu->cancellable            = g_cancellable_new();
-	menu->parent_id              = UINT_MAX;
-	menu->items                  = g_ptr_array_new_with_free_func(dbus_menu_item_free);
-	menu->current_revision       = 0;
-	menu->layout_is_updating     = false;
-	menu->layout_update_required = false;
+	menu->cancellable        = g_cancellable_new();
+	menu->parent_id          = UINT_MAX;
+	menu->items              = g_ptr_array_new_with_free_func(dbus_menu_item_free);
+	menu->current_revision   = 0;
+	menu->layout_is_updating = false;
 }
 
 static void dbus_menu_model_finalize(GObject *object)
@@ -482,7 +463,7 @@ static void install_properties(GObjectClass *object_class)
 	                      UINT_MAX,
 	                      0,
 	                      (GParamFlags)(G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE |
-	                                    G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+	                                    G_PARAM_STATIC_STRINGS));
 	properties[PROP_IS_SECTION_MODEL] =
 	    g_param_spec_boolean("is-section-model",
 	                         "is-section-model",
