@@ -85,24 +85,18 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *sec
 				    g_strdup_printf(DBUS_MENU_ACTION_NAMESPACE_PREFIX SUBMENU_PREFIX
 				                    "%u",
 				                    id);
-				item->referenced_action =
-				    dbus_menu_action_new(xml,
-				                         id,
-				                         DBUS_MENU_CHILDREN_DISPLAY_SUBMENU);
+				DBusMenuModel *submenu =
+				    dbus_menu_model_new(item->id,
+				                        parent_model,
+				                        xml,
+				                        item->referenced_action_group);
+				item->referenced_action = dbus_menu_submenu_action_new(submenu);
 				g_action_map_add_action(G_ACTION_MAP(item->referenced_action_group),
 				                        item->referenced_action);
 				g_hash_table_insert(item->attributes,
 				                    g_strdup("submenu-action"),
 				                    g_variant_new_string(name));
 				action_creator_found = true;
-				GMenuModel *submenu  = G_MENU_MODEL(
-                                    dbus_menu_model_new(item->id,
-                                                        parent_model,
-                                                        xml,
-                                                        item->referenced_action_group));
-				g_object_set_data(item->referenced_action,
-				                  SUBMENU_ACTION_MENUMODEL_QUARK_STR,
-				                  submenu);
 				g_hash_table_insert(item->links,
 				                    g_strdup(G_MENU_LINK_SUBMENU),
 				                    submenu);
@@ -209,6 +203,8 @@ G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data)
 		return;
 	g_clear_pointer(&item->attributes, g_hash_table_destroy);
 	g_clear_pointer(&item->links, g_hash_table_destroy);
+	g_action_map_remove_action(G_ACTION_MAP(item->referenced_action_group),
+	                           g_action_get_name(item->referenced_action));
 	g_clear_pointer(&item->referenced_action, g_object_unref);
 	g_slice_free(DBusMenuItem, data);
 }

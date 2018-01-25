@@ -9,9 +9,9 @@
 #define CURRENT_TIME 0L
 #define HAS_ICON_NAME "has-icon-name"
 
-#define SUBMENU_ACTION_MENUMODEL_QUARK_STR "submenu-action_menumodel"
 #define ACTIVATE_ID_QUARK_STR "checker-quark"
 #define POPULATED_QUARK "is-populated"
+#define ACTION_IS_RUNNING_QUARK "submenu-action-is-running"
 
 #define DBUS_MENU_PROP_TYPE "type"
 #define DBUS_MENU_TYPE_SEPARATOR "separator"
