@@ -28,6 +28,13 @@
 #define DBUS_MENU_ACTION_RADIO_SELECTED "+"
 #define DBUS_MENU_ACTION_RADIO_UNSELECTED "-"
 
+#define G_MENU_ATTRIBUTE_ACCEL "accel"
+#define G_MENU_ATTRIBUTE_ACCEL_TEXT "x-canonical-accel"
+#define G_MENU_ATTRIBUTE_SUBMENU_ACTION "submenu-action"
+#define G_MENU_ATTRIBUTE_HIDDEN_WHEN "hidden-when"
+#define G_MENU_ATTRIBUTE_VERB_ICON "verb-icon"
+#define G_MENU_HIDDEN_WHEN_ACTION_MISSING "action-missing"
+
 #define g_signal_handlers_block_by_data(instance, data)                                            \
 	g_signal_handlers_block_matched((instance),                                                \
 	                                (GSignalMatchType)(G_SIGNAL_MATCH_DATA),                   \

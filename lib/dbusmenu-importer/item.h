@@ -22,7 +22,7 @@ typedef struct
 
 G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *section_item,
                                                  DBusMenuModel *parent_model, GVariant *props);
-G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id, DBusMenuXml *xml,
+G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id,
                                                                GActionGroup *action_group);
 
 G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data);
@@ -30,6 +30,14 @@ G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data);
 G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *props);
 
 G_GNUC_INTERNAL bool dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *props);
+
+G_GNUC_INTERNAL bool dbus_menu_item_compare_immutable(DBusMenuItem *a, DBusMenuItem *b);
+
+G_GNUC_INTERNAL int dbus_menu_item_id_compare_func(const DBusMenuItem *a, gconstpointer b,
+                                                   gpointer user_data);
+
+G_GNUC_INTERNAL int dbus_menu_item_compare_func(const DBusMenuItem *a, const DBusMenuItem *b,
+                                                gpointer user_data);
 
 G_END_DECLS
 
