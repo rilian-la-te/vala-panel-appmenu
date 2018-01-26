@@ -148,17 +148,19 @@ static void update_section(DBusMenuModel *model, GSequenceIter *new_section_begi
 	else if (old_n != 0)
 	{
 		GSequenceIter *old_section_iter = old_section_begin;
+		old_section_iter                = g_sequence_iter_next(old_section_iter);
 		GSequenceIter *new_section_iter = new_section_begin;
 		for (int i = 0; g_sequence_iter_compare(old_section_iter, old_section_end) < 0; i++)
 		{
-			old_section_iter       = g_sequence_iter_next(old_section_iter);
-			new_section_iter       = g_sequence_iter_next(new_section_iter);
 			DBusMenuItem *old      = (DBusMenuItem *)g_sequence_get(old_section_iter);
 			DBusMenuItem *new_item = (DBusMenuItem *)g_sequence_get(new_section_iter);
-			bool updated           = dbus_menu_item_compare_immutable(old, new_item);
+			bool updated           = !dbus_menu_item_compare_immutable(old, new_item);
 			if (updated)
 			{
 				g_sequence_swap(old_section_iter, new_section_iter);
+				GSequenceIter *tmp = new_section_iter;
+				new_section_iter   = old_section_iter;
+				old_section_iter   = tmp;
 				emit_item_update_signal(model, section_num, i);
 			}
 			else
@@ -167,6 +169,8 @@ static void update_section(DBusMenuModel *model, GSequenceIter *new_section_begi
 				if (updated)
 					emit_item_update_signal(model, section_num, i);
 			}
+			old_section_iter = g_sequence_iter_next(old_section_iter);
+			new_section_iter = g_sequence_iter_next(new_section_iter);
 		}
 	}
 }
@@ -264,6 +268,8 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 {
 	g_autoptr(GVariant) layout = NULL;
 	guint revision;
+	if (!DBUS_MENU_IS_MODEL(user_data))
+		return;
 	DBusMenuModel *menu = DBUS_MENU_MODEL(user_data);
 
 	g_autoptr(GError) error = NULL;
@@ -280,10 +286,10 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 	}
 	layout_parse(menu, layout);
 	menu->layout_update_required = false;
-	//    GString *str = g_string_new(NULL);
-	//    g_menu_markup_print_string(str, menu, 4, 4);
-	//    char *cstr = g_string_free(str, false);
-	//    g_print("%s\n", cstr);
+	//	GString *str                 = g_string_new(NULL);
+	//	g_menu_markup_print_string(str, menu, 4, 4);
+	//	char *cstr = g_string_free(str, false);
+	//	g_print("%s\n", cstr);
 }
 
 G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
@@ -302,6 +308,7 @@ static void layout_updated_cb(DBusMenuXml *proxy, guint revision, gint parent, D
 {
 	if (((uint)parent == menu->parent_id) && revision > menu->current_revision && parent == 0)
 	{
+		g_warning("Remote attempt to update root\n");
 		dbus_menu_model_update_layout(menu);
 	}
 	else if (((uint)parent == menu->parent_id) && revision > menu->current_revision)
