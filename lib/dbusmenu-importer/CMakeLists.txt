@@ -63,6 +63,8 @@ set(DBUSMENU_C_SOURCES
     importer.h
     model.h
     model.c
+    section.c
+    section.h
     utils.c
     utils.h
     debug.c

@@ -44,8 +44,8 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id,
 	return item;
 }
 
-G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuItem *section_item,
-                                                 DBusMenuModel *parent_model, GVariant *props)
+G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *parent_model,
+                                                 GVariant *props)
 {
 	DBusMenuItem *item = g_slice_new0(DBusMenuItem);
 	DBusMenuXml *xml;
@@ -223,6 +223,20 @@ static bool check_and_update_mutable_attribute(DBusMenuItem *item, const char *k
 		return true;
 	}
 	return false;
+}
+
+G_GNUC_INTERNAL bool dbus_menu_item_copy_attributes(DBusMenuItem *src, DBusMenuItem *dst)
+{
+	GHashTableIter iter;
+	g_hash_table_iter_init(&iter, src->attributes);
+	bool is_updated = false;
+	char *key;
+	GVariant *value;
+	while (g_hash_table_iter_next(&iter, &key, &value))
+	{
+		is_updated = is_updated || check_and_update_mutable_attribute(dst, key, value);
+	}
+	return is_updated;
 }
 
 G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *props)
