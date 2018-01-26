@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 
 	GtkWindow *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-	gtk_window_set_default_size(GTK_WINDOW(window), 300, 200);
+	gtk_window_set_default_size(GTK_WINDOW(window), 1000, 1000);
 	gtk_window_set_title(GTK_WINDOW(window), "Submenu");
 
 	GtkBox *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
@@ -38,10 +38,10 @@ int main(int argc, char *argv[])
 
 	GtkMenuBar *menubar = gtk_menu_bar_new();
 	GtkMenuButton *menu = gtk_menu_button_new();
-	//	DBusMenuImporter *importer = dbus_menu_importer_new("org.krusader", "/MenuBar/2");
-        DBusMenuImporter *importer = dbus_menu_importer_new(":1.47", "/MenuBar/2");
-	//    DBusMenuImporter *importer = dbus_menu_importer_new(":1.64",
-	//    "/com/canonical/menu/380003e");
+	//        DBusMenuImporter *importer = dbus_menu_importer_new("org.krusader", "/MenuBar/2");
+	//	DBusMenuImporter *importer = dbus_menu_importer_new(":1.46", "/MenuBar/2");
+	DBusMenuImporter *importer =
+	    dbus_menu_importer_new(":1.122", "/com/canonical/menu/400003e");
 	g_signal_connect(importer, "notify::model", G_CALLBACK(on_importer_model_changed), menubar);
 	g_signal_connect(importer, "notify::model", G_CALLBACK(on_importer_model_changed), menu);
 	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
