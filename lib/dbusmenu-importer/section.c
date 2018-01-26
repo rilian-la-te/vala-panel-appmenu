@@ -101,10 +101,7 @@ static void dbus_menu_section_model_update_iters(DBusMenuSectionModel *menu)
 	menu->begin_iter = g_sequence_iter_next(begin_iter);
 	GSequenceIter *end_iter =
 	    dbus_menu_model_get_section_iter(menu->parent_model, menu->section_index + 1);
-	if (g_sequence_iter_is_end(end_iter))
-		menu->end_iter = end_iter;
-	else
-		menu->end_iter = g_sequence_iter_prev(end_iter);
+	menu->end_iter = end_iter;
 }
 
 static void dbus_menu_section_model_set_property(GObject *object, guint property_id,

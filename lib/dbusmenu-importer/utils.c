@@ -90,7 +90,7 @@ G_GNUC_INTERNAL GAction *dbus_menu_action_new(DBusMenuXml *xml, u_int32_t id,
 	g_assert_not_reached();
 }
 
-bool source_state_false(gpointer *data)
+static bool source_state_false(gpointer *data)
 {
 	GSimpleAction *submenu = G_SIMPLE_ACTION(data);
 	g_simple_action_set_state(submenu, g_variant_new_boolean(false));
@@ -104,8 +104,9 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 	u_int32_t id;
 	g_object_get(model, "parent-id", &id, "xml", &xml, NULL);
 	bool request_open = g_variant_get_boolean(parameter);
+	bool opened       = g_variant_get_boolean(g_action_get_state(action));
 	bool need_update  = true;
-	if (request_open)
+	if (request_open && !opened)
 	{
 		dbus_menu_xml_call_about_to_show_sync(xml,
 		                                      id,
@@ -115,6 +116,7 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 		const char *populated = (const char *)g_object_get_data(action, POPULATED_QUARK);
 		if (populated == NULL || g_menu_model_get_n_items(model) == 0)
 			need_update = true;
+		need_update = need_update || dbus_menu_model_is_layout_update_required(model);
 		if (need_update)
 		{
 			g_object_set_data(action, POPULATED_QUARK, POPULATED_QUARK);
@@ -131,7 +133,18 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 		                              NULL);
 		g_simple_action_set_state(action, g_variant_new_boolean(true));
 		//         TODO: change state to false after menu closing, not by time
-		g_timeout_add(500, (GSourceFunc)source_state_false, action);
+		//        g_timeout_add(500, (GSourceFunc)source_state_false, action);
+	}
+	else if (request_open)
+	{
+		g_simple_action_set_state(action, g_variant_new_boolean(true));
+		need_update = dbus_menu_model_is_layout_update_required(model);
+		if (need_update)
+		{
+			// TODD: Populate layout after request;
+			if (DBUS_MENU_IS_MODEL(model))
+				dbus_menu_model_update_layout(model);
+		}
 	}
 	else
 	{
@@ -142,6 +155,7 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 		                              CURRENT_TIME,
 		                              NULL,
 		                              NULL);
+		g_simple_action_set_state(action, g_variant_new_boolean(false));
 	}
 }
 
