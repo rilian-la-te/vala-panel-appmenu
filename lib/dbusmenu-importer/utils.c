@@ -55,35 +55,28 @@ static void state_radio_cb(GSimpleAction *action, GVariant *parameter, gpointer 
 	g_simple_action_set_state(action, parameter);
 }
 
-G_GNUC_INTERNAL GAction *dbus_menu_action_new(DBusMenuXml *xml, u_int32_t id,
-                                              const char *action_type)
+static GAction *dbus_menu_action_new(DBusMenuXml *xml, u_int32_t id, DBusMenuActionType action_type)
 {
 	GSimpleAction *ret;
-	if (!g_strcmp0(action_type, DBUS_MENU_TOGGLE_TYPE_CHECK))
+	g_autofree char *name = g_strdup_printf(ACTION_PREFIX "%u", id);
+	if (action_type == DBUS_MENU_ACTION_CHECKMARK)
 	{
-		g_autofree char *name = g_strdup_printf(ACTION_PREFIX "%u", id);
 		ret = g_simple_action_new_stateful(name, NULL, g_variant_new_boolean(false));
-		unsigned long handler =
-		    g_signal_connect(ret, "activate", G_CALLBACK(activate_checkbox_cb), xml);
-		g_object_set_data(ret, ACTIVATE_ID_QUARK_STR, GUINT_TO_POINTER(handler));
+		g_signal_connect(ret, "activate", G_CALLBACK(activate_checkbox_cb), xml);
 		return ret;
 	}
-	else if (!g_strcmp0(action_type, DBUS_MENU_TOGGLE_TYPE_RADIO))
+	else if (action_type == DBUS_MENU_ACTION_RADIO)
 	{
-		g_autofree char *name = g_strdup_printf(ACTION_PREFIX "%u", id);
-		ret                   = g_simple_action_new_stateful(name,
-                                                   G_VARIANT_TYPE_STRING,
-                                                   g_variant_new_string(
-                                                       DBUS_MENU_ACTION_RADIO_UNSELECTED));
-		unsigned long handler =
-		    g_signal_connect(ret, "activate", G_CALLBACK(state_radio_cb), xml);
-		g_object_set_data(ret, ACTIVATE_ID_QUARK_STR, GUINT_TO_POINTER(handler));
+		ret = g_simple_action_new_stateful(name,
+		                                   G_VARIANT_TYPE_STRING,
+		                                   g_variant_new_string(
+		                                       DBUS_MENU_ACTION_RADIO_UNSELECTED));
+		g_signal_connect(ret, "activate", G_CALLBACK(state_radio_cb), xml);
 		return ret;
 	}
-	else
+	else if (action_type == DBUS_MENU_ACTION_NORMAL)
 	{
-		g_autofree char *name = g_strdup_printf(ACTION_PREFIX "%u", id);
-		ret                   = g_simple_action_new(name, NULL);
+		ret = g_simple_action_new(name, NULL);
 		g_signal_connect(ret, "activate", G_CALLBACK(activate_ordinary_cb), xml);
 		return ret;
 	}
@@ -99,6 +92,7 @@ static bool source_state_false(gpointer *data)
 
 static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
+	g_return_if_fail(DBUS_MENU_IS_MODEL(user_data));
 	DBusMenuModel *model = DBUS_MENU_MODEL(user_data);
 	DBusMenuXml *xml;
 	u_int32_t id;
@@ -133,7 +127,7 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 		                              NULL);
 		g_simple_action_set_state(action, g_variant_new_boolean(true));
 		//         TODO: change state to false after menu closing, not by time
-		//        g_timeout_add(500, (GSourceFunc)source_state_false, action);
+		//                g_timeout_add(500, (GSourceFunc)source_state_false, action);
 	}
 	else if (request_open)
 	{
@@ -159,7 +153,7 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 	}
 }
 
-G_GNUC_INTERNAL GAction *dbus_menu_submenu_action_new(DBusMenuModel *model)
+static GAction *dbus_menu_submenu_action_new(DBusMenuModel *model)
 {
 	uint id;
 	g_object_get(model, "parent-id", &id, NULL);
@@ -169,4 +163,100 @@ G_GNUC_INTERNAL GAction *dbus_menu_submenu_action_new(DBusMenuModel *model)
                                                           g_variant_new_boolean(false));
 	g_signal_connect(ret, "change-state", G_CALLBACK(state_submenu_cb), model);
 	return ret;
+}
+
+G_GNUC_INTERNAL char *dbus_menu_action_get_name(uint id, DBusMenuActionType action_type,
+                                                bool use_prefix)
+{
+	return g_strdup_printf("%s%s%u",
+	                       use_prefix ? DBUS_MENU_ACTION_NAMESPACE_PREFIX : "",
+	                       action_type == DBUS_MENU_ACTION_SUBMENU ? SUBMENU_PREFIX
+	                                                               : ACTION_PREFIX,
+	                       id);
+}
+
+G_GNUC_INTERNAL void dbus_menu_action_replace_signals(GAction *action, DBusMenuXml *xml,
+                                                      DBusMenuModel *submenu,
+                                                      DBusMenuActionType action_type)
+{
+	g_print("Action %s is replacing signals\n", g_action_get_name(action));
+	if (action_type == DBUS_MENU_ACTION_SUBMENU)
+	{
+		g_signal_handlers_disconnect_by_func_only(action, state_submenu_cb);
+		g_signal_connect(action, "change-state", G_CALLBACK(state_submenu_cb), submenu);
+	}
+	else if (action_type == DBUS_MENU_ACTION_RADIO)
+	{
+		g_signal_handlers_disconnect_by_func_only(action, state_radio_cb);
+		g_signal_connect(action, "activate", G_CALLBACK(state_radio_cb), xml);
+	}
+	else if (action_type == DBUS_MENU_ACTION_CHECKMARK)
+	{
+		g_signal_handlers_disconnect_by_func_only(action, activate_checkbox_cb);
+		g_signal_connect(action, "activate", G_CALLBACK(activate_checkbox_cb), xml);
+	}
+	else
+	{
+		g_signal_handlers_disconnect_by_func_only(action, activate_ordinary_cb);
+		g_signal_connect(action, "activate", G_CALLBACK(activate_ordinary_cb), xml);
+	}
+}
+
+G_GNUC_INTERNAL GAction *dbus_menu_action_reference(u_int32_t id, DBusMenuXml *xml,
+                                                    DBusMenuModel *submenu,
+                                                    GActionMap *action_group,
+                                                    DBusMenuActionType action_type)
+{
+	bool is_submenu           = submenu != NULL;
+	const char *action_prefix = is_submenu ? SUBMENU_PREFIX : ACTION_PREFIX;
+	g_autofree char *name     = g_strdup_printf("%s%u", action_prefix, id);
+	GAction *ret              = g_action_map_lookup_action(action_group, name);
+	bool check_parameter      = false;
+	if (ret)
+	{
+		g_object_ref(ret);
+		const GVariantType *state_type = g_action_get_state_type(ret);
+		if (state_type == NULL)
+			check_parameter = check_parameter || action_type == DBUS_MENU_ACTION_NORMAL;
+		else if (is_submenu)
+		{
+			check_parameter = check_parameter ||
+			                  g_variant_type_equal(state_type, G_VARIANT_TYPE_BOOLEAN);
+		}
+		else
+		{
+			check_parameter = check_parameter ||
+			                  (action_type == DBUS_MENU_ACTION_RADIO &&
+			                   g_variant_type_equal(state_type, G_VARIANT_TYPE_STRING));
+			check_parameter =
+			    check_parameter ||
+			    (action_type == DBUS_MENU_ACTION_CHECKMARK &&
+			     g_variant_type_equal(state_type, G_VARIANT_TYPE_BOOLEAN));
+		}
+		if (check_parameter)
+			dbus_menu_action_replace_signals(ret, xml, submenu, action_type);
+		else
+			g_action_map_remove_action(action_group, name);
+	}
+	if (ret == NULL || !check_parameter)
+	{
+		if (is_submenu)
+			ret = dbus_menu_submenu_action_new(submenu);
+		else
+			ret = dbus_menu_action_new(xml, id, action_type);
+		g_action_map_add_action(G_ACTION_MAP(action_group), ret);
+	}
+	return ret;
+}
+
+G_GNUC_INTERNAL void dbus_menu_action_lock(GAction *action)
+{
+	g_signal_handlers_block_by_func_only(action, activate_checkbox_cb);
+	g_signal_handlers_block_by_func_only(action, state_radio_cb);
+}
+
+G_GNUC_INTERNAL void dbus_menu_action_unlock(GAction *action)
+{
+	g_signal_handlers_unblock_by_func_only(action, activate_checkbox_cb);
+	g_signal_handlers_unblock_by_func_only(action, state_radio_cb);
 }

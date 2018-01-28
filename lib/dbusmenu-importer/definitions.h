@@ -9,13 +9,12 @@
 #define CURRENT_TIME 0L
 #define HAS_ICON_NAME "has-icon-name"
 
-typedef enum
-{
-    DBUS_MENU_ACTION_NORMAL,
-    DBUS_MENU_ACTION_CHECKMARK,
-    DBUS_MENU_ACTION_RADIO,
-    DBUS_MENU_ACTION_SUBMENU,
-    DBUS_MENU_ACTION_ALL
+typedef enum {
+	DBUS_MENU_ACTION_NORMAL,
+	DBUS_MENU_ACTION_CHECKMARK,
+	DBUS_MENU_ACTION_RADIO,
+	DBUS_MENU_ACTION_SUBMENU,
+	DBUS_MENU_ACTION_ALL
 } DBusMenuActionType;
 
 #define SUBMENU_ACTION_MENUMODEL_QUARK_STR "submenu-action_menumodel"
@@ -46,24 +45,23 @@ typedef enum
 #define G_MENU_ATTRIBUTE_VERB_ICON "verb-icon"
 #define G_MENU_HIDDEN_WHEN_ACTION_MISSING "action-missing"
 
+#define g_signal_handlers_block_by_func_only(instance, func)                                       \
+	g_signal_handlers_block_matched((instance),                                                \
+	                                (GSignalMatchType)(G_SIGNAL_MATCH_FUNC),                   \
+	                                0,                                                         \
+	                                0,                                                         \
+	                                NULL,                                                      \
+	                                (gpointer)(func),                                          \
+	                                NULL)
 
-#define g_signal_handlers_block_by_func_only(instance, func)                                            \
-    g_signal_handlers_block_matched((instance),                                                \
-                                    (GSignalMatchType)(G_SIGNAL_MATCH_FUNC),                   \
-                                    0,                                                         \
-                                    0,                                                         \
-                                    NULL,                                                      \
-                                    (gpointer)(func),                                                      \
-                                    NULL)
-
-#define g_signal_handlers_unblock_by_func_only(instance, func)                                            \
-    g_signal_handlers_unblock_matched((instance),                                                \
-                                    (GSignalMatchType)(G_SIGNAL_MATCH_FUNC),                   \
-                                    0,                                                         \
-                                    0,                                                         \
-                                    NULL,                                                      \
-                                    (gpointer)(func),                                                      \
-                                    NULL)
+#define g_signal_handlers_unblock_by_func_only(instance, func)                                     \
+	g_signal_handlers_unblock_matched((instance),                                              \
+	                                  (GSignalMatchType)(G_SIGNAL_MATCH_FUNC),                 \
+	                                  0,                                                       \
+	                                  0,                                                       \
+	                                  NULL,                                                    \
+	                                  (gpointer)(func),                                        \
+	                                  NULL)
 
 #define g_signal_handlers_block_by_data(instance, data)                                            \
 	g_signal_handlers_block_matched((instance),                                                \
@@ -83,10 +81,13 @@ typedef enum
 	                                  NULL,                                                    \
 	                                  (data))
 
-
-#define	g_signal_handlers_disconnect_by_func_only(instance, func)						\
-    g_signal_handlers_disconnect_matched ((instance),								\
-                      (GSignalMatchType) (G_SIGNAL_MATCH_FUNC),	\
-                      0, 0, NULL, (gpointer)(func), NULL)
+#define g_signal_handlers_disconnect_by_func_only(instance, func)                                  \
+	g_signal_handlers_disconnect_matched((instance),                                           \
+	                                     (GSignalMatchType)(G_SIGNAL_MATCH_FUNC),              \
+	                                     0,                                                    \
+	                                     0,                                                    \
+	                                     NULL,                                                 \
+	                                     (gpointer)(func),                                     \
+	                                     NULL)
 
 #endif // DEFINITIONS_H
