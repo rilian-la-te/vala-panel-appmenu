@@ -7,6 +7,10 @@ list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 # Vala
 find_package(GLibTools REQUIRED)
 include(GLibHelpers)
+set(ENUM_FILES
+        definitions.h
+        )
+add_glib_enumtypes(ENUMSC ENUMSH importer-enums ${ENUM_FILES})
 add_definitions(-Wall -Wextra
                 -Wno-unused-parameter# Vala loves to create variables
                 -pedantic
@@ -25,36 +29,10 @@ pkg_check_modules(PIXBUF REQUIRED QUIET
 
 set(DBUS_PROXY)
 set(DBUS_NAME "dbusmenu-interface")
-set(NAMESPACE "DBusMenu")
+set(DBUS_NAMESPACE "DBusMenu")
 set(XML "com.canonical.dbusmenu.xml")
-set(DBUS_GENERATED_SOURCES
-    ${CMAKE_CURRENT_BINARY_DIR}/${DBUS_NAME}.c
-    ${CMAKE_CURRENT_BINARY_DIR}/${DBUS_NAME}.h)
-add_custom_command(
-OUTPUT
-    dbus.stamp
-COMMAND
-    ${GDBUS-CODEGEN_EXECUTABLE}
-ARGS
-    --generate-c-code=${DBUS_NAME}
-    --c-namespace ${NAMESPACE}
-    --c-generate-autocleanup=all
-    ${CMAKE_CURRENT_SOURCE_DIR}/${XML}
-WORKING_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}
-COMMAND
-    touch
-ARGS
-    dbus.stamp
-DEPENDS
-    ${XML}
-COMMENT
-    "Generating ${DBUS_GENERATED_SOURCES}"
-)
-add_custom_target(dbus-xml DEPENDS ${XML})
-# This command will be run twice for some reason (pass a non-empty string to COMMENT
-# in order to see it). Since valac is not executed from here, this won't be a problem.
-add_custom_command(OUTPUT ${DBUS_GENERATED_SOURCES} DEPENDS dbus.stamp COMMENT "")
+set(PREFIX "com.canonical")
+add_gdbus_codegen(DBUS_GENERATED_SOURCES ${DBUS_NAME} ${PREFIX} ${XML} NAMESPACE ${DBUS_NAMESPACE})
 set(DBUSMENU_C_SOURCES
     definitions.h
     item.c
@@ -74,8 +52,10 @@ set(DBUSMENU_C_SOURCES
 add_library(dbusmenu-translator-o STATIC
     ${DBUS_GENERATED_SOURCES}
     ${DBUSMENU_C_SOURCES}
+    ${ENUMSC}
+    ${ENUMSH}
     )
-add_dependencies(dbusmenu-translator-o dbus-xml)
+#add_dependencies(dbusmenu-translator-o dbus-xml)
 set_target_properties(dbusmenu-translator-o PROPERTIES
 #        C_VISIBILITY_PRESET hidden	# Make global variables and functions HIDDEN by default.
         POSITION_INDEPENDENT_CODE ON	# Compile this object code position independent.
