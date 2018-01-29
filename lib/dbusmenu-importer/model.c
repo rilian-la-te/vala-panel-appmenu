@@ -246,6 +246,10 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 			else
 			{
 				dbus_menu_item_generate_action(new_item, menu);
+				if (new_item->action_type == DBUS_MENU_ACTION_SUBMENU)
+					dbus_menu_model_update_layout(DBUS_MENU_MODEL(
+					    g_hash_table_lookup(new_item->links,
+					                        G_MENU_LINK_SUBMENU)));
 				g_sequence_set(current_iter, new_item);
 				emit_item_update_signal(menu,
 				                        section_num,
@@ -259,6 +263,9 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		else
 		{
 			bool updated = dbus_menu_item_update_props(old, cprops);
+			if (old->action_type == DBUS_MENU_ACTION_SUBMENU)
+				dbus_menu_model_update_layout(DBUS_MENU_MODEL(
+				    g_hash_table_lookup(new_item->links, G_MENU_LINK_SUBMENU)));
 			if (updated)
 				emit_item_update_signal(menu,
 				                        section_num,
