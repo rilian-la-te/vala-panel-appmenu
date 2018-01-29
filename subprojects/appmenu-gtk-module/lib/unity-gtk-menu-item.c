@@ -70,10 +70,10 @@ GtkLabel *gtk_menu_item_get_nth_label(GtkMenuItem *menu_item, guint index)
 	return search.object != NULL ? GTK_LABEL(search.object) : NULL;
 }
 
-const gchar *gtk_menu_item_get_nth_label_label(GtkMenuItem *menu_item, guint index)
+const char *gtk_menu_item_get_nth_label_label(GtkMenuItem *menu_item, guint index)
 {
 	GtkLabel *label;
-	const gchar *label_label;
+	const char *label_label;
 
 	g_return_val_if_fail(GTK_IS_MENU_ITEM(menu_item), NULL);
 
@@ -121,7 +121,7 @@ static GIcon *gtk_image_get_icon(GtkImage *image)
 
 	case GTK_IMAGE_ICON_NAME:
 	{
-		const gchar *name = NULL;
+		const char *name = NULL;
 
 		gtk_image_get_icon_name(image, &name, NULL);
 
@@ -159,7 +159,7 @@ static GIcon *gtk_image_get_icon(GtkImage *image)
 	case GTK_IMAGE_STOCK:
 #if GTK_MAJOR_VERSION == 2
 	{
-		gchar *stock     = NULL;
+		char *stock      = NULL;
 		GtkIconSize size = GTK_ICON_SIZE_INVALID;
 
 		gtk_image_get_stock(image, &stock, &size);
@@ -179,7 +179,7 @@ static GIcon *gtk_image_get_icon(GtkImage *image)
 
 		if (context != NULL)
 		{
-			gchar *stock     = NULL;
+			char *stock      = NULL;
 			GtkIconSize size = GTK_ICON_SIZE_INVALID;
 
 			gtk_image_get_stock(image, &stock, &size);
@@ -323,13 +323,13 @@ static GIcon *gtk_image_get_icon(GtkImage *image)
 static void unity_gtk_menu_item_handle_item_notify(GObject *object, GParamSpec *pspec,
                                                    gpointer user_data)
 {
-	static const gchar *label_name;
-	static const gchar *use_underline_name;
+	static const char *label_name;
+	static const char *use_underline_name;
 
 	UnityGtkMenuItem *item;
 	UnityGtkMenuShell *parent_shell;
 	GObject *menu_item;
-	const gchar *name;
+	const char *name;
 
 	g_return_if_fail(UNITY_GTK_IS_MENU_ITEM(user_data));
 
@@ -354,12 +354,12 @@ static void unity_gtk_menu_item_handle_item_notify(GObject *object, GParamSpec *
 static void unity_gtk_menu_item_handle_label_notify(GObject *object, GParamSpec *pspec,
                                                     gpointer user_data)
 {
-	static const gchar *label_name;
-	static const gchar *use_underline_name;
+	static const char *label_name;
+	static const char *use_underline_name;
 
 	UnityGtkMenuItem *item;
 	UnityGtkMenuShell *parent_shell;
-	const gchar *name;
+	const char *name;
 
 	g_return_if_fail(UNITY_GTK_IS_MENU_ITEM(user_data));
 
@@ -649,13 +649,13 @@ void unity_gtk_menu_item_set_action(UnityGtkMenuItem *item, UnityGtkAction *acti
 	}
 }
 
-static gchar *g_strdup_no_mnemonics(const gchar *str)
+static char *g_strdup_no_mnemonics(const char *str)
 {
 	if (str != NULL)
 	{
-		gchar *string;
-		gchar *out;
-		const gchar *in;
+		char *string;
+		char *out;
+		const char *in;
 		gboolean underscore;
 
 		string     = g_malloc(strlen(str) + 1);
@@ -695,13 +695,13 @@ static gchar *g_strdup_no_mnemonics(const gchar *str)
 	return NULL;
 }
 
-static gchar *g_strdup_escape_underscores(const gchar *str)
+static char *g_strdup_escape_underscores(const char *str)
 {
 	if (str != NULL)
 	{
-		gchar *string;
-		gchar *out;
-		const gchar *in;
+		char *string;
+		char *out;
+		const char *in;
 		guint underscores;
 
 		underscores = 0;
@@ -731,14 +731,14 @@ static gchar *g_strdup_escape_underscores(const gchar *str)
 	return NULL;
 }
 
-const gchar *unity_gtk_menu_item_get_label(UnityGtkMenuItem *item)
+const char *unity_gtk_menu_item_get_label(UnityGtkMenuItem *item)
 {
 	g_return_val_if_fail(UNITY_GTK_IS_MENU_ITEM(item), NULL);
 	g_return_val_if_fail(item->menu_item != NULL, NULL);
 
 	if (item->label_label == NULL)
 	{
-		const gchar *label_label = gtk_menu_item_get_label(item->menu_item);
+		const char *label_label = gtk_menu_item_get_label(item->menu_item);
 
 		if (label_label != NULL && label_label[0] != '\0')
 		{
@@ -858,7 +858,7 @@ void unity_gtk_menu_item_activate(UnityGtkMenuItem *item)
 
 void unity_gtk_menu_item_print(UnityGtkMenuItem *item, guint indent)
 {
-	gchar *space;
+	char *space;
 
 	g_return_if_fail(item == NULL || UNITY_GTK_IS_MENU_ITEM(item));
 
@@ -866,7 +866,7 @@ void unity_gtk_menu_item_print(UnityGtkMenuItem *item, guint indent)
 
 	if (item != NULL)
 	{
-		const gchar *label = unity_gtk_menu_item_get_label(item);
+		const char *label = unity_gtk_menu_item_get_label(item);
 
 		if (label != NULL)
 			g_print("%s%u (%s *) %p \"%s\"\n",

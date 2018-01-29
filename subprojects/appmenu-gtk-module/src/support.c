@@ -124,7 +124,7 @@ static gboolean is_dbus_present()
 	GDBusConnection *connection;
 	GVariant *ret, *names;
 	GVariantIter *iter;
-	gchar *name;
+	char *name;
 	gboolean is_present;
 	GError *error = NULL;
 
@@ -191,15 +191,15 @@ static bool set_gtk_shell_shows_menubar(bool shows)
 	return true;
 }
 
-static void on_name_appeared(GDBusConnection *connection, const gchar *name,
-                             const gchar *name_owner, gpointer user_data)
+static void on_name_appeared(GDBusConnection *connection, const char *name, const char *name_owner,
+                             gpointer user_data)
 {
 	g_debug("Name %s on the session bus is owned by %s\n", name, name_owner);
 
 	set_gtk_shell_shows_menubar(true);
 }
 
-static void on_name_vanished(GDBusConnection *connection, const gchar *name, gpointer user_data)
+static void on_name_vanished(GDBusConnection *connection, const char *name, gpointer user_data)
 {
 	g_debug("Name %s does not exist on the session bus\n", name);
 

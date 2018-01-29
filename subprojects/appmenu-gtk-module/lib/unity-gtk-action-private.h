@@ -48,21 +48,21 @@ struct _UnityGtkAction
 	GObject parent_instance;
 
 	/*< private >*/
-	gchar *name;
-	gchar *subname;
+	char *name;
+	char *subname;
 	UnityGtkMenuItem *item;
 	GHashTable *items_by_name;
 };
 
 GType unity_gtk_action_get_type(void) G_GNUC_INTERNAL;
 
-UnityGtkAction *unity_gtk_action_new(const gchar *name, UnityGtkMenuItem *item) G_GNUC_INTERNAL;
+UnityGtkAction *unity_gtk_action_new(const char *name, UnityGtkMenuItem *item) G_GNUC_INTERNAL;
 
-UnityGtkAction *unity_gtk_action_new_radio(const gchar *name) G_GNUC_INTERNAL;
+UnityGtkAction *unity_gtk_action_new_radio(const char *name) G_GNUC_INTERNAL;
 
-void unity_gtk_action_set_name(UnityGtkAction *action, const gchar *name) G_GNUC_INTERNAL;
+void unity_gtk_action_set_name(UnityGtkAction *action, const char *name) G_GNUC_INTERNAL;
 
-void unity_gtk_action_set_subname(UnityGtkAction *action, const gchar *subname) G_GNUC_INTERNAL;
+void unity_gtk_action_set_subname(UnityGtkAction *action, const char *subname) G_GNUC_INTERNAL;
 
 void unity_gtk_action_set_item(UnityGtkAction *action, UnityGtkMenuItem *item) G_GNUC_INTERNAL;
 

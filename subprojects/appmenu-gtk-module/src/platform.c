@@ -28,7 +28,7 @@
 #include "datastructs.h"
 
 #ifdef GDK_WINDOWING_X11
-G_GNUC_INTERNAL gchar *gtk_widget_get_x11_property_string(GtkWidget *widget, const gchar *name)
+G_GNUC_INTERNAL char *gtk_widget_get_x11_property_string(GtkWidget *widget, const char *name)
 {
 	GdkWindow *window;
 	GdkDisplay *display;
@@ -73,7 +73,7 @@ G_GNUC_INTERNAL gchar *gtk_widget_get_x11_property_string(GtkWidget *widget, con
 	{
 		if (actual_format)
 		{
-			gchar *string = g_strdup((const gchar *)prop);
+			char *string = g_strdup((const char *)prop);
 
 			if (prop != NULL)
 				XFree(prop);
@@ -87,8 +87,8 @@ G_GNUC_INTERNAL gchar *gtk_widget_get_x11_property_string(GtkWidget *widget, con
 	return NULL;
 }
 
-G_GNUC_INTERNAL void gtk_widget_set_x11_property_string(GtkWidget *widget, const gchar *name,
-                                                        const gchar *value)
+G_GNUC_INTERNAL void gtk_widget_set_x11_property_string(GtkWidget *widget, const char *name,
+                                                        const char *value)
 {
 	GdkWindow *window;
 	GdkDisplay *display;
@@ -150,12 +150,12 @@ G_GNUC_INTERNAL WindowData *gtk_x11_window_get_window_data(GtkWindow *window)
 		static guint window_id;
 
 		GDBusConnection *session = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, NULL);
-		gchar *object_path       = g_strdup_printf(OBJECT_PATH "/%d", window_id);
-		gchar *old_unique_bus_name =
+		char *object_path        = g_strdup_printf(OBJECT_PATH "/%d", window_id);
+		char *old_unique_bus_name =
 		    gtk_widget_get_x11_property_string(GTK_WIDGET(window), _GTK_UNIQUE_BUS_NAME);
-		gchar *old_unity_object_path =
+		char *old_unity_object_path =
 		    gtk_widget_get_x11_property_string(GTK_WIDGET(window), _UNITY_OBJECT_PATH);
-		gchar *old_menubar_object_path =
+		char *old_menubar_object_path =
 		    gtk_widget_get_x11_property_string(GTK_WIDGET(window),
 		                                       _GTK_MENUBAR_OBJECT_PATH);
 		GDBusActionGroup *old_action_group = NULL;

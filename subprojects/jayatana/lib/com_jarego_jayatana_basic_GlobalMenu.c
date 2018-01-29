@@ -47,7 +47,7 @@ typedef struct
 	jlong windowXID;
 	jobject globalThat;
 
-	gchar *windowXIDPath;
+	char *windowXIDPath;
 	gboolean gdBusProxyRegistered;
 	guint gBusWatcher;
 	GDBusProxy *dbBusProxy;
@@ -72,7 +72,7 @@ ListIndex *jayatana_globalmenu_windows;
 /**
  * Get the location of the window
  */
-gchar *jayatana_get_windowxid_path(long xid);
+char *jayatana_get_windowxid_path(long xid);
 /**
  * Destroy all the menus
  */
@@ -127,10 +127,10 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_uninitialize(JN
 /**
  * Get the location of the window
  */
-gchar *jayatana_get_windowxid_path(long xid)
+char *jayatana_get_windowxid_path(long xid)
 {
-	gchar *xid_path;
-	xid_path = (gchar *)malloc(sizeof(gchar *) * 50);
+	char *xid_path;
+	xid_path = (char *)malloc(sizeof(char *) * 50);
 	sprintf(xid_path, "/com/canonical/menu/%lx", xid);
 	return xid_path;
 }
@@ -234,8 +234,8 @@ JNIEXPORT jlong JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_getWindowXID(J
 /**
  * Notification of bus available for global menu
  */
-void jayatana_on_registrar_available(GDBusConnection *connection, const gchar *name,
-                                     const gchar *name_owner, gpointer user_data)
+void jayatana_on_registrar_available(GDBusConnection *connection, const char *name,
+                                     const char *name_owner, gpointer user_data)
 {
 	// retrieve the controller
 	jayatana_globalmenu_window *globalmenu_window = (jayatana_globalmenu_window *)user_data;
@@ -288,7 +288,7 @@ void jayatana_on_registrar_available(GDBusConnection *connection, const gchar *n
 /**
  * Notification of bus is not available for global menu
  */
-void jayatana_on_registrar_unavailable(GDBusConnection *connection, const gchar *name,
+void jayatana_on_registrar_unavailable(GDBusConnection *connection, const char *name,
                                        gpointer user_data)
 {
 	// retrieve the controller

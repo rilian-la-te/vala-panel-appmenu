@@ -45,10 +45,10 @@ static const char *const BLACKLIST[] = { "acroread",
 	                                 "mate-indicator-applet-complete",
 	                                 NULL };
 
-static gboolean is_string_in_array(const gchar *string, GVariant *array)
+static gboolean is_string_in_array(const char *string, GVariant *array)
 {
 	GVariantIter iter;
-	const gchar *element;
+	const char *element;
 
 	g_return_val_if_fail(array != NULL, FALSE);
 	g_return_val_if_fail(g_variant_is_of_type(array, G_VARIANT_TYPE("as")), FALSE);
@@ -63,7 +63,7 @@ static gboolean is_string_in_array(const gchar *string, GVariant *array)
 	return FALSE;
 }
 
-static gboolean is_listed(const gchar *name, const gchar *key)
+static gboolean is_listed(const char *name, const char *key)
 {
 	GSettings *settings;
 	GVariant *array;

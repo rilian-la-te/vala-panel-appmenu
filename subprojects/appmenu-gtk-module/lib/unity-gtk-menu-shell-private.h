@@ -37,7 +37,7 @@ GSequence *unity_gtk_menu_shell_get_visible_indices(UnityGtkMenuShell *shell) G_
 GSequence *unity_gtk_menu_shell_get_separator_indices(UnityGtkMenuShell *shell) G_GNUC_INTERNAL;
 
 void unity_gtk_menu_shell_handle_item_notify(UnityGtkMenuShell *shell, UnityGtkMenuItem *item,
-                                             const gchar *property) G_GNUC_INTERNAL;
+                                             const char *property) G_GNUC_INTERNAL;
 
 void unity_gtk_menu_shell_activate_item(UnityGtkMenuShell *shell,
                                         UnityGtkMenuItem *item) G_GNUC_INTERNAL;

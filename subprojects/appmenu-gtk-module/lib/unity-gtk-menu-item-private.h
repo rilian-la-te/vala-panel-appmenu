@@ -58,7 +58,7 @@ struct _UnityGtkMenuItem
 	UnityGtkAction *action;
 	GtkLabel *first_label;
 	GtkLabel *second_label;
-	gchar *label_label;
+	char *label_label;
 };
 
 GType unity_gtk_menu_item_get_type(void) G_GNUC_INTERNAL;
@@ -70,7 +70,7 @@ UnityGtkMenuShell *unity_gtk_menu_item_get_child_shell(UnityGtkMenuItem *item) G
 
 void unity_gtk_menu_item_set_action(UnityGtkMenuItem *item, UnityGtkAction *action) G_GNUC_INTERNAL;
 
-const gchar *unity_gtk_menu_item_get_label(UnityGtkMenuItem *item) G_GNUC_INTERNAL;
+const char *unity_gtk_menu_item_get_label(UnityGtkMenuItem *item) G_GNUC_INTERNAL;
 
 GIcon *unity_gtk_menu_item_get_icon(UnityGtkMenuItem *item) G_GNUC_INTERNAL;
 
@@ -94,7 +94,7 @@ void unity_gtk_menu_item_print(UnityGtkMenuItem *item, guint indent) G_GNUC_INTE
 
 GtkLabel *gtk_menu_item_get_nth_label(GtkMenuItem *menu_item, guint index) G_GNUC_INTERNAL;
 
-const gchar *gtk_menu_item_get_nth_label_label(GtkMenuItem *menu_item, guint index) G_GNUC_INTERNAL;
+const char *gtk_menu_item_get_nth_label_label(GtkMenuItem *menu_item, guint index) G_GNUC_INTERNAL;
 
 G_END_DECLS
 

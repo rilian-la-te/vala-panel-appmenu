@@ -521,7 +521,7 @@ static void unity_gtk_menu_shell_handle_item_active(UnityGtkMenuShell *shell,
 	{
 		if (action->items_by_name != NULL)
 		{
-			const gchar *name = NULL;
+			const char *name = NULL;
 			GHashTableIter iter;
 			gpointer key;
 			gpointer value;
@@ -1029,18 +1029,18 @@ GSequence *unity_gtk_menu_shell_get_separator_indices(UnityGtkMenuShell *shell)
 }
 
 void unity_gtk_menu_shell_handle_item_notify(UnityGtkMenuShell *shell, UnityGtkMenuItem *item,
-                                             const gchar *property)
+                                             const char *property)
 {
-	static const gchar *visible_name;
-	static const gchar *sensitive_name;
-	static const gchar *label_name;
-	static const gchar *use_underline_name;
-	static const gchar *accel_path_name;
-	static const gchar *active_name;
-	static const gchar *parent_name;
-	static const gchar *submenu_name;
+	static const char *visible_name;
+	static const char *sensitive_name;
+	static const char *label_name;
+	static const char *use_underline_name;
+	static const char *accel_path_name;
+	static const char *active_name;
+	static const char *parent_name;
+	static const char *submenu_name;
 
-	const gchar *name;
+	const char *name;
 
 	g_return_if_fail(UNITY_GTK_IS_MENU_SHELL(shell));
 	g_return_if_fail(UNITY_GTK_IS_MENU_ITEM(item));
@@ -1128,7 +1128,7 @@ void unity_gtk_menu_shell_activate_item(UnityGtkMenuShell *shell, UnityGtkMenuIt
 
 void unity_gtk_menu_shell_print(UnityGtkMenuShell *shell, guint indent)
 {
-	gchar *space;
+	char *space;
 
 	g_return_if_fail(shell == NULL || UNITY_GTK_IS_MENU_SHELL(shell));
 

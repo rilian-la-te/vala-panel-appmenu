@@ -55,7 +55,7 @@ static void unity_gtk_action_init(UnityGtkAction *self)
 {
 }
 
-UnityGtkAction *unity_gtk_action_new(const gchar *name, UnityGtkMenuItem *item)
+UnityGtkAction *unity_gtk_action_new(const char *name, UnityGtkMenuItem *item)
 {
 	UnityGtkAction *action = g_object_new(UNITY_GTK_TYPE_ACTION, NULL);
 
@@ -65,7 +65,7 @@ UnityGtkAction *unity_gtk_action_new(const gchar *name, UnityGtkMenuItem *item)
 	return action;
 }
 
-UnityGtkAction *unity_gtk_action_new_radio(const gchar *name)
+UnityGtkAction *unity_gtk_action_new_radio(const char *name)
 {
 	UnityGtkAction *action = g_object_new(UNITY_GTK_TYPE_ACTION, NULL);
 
@@ -76,7 +76,7 @@ UnityGtkAction *unity_gtk_action_new_radio(const gchar *name)
 	return action;
 }
 
-void unity_gtk_action_set_name(UnityGtkAction *action, const gchar *name)
+void unity_gtk_action_set_name(UnityGtkAction *action, const char *name)
 {
 	g_return_if_fail(UNITY_GTK_IS_ACTION(action));
 
@@ -84,7 +84,7 @@ void unity_gtk_action_set_name(UnityGtkAction *action, const gchar *name)
 	action->name = g_strdup(name);
 }
 
-void unity_gtk_action_set_subname(UnityGtkAction *action, const gchar *subname)
+void unity_gtk_action_set_subname(UnityGtkAction *action, const char *subname)
 {
 	g_return_if_fail(UNITY_GTK_IS_ACTION(action));
 
@@ -115,7 +115,7 @@ void unity_gtk_action_set_item(UnityGtkAction *action, UnityGtkMenuItem *item)
 
 void unity_gtk_action_print(UnityGtkAction *action, guint indent)
 {
-	gchar *space;
+	char *space;
 
 	g_return_if_fail(action == NULL || UNITY_GTK_IS_ACTION(action));
 
@@ -150,7 +150,7 @@ void unity_gtk_action_print(UnityGtkAction *action, guint indent)
 			while (g_hash_table_iter_next(&iter, &key, &value))
 				g_print("%s  \"%s\" -> (%s *) %p\n",
 				        space,
-				        (const gchar *)key,
+				        (const char *)key,
 				        G_OBJECT_CLASS_NAME(G_OBJECT_GET_CLASS(value)),
 				        value);
 		}

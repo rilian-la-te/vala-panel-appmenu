@@ -96,7 +96,7 @@ static void unity_gtk_menu_section_get_item_attributes(GMenuModel *model, gint i
 	UnityGtkMenuItem *item;
 	GSequenceIter *iter;
 	guint index;
-	const gchar *label;
+	const char *label;
 	GIcon *icon;
 	UnityGtkAction *action;
 
@@ -133,7 +133,7 @@ static void unity_gtk_menu_section_get_item_attributes(GMenuModel *model, gint i
 	{
 		if (action->name != NULL)
 		{
-			gchar *name       = g_strdup_printf("unity.%s", action->name);
+			char *name        = g_strdup_printf("unity.%s", action->name);
 			GVariant *variant = g_variant_ref_sink(g_variant_new_string(name));
 
 			g_hash_table_insert(*attributes, G_MENU_ATTRIBUTE_ACTION, variant);
@@ -143,7 +143,7 @@ static void unity_gtk_menu_section_get_item_attributes(GMenuModel *model, gint i
 				GHashTableIter iter;
 				gpointer key;
 				gpointer value;
-				const gchar *target = NULL;
+				const char *target = NULL;
 
 				g_hash_table_iter_init(&iter, action->items_by_name);
 				while (target == NULL &&
@@ -168,7 +168,7 @@ static void unity_gtk_menu_section_get_item_attributes(GMenuModel *model, gint i
 
 		if (action->subname != NULL)
 		{
-			gchar *subname    = g_strdup_printf("unity.%s", action->subname);
+			char *subname     = g_strdup_printf("unity.%s", action->subname);
 			GVariant *variant = g_variant_ref_sink(g_variant_new_string(subname));
 			g_hash_table_insert(*attributes, G_MENU_ATTRIBUTE_SUBMENU_ACTION, variant);
 			g_free(subname);
@@ -177,8 +177,8 @@ static void unity_gtk_menu_section_get_item_attributes(GMenuModel *model, gint i
 
 	if (item->menu_item != NULL)
 	{
-		gchar *accel_name       = NULL;
-		const gchar *accel_path = gtk_menu_item_get_accel_path(item->menu_item);
+		char *accel_name       = NULL;
+		const char *accel_path = gtk_menu_item_get_accel_path(item->menu_item);
 
 		if (accel_path != NULL)
 		{
@@ -386,7 +386,7 @@ GSequenceIter *unity_gtk_menu_section_get_iter(UnityGtkMenuSection *section, gui
 
 void unity_gtk_menu_section_print(UnityGtkMenuSection *section, guint indent)
 {
-	gchar *space;
+	char *space;
 
 	g_return_if_fail(section == NULL || UNITY_GTK_IS_MENU_SECTION(section));
 
