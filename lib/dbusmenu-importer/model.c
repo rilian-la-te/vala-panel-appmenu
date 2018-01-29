@@ -155,6 +155,8 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 	GVariant *child;
 	uint section_num                    = 0;
 	uint old_sections                   = menu->sections->len;
+	uint added                          = 0;
+	int change_pos                      = -1;
 	GSequenceIter *current_section_iter = g_sequence_get_begin_iter(menu->all_items);
 	GSequenceIter *current_iter         = current_section_iter;
 	g_variant_iter_init(&iter, items);
@@ -172,6 +174,12 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		DBusMenuItem *new_item = dbus_menu_item_new(cid, menu, cprops);
 		if (g_sequence_iter_is_end(current_iter))
 		{
+			if (added == 0)
+				change_pos =
+				    change_pos < 0
+				        ? g_sequence_iter_get_position(current_iter) -
+				              g_sequence_iter_get_position(current_section_iter) - 1
+				        : change_pos;
 			dbus_menu_item_generate_action(new_item, menu);
 			if (new_item->is_section)
 			{
@@ -181,50 +189,90 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 				                    dbus_menu_section_model_new(menu, section_num));
 			}
 			current_iter = g_sequence_insert_before(current_iter, new_item);
+			added++;
 			continue;
 		}
 		old       = (DBusMenuItem *)g_sequence_get(current_iter);
 		bool diff = !dbus_menu_item_compare_immutable(old, new_item);
 		if (diff)
 		{
+			int removed = 0;
 			if (new_item->is_section)
 			{
 				section_num++;
+				change_pos =
+				    change_pos < 0
+				        ? g_sequence_iter_get_position(current_iter) -
+				              g_sequence_iter_get_position(current_section_iter) - 1
+				        : change_pos;
 				current_section_iter =
 				    (GSequenceIter *)menu->sections->pdata[section_num];
+				removed = g_sequence_iter_get_position(current_section_iter) -
+				          g_sequence_iter_get_position(current_iter);
 				g_sequence_remove_range(current_iter, current_section_iter);
-				current_iter = current_section_iter;
+				if (removed > 0 || added > 0)
+				{
+					change_pos =
+					    change_pos == 0
+					        ? g_sequence_iter_get_position(current_iter)
+					        : change_pos;
+					emit_layout_update_signal(menu,
+					                          section_num - 1,
+					                          change_pos,
+					                          removed,
+					                          added);
+					current_iter = current_section_iter;
+					added        = 0;
+					change_pos   = 0;
+				}
 				dbus_menu_item_free(new_item);
 				continue;
 			}
 			else if (old->is_section)
 			{
-				g_print("Old is section\n");
+				if (added == 0)
+					change_pos =
+					    change_pos < 0
+					        ? g_sequence_iter_get_position(current_iter) -
+					              g_sequence_iter_get_position(
+					                  current_section_iter) -
+					              1
+					        : change_pos;
 				dbus_menu_item_generate_action(new_item, menu);
 				current_iter = g_sequence_insert_before(current_iter, new_item);
+				added++;
 				continue;
 			}
 			else
 			{
 				dbus_menu_item_generate_action(new_item, menu);
-				g_print("Item %u updated by layout\n", new_item->id);
-				//				if (new_item->action_type ==
-				// DBUS_MENU_ACTION_SUBMENU)
-				//					dbus_menu_model_update_layout(DBUS_MENU_MODEL(
-				//					    g_hash_table_lookup(new_item->links,
-				//					                        G_MENU_LINK_SUBMENU)));
+				if (new_item->action_type == DBUS_MENU_ACTION_SUBMENU)
+					dbus_menu_model_update_layout(DBUS_MENU_MODEL(
+					    g_hash_table_lookup(new_item->links,
+					                        G_MENU_LINK_SUBMENU)));
 				g_sequence_set(current_iter, new_item);
+				emit_item_update_signal(menu,
+				                        section_num,
+				                        g_sequence_iter_get_position(current_iter) -
+				                            g_sequence_iter_get_position(
+				                                current_section_iter) -
+				                            1);
 				continue;
 			}
 		}
 		else
 		{
 			bool updated = dbus_menu_item_update_props(old, cprops);
-			g_print("Item %u updated by props\n", new_item->id);
-			//			if (old->action_type == DBUS_MENU_ACTION_SUBMENU)
-			//				dbus_menu_model_update_layout(DBUS_MENU_MODEL(
-			//				    g_hash_table_lookup(new_item->links,
-			// G_MENU_LINK_SUBMENU)));
+			if (old->action_type == DBUS_MENU_ACTION_SUBMENU)
+				dbus_menu_model_update_layout(DBUS_MENU_MODEL(
+				    g_hash_table_lookup(new_item->links, G_MENU_LINK_SUBMENU)));
+			if (updated)
+				emit_item_update_signal(menu,
+				                        section_num,
+				                        g_sequence_iter_get_position(current_iter) -
+				                            g_sequence_iter_get_position(
+				                                current_section_iter) -
+				                            1);
 			dbus_menu_item_free(new_item);
 			continue;
 		}
@@ -232,10 +280,23 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		g_variant_unref(child);
 	}
 	current_iter = g_sequence_iter_next(current_iter);
+	change_pos   = change_pos < 0 ? g_sequence_iter_get_position(current_iter) -
+	                                  g_sequence_iter_get_position(current_section_iter) - 1
+	                            : change_pos;
+	uint removed = g_sequence_iter_get_position(g_sequence_get_end_iter(menu->all_items)) -
+	               g_sequence_iter_get_position(current_iter);
 	g_sequence_remove_range(current_iter, g_sequence_get_end_iter(menu->all_items));
 	menu->sections = dbus_menu_model_generate_section_array(menu->all_items);
+	if (removed > 0 || added > 0)
+		emit_layout_update_signal(menu, section_num, change_pos, removed, added);
 	section_num++;
-	emit_layout_update_signal(menu, -1, 0, old_sections, section_num);
+	int secdiff = old_sections - section_num;
+	if (secdiff != 0)
+		emit_layout_update_signal(menu,
+		                          -1,
+		                          old_sections - 1,
+		                          (secdiff) > 0 ? (uint)secdiff - 1 : 0,
+		                          (secdiff) < 0 ? (uint)-secdiff + 1 : 0);
 	g_variant_unref(items);
 }
 
@@ -253,8 +314,6 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 	                                     &layout,
 	                                     res,
 	                                     &error);
-	g_autofree char *props = g_variant_print(layout, true);
-	g_print("%s\n", props);
 	if (error != NULL)
 	{
 		if (!g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
@@ -297,6 +356,7 @@ static void layout_updated_cb(DBusMenuXml *proxy, guint revision, gint parent, D
 	else if (((uint)parent == menu->parent_id) && revision > menu->current_revision)
 	{
 		g_warning("Remote attempt to update %u with rev %u\n", parent, revision);
+		//		menu->layout_update_required = true;
 		dbus_menu_model_update_layout(menu);
 	}
 }
