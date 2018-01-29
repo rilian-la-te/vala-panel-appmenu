@@ -1,16 +1,5 @@
 #include "section.h"
 #include "item.h"
-
-struct _DBusMenuSectionModel
-{
-	GMenuModel parent_instance;
-
-	DBusMenuModel *parent_model;
-	GSequenceIter *begin_iter;
-	GSequenceIter *end_iter;
-	uint section_index;
-};
-
 enum
 {
 	PROP_NULL          = 0,
@@ -20,7 +9,6 @@ enum
 };
 
 static GParamSpec *properties[NUM_PROPS] = { NULL };
-static void dbus_menu_section_model_update_iters(DBusMenuSectionModel *menu);
 
 G_DEFINE_TYPE(DBusMenuSectionModel, dbus_menu_section_model, G_TYPE_MENU_MODEL)
 
@@ -32,21 +20,16 @@ static bool dbus_menu_section_model_is_mutable(GMenuModel *model)
 static gint dbus_menu_section_model_get_n_items(GMenuModel *model)
 {
 	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(model);
-	dbus_menu_section_model_update_iters(menu);
 
-	return g_sequence_iter_get_position(menu->end_iter) -
-	       g_sequence_iter_get_position(menu->begin_iter);
+	return g_sequence_get_length(menu->items);
 }
 
 static void dbus_menu_section_model_get_item_attributes(GMenuModel *model, gint position,
                                                         GHashTable **table)
 {
 	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(model);
-	dbus_menu_section_model_update_iters(menu);
-	GSequence *all_items = g_sequence_iter_get_sequence(menu->begin_iter);
-	int index            = position + g_sequence_iter_get_position(menu->begin_iter);
 	DBusMenuItem *item =
-	    (DBusMenuItem *)g_sequence_get(g_sequence_get_iter_at_pos(all_items, index));
+	    (DBusMenuItem *)g_sequence_get(g_sequence_get_iter_at_pos(menu->items, position));
 	*table = g_hash_table_ref(item->attributes);
 }
 
@@ -54,20 +37,20 @@ static void dbus_menu_section_model_get_item_links(GMenuModel *model, gint posit
                                                    GHashTable **table)
 {
 	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(model);
-	dbus_menu_section_model_update_iters(menu);
-	GSequence *all_items = g_sequence_iter_get_sequence(menu->begin_iter);
-	int index            = position + g_sequence_iter_get_position(menu->begin_iter);
 	DBusMenuItem *item =
-	    (DBusMenuItem *)g_sequence_get(g_sequence_get_iter_at_pos(all_items, index));
+	    (DBusMenuItem *)g_sequence_get(g_sequence_get_iter_at_pos(menu->items, position));
 	*table = g_hash_table_ref(item->links);
 }
 static void dbus_menu_section_model_init(DBusMenuSectionModel *menu)
 {
 	menu->parent_model = NULL;
+	menu->items        = g_sequence_new(dbus_menu_item_free);
 }
 
 static void dbus_menu_section_model_finalize(GObject *object)
 {
+	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(object);
+	g_clear_pointer(&menu->items, g_sequence_free);
 	G_OBJECT_CLASS(dbus_menu_section_model_parent_class)->finalize(object);
 }
 
@@ -94,16 +77,6 @@ static void install_properties(GObjectClass *object_class)
 	g_object_class_install_properties(object_class, NUM_PROPS, properties);
 }
 
-static void dbus_menu_section_model_update_iters(DBusMenuSectionModel *menu)
-{
-	GSequenceIter *begin_iter =
-	    dbus_menu_model_get_section_iter(menu->parent_model, menu->section_index);
-	menu->begin_iter = g_sequence_iter_next(begin_iter);
-	GSequenceIter *end_iter =
-	    dbus_menu_model_get_section_iter(menu->parent_model, menu->section_index + 1);
-	menu->end_iter = end_iter;
-}
-
 static void dbus_menu_section_model_set_property(GObject *object, guint property_id,
                                                  const GValue *value, GParamSpec *pspec)
 {
@@ -113,8 +86,6 @@ static void dbus_menu_section_model_set_property(GObject *object, guint property
 	{
 	case PROP_PARENT_MODEL:
 		menu->parent_model = DBUS_MENU_MODEL(g_value_get_object(value));
-		if (menu->begin_iter != NULL)
-			dbus_menu_section_model_update_iters(menu);
 		break;
 	case PROP_SECTION_INDEX:
 		menu->section_index = g_value_get_uint(value);
@@ -147,8 +118,6 @@ static void dbus_menu_section_model_get_property(GObject *object, guint property
 static void dbus_menu_section_model_constructed(GObject *object)
 {
 	G_OBJECT_CLASS(dbus_menu_section_model_parent_class)->constructed(object);
-	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(object);
-	dbus_menu_section_model_update_iters(menu);
 }
 
 static void dbus_menu_section_model_class_init(DBusMenuSectionModelClass *klass)

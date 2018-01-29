@@ -15,25 +15,24 @@ struct _DBusMenuModel
 	GCancellable *cancellable;
 	DBusMenuXml *xml;
 	GActionGroup *received_action_group;
-	GSequence *all_items;
-	GPtrArray *sections;
+	GSequence *sections;
 	bool layout_update_required;
 	bool layout_update_in_progress;
 };
 
-static const gchar *property_names[] = { "accessible-desc",
-	                                 "children-display",
-	                                 "disposition",
-	                                 "enabled",
-	                                 "icon-data",
-	                                 "icon-name",
-	                                 "label",
-	                                 "shortcut",
-	                                 "toggle-type",
-	                                 "toggle-state",
-	                                 "type",
-	                                 "visible",
-	                                 NULL };
+static const char *property_names[] = { "accessible-desc",
+	                                "children-display",
+	                                "disposition",
+	                                "enabled",
+	                                "icon-data",
+	                                "icon-name",
+	                                "label",
+	                                "shortcut",
+	                                "toggle-type",
+	                                "toggle-state",
+	                                "type",
+	                                "visible",
+	                                NULL };
 enum
 {
 	PROP_NULL         = 0,
@@ -44,10 +43,10 @@ enum
 };
 
 static GParamSpec *properties[NUM_PROPS] = { NULL };
+
 static DBusMenuItem *dbus_menu_model_find(DBusMenuModel *menu, uint item_id, int *section_num,
                                           int *position);
 static void emit_item_update_signal(DBusMenuModel *model, int sect_num, int pos);
-static GPtrArray *dbus_menu_model_generate_section_array(GSequence *seq);
 
 G_DEFINE_TYPE(DBusMenuModel, dbus_menu_model, G_TYPE_MENU_MODEL)
 
@@ -55,7 +54,7 @@ static gint dbus_menu_model_get_n_items(GMenuModel *model)
 {
 	DBusMenuModel *menu = (DBusMenuModel *)(model);
 
-	return (int)menu->sections->len;
+	return (int)g_sequence_get_length(menu->sections);
 }
 
 static void dbus_menu_model_get_item_attributes(GMenuModel *model, gint position,
@@ -63,7 +62,7 @@ static void dbus_menu_model_get_item_attributes(GMenuModel *model, gint position
 {
 	DBusMenuModel *menu = DBUS_MENU_MODEL(model);
 	DBusMenuItem *item  = (DBusMenuItem *)g_sequence_get(
-            (GSequenceIter *)g_ptr_array_index(menu->sections, position));
+            (GSequenceIter *)g_sequence_get_iter_at_pos(menu->sections, position));
 
 	*table = g_hash_table_ref(item->attributes);
 }
@@ -72,23 +71,9 @@ static void dbus_menu_model_get_item_links(GMenuModel *model, gint position, GHa
 {
 	DBusMenuModel *menu = DBUS_MENU_MODEL(model);
 	DBusMenuItem *item  = (DBusMenuItem *)g_sequence_get(
-            (GSequenceIter *)g_ptr_array_index(menu->sections, position));
+            (GSequenceIter *)g_sequence_get_iter_at_pos(menu->sections, position));
 
 	*table = g_hash_table_ref(item->links);
-}
-
-static GPtrArray *dbus_menu_model_generate_section_array(GSequence *seq)
-{
-	GPtrArray *ret = g_ptr_array_new();
-	GSequenceIter *iter;
-	for (iter = g_sequence_get_begin_iter(seq); !g_sequence_iter_is_end(iter);
-	     iter = g_sequence_iter_next(iter))
-	{
-		DBusMenuItem *item = (DBusMenuItem *)g_sequence_get(iter);
-		if (item->is_section)
-			g_ptr_array_add(ret, iter);
-	}
-	return ret;
 }
 
 struct layout_data
@@ -113,7 +98,7 @@ static void emit_layout_update_signal(DBusMenuModel *model, int sect_num, uint p
 	if (sect_num >= 0)
 	{
 		DBusMenuItem *item = (DBusMenuItem *)g_sequence_get(
-		    dbus_menu_model_get_section_iter(model, sect_num));
+		    g_sequence_get_iter_at_pos(model->sections, sect_num));
 		data->model = G_MENU_MODEL(g_hash_table_lookup(item->links, G_MENU_LINK_SECTION));
 	}
 	else
@@ -153,12 +138,15 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 	g_variant_unref(props);
 	GVariantIter iter;
 	GVariant *child;
-	uint section_num                    = 0;
-	uint old_sections                   = menu->sections->len;
-	uint added                          = 0;
-	int change_pos                      = -1;
-	GSequenceIter *current_section_iter = g_sequence_get_begin_iter(menu->all_items);
-	GSequenceIter *current_iter         = current_section_iter;
+	uint section_num                      = 0;
+	uint old_sections                     = g_sequence_get_length(menu->sections);
+	uint added                            = 0;
+	int change_pos                        = -1;
+	GSequenceIter *sections_iter          = g_sequence_get_begin_iter(menu->sections);
+	DBusMenuSectionModel *current_section = DBUS_MENU_SECTION_MODEL(
+	    g_hash_table_lookup(((DBusMenuItem *)g_sequence_get(sections_iter))->links,
+	                        G_MENU_LINK_SECTION));
+	GSequenceIter *current_iter = g_sequence_get_begin_iter(current_section->items);
 	g_variant_iter_init(&iter, items);
 	while ((child = g_variant_iter_next_value(&iter)))
 	{
@@ -172,22 +160,54 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 
 		DBusMenuItem *old      = NULL;
 		DBusMenuItem *new_item = dbus_menu_item_new(cid, menu, cprops);
-		if (g_sequence_iter_is_end(current_iter))
+		if (new_item->is_section)
 		{
-			if (added == 0)
-				change_pos =
-				    change_pos < 0
-				        ? g_sequence_iter_get_position(current_iter) -
-				              g_sequence_iter_get_position(current_section_iter) - 1
-				        : change_pos;
 			dbus_menu_item_generate_action(new_item, menu);
-			if (new_item->is_section)
+			section_num++;
+			sections_iter = g_sequence_iter_next(sections_iter);
+			if (g_sequence_iter_is_end(sections_iter))
 			{
-				section_num++;
 				g_hash_table_insert(new_item->links,
 				                    g_strdup(G_MENU_LINK_SECTION),
 				                    dbus_menu_section_model_new(menu, section_num));
+				sections_iter = g_sequence_insert_before(g_sequence_get_end_iter(
+				                                             menu->sections),
+				                                         new_item);
 			}
+			else
+			{
+				dbus_menu_item_free(new_item);
+				int removed = g_sequence_iter_get_position(
+				                  g_sequence_get_end_iter(current_section->items)) -
+				              g_sequence_iter_get_position(current_iter);
+				g_sequence_remove_range(current_iter,
+				                        g_sequence_get_end_iter(
+				                            current_section->items));
+				if (removed > 0 || added > 0)
+				{
+					emit_layout_update_signal(menu,
+					                          section_num - 1,
+					                          change_pos,
+					                          removed,
+					                          added);
+				}
+			}
+			current_section = DBUS_MENU_SECTION_MODEL(
+			    g_hash_table_lookup(((DBusMenuItem *)g_sequence_get(sections_iter))
+			                            ->links,
+			                        G_MENU_LINK_SECTION));
+			current_iter = g_sequence_get_begin_iter(current_section->items);
+			added        = 0;
+			continue;
+		}
+		if (g_sequence_iter_is_end(current_iter))
+		{
+			if (added == 0)
+				change_pos = change_pos < 0
+				                 ? g_sequence_iter_get_position(current_iter)
+				                 : change_pos;
+			dbus_menu_item_copy_submenu(NULL, new_item, menu);
+			dbus_menu_item_generate_action(new_item, menu);
 			current_iter = g_sequence_insert_before(current_iter, new_item);
 			added++;
 			continue;
@@ -196,83 +216,32 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		bool diff = !dbus_menu_item_compare_immutable(old, new_item);
 		if (diff)
 		{
-			int removed = 0;
-			if (new_item->is_section)
 			{
-				section_num++;
-				change_pos =
-				    change_pos < 0
-				        ? g_sequence_iter_get_position(current_iter) -
-				              g_sequence_iter_get_position(current_section_iter) - 1
-				        : change_pos;
-				current_section_iter =
-				    (GSequenceIter *)menu->sections->pdata[section_num];
-				removed = g_sequence_iter_get_position(current_section_iter) -
-				          g_sequence_iter_get_position(current_iter);
-				g_sequence_remove_range(current_iter, current_section_iter);
-				if (removed > 0 || added > 0)
-				{
-					change_pos =
-					    change_pos == 0
-					        ? g_sequence_iter_get_position(current_iter)
-					        : change_pos;
-					emit_layout_update_signal(menu,
-					                          section_num - 1,
-					                          change_pos,
-					                          removed,
-					                          added);
-					current_iter = current_section_iter;
-					added        = 0;
-					change_pos   = 0;
-				}
-				dbus_menu_item_free(new_item);
-				continue;
-			}
-			else if (old->is_section)
-			{
-				if (added == 0)
-					change_pos =
-					    change_pos < 0
-					        ? g_sequence_iter_get_position(current_iter) -
-					              g_sequence_iter_get_position(
-					                  current_section_iter) -
-					              1
-					        : change_pos;
+				dbus_menu_item_copy_submenu(old, new_item, menu);
 				dbus_menu_item_generate_action(new_item, menu);
-				current_iter = g_sequence_insert_before(current_iter, new_item);
-				added++;
-				continue;
-			}
-			else
-			{
-				dbus_menu_item_generate_action(new_item, menu);
-				if (new_item->action_type == DBUS_MENU_ACTION_SUBMENU)
-					dbus_menu_model_update_layout(DBUS_MENU_MODEL(
-					    g_hash_table_lookup(new_item->links,
-					                        G_MENU_LINK_SUBMENU)));
+				//				if (new_item->action_type ==
+				// DBUS_MENU_ACTION_SUBMENU)
+				//					dbus_menu_model_update_layout(DBUS_MENU_MODEL(
+				//					    g_hash_table_lookup(new_item->links,
+				//					                        G_MENU_LINK_SUBMENU)));
 				g_sequence_set(current_iter, new_item);
 				emit_item_update_signal(menu,
 				                        section_num,
-				                        g_sequence_iter_get_position(current_iter) -
-				                            g_sequence_iter_get_position(
-				                                current_section_iter) -
-				                            1);
+				                        g_sequence_iter_get_position(current_iter));
 				continue;
 			}
 		}
 		else
 		{
 			bool updated = dbus_menu_item_update_props(old, cprops);
-			if (old->action_type == DBUS_MENU_ACTION_SUBMENU)
-				dbus_menu_model_update_layout(DBUS_MENU_MODEL(
-				    g_hash_table_lookup(new_item->links, G_MENU_LINK_SUBMENU)));
+			//			if (old->action_type == DBUS_MENU_ACTION_SUBMENU)
+			//				dbus_menu_model_update_layout(DBUS_MENU_MODEL(
+			//				    g_hash_table_lookup(new_item->links,
+			// G_MENU_LINK_SUBMENU)));
 			if (updated)
 				emit_item_update_signal(menu,
 				                        section_num,
-				                        g_sequence_iter_get_position(current_iter) -
-				                            g_sequence_iter_get_position(
-				                                current_section_iter) -
-				                            1);
+				                        g_sequence_iter_get_position(current_iter));
 			dbus_menu_item_free(new_item);
 			continue;
 		}
@@ -280,15 +249,14 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		g_variant_unref(child);
 	}
 	current_iter = g_sequence_iter_next(current_iter);
-	change_pos   = change_pos < 0 ? g_sequence_iter_get_position(current_iter) -
-	                                  g_sequence_iter_get_position(current_section_iter) - 1
-	                            : change_pos;
-	uint removed = g_sequence_iter_get_position(g_sequence_get_end_iter(menu->all_items)) -
-	               g_sequence_iter_get_position(current_iter);
-	g_sequence_remove_range(current_iter, g_sequence_get_end_iter(menu->all_items));
-	menu->sections = dbus_menu_model_generate_section_array(menu->all_items);
+	int removed =
+	    g_sequence_iter_get_position(g_sequence_get_end_iter(current_section->items)) -
+	    g_sequence_iter_get_position(current_iter);
+	g_sequence_remove_range(current_iter, g_sequence_get_end_iter(current_section->items));
 	if (removed > 0 || added > 0)
+	{
 		emit_layout_update_signal(menu, section_num, change_pos, removed, added);
+	}
 	section_num++;
 	int secdiff = old_sections - section_num;
 	if (secdiff != 0)
@@ -388,7 +356,7 @@ static void emit_item_update_signal(DBusMenuModel *model, int sect_num, int pos)
 	if (sect_num >= 0)
 	{
 		DBusMenuItem *item = (DBusMenuItem *)g_sequence_get(
-		    dbus_menu_model_get_section_iter(model, sect_num));
+		    g_sequence_get_iter_at_pos(model->sections, sect_num));
 		GMenuModel *chm =
 		    G_MENU_MODEL(g_hash_table_lookup(item->links, G_MENU_LINK_SECTION));
 		data->model = chm;
@@ -396,17 +364,22 @@ static void emit_item_update_signal(DBusMenuModel *model, int sect_num, int pos)
 	else
 		data->model = G_MENU_MODEL(model);
 	data->position = pos;
-	g_idle_add_full(500, items_properties_updated_idle, data, g_free);
+	g_menu_model_items_changed(data->model, data->position, 1, 1);
+	//	g_idle_add_full(500, items_properties_updated_idle, data, g_free);
 }
 
 static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_props,
                                         GVariant *removed_props, DBusMenuModel *menu)
 {
+	if (menu->layout_update_in_progress == true)
+		return;
 	GVariantIter iter;
 	guint id;
 	GVariant *props;
 	DBusMenuItem *item;
 	g_variant_iter_init(&iter, updated_props);
+	g_autofree char *pr = g_variant_print(updated_props, true);
+	g_print("%s\n", pr);
 	while (g_variant_iter_loop(&iter, "(i@a{sv})", &id, &props))
 	{
 		int sect_n = 0, position = 0;
@@ -521,14 +494,6 @@ static void dbus_menu_model_get_property(GObject *object, guint property_id, GVa
 	}
 }
 
-G_GNUC_INTERNAL GSequenceIter *dbus_menu_model_get_section_iter(DBusMenuModel *model,
-                                                                uint section_index)
-{
-	if (section_index >= model->sections->len)
-		return g_sequence_get_end_iter(model->all_items);
-	return (GSequenceIter *)model->sections->pdata[section_index];
-}
-
 G_GNUC_INTERNAL bool dbus_menu_model_is_layout_update_required(DBusMenuModel *model)
 {
 	return model->layout_update_required;
@@ -537,32 +502,35 @@ G_GNUC_INTERNAL bool dbus_menu_model_is_layout_update_required(DBusMenuModel *mo
 static DBusMenuItem *dbus_menu_model_find(DBusMenuModel *menu, uint item_id, int *section_num,
                                           int *position)
 {
-	GSequenceIter *iter = g_sequence_lookup(menu->all_items,
-	                                        GUINT_TO_POINTER(item_id),
-	                                        (GCompareDataFunc)dbus_menu_item_id_compare_func,
-	                                        NULL);
-	if (!iter)
-		return NULL;
-	for (uint i = 0; i < menu->sections->len - 1; i++)
+	for (GSequenceIter *iter = g_sequence_get_begin_iter(menu->sections);
+	     !g_sequence_iter_is_end(iter);
+	     iter = g_sequence_iter_next(iter))
 	{
-		int cmp_begin =
-		    g_sequence_iter_compare(iter, dbus_menu_model_get_section_iter(menu, i));
-		int cmp_end =
-		    g_sequence_iter_compare(iter, dbus_menu_model_get_section_iter(menu, i + 1));
-		if (cmp_begin > 0 &&
-		    (cmp_end < 0 || (cmp_end == 0 && i + 1 == menu->sections->len)))
-		{
-			*section_num = i;
-			*position =
-			    g_sequence_iter_get_position(iter) -
-			    g_sequence_iter_get_position((GSequenceIter *)menu->sections->pdata[i]);
-		}
-		else if (cmp_begin == 0)
+		DBusMenuItem *current_section = (DBusMenuItem *)g_sequence_get(iter);
+		int current_section_num       = g_sequence_iter_get_position(iter);
+		if (current_section->id == item_id)
 		{
 			*section_num = -1;
-			*position    = i;
+			*position    = current_section_num;
+			return current_section;
 		}
-		return (DBusMenuItem *)g_sequence_get(iter);
+		DBusMenuSectionModel *smodel = DBUS_MENU_SECTION_MODEL(
+		    g_hash_table_lookup(current_section->links, G_MENU_LINK_SECTION));
+		if (g_menu_model_get_n_items(G_MENU_MODEL(smodel)) == 0)
+			return NULL;
+		for (GSequenceIter *siter = g_sequence_get_begin_iter(smodel->items);
+		     !g_sequence_iter_is_end(siter);
+		     siter = g_sequence_iter_next(siter))
+		{
+			DBusMenuItem *current_item = (DBusMenuItem *)g_sequence_get(siter);
+			int current_num            = g_sequence_iter_get_position(siter);
+			if (current_item->id == item_id)
+			{
+				*section_num = current_section_num;
+				*position    = current_num;
+				return current_section;
+			}
+		}
 	}
 	return NULL;
 }
@@ -571,8 +539,7 @@ static void dbus_menu_model_init(DBusMenuModel *menu)
 {
 	menu->cancellable               = g_cancellable_new();
 	menu->parent_id                 = UINT_MAX;
-	menu->sections                  = g_ptr_array_new();
-	menu->all_items                 = g_sequence_new(dbus_menu_item_free);
+	menu->sections                  = g_sequence_new(dbus_menu_item_free);
 	menu->layout_update_required    = false;
 	menu->layout_update_in_progress = false;
 	menu->current_revision          = 0;
@@ -585,9 +552,7 @@ static void dbus_menu_model_constructed(GObject *object)
 
 	DBusMenuItem *first_section =
 	    dbus_menu_item_new_first_section(menu->parent_id, menu->received_action_group);
-	g_sequence_append(menu->all_items, first_section);
-	GSequenceIter *iter = g_sequence_get_iter_at_pos(menu->all_items, 0);
-	g_ptr_array_add(menu->sections, iter);
+	g_sequence_append(menu->sections, first_section);
 	g_hash_table_insert(first_section->links,
 	                    g_strdup(G_MENU_LINK_SECTION),
 	                    dbus_menu_section_model_new(menu, 0));
@@ -600,8 +565,7 @@ static void dbus_menu_model_finalize(GObject *object)
 		g_signal_handlers_disconnect_by_data(menu->xml, menu);
 	g_cancellable_cancel(menu->cancellable);
 	g_clear_object(&menu->cancellable);
-	g_clear_pointer(&menu->sections, g_ptr_array_unref);
-	g_clear_pointer(&menu->all_items, g_sequence_free);
+	g_clear_pointer(&menu->sections, g_sequence_free);
 
 	G_OBJECT_CLASS(dbus_menu_model_parent_class)->finalize(object);
 }
@@ -630,7 +594,7 @@ static void install_properties(GObjectClass *object_class)
 	                      0,
 	                      UINT_MAX,
 	                      0,
-	                      (GParamFlags)(G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE |
+	                      (GParamFlags)(G_PARAM_CONSTRUCT | G_PARAM_WRITABLE |
 	                                    G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
 	g_object_class_install_properties(object_class, NUM_PROPS, properties);

@@ -207,7 +207,7 @@ G_GNUC_INTERNAL GAction *dbus_menu_action_reference(u_int32_t id, DBusMenuXml *x
                                                     GActionMap *action_group,
                                                     DBusMenuActionType action_type)
 {
-	bool is_submenu           = submenu != NULL;
+	bool is_submenu           = action_type == DBUS_MENU_ACTION_SUBMENU;
 	const char *action_prefix = is_submenu ? SUBMENU_PREFIX : ACTION_PREFIX;
 	g_autofree char *name     = g_strdup_printf("%s%u", action_prefix, id);
 	GAction *ret              = g_action_map_lookup_action(action_group, name);

@@ -51,10 +51,10 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 	DBusMenuItem *item = g_slice_new0(DBusMenuItem);
 	DBusMenuXml *xml;
 	GVariantIter iter;
-	const gchar *prop;
+	const char *prop;
 	GVariant *value;
 	item->is_section = false;
-	item->enabled    = false;
+	item->enabled    = true;
 	item->toggled    = false;
 	item->id         = id;
 	item->attributes =
@@ -322,6 +322,8 @@ G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 		}
 		else if (g_strcmp0(prop, "visible") == 0)
 		{
+			if (item->is_section)
+				continue;
 			bool vis = g_variant_get_boolean(value);
 			if (vis)
 			{
@@ -366,7 +368,7 @@ G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 G_GNUC_INTERNAL bool dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *props)
 {
 	GVariantIter iter;
-	const gchar *prop;
+	const char *prop;
 	bool properties_is_updated = false;
 
 	g_variant_iter_init(&iter, props);
@@ -454,16 +456,36 @@ G_GNUC_INTERNAL bool dbus_menu_item_compare_immutable(DBusMenuItem *a, DBusMenuI
 	return true;
 }
 
-G_GNUC_INTERNAL void dbus_menu_item_generate_action(DBusMenuItem *item, DBusMenuModel *parent)
+G_GNUC_INTERNAL void dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem *dst,
+                                                 DBusMenuModel *parent)
 {
 	DBusMenuXml *xml;
 	DBusMenuModel *submenu = NULL;
 	g_object_get(parent, "xml", &xml, NULL);
-	if (item->action_type == DBUS_MENU_ACTION_SUBMENU)
+	if (src == NULL)
 	{
-		submenu = dbus_menu_model_new(item->id, parent, xml, item->referenced_action_group);
-		g_hash_table_insert(item->links, g_strdup(G_MENU_LINK_SUBMENU), submenu);
+		if (dst->action_type == DBUS_MENU_ACTION_SUBMENU)
+		{
+			submenu =
+			    dbus_menu_model_new(dst->id, parent, xml, dst->referenced_action_group);
+			g_hash_table_insert(dst->links, g_strdup(G_MENU_LINK_SUBMENU), submenu);
+		}
+		return;
 	}
+	if (dst->action_type == DBUS_MENU_ACTION_SUBMENU &&
+	    src->action_type == DBUS_MENU_ACTION_SUBMENU)
+	{
+		submenu = DBUS_MENU_MODEL(g_hash_table_lookup(src->links, G_MENU_LINK_SUBMENU));
+		g_hash_table_insert(dst->links, g_strdup(G_MENU_LINK_SUBMENU), submenu);
+		g_object_set(submenu, "parent-id", dst->id, NULL);
+	}
+}
+
+G_GNUC_INTERNAL void dbus_menu_item_generate_action(DBusMenuItem *item, DBusMenuModel *parent)
+{
+	DBusMenuXml *xml;
+	DBusMenuModel *submenu = g_hash_table_lookup(item->links, G_MENU_LINK_SUBMENU);
+	g_object_get(parent, "xml", &xml, NULL);
 	item->referenced_action =
 	    dbus_menu_action_reference(item->id,
 	                               xml,

@@ -55,8 +55,8 @@ static void proxy_ready_cb(GObject *source_object, GAsyncResult *res, gpointer u
 	g_object_notify_by_pspec(menu, properties[PROP_MODEL]);
 }
 
-static void name_appeared_cb(GDBusConnection *connection, const gchar *name,
-                             const gchar *name_owner, gpointer user_data)
+static void name_appeared_cb(GDBusConnection *connection, const char *name, const char *name_owner,
+                             gpointer user_data)
 {
 	DBusMenuImporter *menu = (DBusMenuImporter *)(user_data);
 
@@ -69,7 +69,7 @@ static void name_appeared_cb(GDBusConnection *connection, const gchar *name,
 	                        menu);
 }
 
-static void name_vanished_cb(GDBusConnection *connection, const gchar *name, gpointer user_data)
+static void name_vanished_cb(GDBusConnection *connection, const char *name, gpointer user_data)
 {
 	DBusMenuImporter *menu = (DBusMenuImporter *)(user_data);
 
@@ -214,7 +214,7 @@ static void dbus_menu_importer_init(DBusMenuImporter *menu)
 	menu->cancellable = g_cancellable_new();
 }
 
-DBusMenuImporter *dbus_menu_importer_new(const gchar *bus_name, const gchar *object_path)
+DBusMenuImporter *dbus_menu_importer_new(const char *bus_name, const char *object_path)
 {
 	return g_object_new(dbus_menu_importer_get_type(),
 	                    "bus-name",

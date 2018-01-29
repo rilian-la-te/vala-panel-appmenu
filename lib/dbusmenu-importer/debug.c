@@ -41,7 +41,7 @@ GString *g_menu_markup_print_string(GString *string, GMenuModel *model, gint ind
 
 			if (g_variant_is_of_type(value, G_VARIANT_TYPE_STRING))
 			{
-				gchar *str;
+				char *str;
 				str = g_markup_printf_escaped(" %s='%s'",
 				                              name,
 				                              g_variant_get_string(value, NULL));
@@ -51,9 +51,9 @@ GString *g_menu_markup_print_string(GString *string, GMenuModel *model, gint ind
 
 			else
 			{
-				gchar *printed;
-				gchar *str;
-				const gchar *type;
+				char *printed;
+				char *str;
+				const char *type;
 
 				printed = g_variant_print(value, TRUE);
 				type    = g_variant_type_peek_string(g_variant_get_type(value));
@@ -74,9 +74,9 @@ GString *g_menu_markup_print_string(GString *string, GMenuModel *model, gint ind
 
 		while (g_menu_link_iter_next(link_iter))
 		{
-			const gchar *name = g_menu_link_iter_get_name(link_iter);
-			GMenuModel *menu  = g_menu_link_iter_get_value(link_iter);
-			gchar *str;
+			const char *name = g_menu_link_iter_get_name(link_iter);
+			GMenuModel *menu = g_menu_link_iter_get_value(link_iter);
+			char *str;
 
 			if (contents->str[0])
 				g_string_append_c(contents, '\n');
