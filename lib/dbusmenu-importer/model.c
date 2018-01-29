@@ -318,10 +318,10 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 	//        dbus_menu_model_update_layout(menu);
 	menu->layout_update_required    = false;
 	menu->layout_update_in_progress = false;
-	//	GString *str                    = g_string_new(NULL);
-	//	g_menu_markup_print_string(str, menu, 4, 4);
-	//	char *cstr = g_string_free(str, false);
-	//	g_print("%s\n", cstr);
+        GString *str                    = g_string_new(NULL);
+        g_menu_markup_print_string(str, menu, 4, 4);
+        char *cstr = g_string_free(str, false);
+        g_print("%s\n", cstr);
 }
 
 G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
