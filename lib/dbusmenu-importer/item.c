@@ -168,7 +168,6 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data)
 {
 	DBusMenuItem *item = (DBusMenuItem *)data;
-	g_print("Item %u is destroyed\n", item->id);
 	if (item == NULL)
 		return;
 	g_clear_pointer(&item->attributes, g_hash_table_destroy);

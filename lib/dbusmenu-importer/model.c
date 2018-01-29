@@ -318,10 +318,10 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 	//        dbus_menu_model_update_layout(menu);
 	menu->layout_update_required    = false;
 	menu->layout_update_in_progress = false;
-        GString *str                    = g_string_new(NULL);
-        g_menu_markup_print_string(str, menu, 4, 4);
-        char *cstr = g_string_free(str, false);
-        g_print("%s\n", cstr);
+	GString *str                    = g_string_new(NULL);
+	g_menu_markup_print_string(str, menu, 4, 4);
+	char *cstr = g_string_free(str, false);
+	g_print("%s\n", cstr);
 }
 
 G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
@@ -589,7 +589,6 @@ static void dbus_menu_model_constructed(GObject *object)
 static void dbus_menu_model_finalize(GObject *object)
 {
 	DBusMenuModel *menu = (DBusMenuModel *)(object);
-	g_print("DBusMenuModel %u is destroying\n", menu->parent_id);
 	if (DBUS_MENU_IS_XML(menu->xml))
 		g_signal_handlers_disconnect_by_data(menu->xml, menu);
 	g_cancellable_cancel(menu->cancellable);
