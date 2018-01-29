@@ -349,8 +349,8 @@ static void layout_updated_cb(DBusMenuXml *proxy, guint revision, gint parent, D
 	else if (((uint)parent == menu->parent_id) && revision > menu->current_revision)
 	{
 		g_warning("Remote attempt to update %u with rev %u\n", parent, revision);
-		menu->layout_update_required = true;
-		//        dbus_menu_model_update_layout(menu);
+		//		menu->layout_update_required = true;
+		dbus_menu_model_update_layout(menu);
 	}
 }
 
