@@ -132,7 +132,10 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 
 		return;
 	}
-
+	if (menu->layout_update_in_progress)
+		return;
+	menu->layout_update_required    = false;
+	menu->layout_update_in_progress = true;
 	g_variant_get(layout, "(i@a{sv}@av)", &id, &props, &items);
 	g_variant_unref(props);
 	GVariantIter iter;
@@ -299,9 +302,10 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 	layout_parse(menu, layout);
 	//    if(menu->layout_update_required)
 	//        dbus_menu_model_update_layout(menu);
-	menu->layout_update_required    = false;
 	menu->layout_update_in_progress = false;
-	GString *str                    = g_string_new(NULL);
+	if (menu->layout_update_required)
+		dbus_menu_model_update_layout(menu);
+	GString *str = g_string_new(NULL);
 	g_menu_markup_print_string(str, menu, 4, 4);
 	char *cstr = g_string_free(str, false);
 	g_print("%s\n", cstr);
@@ -311,15 +315,15 @@ G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
 {
 	g_return_if_fail(DBUS_MENU_IS_MODEL(menu));
 	if (menu->layout_update_in_progress)
-		return;
-	menu->layout_update_in_progress = true;
-	dbus_menu_xml_call_get_layout(menu->xml,
-	                              menu->parent_id,
-	                              1,
-	                              property_names,
-	                              menu->cancellable,
-	                              get_layout_cb,
-	                              menu);
+		menu->layout_update_required = true;
+	else
+		dbus_menu_xml_call_get_layout(menu->xml,
+		                              menu->parent_id,
+		                              1,
+		                              property_names,
+		                              menu->cancellable,
+		                              get_layout_cb,
+		                              menu);
 }
 
 static void layout_updated_cb(DBusMenuXml *proxy, guint revision, gint parent, DBusMenuModel *menu)
