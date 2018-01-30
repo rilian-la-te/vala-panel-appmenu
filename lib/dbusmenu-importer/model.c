@@ -386,8 +386,6 @@ static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_pr
 	GVariant *props;
 	DBusMenuItem *item;
 	g_variant_iter_init(&iter, updated_props);
-	g_autofree char *pr = g_variant_print(updated_props, true);
-	g_print("%s\n", pr);
 	while (g_variant_iter_loop(&iter, "(i@a{sv})", &id, &props))
 	{
 		int sect_n = 0, position = 0;
