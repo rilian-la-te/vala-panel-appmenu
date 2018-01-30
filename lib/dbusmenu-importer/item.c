@@ -468,9 +468,7 @@ G_GNUC_INTERNAL void dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem
 		{
 			submenu =
 			    dbus_menu_model_new(dst->id, parent, xml, dst->referenced_action_group);
-			g_hash_table_insert(dst->links,
-			                    g_strdup(G_MENU_LINK_SUBMENU),
-			                    g_object_ref(submenu));
+			g_hash_table_insert(dst->links, g_strdup(G_MENU_LINK_SUBMENU), submenu);
 		}
 		return;
 	}
@@ -478,7 +476,9 @@ G_GNUC_INTERNAL void dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem
 	    src->action_type == DBUS_MENU_ACTION_SUBMENU)
 	{
 		submenu = DBUS_MENU_MODEL(g_hash_table_lookup(src->links, G_MENU_LINK_SUBMENU));
-		g_hash_table_insert(dst->links, g_strdup(G_MENU_LINK_SUBMENU), submenu);
+		g_hash_table_insert(dst->links,
+		                    g_strdup(G_MENU_LINK_SUBMENU),
+		                    g_object_ref(submenu));
 		g_object_set(submenu, "parent-id", dst->id, NULL);
 	}
 }
