@@ -179,7 +179,6 @@ G_GNUC_INTERNAL void dbus_menu_action_replace_signals(GAction *action, DBusMenuX
                                                       DBusMenuModel *submenu,
                                                       DBusMenuActionType action_type)
 {
-	g_print("Action %s is replacing signals\n", g_action_get_name(action));
 	if (action_type == DBUS_MENU_ACTION_SUBMENU)
 	{
 		g_signal_handlers_disconnect_by_func_only(action, state_submenu_cb);

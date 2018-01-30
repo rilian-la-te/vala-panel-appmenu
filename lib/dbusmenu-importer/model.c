@@ -53,7 +53,6 @@ G_DEFINE_TYPE(DBusMenuModel, dbus_menu_model, G_TYPE_MENU_MODEL)
 static gint dbus_menu_model_get_n_items(GMenuModel *model)
 {
 	DBusMenuModel *menu = (DBusMenuModel *)(model);
-
 	return (int)g_sequence_get_length(menu->sections);
 }
 
@@ -150,7 +149,6 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 	g_variant_iter_init(&iter, items);
 	while ((child = g_variant_iter_next_value(&iter)))
 	{
-		current_iter    = g_sequence_iter_next(current_iter);
 		GVariant *value = g_variant_get_variant(child);
 		guint cid;
 		GVariant *cprops;
@@ -198,52 +196,62 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 			                        G_MENU_LINK_SECTION));
 			current_iter = g_sequence_get_begin_iter(current_section->items);
 			added        = 0;
-			continue;
-		}
-		if (g_sequence_iter_is_end(current_iter))
-		{
-			if (added == 0)
-				change_pos = change_pos < 0
-				                 ? g_sequence_iter_get_position(current_iter)
-				                 : change_pos;
-			dbus_menu_item_copy_submenu(NULL, new_item, menu);
-			dbus_menu_item_generate_action(new_item, menu);
-			current_iter = g_sequence_insert_before(current_iter, new_item);
-			added++;
-			continue;
-		}
-		old       = (DBusMenuItem *)g_sequence_get(current_iter);
-		bool diff = !dbus_menu_item_compare_immutable(old, new_item);
-		if (diff)
-		{
-			{
-				dbus_menu_item_copy_submenu(old, new_item, menu);
-				dbus_menu_item_generate_action(new_item, menu);
-				//				if (new_item->action_type ==
-				// DBUS_MENU_ACTION_SUBMENU)
-				//					dbus_menu_model_update_layout(DBUS_MENU_MODEL(
-				//					    g_hash_table_lookup(new_item->links,
-				//					                        G_MENU_LINK_SUBMENU)));
-				g_sequence_set(current_iter, new_item);
-				emit_item_update_signal(menu,
-				                        section_num,
-				                        g_sequence_iter_get_position(current_iter));
-				continue;
-			}
 		}
 		else
 		{
-			bool updated = dbus_menu_item_update_props(old, cprops);
-			//			if (old->action_type == DBUS_MENU_ACTION_SUBMENU)
-			//				dbus_menu_model_update_layout(DBUS_MENU_MODEL(
-			//				    g_hash_table_lookup(new_item->links,
-			// G_MENU_LINK_SUBMENU)));
-			if (updated)
-				emit_item_update_signal(menu,
-				                        section_num,
-				                        g_sequence_iter_get_position(current_iter));
-			dbus_menu_item_free(new_item);
-			continue;
+			if (g_sequence_iter_is_end(current_iter) ||
+			    g_sequence_is_empty(g_sequence_iter_get_sequence(current_iter)))
+			{
+				if (added == 0)
+					change_pos =
+					    change_pos < 0
+					        ? g_sequence_iter_get_position(current_iter)
+					        : change_pos;
+				dbus_menu_item_copy_submenu(NULL, new_item, menu);
+				dbus_menu_item_generate_action(new_item, menu);
+				current_iter = g_sequence_insert_before(current_iter, new_item);
+				added++;
+			}
+			else
+			{
+				old       = (DBusMenuItem *)g_sequence_get(current_iter);
+				bool diff = !dbus_menu_item_compare_immutable(old, new_item);
+				if (diff)
+				{
+					{
+						dbus_menu_item_copy_submenu(old, new_item, menu);
+						dbus_menu_item_generate_action(new_item, menu);
+						//				if
+						//(new_item->action_type
+						//==
+						// DBUS_MENU_ACTION_SUBMENU)
+						//					dbus_menu_model_update_layout(DBUS_MENU_MODEL(
+						//					    g_hash_table_lookup(new_item->links,
+						//					                        G_MENU_LINK_SUBMENU)));
+						g_sequence_set(current_iter, new_item);
+						emit_item_update_signal(
+						    menu,
+						    section_num,
+						    g_sequence_iter_get_position(current_iter));
+					}
+				}
+				else
+				{
+					bool updated = dbus_menu_item_update_props(old, cprops);
+					//			if (old->action_type ==
+					// DBUS_MENU_ACTION_SUBMENU)
+					//				dbus_menu_model_update_layout(DBUS_MENU_MODEL(
+					//				    g_hash_table_lookup(new_item->links,
+					// G_MENU_LINK_SUBMENU)));
+					if (updated)
+						emit_item_update_signal(
+						    menu,
+						    section_num,
+						    g_sequence_iter_get_position(current_iter));
+					dbus_menu_item_free(new_item);
+				}
+			}
+			current_iter = g_sequence_iter_next(current_iter);
 		}
 		g_variant_unref(cprops);
 		g_variant_unref(child);
