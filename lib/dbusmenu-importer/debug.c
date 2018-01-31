@@ -1,17 +1,28 @@
+#include "debug.h"
 #include <gio/gio.h>
-
+#include <stdbool.h>
 /* Markup printing {{{1 */
 
 /* This used to be part of GLib, but it was removed before the stable
  * release because it wasn't generally useful.  We want it here, though.
  */
+
+G_GNUC_INTERNAL void g_menu_markup_print_to_console(GMenuModel *menu)
+{
+	GString *str = g_string_new(NULL);
+	g_menu_markup_print_string(str, menu, 4, 4);
+	char *cstr = g_string_free(str, false);
+	g_print("%s\n", cstr);
+}
+
 static void indent_string(GString *string, gint indent)
 {
 	while (indent--)
 		g_string_append_c(string, ' ');
 }
 
-GString *g_menu_markup_print_string(GString *string, GMenuModel *model, gint indent, gint tabstop)
+G_GNUC_INTERNAL GString *g_menu_markup_print_string(GString *string, GMenuModel *model, gint indent,
+                                                    gint tabstop)
 {
 	gboolean need_nl = FALSE;
 	gint i, n;
