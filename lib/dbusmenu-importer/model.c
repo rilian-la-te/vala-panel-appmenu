@@ -64,7 +64,6 @@ static GParamSpec *properties[NUM_PROPS] = { NULL };
 
 static DBusMenuItem *dbus_menu_model_find(DBusMenuModel *menu, uint item_id, int *section_num,
                                           int *position);
-static void emit_item_update_signal(DBusMenuModel *model, int sect_num, int pos);
 
 G_DEFINE_TYPE(DBusMenuModel, dbus_menu_model, G_TYPE_MENU_MODEL)
 
@@ -91,6 +90,11 @@ static void dbus_menu_model_get_item_links(GMenuModel *model, gint position, GHa
             (GSequenceIter *)g_sequence_get_iter_at_pos(menu->sections, position));
 
 	*table = g_hash_table_ref(item->links);
+}
+
+static bool dbus_menu_model_is_mutable(GMenuModel *model)
+{
+	return true;
 }
 
 struct layout_data
@@ -332,8 +336,6 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 		return;
 	}
 	layout_parse(menu, layout);
-	//    if(menu->layout_update_required)
-	//        dbus_menu_model_update_layout(menu);
 	menu->layout_update_in_progress = false;
 	if (menu->layout_update_required)
 		dbus_menu_model_update_layout(menu);
@@ -448,11 +450,6 @@ DBusMenuModel *dbus_menu_model_new(uint parent_id, DBusMenuModel *parent, DBusMe
 	if (parent != NULL)
 		g_object_bind_property(parent, "xml", ret, "xml", G_BINDING_SYNC_CREATE);
 	return ret;
-}
-
-static bool dbus_menu_model_is_mutable(GMenuModel *model)
-{
-	return true;
 }
 
 static void dbus_menu_model_set_property(GObject *object, guint property_id, const GValue *value,
