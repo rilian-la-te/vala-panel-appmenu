@@ -339,7 +339,6 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 	menu->layout_update_in_progress = false;
 	if (menu->layout_update_required)
 		dbus_menu_model_update_layout(menu);
-	//    g_menu_markup_print_to_console(menu);
 }
 
 G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
@@ -515,7 +514,7 @@ static DBusMenuItem *dbus_menu_model_find(DBusMenuModel *menu, uint item_id, int
 	{
 		DBusMenuItem *current_section = (DBusMenuItem *)g_sequence_get(iter);
 		int current_section_num       = g_sequence_iter_get_position(iter);
-		if (current_section->id == item_id)
+		if (current_section->id == item_id && current_section_num > 0)
 		{
 			*section_num = -1;
 			*position    = current_section_num;
@@ -535,7 +534,7 @@ static DBusMenuItem *dbus_menu_model_find(DBusMenuModel *menu, uint item_id, int
 			{
 				*section_num = current_section_num;
 				*position    = current_num;
-				return current_section;
+				return current_item;
 			}
 		}
 	}
