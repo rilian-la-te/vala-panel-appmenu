@@ -34,6 +34,12 @@ G_GNUC_INTERNAL void g_menu_markup_print_to_console(GMenuModel *menu)
 	g_print("%s\n", cstr);
 }
 
+G_GNUC_INTERNAL void dbus_menu_print_variant(GVariant *var)
+{
+	g_autofree char *pr = g_variant_print(var, true);
+	g_print("%s\n", pr);
+}
+
 static void indent_string(GString *string, gint indent)
 {
 	while (indent--)
