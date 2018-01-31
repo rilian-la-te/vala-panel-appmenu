@@ -92,9 +92,13 @@ static GAction *dbus_menu_action_new(DBusMenuXml *xml, u_int32_t id, DBusMenuAct
 		g_signal_connect(ret, "activate", G_CALLBACK(state_radio_cb), xml);
 		return ret;
 	}
-	ret = g_simple_action_new(name, NULL);
-	g_signal_connect(ret, "activate", G_CALLBACK(activate_ordinary_cb), xml);
-	return ret;
+	else if (action_type == DBUS_MENU_ACTION_NORMAL)
+	{
+		ret = g_simple_action_new(name, NULL);
+		g_signal_connect(ret, "activate", G_CALLBACK(activate_ordinary_cb), xml);
+		return ret;
+	}
+	g_assert_not_reached();
 }
 
 static bool source_state_false(gpointer *data)
