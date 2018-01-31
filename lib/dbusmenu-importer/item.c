@@ -346,7 +346,7 @@ G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 			if (vis)
 			{
 				g_autofree char *name =
-				    dbus_menu_action_get_name(item->id, item->action_type, false);
+				    dbus_menu_action_get_name(item->id, item->action_type, true);
 				bool found = g_hash_table_remove(item->attributes,
 				                                 G_MENU_ATTRIBUTE_HIDDEN_WHEN);
 				if (found)
