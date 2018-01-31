@@ -15,7 +15,9 @@ G_BEGIN_DECLS
 
 /*** BEGIN enumeration-production ***/
 #define DBUS_MENU_TYPE_@ENUMSHORT@	(@enum_name@_get_type())
-GType @enum_name@_get_type	(void) G_GNUC_CONST;
+GType @enum_name@_get_type (void) G_GNUC_CONST;
+const gchar * @enum_name@_get_nick (@EnumName@ value) G_GNUC_CONST;
+@EnumName@ @enum_name@_get_value_from_nick (const gchar * nick) G_GNUC_CONST;
 
 /*** END enumeration-production ***/
 

@@ -36,5 +36,53 @@ GType
 	return the_type;
 }
 
+/**
+	@enum_name@_get_nick:
+	@value: The value of @EnumName@ to get the nick of
+
+	Looks up in the enum table for the nick of @value.
+
+	Return value: The nick for the given value or #NULL on error
+*/
+const gchar *
+@enum_name@_get_nick (@EnumName@ value)
+{
+	GEnumClass * class = G_ENUM_CLASS(g_type_class_ref(@enum_name@_get_type()));
+	g_return_val_if_fail(class != NULL, NULL);
+
+	const gchar * ret = NULL;
+	GEnumValue * val = g_enum_get_value(class, value);
+	if (val != NULL) {
+		ret = val->value_nick;
+	}
+
+	g_type_class_unref(class);
+	return ret;
+}
+
+/**
+	@enum_name@_get_value_from_nick:
+	@nick: The enum nick to lookup
+
+	Looks up in the enum table for the value of @nick.
+
+	Return value: The value for the given @nick
+*/
+@EnumName@
+@enum_name@_get_value_from_nick (const gchar * nick)
+{
+	GEnumClass * class = G_ENUM_CLASS(g_type_class_ref(@enum_name@_get_type()));
+	g_return_val_if_fail(class != NULL, 0);
+
+	@EnumName@ ret = 0;
+	GEnumValue * val = g_enum_get_value_by_nick(class, nick);
+	if (val != NULL) {
+		ret = val->value;
+	}
+
+	g_type_class_unref(class);
+	return ret;
+}
+
 /*** END value-tail ***/
 
