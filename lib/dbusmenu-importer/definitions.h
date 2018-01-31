@@ -62,6 +62,7 @@ typedef enum {
 #define G_MENU_ATTRIBUTE_HIDDEN_WHEN "hidden-when"
 #define G_MENU_ATTRIBUTE_VERB_ICON "verb-icon"
 #define G_MENU_HIDDEN_WHEN_ACTION_MISSING "action-missing"
+#define G_MENU_HIDDEN_WHEN_ACTION_DISABLED "action-disabled"
 
 #define g_signal_handlers_block_by_func_only(instance, func)                                       \
 	g_signal_handlers_block_matched((instance),                                                \

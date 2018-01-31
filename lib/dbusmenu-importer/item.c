@@ -275,10 +275,36 @@ G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 			// TODO: Can we supported this property?
 			// properties_is_updated = true;
 		}
-		if (g_strcmp0(prop, "enabled") == 0)
+		else if (g_strcmp0(prop, "enabled") == 0)
 		{
-			item->enabled = g_variant_get_boolean(value);
+			bool en       = g_variant_get_boolean(value);
+			item->enabled = en;
 			dbus_menu_item_try_to_update_action_properties(item);
+			if (item->action_type == DBUS_MENU_ACTION_SUBMENU)
+			{
+				if (en)
+				{
+					bool found =
+					    g_hash_table_remove(item->attributes,
+					                        G_MENU_ATTRIBUTE_HIDDEN_WHEN);
+					properties_is_updated = properties_is_updated || found;
+				}
+				else
+				{
+					bool found =
+					    g_hash_table_contains(item->attributes,
+					                          G_MENU_ATTRIBUTE_HIDDEN_WHEN);
+					if (!found)
+					{
+						g_hash_table_insert(
+						    item->attributes,
+						    g_strdup(G_MENU_ATTRIBUTE_HIDDEN_WHEN),
+						    g_variant_new_string(
+						        G_MENU_HIDDEN_WHEN_ACTION_MISSING));
+						properties_is_updated = true;
+					}
+				}
+			}
 		}
 		//		else if (g_strcmp0(prop, "icon-data") == 0)
 		//		{
