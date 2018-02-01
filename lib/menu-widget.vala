@@ -45,6 +45,7 @@ namespace Appmenu
         public uint window_id {get; protected set construct;}
         public MenuWidgetCompletionFlags completed_menus {get; internal set;}
         public bool compact_mode {get; set;}
+        public bool bold_application_name {get; set;}
         private Gtk.Adjustment? scroll_adj = null;
         private Gtk.ScrolledWindow? scroller = null;
         private Gtk.CssProvider provider;
