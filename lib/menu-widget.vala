@@ -92,7 +92,12 @@ namespace Appmenu
             if (this.compact_mode)
             {
                 var compact = new GLib.Menu();
-                compact.append_submenu(GLib.dgettext(Config.GETTEXT_PACKAGE,"Compact Menu"),menu);
+                string? name = null;
+                if(this.appmenu != null)
+                    appmenu.get_item_attribute(0,"label","s",name);
+                else
+                    name = GLib.dgettext(Config.GETTEXT_PACKAGE,"Compact Menu");
+                compact.append_submenu(name,menu);
                 mwidget.bind_model(compact,null,true);
             }
             else
