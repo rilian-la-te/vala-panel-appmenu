@@ -203,42 +203,52 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		DBusMenuItem *new_item = dbus_menu_item_new(cid, menu, cprops);
 		if (new_item->is_section)
 		{
-			dbus_menu_item_generate_action(new_item, menu);
-			section_num++;
-			sections_iter = g_sequence_iter_next(sections_iter);
-			if (g_sequence_iter_is_end(sections_iter))
+			bool is_valid_section = !new_item->toggled;
+			if (is_valid_section)
 			{
-				g_hash_table_insert(new_item->links,
-				                    g_strdup(G_MENU_LINK_SECTION),
-				                    dbus_menu_section_model_new(menu, section_num));
-				sections_iter = g_sequence_insert_before(g_sequence_get_end_iter(
-				                                             menu->sections),
-				                                         new_item);
+				section_num++;
+				sections_iter = g_sequence_iter_next(sections_iter);
+				if (g_sequence_iter_is_end(sections_iter) && is_valid_section)
+				{
+					dbus_menu_item_generate_action(new_item, menu);
+					g_hash_table_insert(
+					    new_item->links,
+					    g_strdup(G_MENU_LINK_SECTION),
+					    dbus_menu_section_model_new(menu, section_num));
+					sections_iter =
+					    g_sequence_insert_before(g_sequence_get_end_iter(
+					                                 menu->sections),
+					                             new_item);
+				}
+				else
+				{
+					dbus_menu_item_free(new_item);
+				}
+				g_sequence_remove_range(current_iter,
+				                        g_sequence_get_end_iter(
+				                            current_section->items));
+				int removed = g_sequence_iter_get_position(
+				                  g_sequence_get_end_iter(current_section->items)) -
+				              g_sequence_iter_get_position(current_iter);
+				if ((removed > 0 || added > 0) && section_num <= old_sections)
+				{
+					add_signal_to_queue(menu,
+					                    signal_queue,
+					                    section_num - 1,
+					                    change_pos,
+					                    removed,
+					                    added);
+				}
+				current_section = DBUS_MENU_SECTION_MODEL(
+				    g_hash_table_lookup(((DBusMenuItem *)g_sequence_get(
+				                             sections_iter))
+				                            ->links,
+				                        G_MENU_LINK_SECTION));
+				current_iter = g_sequence_get_begin_iter(current_section->items);
+				added        = 0;
 			}
 			else
-			{
 				dbus_menu_item_free(new_item);
-			}
-			g_sequence_remove_range(current_iter,
-			                        g_sequence_get_end_iter(current_section->items));
-			int removed = g_sequence_iter_get_position(
-			                  g_sequence_get_end_iter(current_section->items)) -
-			              g_sequence_iter_get_position(current_iter);
-			if ((removed > 0 || added > 0) && section_num <= old_sections)
-			{
-				add_signal_to_queue(menu,
-				                    signal_queue,
-				                    section_num - 1,
-				                    change_pos,
-				                    removed,
-				                    added);
-			}
-			current_section = DBUS_MENU_SECTION_MODEL(
-			    g_hash_table_lookup(((DBusMenuItem *)g_sequence_get(sections_iter))
-			                            ->links,
-			                        G_MENU_LINK_SECTION));
-			current_iter = g_sequence_get_begin_iter(current_section->items);
-			added        = 0;
 		}
 		else
 		{
@@ -295,6 +305,8 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 	g_sequence_remove_range(current_iter, g_sequence_get_end_iter(current_section->items));
 	section_num++;
 	int secdiff = old_sections - section_num;
+	g_sequence_remove_range(g_sequence_get_iter_at_pos(menu->sections, section_num),
+	                        g_sequence_get_end_iter(menu->sections));
 	if ((removed > 0 || added > 0) && !secdiff)
 	{
 		add_signal_to_queue(menu,
@@ -335,6 +347,7 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 			g_warning("%s", error->message);
 		return;
 	}
+
 	layout_parse(menu, layout);
 	menu->layout_update_in_progress = false;
 	if (menu->layout_update_required)

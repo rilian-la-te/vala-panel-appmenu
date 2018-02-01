@@ -340,9 +340,12 @@ G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 		}
 		else if (g_strcmp0(prop, "visible") == 0)
 		{
-			if (item->is_section)
-				continue;
 			bool vis = g_variant_get_boolean(value);
+			if (item->is_section)
+			{
+				item->toggled = !vis;
+				continue;
+			}
 			if (vis)
 			{
 				g_autofree char *name =
