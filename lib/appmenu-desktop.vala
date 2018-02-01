@@ -73,13 +73,15 @@ namespace Appmenu
             }
             if ((widget.completed_menus & MenuWidgetCompletionFlags.MENUBAR) == 0)
             {
+                GLib.Menu append_menu = new GLib.Menu();
+                widget.set_menubar(append_menu);
                 files_menu = builder.get_object("files") as GLib.Menu;
                 documents_menu = builder.get_object("docs") as GLib.Menu;
                 music_menu = builder.get_object("music") as GLib.Menu;
                 pictures_menu = builder.get_object("picts") as GLib.Menu;
                 videos_menu = builder.get_object("video") as GLib.Menu;
                 unowned GLib.Menu gmenu = builder.get_object("menubar") as GLib.Menu;
-                widget.set_menubar(gmenu);
+                append_menu.append_section(null,gmenu);
             }
         }
         internal void activate_menu_id(SimpleAction action, Variant? param)

@@ -80,11 +80,11 @@ namespace Appmenu
             window_section = builder.get_object("active-windows") as GLib.Menu;
             foreach(unowned Bamf.Window window in app.get_windows())
                 on_window_added(window);
-            menu.freeze();
             var name = app.get_name();
             if (desktop_file == null && name.length >= 28)
-                name = name[0:25]+"...";
+                name = GLib.Environment.get_prgname();
             all_menu.append_submenu(name,menu);
+            all_menu.freeze();
             widget.set_appmenu(all_menu);
         }
         private void on_window_added(Bamf.Window window)
