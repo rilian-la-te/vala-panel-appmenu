@@ -19,10 +19,13 @@ add_definitions(-Wall -Wextra
 
 find_package (PkgConfig)
 
-pkg_check_modules(GLIB REQUIRED QUIET
-    glib-2.0>=2.50
-    gio-2.0>=2.50
-    gio-unix-2.0>=2.50)
+#pkg_check_modules(GLIB REQUIRED QUIET
+#    glib-2.0>=2.50
+#    gio-2.0>=2.50)
+
+pkg_check_modules(GIO_UNIX REQUIRED QUIET
+    gio-unix-2.0>=2.50
+    )
 
 pkg_check_modules(PIXBUF REQUIRED QUIET
     gdk-pixbuf-2.0)
@@ -60,8 +63,8 @@ set_target_properties(dbusmenu-translator-o PROPERTIES
 #        C_VISIBILITY_PRESET hidden	# Make global variables and functions HIDDEN by default.
         POSITION_INDEPENDENT_CODE ON	# Compile this object code position independent.
 )
-target_include_directories (dbusmenu-translator-o PRIVATE ${GLIB_INCLUDE_DIRS} ${PIXBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(dbusmenu-translator-o PRIVATE ${GLIB_LIBRARIES} ${PIXBUF_LIBRARIES})
+target_include_directories (dbusmenu-translator-o PRIVATE ${GLIB_INCLUDE_DIRS} ${GIO_UNIX_INCLUDE_DIRS} ${PIXBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(dbusmenu-translator-o PRIVATE ${GLIB_LIBRARIES} ${GIO_UNIX_LIBRARIES} ${PIXBUF_LIBRARIES})
 
 
 pkg_check_modules(GTK REQUIRED QUIET
