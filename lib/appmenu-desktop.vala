@@ -82,6 +82,7 @@ namespace Appmenu
                 videos_menu = builder.get_object("video") as GLib.Menu;
                 unowned GLib.Menu gmenu = builder.get_object("menubar") as GLib.Menu;
                 append_menu.append_section(null,gmenu);
+                append_menu.freeze();
             }
         }
         internal void activate_menu_id(SimpleAction action, Variant? param)
