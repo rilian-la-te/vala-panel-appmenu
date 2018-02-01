@@ -341,6 +341,35 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 		dbus_menu_model_update_layout(menu);
 }
 
+G_GNUC_INTERNAL void dbus_menu_model_update_layout_sync(DBusMenuModel *menu)
+{
+	g_return_if_fail(DBUS_MENU_IS_MODEL(menu));
+	g_autoptr(GVariant) layout = NULL;
+	g_autoptr(GError) error    = NULL;
+	guint revision;
+	if (menu->layout_update_in_progress)
+		menu->layout_update_required = true;
+	else
+		dbus_menu_xml_call_get_layout_sync(menu->xml,
+		                                   menu->parent_id,
+		                                   1,
+		                                   property_names,
+		                                   &revision,
+		                                   &layout,
+		                                   menu->cancellable,
+		                                   &error);
+	if (error != NULL)
+	{
+		if (!g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+			g_warning("%s", error->message);
+		return;
+	}
+	layout_parse(menu, layout);
+	menu->layout_update_in_progress = false;
+	if (menu->layout_update_required)
+		dbus_menu_model_update_layout(menu);
+}
+
 G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
 {
 	g_return_if_fail(DBUS_MENU_IS_MODEL(menu));
