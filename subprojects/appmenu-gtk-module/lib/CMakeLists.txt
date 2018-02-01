@@ -23,8 +23,8 @@ add_library(appmenu-gtk3-parser SHARED
         ${LIB_SOURCES}
         ${GTK3_SOURCES})
 
-target_include_directories(appmenu-gtk3-parser PRIVATE ${GLIB_INCLUDE_DIRS} ${GTK3_INCLUDE_DIRS} ${X11_INCLUDE_DIRS})
-target_link_libraries(appmenu-gtk3-parser PRIVATE ${GLIB_LIBRARIES} ${GTK3_LIBRARIES} ${X11_LIBRARIES})
+target_include_directories(appmenu-gtk3-parser PRIVATE ${GTK3_INCLUDE_DIRS} ${X11_INCLUDE_DIRS})
+target_link_libraries(appmenu-gtk3-parser PRIVATE ${GTK3_LIBRARIES} ${X11_LIBRARIES})
 set_target_properties(appmenu-gtk3-parser PROPERTIES
 	VERSION ${VERSION}
 	SOVERSION ${VERSION_MAJOR})
@@ -36,8 +36,8 @@ if (GTK2_FOUND)
 	set_target_properties(appmenu-gtk2-parser PROPERTIES
 		VERSION ${VERSION}
 		SOVERSION ${VERSION_MAJOR})
-	target_include_directories(appmenu-gtk2-parser PRIVATE ${GLIB_INCLUDE_DIRS} ${GTK2_INCLUDE_DIRS} ${X11_INCLUDE_DIRS})
-	target_link_libraries(appmenu-gtk2-parser PRIVATE ${GLIB_LIBRARIES} ${GTK2_LIBRARIES} ${X11_LIBRARIES})
+        target_include_directories(appmenu-gtk2-parser PRIVATE ${GTK2_INCLUDE_DIRS} ${X11_INCLUDE_DIRS})
+        target_link_libraries(appmenu-gtk2-parser PRIVATE ${GTK2_LIBRARIES} ${X11_LIBRARIES})
 	install(TARGETS appmenu-gtk2-parser DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 
