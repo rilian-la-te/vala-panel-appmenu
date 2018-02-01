@@ -60,8 +60,13 @@ namespace Appmenu
             context.add_class("-vala-panel-appmenu-core");
             unowned Gtk.StyleContext mcontext = mwidget.get_style_context();
 #if BOLD
-            mcontext.add_class("-vala-panel-appmenu-bold");
+            this.bold_application_name = true;
+#else
+            this.bold_application_name = false;
 #endif
+            this.notify.connect(()=>{
+                this.restock();
+            });
             mcontext.add_class("-vala-panel-appmenu-private");
             Gtk.StyleContext.add_provider_for_screen(this.get_screen(), provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
             //Setup menubar
@@ -85,6 +90,11 @@ namespace Appmenu
         }
         private void restock()
         {
+            unowned Gtk.StyleContext mcontext = mwidget.get_style_context();
+            if(bold_application_name)
+                mcontext.add_class("-vala-panel-appmenu-bold");
+            else
+                mcontext.remove_class("-vala-panel-appmenu-bold");
             var menu = new GLib.Menu();
             if (this.appmenu != null)
                 menu.append_section(null,this.appmenu);
@@ -95,7 +105,7 @@ namespace Appmenu
                 var compact = new GLib.Menu();
                 string? name = null;
                 if(this.appmenu != null)
-                    appmenu.get_item_attribute(0,"label","s",name);
+                    this.appmenu.get_item_attribute(0,"label","s",&name);
                 else
                     name = GLib.dgettext(Config.GETTEXT_PACKAGE,"Compact Menu");
                 compact.append_submenu(name,menu);
@@ -108,27 +118,19 @@ namespace Appmenu
         {
             this.appmenu = appmenu_model;
             if (appmenu_model != null)
-            {
                 completed_menus |= MenuWidgetCompletionFlags.APPMENU;
-            }
             else
-            {
                 completed_menus &= ~MenuWidgetCompletionFlags.APPMENU;
-            }
-            restock();
+            this.restock();
         }
         public void set_menubar(GLib.MenuModel? menubar_model)
         {
             this.menubar = menubar_model;
             if (menubar_model != null)
-            {
                 completed_menus |= MenuWidgetCompletionFlags.MENUBAR;
-            }
             else
-            {
                 completed_menus &= ~MenuWidgetCompletionFlags.MENUBAR;
-            }
-            restock();
+            this.restock();
         }
         protected bool on_scroll_event(Gtk.Widget w, Gdk.EventScroll event)
         {
