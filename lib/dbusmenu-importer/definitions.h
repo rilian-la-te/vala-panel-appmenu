@@ -51,6 +51,7 @@ typedef enum {
 #define DBUS_MENU_CHILDREN_DISPLAY_SUBMENU "submenu"
 
 #define DBUS_MENU_DISABLED_ACTION "ls.disabled"
+#define DBUS_MENU_DISABLED_SUBMENU "disabled-submenu"
 #define DBUS_MENU_PROPERTY_ENABLED "enabled"
 #define DBUS_MENU_PROPERTY_TOGGLE_STATE "toggle-state"
 #define DBUS_MENU_ACTION_RADIO_SELECTED "+"

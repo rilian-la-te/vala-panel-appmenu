@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//#include <gdk-pixbuf/gdk-pixbuf.h>
 #include <stdbool.h>
 
 #include "definitions.h"
@@ -26,26 +25,9 @@
 G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data);
 G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_copy(DBusMenuItem *src);
 G_DEFINE_BOXED_TYPE(DBusMenuItem, dbus_menu_item, dbus_menu_item_copy, dbus_menu_item_free)
-
-// static GIcon *g_icon_new_pixbuf_from_variant(GVariant *variant)
-//{
-//	gsize length;
-//	const unsigned char *data =
-//	    (const unsigned char *)g_variant_get_fixed_array(variant, &length, sizeof(guchar));
-//	if (length == 0)
-//		return NULL;
-
-//	g_autoptr(GInputStream) stream = g_memory_input_stream_new_from_data(data, length, NULL);
-//	if (stream == NULL)
-//		return NULL;
-
-//	g_autoptr(GError) error = NULL;
-//	GdkPixbuf *pixbuf       = gdk_pixbuf_new_from_stream(stream, NULL, &error);
-//	if (error != NULL)
-//		g_warning("Unable to build GdkPixbuf from icon data: %s", error->message);
-
-//	return G_ICON(pixbuf);
-//}
+#if 0
+#include "item-pixbuf.c"
+#endif
 
 G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id,
                                                                GActionGroup *action_group)
@@ -280,46 +262,45 @@ G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 			item->enabled = g_variant_get_boolean(value);
 			dbus_menu_item_try_to_update_action_properties(item);
 		}
-		//		else if (g_strcmp0(prop, "icon-data") == 0)
-		//		{
-		//			// icon-name has more priority
-		//			if (!g_hash_table_lookup(item->attributes,
-		// G_MENU_ATTRIBUTE_ICON))
-		//			{
-		//				g_autoptr(GIcon) icon =
-		// g_icon_new_pixbuf_from_variant(value);
-		//				GVariant *value       = g_icon_serialize(icon);
-		//				properties_is_updated =
-		//				    properties_is_updated ||
-		//				    check_and_update_mutable_attribute(item,
-		//				                                       G_MENU_ATTRIBUTE_ICON,
-		//				                                       value);
-		//				properties_is_updated =
-		//				    properties_is_updated ||
-		//				    check_and_update_mutable_attribute(item,
-		//				                                       G_MENU_ATTRIBUTE_VERB_ICON,
-		//				                                       value);
-		//			}
-		//		}
-		//		else if (g_strcmp0(prop, "icon-name") == 0)
-		//		{
-		//			g_autoptr(GIcon) icon =
-		//			    g_themed_icon_new(g_variant_get_string(value, NULL));
-		//			GVariant *value             = g_icon_serialize(icon);
-		//			g_autoptr(GVariant) boolvar = g_variant_new_boolean(true);
-		//			properties_is_updated =
-		//			    properties_is_updated ||
-		//			    check_and_update_mutable_attribute(item,
-		// G_MENU_ATTRIBUTE_ICON, value); 			properties_is_updated =
-		//			    properties_is_updated ||
-		//			    check_and_update_mutable_attribute(item,
-		//			                                       G_MENU_ATTRIBUTE_VERB_ICON,
-		//			                                       value);
-		//			properties_is_updated =
-		//			    properties_is_updated ||
-		//			    check_and_update_mutable_attribute(item, HAS_ICON_NAME,
-		// boolvar);
-		//		}
+#if 0
+		else if (g_strcmp0(prop, "icon-data") == 0)
+		{
+			// icon-name has more priority
+			if (!g_hash_table_lookup(item->attributes, G_MENU_ATTRIBUTE_ICON))
+			{
+				g_autoptr(GIcon) icon = g_icon_new_pixbuf_from_variant(value);
+				GVariant *value       = g_icon_serialize(icon);
+				properties_is_updated =
+				    properties_is_updated ||
+				    check_and_update_mutable_attribute(item,
+				                                       G_MENU_ATTRIBUTE_ICON,
+				                                       value);
+				properties_is_updated =
+				    properties_is_updated ||
+				    check_and_update_mutable_attribute(item,
+				                                       G_MENU_ATTRIBUTE_VERB_ICON,
+				                                       value);
+			}
+		}
+		else if (g_strcmp0(prop, "icon-name") == 0)
+		{
+			g_autoptr(GIcon) icon =
+			    g_themed_icon_new(g_variant_get_string(value, NULL));
+			GVariant *value             = g_icon_serialize(icon);
+			g_autoptr(GVariant) boolvar = g_variant_new_boolean(true);
+			properties_is_updated =
+			    properties_is_updated ||
+			    check_and_update_mutable_attribute(item, G_MENU_ATTRIBUTE_ICON, value);
+			properties_is_updated =
+			    properties_is_updated ||
+			    check_and_update_mutable_attribute(item,
+			                                       G_MENU_ATTRIBUTE_VERB_ICON,
+			                                       value);
+			properties_is_updated =
+			    properties_is_updated ||
+			    check_and_update_mutable_attribute(item, HAS_ICON_NAME, boolvar);
+		}
+#endif
 		else if (g_strcmp0(prop, "label") == 0)
 		{
 			properties_is_updated =
