@@ -57,6 +57,8 @@ static void dbus_menu_section_model_get_item_links(GMenuModel *model, gint posit
 	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(model);
 	DBusMenuItem *item =
 	    (DBusMenuItem *)g_sequence_get(g_sequence_get_iter_at_pos(menu->items, position));
+	if (g_hash_table_contains(item->links, G_MENU_LINK_SECTION))
+		g_warning("Item has section, but should not\n");
 	*table = g_hash_table_ref(item->links);
 }
 static void dbus_menu_section_model_init(DBusMenuSectionModel *menu)
