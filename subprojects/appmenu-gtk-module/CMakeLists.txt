@@ -6,8 +6,7 @@ enable_testing ()
 include(GNUInstallDirs)
 include(CMakeDependentOption)
 find_package (PkgConfig QUIET)
-pkg_check_modules(GTK2
-	gtk+-2.0>=2.24)
+find_package(GTK2 2.24 REQUIRED gtk)
 pkg_check_modules(GTK3 REQUIRED QUIET
 	gtk+-3.0>=3.10)
 find_package(X11)

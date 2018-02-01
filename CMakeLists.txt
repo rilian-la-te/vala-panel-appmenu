@@ -58,6 +58,9 @@ add_definitions(-Wall -Wextra -Wno-unused # Vala loves to create variables
 
 find_package (PkgConfig)
 
+find_package(GLib REQUIRED COMPONENTS goblect gio gio-unix gmodule gthread VERSION 2.50)
+find_package(GTK3 REQUIRED VERSION 3.22)
+
 pkg_check_modules (CORE QUIET
   gtk+-3.0>=3.22
   glib-2.0>=2.50
@@ -66,16 +69,6 @@ pkg_check_modules (CORE QUIET
   gthread-2.0>=2.50
   gmodule-2.0>=2.50
   libbamf3)
-
-pkg_check_modules(GTK REQUIRED
-    gtk+-3.0>=3.22)
-
-pkg_check_modules(GLIB REQUIRED
-    glib-2.0>=2.50
-    gio-2.0>=2.50
-    gio-unix-2.0>=2.50
-    gthread-2.0>=2.50
-    gmodule-2.0>=2.50)
 
 pkg_check_modules(BAMF REQUIRED
     libbamf3)
