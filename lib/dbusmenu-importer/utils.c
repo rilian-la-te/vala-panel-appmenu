@@ -125,13 +125,11 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 		                                      (gboolean *)&need_update,
 		                                      NULL,
 		                                      NULL);
-		const char *populated = (const char *)g_object_get_data(action, POPULATED_QUARK);
-		if (populated == NULL || g_menu_model_get_n_items(model) == 0)
+		if (g_menu_model_get_n_items(model) == 0)
 			need_update = true;
 		need_update = need_update || dbus_menu_model_is_layout_update_required(model);
 		if (need_update)
 		{
-			g_object_set_data(action, POPULATED_QUARK, POPULATED_QUARK);
 			// TODD: Populate layout after request;
 			if (DBUS_MENU_IS_MODEL(model))
 				dbus_menu_model_update_layout(model);
