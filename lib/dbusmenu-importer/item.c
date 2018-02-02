@@ -261,20 +261,6 @@ G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item)
 		if (DBUS_MENU_IS_MODEL(submenu))
 			dbus_menu_model_update_layout(submenu);
 	}
-	dbus_menu_xml_call_event_sync(xml,
-	                              id,
-	                              "opened",
-	                              g_variant_new("v", g_variant_new_int32(0)),
-	                              CURRENT_TIME,
-	                              NULL,
-	                              NULL);
-	dbus_menu_xml_call_event_sync(xml,
-	                              id,
-	                              "closed",
-	                              g_variant_new("v", g_variant_new_int32(0)),
-	                              CURRENT_TIME,
-	                              NULL,
-	                              NULL);
 }
 
 G_GNUC_INTERNAL bool dbus_menu_item_copy_attributes(DBusMenuItem *src, DBusMenuItem *dst)
