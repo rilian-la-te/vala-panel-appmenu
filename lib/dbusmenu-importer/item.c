@@ -29,6 +29,8 @@ G_DEFINE_BOXED_TYPE(DBusMenuItem, dbus_menu_item, dbus_menu_item_copy, dbus_menu
 #include "item-pixbuf.c"
 #endif
 
+static void dbus_menu_item_try_to_update_action_properties(DBusMenuItem *item);
+
 G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id,
                                                                GActionGroup *action_group)
 {
@@ -83,11 +85,9 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 			else if (g_strcmp0(g_variant_get_string(value, NULL),
 			                   DBUS_MENU_CHILDREN_DISPLAY_SUBMENU) == 0)
 			{
-				g_autofree char *name =
-				    g_strdup_printf(DBUS_MENU_ACTION_NAMESPACE_PREFIX SUBMENU_PREFIX
-				                    "%u",
-				                    id);
 				item->action_type = DBUS_MENU_ACTION_SUBMENU;
+				g_autofree char *name =
+				    dbus_menu_action_get_name(id, item->action_type, true);
 				g_hash_table_insert(item->attributes,
 				                    g_strdup(G_MENU_ATTRIBUTE_SUBMENU_ACTION),
 				                    g_variant_new_string(name));
@@ -97,8 +97,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 		else if (g_strcmp0(prop, DBUS_MENU_PROP_TOGGLE_TYPE) == 0)
 		{
 			g_autofree char *name =
-			    g_strdup_printf(DBUS_MENU_ACTION_NAMESPACE_PREFIX ACTION_PREFIX "%u",
-			                    id);
+			    dbus_menu_action_get_name(id, item->action_type, true);
 			if (g_strcmp0(g_variant_get_string(value, NULL),
 			              DBUS_MENU_TOGGLE_TYPE_CHECK) == 0)
 			{
@@ -131,11 +130,9 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 			}
 			else if (!g_strcmp0(type, DBUS_MENU_TYPE_NORMAL))
 			{
-				g_autofree char *name =
-				    g_strdup_printf(DBUS_MENU_ACTION_NAMESPACE_PREFIX ACTION_PREFIX
-				                    "%u",
-				                    id);
 				item->action_type = DBUS_MENU_ACTION_NORMAL;
+				g_autofree char *name =
+				    dbus_menu_action_get_name(id, item->action_type, true);
 				g_hash_table_insert(item->attributes,
 				                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
 				                    g_variant_new_string(name));
@@ -151,10 +148,9 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 		}
 		else if (!action_creator_found)
 		{
-			g_autofree char *name =
-			    g_strdup_printf(DBUS_MENU_ACTION_NAMESPACE_PREFIX ACTION_PREFIX "%u",
-			                    id);
 			item->action_type = DBUS_MENU_ACTION_NORMAL;
+			g_autofree char *name =
+			    dbus_menu_action_get_name(id, item->action_type, true);
 			g_hash_table_insert(item->attributes,
 			                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
 			                    g_variant_new_string(name));
@@ -203,6 +199,47 @@ static bool check_and_update_mutable_attribute(DBusMenuItem *item, const char *k
 		return true;
 	}
 	return false;
+}
+
+static bool dbus_menu_item_update_enabled(DBusMenuItem *item, bool enabled)
+{
+	bool updated = false;
+	if (item->action_type == DBUS_MENU_ACTION_SUBMENU)
+	{
+		DBusMenuModel *submenu = DBUS_MENU_MODEL(
+		    g_hash_table_lookup(item->links,
+		                        item->enabled ? G_MENU_LINK_SUBMENU
+		                                      : DBUS_MENU_DISABLED_SUBMENU));
+		if (item->enabled != enabled)
+		{
+			if (submenu != NULL)
+			{
+				g_object_ref(submenu);
+				g_hash_table_insert(item->links,
+				                    g_strdup(enabled ? G_MENU_LINK_SUBMENU
+				                                     : DBUS_MENU_DISABLED_SUBMENU),
+				                    submenu);
+				g_hash_table_remove(item->links,
+				                    item->enabled ? G_MENU_LINK_SUBMENU
+				                                  : DBUS_MENU_DISABLED_SUBMENU);
+			}
+			if (enabled)
+			{
+				g_hash_table_remove(item->attributes, G_MENU_ATTRIBUTE_ACTION);
+			}
+			else
+			{
+				g_hash_table_insert(item->attributes,
+				                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
+				                    g_variant_new_string(
+				                        DBUS_MENU_DISABLED_ACTION));
+			}
+			updated = true;
+		}
+	}
+	item->enabled = enabled;
+	dbus_menu_item_try_to_update_action_properties(item);
+	return updated;
 }
 
 G_GNUC_INTERNAL bool dbus_menu_item_copy_attributes(DBusMenuItem *src, DBusMenuItem *dst)
@@ -257,10 +294,11 @@ G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 			// TODO: Can we supported this property?
 			// properties_is_updated = true;
 		}
-		if (g_strcmp0(prop, "enabled") == 0)
+		else if (g_strcmp0(prop, "enabled") == 0)
 		{
-			item->enabled = g_variant_get_boolean(value);
-			dbus_menu_item_try_to_update_action_properties(item);
+			bool enabled = g_variant_get_boolean(value);
+			properties_is_updated =
+			    dbus_menu_item_update_enabled(item, enabled) || properties_is_updated;
 		}
 #if 0
 		else if (g_strcmp0(prop, "icon-data") == 0)
@@ -304,15 +342,19 @@ G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 		else if (g_strcmp0(prop, "label") == 0)
 		{
 			properties_is_updated =
-			    properties_is_updated ||
-			    check_and_update_mutable_attribute(item, G_MENU_ATTRIBUTE_LABEL, value);
+			    check_and_update_mutable_attribute(item,
+			                                       G_MENU_ATTRIBUTE_LABEL,
+			                                       value) ||
+			    properties_is_updated;
 		}
 		else if (g_strcmp0(prop, "shortcut") == 0)
 		{
 			// TODO: Shortcut translator to Gtk without Gtk linked
 			properties_is_updated =
-			    properties_is_updated ||
-			    check_and_update_mutable_attribute(item, G_MENU_ATTRIBUTE_ACCEL, value);
+			    check_and_update_mutable_attribute(item,
+			                                       G_MENU_ATTRIBUTE_ACCEL,
+			                                       value) ||
+			    properties_is_updated;
 		}
 		else if (g_strcmp0(prop, "toggle-state") == 0)
 		{
@@ -383,8 +425,8 @@ G_GNUC_INTERNAL bool dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *p
 		}
 		else if (g_strcmp0(prop, "enabled") == 0)
 		{
-			item->enabled = true;
-			dbus_menu_item_try_to_update_action_properties(item);
+			bool enabled = true;
+			dbus_menu_item_update_enabled(item, enabled);
 		}
 		else if (g_strcmp0(prop, "icon-name") == 0)
 		{
@@ -470,16 +512,23 @@ G_GNUC_INTERNAL void dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem
 		{
 			submenu =
 			    dbus_menu_model_new(dst->id, parent, xml, dst->referenced_action_group);
-			g_hash_table_insert(dst->links, g_strdup(G_MENU_LINK_SUBMENU), submenu);
+			g_hash_table_insert(dst->links,
+			                    g_strdup(dst->enabled ? G_MENU_LINK_SUBMENU
+			                                          : DBUS_MENU_DISABLED_SUBMENU),
+			                    submenu);
 		}
 		return;
 	}
 	if (dst->action_type == DBUS_MENU_ACTION_SUBMENU &&
 	    src->action_type == DBUS_MENU_ACTION_SUBMENU)
 	{
-		submenu = DBUS_MENU_MODEL(g_hash_table_lookup(src->links, G_MENU_LINK_SUBMENU));
+		submenu =
+		    DBUS_MENU_MODEL(g_hash_table_lookup(src->links,
+		                                        src->enabled ? G_MENU_LINK_SUBMENU
+		                                                     : DBUS_MENU_DISABLED_SUBMENU));
 		g_hash_table_insert(dst->links,
-		                    g_strdup(G_MENU_LINK_SUBMENU),
+		                    g_strdup(dst->enabled ? G_MENU_LINK_SUBMENU
+		                                          : DBUS_MENU_DISABLED_SUBMENU),
 		                    g_object_ref(submenu));
 		g_object_set(submenu, "parent-id", dst->id, NULL);
 	}
@@ -488,7 +537,9 @@ G_GNUC_INTERNAL void dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem
 G_GNUC_INTERNAL void dbus_menu_item_generate_action(DBusMenuItem *item, DBusMenuModel *parent)
 {
 	DBusMenuXml *xml;
-	DBusMenuModel *submenu = g_hash_table_lookup(item->links, G_MENU_LINK_SUBMENU);
+	DBusMenuModel *submenu =
+	    g_hash_table_lookup(item->links,
+	                        item->enabled ? G_MENU_LINK_SUBMENU : DBUS_MENU_DISABLED_SUBMENU);
 	g_object_get(parent, "xml", &xml, NULL);
 	item->referenced_action =
 	    dbus_menu_action_reference(item->id,
