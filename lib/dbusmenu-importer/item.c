@@ -18,6 +18,7 @@
 
 #include <stdbool.h>
 
+#include "dbusmenu-interface.h"
 #include "definitions.h"
 #include "item.h"
 #include "utils.h"
