@@ -31,6 +31,8 @@ G_GNUC_INTERNAL DBusMenuModel *dbus_menu_model_new(uint parent_id, DBusMenuModel
 G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu);
 G_GNUC_INTERNAL void dbus_menu_model_update_layout_sync(DBusMenuModel *menu);
 G_GNUC_INTERNAL bool dbus_menu_model_is_layout_update_required(DBusMenuModel *model);
+G_GNUC_INTERNAL void dbus_menu_model_set_layout_update_required(DBusMenuModel *model,
+                                                                bool required);
 
 G_END_DECLS
 

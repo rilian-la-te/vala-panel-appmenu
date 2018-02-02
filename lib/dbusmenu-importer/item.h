@@ -61,6 +61,7 @@ G_GNUC_INTERNAL void dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem
                                                  DBusMenuModel *parent);
 
 G_GNUC_INTERNAL void dbus_menu_item_generate_action(DBusMenuItem *item, DBusMenuModel *parent);
+G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item);
 
 G_GNUC_INTERNAL int dbus_menu_item_id_compare_func(const DBusMenuItem *a, gconstpointer b,
                                                    gpointer user_data);

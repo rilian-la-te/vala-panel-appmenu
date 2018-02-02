@@ -297,6 +297,9 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 					// Immutable properties was different, replace items
 					dbus_menu_item_copy_submenu(old, new_item, menu);
 					dbus_menu_item_generate_action(new_item, menu);
+					// if it is root, preload submenu
+					if (menu->parent_id == 0)
+						dbus_menu_item_preload(new_item);
 					g_sequence_set(current_iter, new_item);
 				}
 				else
@@ -599,6 +602,11 @@ G_GNUC_INTERNAL bool dbus_menu_model_is_layout_update_required(DBusMenuModel *mo
 	return model->layout_update_required;
 }
 
+G_GNUC_INTERNAL void dbus_menu_model_set_layout_update_required(DBusMenuModel *model, bool required)
+{
+	model->layout_update_required = required;
+}
+
 static DBusMenuItem *dbus_menu_model_find(DBusMenuModel *menu, uint item_id, int *section_num,
                                           int *position)
 {
@@ -640,7 +648,7 @@ static void dbus_menu_model_init(DBusMenuModel *menu)
 	menu->cancellable               = g_cancellable_new();
 	menu->parent_id                 = UINT_MAX;
 	menu->sections                  = g_sequence_new(dbus_menu_item_free);
-	menu->layout_update_required    = false;
+	menu->layout_update_required    = true;
 	menu->layout_update_in_progress = false;
 	menu->current_revision          = 0;
 }

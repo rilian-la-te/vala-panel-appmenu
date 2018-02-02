@@ -242,6 +242,33 @@ static bool dbus_menu_item_update_enabled(DBusMenuItem *item, bool enabled)
 	return updated;
 }
 
+G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item)
+{
+	if (item->action_type != DBUS_MENU_ACTION_SUBMENU)
+		return;
+	uint id;
+	DBusMenuXml *xml;
+	bool need_update;
+	DBusMenuModel *submenu = DBUS_MENU_MODEL(
+	    g_hash_table_lookup(item->links,
+	                        item->enabled ? G_MENU_LINK_SUBMENU : DBUS_MENU_DISABLED_SUBMENU));
+	g_object_get(submenu, "parent-id", &id, "xml", &xml, NULL);
+	dbus_menu_xml_call_about_to_show_sync(xml, id, (gboolean *)&need_update, NULL, NULL);
+	need_update = need_update || dbus_menu_model_is_layout_update_required(submenu);
+	if (need_update)
+	{
+		if (DBUS_MENU_IS_MODEL(submenu))
+			dbus_menu_model_update_layout(submenu);
+	}
+	dbus_menu_xml_call_event_sync(xml,
+	                              id,
+	                              "opened",
+	                              g_variant_new("v", g_variant_new_int32(0)),
+	                              CURRENT_TIME,
+	                              NULL,
+	                              NULL);
+}
+
 G_GNUC_INTERNAL bool dbus_menu_item_copy_attributes(DBusMenuItem *src, DBusMenuItem *dst)
 {
 	GHashTableIter iter;
