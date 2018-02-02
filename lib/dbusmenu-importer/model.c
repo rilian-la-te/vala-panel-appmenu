@@ -156,6 +156,12 @@ static bool queue_emit_all(GQueue *queue)
 	return G_SOURCE_REMOVE;
 }
 
+static bool preload_idle(DBusMenuItem *item)
+{
+	dbus_menu_item_preload(item);
+	return G_SOURCE_REMOVE;
+}
+
 // We deal only with layouts with depth 1 (not all)
 static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 {
@@ -282,6 +288,12 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 					        : change_pos;
 				dbus_menu_item_copy_submenu(NULL, new_item, menu);
 				dbus_menu_item_generate_action(new_item, menu);
+				if (menu->parent_id == 0)
+					g_timeout_add_full(100,
+					                   300,
+					                   (GSourceFunc)preload_idle,
+					                   new_item,
+					                   NULL);
 				current_iter = g_sequence_insert_before(current_iter, new_item);
 				added++;
 			}
@@ -299,7 +311,11 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 					dbus_menu_item_generate_action(new_item, menu);
 					// if it is root, preload submenu
 					if (menu->parent_id == 0)
-						dbus_menu_item_preload(new_item);
+						g_timeout_add_full(100,
+						                   300,
+						                   (GSourceFunc)preload_idle,
+						                   new_item,
+						                   NULL);
 					g_sequence_set(current_iter, new_item);
 				}
 				else
@@ -413,7 +429,7 @@ G_GNUC_INTERNAL void dbus_menu_model_update_layout_sync(DBusMenuModel *menu)
 	layout_parse(menu, layout);
 	menu->layout_update_in_progress = false;
 	if (menu->layout_update_required)
-		dbus_menu_model_update_layout(menu);
+		dbus_menu_model_update_layout_sync(menu);
 }
 
 G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
