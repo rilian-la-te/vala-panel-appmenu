@@ -469,9 +469,20 @@ static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_pr
 		bool is_item_updated = false;
 		if (item != NULL)
 		{
-			is_item_updated = dbus_menu_item_update_props(item, props);
-			if (is_item_updated)
-				add_signal_to_queue(menu, signal_queue, sect_n, position, 1, 1);
+			// It is the best what we can do to update a section
+			//			if (item->is_section)
+			//				dbus_menu_model_update_layout(menu);
+			//			else
+			{
+				is_item_updated = dbus_menu_item_update_props(item, props);
+				if (is_item_updated)
+					add_signal_to_queue(menu,
+					                    signal_queue,
+					                    sect_n,
+					                    position,
+					                    1,
+					                    1);
+			}
 		}
 	}
 	g_variant_iter_init(&iter, removed_props);
@@ -482,9 +493,20 @@ static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_pr
 		bool is_item_updated = false;
 		if (item != NULL)
 		{
-			is_item_updated = dbus_menu_item_remove_props(item, props);
-			if (is_item_updated)
-				add_signal_to_queue(menu, signal_queue, sect_n, position, 1, 1);
+			// It is the best what we can do to update a section
+			//			if (item->is_section)
+			//				dbus_menu_model_update_layout(menu);
+			//			else
+			{
+				is_item_updated = dbus_menu_item_remove_props(item, props);
+				if (is_item_updated)
+					add_signal_to_queue(menu,
+					                    signal_queue,
+					                    sect_n,
+					                    position,
+					                    1,
+					                    1);
+			}
 		}
 	}
 	queue_emit_all(signal_queue);
