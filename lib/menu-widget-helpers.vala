@@ -30,8 +30,6 @@ namespace Appmenu
         private Helper bamf_helper = null;
         public MenuModelHelper(MenuWidget w,Bamf.Application? app,Bamf.Window window)
         {
-//            this.window_id = window.get_xid();
-//            this.widget = w;
             GLib.ActionGroup? appmenu_actions = null;
             GLib.ActionGroup? menubar_actions = null;
             GLib.ActionGroup? unity_actions = null;
