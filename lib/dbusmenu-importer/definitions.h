@@ -50,6 +50,16 @@ typedef enum {
 #define DBUS_MENU_PROP_CHILDREN_DISPLAY "children-display"
 #define DBUS_MENU_CHILDREN_DISPLAY_SUBMENU "submenu"
 
+#define DBUS_MENU_SHORTCUT_CONTROL "Control"
+#define DBUS_MENU_SHORTCUT_ALT "Alt"
+#define DBUS_MENU_SHORTCUT_SHIFT "Shift"
+#define DBUS_MENU_SHORTCUT_SUPER "Super"
+
+#define DBUS_MENUMODEL_SHORTCUT_SHIFT "<Shift>"
+#define DBUS_MENUMODEL_SHORTCUT_CONTROL "<Control>"
+#define DBUS_MENUMODEL_SHORTCUT_ALT "<Alt>"
+#define DBUS_MENUMODEL_SHORTCUT_SUPER "<Super>"
+
 #define DBUS_MENU_DISABLED_ACTION "ls.disabled"
 #define DBUS_MENU_DISABLED_SUBMENU "disabled-submenu"
 #define DBUS_MENU_PROPERTY_ENABLED "enabled"

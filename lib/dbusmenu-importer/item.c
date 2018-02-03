@@ -300,6 +300,37 @@ static void dbus_menu_item_try_to_update_action_properties(DBusMenuItem *item)
 	}
 }
 
+static bool dbus_menu_item_update_shortcut(DBusMenuItem *item, GVariant *value)
+{
+	GString *new_accel_string = g_string_new(NULL);
+	if (g_variant_n_children(value) != 1)
+		g_warning("Unable to parse shortcut correctly, too many keys. Taking first.");
+
+	GVariantIter iter;
+	GVariant *child = g_variant_get_child_value(value, 0);
+	g_variant_iter_init(&iter, child);
+	gchar *string;
+
+	while (g_variant_iter_loop(&iter, "s", &string))
+	{
+		if (g_strcmp0(string, DBUS_MENU_SHORTCUT_CONTROL) == 0)
+			g_string_append(new_accel_string, DBUS_MENUMODEL_SHORTCUT_CONTROL);
+		else if (g_strcmp0(string, DBUS_MENU_SHORTCUT_ALT) == 0)
+			g_string_append(new_accel_string, DBUS_MENUMODEL_SHORTCUT_ALT);
+		else if (g_strcmp0(string, DBUS_MENU_SHORTCUT_SHIFT) == 0)
+			g_string_append(new_accel_string, DBUS_MENUMODEL_SHORTCUT_SHIFT);
+		else if (g_strcmp0(string, DBUS_MENU_SHORTCUT_SUPER) == 0)
+			g_string_append(new_accel_string, DBUS_MENUMODEL_SHORTCUT_SUPER);
+		else
+			g_string_append(new_accel_string, string);
+	}
+	g_variant_unref(child);
+	g_autofree char *str = g_string_free(new_accel_string, false);
+	GVariant *new_accel  = g_variant_new_string(str);
+	bool updated = check_and_update_mutable_attribute(item, G_MENU_ATTRIBUTE_ACCEL, new_accel);
+	return updated;
+}
+
 G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *props)
 {
 	GVariantIter iter;
@@ -370,12 +401,8 @@ G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 		}
 		else if (g_strcmp0(prop, "shortcut") == 0)
 		{
-			// TODO: Shortcut translator to Gtk without Gtk linked
 			properties_is_updated =
-			    check_and_update_mutable_attribute(item,
-			                                       G_MENU_ATTRIBUTE_ACCEL,
-			                                       value) ||
-			    properties_is_updated;
+			    dbus_menu_item_update_shortcut(item, value) || properties_is_updated;
 		}
 		else if (g_strcmp0(prop, "toggle-state") == 0)
 		{
