@@ -63,8 +63,6 @@ namespace Appmenu
             }
             if (name == null && app != null)
                 name = app.get_name();
-            if (name == null && window != null)
-                name = window.get_name();
             if (name == null)
                 name = Environment.get_prgname();
             GLib.MenuModel? appmenu = null;
