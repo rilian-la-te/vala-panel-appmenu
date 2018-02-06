@@ -23,6 +23,11 @@
 #include "item.h"
 #include "utils.h"
 
+#define ITEM_MAGIC 0xDEADBEEF
+#define item_set_magic(item) (item)->magic = GUINT_TO_POINTER(ITEM_MAGIC)
+
+#define item_check_magic(item) (GPOINTER_TO_UINT((item)->magic) == ITEM_MAGIC)
+
 G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data);
 G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_copy(DBusMenuItem *src);
 G_DEFINE_BOXED_TYPE(DBusMenuItem, dbus_menu_item, dbus_menu_item_copy, dbus_menu_item_free)
@@ -45,6 +50,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id,
 	item->links =
 	    g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)g_object_unref);
 	item->referenced_action_group = action_group;
+	item_set_magic(item);
 	return item;
 }
 
@@ -56,6 +62,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 	GVariantIter iter;
 	const char *prop;
 	GVariant *value;
+	item_set_magic(item);
 	item->is_section = false;
 	item->enabled    = true;
 	item->toggled    = false;
@@ -167,6 +174,7 @@ G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data)
 	DBusMenuItem *item = (DBusMenuItem *)data;
 	if (item == NULL)
 		return;
+	item->magic = NULL;
 	g_clear_pointer(&item->attributes, g_hash_table_destroy);
 	g_clear_pointer(&item->links, g_hash_table_destroy);
 	g_clear_object(&item->referenced_action);
@@ -245,6 +253,8 @@ static bool dbus_menu_item_update_enabled(DBusMenuItem *item, bool enabled)
 
 G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item)
 {
+	if (!item_check_magic(item))
+		return;
 	if (item->action_type != DBUS_MENU_ACTION_SUBMENU)
 		return;
 	uint id;

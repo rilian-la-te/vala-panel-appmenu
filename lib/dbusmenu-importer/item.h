@@ -40,6 +40,7 @@ typedef struct
 	DBusMenuActionType action_type;
 	bool enabled;
 	bool toggled;
+	gpointer magic;
 } DBusMenuItem;
 
 G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *parent_model,
