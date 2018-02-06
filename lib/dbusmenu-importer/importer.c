@@ -60,7 +60,7 @@ static void proxy_ready_cb(GObject *source_object, GAsyncResult *res, gpointer u
 	if (g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
 		return;
 
-	DBusMenuImporter *menu = (DBusMenuImporter *)(user_data);
+	DBusMenuImporter *menu = DBUS_MENU_IMPORTER(user_data);
 	menu->proxy            = proxy;
 
 	if (error)
@@ -76,7 +76,7 @@ static void proxy_ready_cb(GObject *source_object, GAsyncResult *res, gpointer u
 static void name_appeared_cb(GDBusConnection *connection, const char *name, const char *name_owner,
                              gpointer user_data)
 {
-	DBusMenuImporter *menu = (DBusMenuImporter *)(user_data);
+	DBusMenuImporter *menu = DBUS_MENU_IMPORTER(user_data);
 
 	dbus_menu_xml_proxy_new(connection,
 	                        G_DBUS_PROXY_FLAGS_NONE,
@@ -89,7 +89,7 @@ static void name_appeared_cb(GDBusConnection *connection, const char *name, cons
 
 static void name_vanished_cb(GDBusConnection *connection, const char *name, gpointer user_data)
 {
-	DBusMenuImporter *menu = (DBusMenuImporter *)(user_data);
+	DBusMenuImporter *menu = DBUS_MENU_IMPORTER(user_data);
 
 	g_clear_object(&menu->proxy);
 	g_object_set(menu->top_model, "xml", menu->proxy, NULL);
@@ -99,7 +99,7 @@ static void name_vanished_cb(GDBusConnection *connection, const char *name, gpoi
 static void dbus_menu_importer_constructed(GObject *object)
 {
 	G_OBJECT_CLASS(dbus_menu_importer_parent_class)->constructed(object);
-	DBusMenuImporter *menu = (DBusMenuImporter *)(object);
+	DBusMenuImporter *menu = DBUS_MENU_IMPORTER(object);
 
 	menu->name_id = g_bus_watch_name(G_BUS_TYPE_SESSION,
 	                                 menu->bus_name,
@@ -112,7 +112,7 @@ static void dbus_menu_importer_constructed(GObject *object)
 
 static void dbus_menu_importer_dispose(GObject *object)
 {
-	DBusMenuImporter *menu = (DBusMenuImporter *)(object);
+	DBusMenuImporter *menu = DBUS_MENU_IMPORTER(object);
 
 	if (menu->name_id > 0)
 	{
@@ -130,7 +130,7 @@ static void dbus_menu_importer_dispose(GObject *object)
 
 static void dbus_menu_importer_finalize(GObject *object)
 {
-	DBusMenuImporter *menu = (DBusMenuImporter *)(object);
+	DBusMenuImporter *menu = DBUS_MENU_IMPORTER(object);
 
 	g_clear_pointer(&menu->bus_name, g_free);
 	g_clear_pointer(&menu->object_path, g_free);
@@ -141,7 +141,7 @@ static void dbus_menu_importer_finalize(GObject *object)
 static void dbus_menu_importer_set_property(GObject *object, guint property_id, const GValue *value,
                                             GParamSpec *pspec)
 {
-	DBusMenuImporter *menu = (DBusMenuImporter *)(object);
+	DBusMenuImporter *menu = DBUS_MENU_IMPORTER(object);
 
 	switch (property_id)
 	{
@@ -162,7 +162,7 @@ static void dbus_menu_importer_set_property(GObject *object, guint property_id, 
 static void dbus_menu_importer_get_property(GObject *object, guint property_id, GValue *value,
                                             GParamSpec *pspec)
 {
-	DBusMenuImporter *menu = (DBusMenuImporter *)(object);
+	DBusMenuImporter *menu = DBUS_MENU_IMPORTER(object);
 	switch (property_id)
 	{
 	case PROP_MODEL:

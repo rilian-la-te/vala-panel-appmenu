@@ -24,7 +24,7 @@
 
 G_BEGIN_DECLS
 
-G_DECLARE_FINAL_TYPE(DBusMenuImporter, dbus_menu_importer, DBusMenu, Importer, GObject)
+G_DECLARE_FINAL_TYPE(DBusMenuImporter, dbus_menu_importer, DBUS_MENU, IMPORTER, GObject)
 
 DBusMenuImporter *dbus_menu_importer_new(const char *bus_name, const char *object_path);
 
