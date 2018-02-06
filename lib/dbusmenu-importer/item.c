@@ -272,7 +272,7 @@ G_GNUC_INTERNAL bool dbus_menu_item_copy_attributes(DBusMenuItem *src, DBusMenuI
 	GVariant *value;
 	while (g_hash_table_iter_next(&iter, &key, &value))
 	{
-		is_updated = is_updated || check_and_update_mutable_attribute(dst, key, value);
+		is_updated = check_and_update_mutable_attribute(dst, key, value) || is_updated;
 	}
 	return is_updated;
 }
@@ -328,6 +328,8 @@ static bool dbus_menu_item_update_shortcut(DBusMenuItem *item, GVariant *value)
 	g_autofree char *str = g_string_free(new_accel_string, false);
 	GVariant *new_accel  = g_variant_new_string(str);
 	bool updated = check_and_update_mutable_attribute(item, G_MENU_ATTRIBUTE_ACCEL, new_accel);
+	if (!updated)
+		g_variant_unref(new_accel);
 	return updated;
 }
 

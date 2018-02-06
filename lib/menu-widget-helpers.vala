@@ -95,11 +95,15 @@ namespace Appmenu
                 bamf_helper = new BamfAppmenu(w,app);
             importer = new DBusMenu.Importer(name,(string)path);
             bool is_model_set = false;
-            importer.notify["model"].connect((s, p)=>{
+            ulong connect_handler = 0;
+            connect_handler = importer.notify["model"].connect((s, p)=>{
                 if(!is_model_set)
+                {
+                    w.insert_action_group("dbusmenu",importer.action_group);
                     w.set_menubar(importer.model);
-                is_model_set = true;
-                w.insert_action_group("dbusmenu",importer.action_group);
+                    is_model_set = true;
+                    importer.disconnect(connect_handler);
+                }
             });
         }
     }
