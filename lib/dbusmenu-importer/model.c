@@ -338,6 +338,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 			current_iter = g_sequence_iter_next(current_iter);
 		}
 		g_variant_unref(cprops);
+		g_variant_unref(value);
 		g_variant_unref(child);
 	}
 	// We need to manage last section's changes.
