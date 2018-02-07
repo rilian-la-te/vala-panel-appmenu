@@ -45,7 +45,7 @@ static const char *const BLACKLIST[] = { "acroread",
 	                                 "mate-indicator-applet-complete",
 	                                 NULL };
 
-static gboolean is_string_in_array(const char *string, GVariant *array)
+static bool is_string_in_array(const char *string, GVariant *array)
 {
 	GVariantIter iter;
 	const char *element;
@@ -54,28 +54,20 @@ static gboolean is_string_in_array(const char *string, GVariant *array)
 	g_return_val_if_fail(g_variant_is_of_type(array, G_VARIANT_TYPE("as")), FALSE);
 
 	g_variant_iter_init(&iter, array);
-	while (g_variant_iter_next(&iter, "&s", &element))
+	while (g_variant_iter_loop(&iter, "&s", &element))
 	{
 		if (g_strcmp0(element, string) == 0)
-			return TRUE;
+			return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-static gboolean is_listed(const char *name, const char *key)
+static bool is_listed(const char *name, const char *key)
 {
-	GSettings *settings;
-	GVariant *array;
-	gboolean listed;
-
-	settings = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
-	array    = g_settings_get_value(settings, key);
-	listed   = is_string_in_array(name, array);
-
-	g_variant_unref(array);
-	g_object_unref(settings);
-
+	g_autoptr(GSettings) settings = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
+	g_autoptr(GVariant) array     = g_settings_get_value(settings, key);
+	bool listed                   = is_string_in_array(name, array);
 	return listed;
 }
 
