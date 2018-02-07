@@ -1,7 +1,7 @@
-cmake_minimum_required (VERSION 2.8.8)
+cmake_minimum_required (VERSION 2.8.12)
 cmake_policy (VERSION 2.8)
 cmake_policy (SET CMP0063 NEW)
-project (dbusmenu-translator C)
+project (dbusmenu-importer C)
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 # Vala
@@ -21,6 +21,7 @@ find_package (PkgConfig)
 
 #pkg_check_modules(GLIB REQUIRED QUIET
 #    glib-2.0>=2.50
+#    gio-unix-2.0>=2.50
 #    gio-2.0>=2.50)
 
 pkg_check_modules(GIO_UNIX REQUIRED QUIET
