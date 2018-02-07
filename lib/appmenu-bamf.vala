@@ -28,19 +28,15 @@ namespace Appmenu
         private const string UNITY_QUICKLISTS_TARGET_KEY = "TargetEnvironment";
         private const string UNITY_QUICKLISTS_TARGET_VALUE = "Unity";
         private unowned Bamf.Application app;
-        private GLib.Menu window_section;
         private unowned MenuWidget widget;
         private GLib.Menu all_menu = new GLib.Menu();
         private const GLib.ActionEntry[] entries =
         {
-            {"new-window", activate_new, null, null, null},
-#if WNCK
-            {"active-window", activate_window, "u", null,null},
-            {"close-this",activate_close_this,null,null,null},
-            {"close-all",activate_close_all,null,null,null},
-#endif
+            {"new-instance", activate_new, null, null, null},
             {"activate-action", activate_action, "s", null, null},
-            {"activate-unity-desktop-shortcut",activate_unity,"s",null,null}
+            {"activate-unity-desktop-shortcut",activate_unity,"s",null,null},
+            {"quit-all-instances", activate_quit_all, null, null, null},
+            {"kill-all-instances", activate_kill_all, null, null, null}
         };
         public BamfAppmenu(MenuWidget w, Bamf.Application app)
         {
@@ -75,35 +71,12 @@ namespace Appmenu
                     debug("%s\n",e.message);
                 }
             }
-            app.window_added.connect(on_window_added);
-            app.window_removed.connect(on_window_removed);
-            window_section = builder.get_object("active-windows") as GLib.Menu;
-            foreach(unowned Bamf.Window window in app.get_windows())
-                on_window_added(window);
             var name = app.get_name();
             if (desktop_file == null && name.length >= 28)
                 name = GLib.Environment.get_prgname();
             all_menu.append_submenu(name,menu);
             all_menu.freeze();
             widget.set_appmenu(all_menu);
-        }
-        private void on_window_added(Bamf.Window window)
-        {
-            var menuitem = new GLib.MenuItem(window.get_name(),null);
-            menuitem.set_action_and_target_value("conf.active-window",new Variant.uint32(window.get_xid()));
-            window_section.append_item(menuitem);
-        }
-        private void on_window_removed(Bamf.Window win)
-        {
-            for(var i = 0; i< window_section.get_n_items(); i++)
-            {
-                uint xid = window_section.get_item_attribute_value(i,GLib.Menu.ATTRIBUTE_TARGET,VariantType.UINT32).get_uint32();
-                if (xid == win.get_xid())
-                {
-                    window_section.remove(i);
-                    return;
-                }
-            }
         }
         private void activate_new(GLib.SimpleAction action, Variant? param)
         {
@@ -121,6 +94,40 @@ namespace Appmenu
                     stderr.printf("%s\n",e.message);
                 }
             }
+        }
+        private void activate_killall(bool force_kill)
+        {
+            var desktop_file = app.get_desktop_file();
+            var info = new DesktopAppInfo.from_filename(desktop_file);
+            var exec_str = info.get_executable();
+            var signal_name = force_kill ? "KILL" : "QUIT";
+            try {
+                string[] spawn_args = {"killall", "-s", signal_name, exec_str};
+                string[] spawn_env = Environ.get ();
+                Pid child_pid;
+
+                Process.spawn_async ("/",
+                    spawn_args,
+                    spawn_env,
+                    SpawnFlags.SEARCH_PATH | SpawnFlags.DO_NOT_REAP_CHILD | SpawnFlags.STDOUT_TO_DEV_NULL | SpawnFlags.STDERR_TO_DEV_NULL,
+                    null,
+                    out child_pid);
+
+                ChildWatch.add (child_pid, (pid, status) => {
+                    // Triggered when the child indicated by child_pid exits
+                    Process.close_pid (pid);
+                });
+            } catch (SpawnError e) {
+                stderr.printf ("Error: %s\n", e.message);
+            }
+        }
+        private void activate_quit_all(GLib.SimpleAction action, Variant? param)
+        {
+            activate_killall(false);
+        }
+        private void activate_kill_all(GLib.SimpleAction action, Variant? param)
+        {
+            activate_killall(false);
         }
         private void activate_action(GLib.SimpleAction action, Variant? param)
         {
@@ -153,57 +160,5 @@ namespace Appmenu
                 }
             }
         }
-#if WNCK
-        /* Taken from Plank */
-        private void activate_window(GLib.SimpleAction action, Variant? param)
-        {
-            var xid = param.get_uint32();
-            unowned Wnck.Window w = Wnck.Window.@get (xid);
-            if (w == null)
-            {
-                Wnck.Screen.get_default().force_update();
-                w = Wnck.Window.@get (xid);
-            }
-            var time = Gtk.get_current_event_time ();
-            unowned Wnck.Workspace? workspace = w.get_workspace ();
-
-            if (workspace != null && workspace != w.get_screen ().get_active_workspace ())
-                workspace.activate (time);
-
-            if (w.is_minimized ())
-                w.unminimize (time);
-
-            w.activate_transient (time);
-        }
-        /* Taken from Plank */
-        private void activate_close_all(SimpleAction action, Variant? param)
-        {
-            Array<uint32>? xids = app.get_xids ();
-
-            warn_if_fail (xids != null);
-
-            for (var i = 0; xids != null && i < xids.length; i++)
-            {
-                unowned Wnck.Window window = Wnck.Window.@get (xids.index (i));
-                if (window != null && !window.is_skip_tasklist ())
-                    window.close (Gtk.get_current_event_time ());
-            }
-        }
-        private void activate_close_this(SimpleAction action, Variant? param)
-        {
-            unowned Wnck.Window window = Wnck.Window.@get ((ulong)widget.window_id);
-            if (window == null)
-            {
-                Wnck.Screen.get_default().force_update();
-                window = Wnck.Window.@get ((ulong)widget.window_id);
-                if (window == null)
-                {
-                    window = Wnck.Screen.get_default().get_active_window();
-                }
-            }
-            if (window != null && !window.is_skip_tasklist ())
-                window.close (Gtk.get_current_event_time ());
-        }
-#endif
     }
 }

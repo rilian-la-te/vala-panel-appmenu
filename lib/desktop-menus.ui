@@ -35,28 +35,24 @@
       </submenu>
   </menu>
   <menu id="appmenu-bamf">
-    <section>
-        <item>
-          <attribute name="label" translatable="yes">_New Window...</attribute>
-          <attribute name="action">conf.new-window</attribute>
+      <item>
+          <attribute name="label" translatable="yes">_New...</attribute>
+          <attribute name="action">conf.new-instance</attribute>
           <attribute name="hidden-when">action-missing</attribute>
-        </item>
-        <item>
-          <attribute name="label" translatable="yes">Close _This</attribute>
-          <attribute name="action">conf.close-this</attribute>
+      </item>
+	  <section id="desktop-actions">
+	  </section>
+	  <section id="unity-actions">
+	  </section>
+      <item>
+          <attribute name="label" translatable="yes">_Quit all</attribute>
+          <attribute name="action">conf.quit-all-instances</attribute>
           <attribute name="hidden-when">action-missing</attribute>
-        </item>
-        <item>
-          <attribute name="label" translatable="yes">Close _All</attribute>
-          <attribute name="action">conf.close-all</attribute>
+      </item>
+      <item>
+          <attribute name="label" translatable="yes">_Kill all</attribute>
+          <attribute name="action">conf.kill-all-instances</attribute>
           <attribute name="hidden-when">action-missing</attribute>
-        </item>
-    </section>
-    <section id="desktop-actions">
-    </section>
-    <section id="unity-actions">
-    </section>
-    <section id="active-windows">
-    </section>
+      </item>
   </menu>
 </interface>

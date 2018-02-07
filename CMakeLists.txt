@@ -87,14 +87,14 @@ set(TARGET_GLIB ${GLIB_VERSION_MAJOR}.${GLIB_VERSION_MINOR})
 include(CMakeDependentOption)
 
 #set build options
-pkg_check_modules(WNCK libwnck-3.0>=3.4.0)
-cmake_dependent_option(ENABLE_WNCK "Enable libwnck-related functions" ON
-    "WNCK_FOUND" OFF)
-if (ENABLE_WNCK)
-    message("Using libwnck, will be X-dependent")
-    set(WNCK_DEFINE -D WNCK)
-    set(WNCK_PACKAGES libwnck-3.0)
-endif()
+#pkg_check_modules(WNCK libwnck-3.0>=3.4.0)
+#cmake_dependent_option(ENABLE_WNCK "Enable libwnck-related functions" ON
+#    "WNCK_FOUND" OFF)
+#if (ENABLE_WNCK)
+#    message("Using libwnck, will be X-dependent")
+#    set(WNCK_DEFINE -D WNCK)
+#    set(WNCK_PACKAGES libwnck-3.0)
+#endif()
 pkg_check_modules(XFCE libxfce4panel-2.0 libxfconf-0)
 cmake_dependent_option(ENABLE_XFCE "Enable Xfce Panel Integration" ON
     "XFCE_FOUND" OFF)
