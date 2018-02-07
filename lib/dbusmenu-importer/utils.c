@@ -115,10 +115,11 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 	DBusMenuXml *xml;
 	u_int32_t id;
 	g_object_get(model, "parent-id", &id, "xml", &xml, NULL);
-	bool request_open          = g_variant_get_boolean(parameter);
-	g_autoptr(GVariant) statev = g_action_get_state(action);
-	bool opened                = g_variant_get_boolean(statev);
-	bool need_update           = true;
+	bool request_open = g_variant_get_boolean(parameter);
+	GVariant *statev  = g_action_get_state(action);
+	bool opened       = g_variant_get_boolean(statev);
+	g_variant_unref(statev);
+	bool need_update = true;
 	if (request_open && !opened)
 	{
 		dbus_menu_xml_call_about_to_show_sync(xml,
