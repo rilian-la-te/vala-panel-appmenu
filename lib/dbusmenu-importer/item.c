@@ -122,10 +122,11 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 				g_hash_table_insert(item->attributes,
 				                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
 				                    g_variant_new_string(name));
+				GVariant *vstr =
+				    g_variant_new_string(DBUS_MENU_ACTION_RADIO_SELECTED);
 				g_hash_table_insert(item->attributes,
 				                    g_strdup(G_MENU_ATTRIBUTE_TARGET),
-				                    g_variant_new_string(
-				                        DBUS_MENU_ACTION_RADIO_SELECTED));
+				                    g_variant_ref_sink(vstr));
 				action_creator_found = true;
 			}
 		}
