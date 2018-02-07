@@ -44,7 +44,6 @@ namespace Appmenu
             this.widget = w;
             var configurator = new SimpleActionGroup();
             configurator.add_action_entries(entries,this);
-            widget.insert_action_group("conf",configurator);
             var desktop_file = app.get_desktop_file();
             var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
             builder.set_translation_domain(Config.GETTEXT_PACKAGE);
@@ -71,11 +70,18 @@ namespace Appmenu
                     debug("%s\n",e.message);
                 }
             }
+            else
+            {
+                (configurator.lookup_action("new-instance") as SimpleAction).set_enabled(false);
+                (configurator.lookup_action("quit-all-instances") as SimpleAction).set_enabled(false);
+                (configurator.lookup_action("kill-all-instances") as SimpleAction).set_enabled(false);
+            }
             var name = app.get_name();
             if (desktop_file == null && name.length >= 28)
-                name = GLib.Environment.get_prgname();
+                name = name[0:25]+"...";
             all_menu.append_submenu(name,menu);
             all_menu.freeze();
+            widget.insert_action_group("conf",configurator);
             widget.set_appmenu(all_menu);
         }
         private void activate_new(GLib.SimpleAction action, Variant? param)
