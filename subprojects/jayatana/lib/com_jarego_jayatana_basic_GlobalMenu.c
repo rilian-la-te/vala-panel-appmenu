@@ -31,10 +31,10 @@
 #include "com_jarego_jayatana_collections.h"
 #include "com_jarego_jayatana_jkey2xkey.h"
 #include "com_jarego_jayatana_jni.h"
+#include "dbusmenu-definitions.h"
 #include <gio/gio.h>
 #include <glib.h>
 #include <jawt_md.h>
-#include <libdbusmenu-glib/client.h>
 #include <libdbusmenu-glib/server.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -246,7 +246,8 @@ void jayatana_on_registrar_available(GDBusConnection *connection, const char *na
 		    jayatana_get_windowxid_path(globalmenu_window->windowXID);
 		globalmenu_window->dbusMenuServer =
 		    dbusmenu_server_new(globalmenu_window->windowXIDPath);
-		globalmenu_window->dbusMenuRoot = dbusmenu_menuitem_new();
+		globalmenu_window->dbusMenuRoot = dbusmenu_menuitem_new_with_id(0); // Root ID is 0
+		                                                                    // always.
 		dbusmenu_server_set_root(globalmenu_window->dbusMenuServer,
 		                         globalmenu_window->dbusMenuRoot);
 		// register bus
@@ -595,7 +596,7 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_addMenu(
 				// obtener etiqueta del menu
 				const char *cclabel = (*env)->GetStringUTFChars(env, label, 0);
 				// generar menu
-				DbusmenuMenuitem *item = dbusmenu_menuitem_new();
+				DbusmenuMenuitem *item = dbusmenu_menuitem_new_with_id(menuID);
 				dbusmenu_menuitem_property_set(item,
 				                               DBUSMENU_MENUITEM_PROP_LABEL,
 				                               cclabel);
@@ -662,7 +663,8 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_addMenuItem(
 			// obtener etiqueta del menu
 			const char *cclabel = (*env)->GetStringUTFChars(env, label, 0);
 			// generar menu
-			DbusmenuMenuitem *item = dbusmenu_menuitem_new();
+			DbusmenuMenuitem *item = menuID > 0 ? dbusmenu_menuitem_new_with_id(menuID)
+			                                    : dbusmenu_menuitem_new();
 			dbusmenu_menuitem_property_set(item, DBUSMENU_MENUITEM_PROP_LABEL, cclabel);
 			dbusmenu_menuitem_property_set_bool(item,
 			                                    DBUSMENU_MENUITEM_PROP_ENABLED,
@@ -708,7 +710,7 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_addMenuItemRadi
 			// obtener etiqueta del menu
 			const char *cclabel = (*env)->GetStringUTFChars(env, label, 0);
 			// generar menu
-			DbusmenuMenuitem *item = dbusmenu_menuitem_new();
+			DbusmenuMenuitem *item = dbusmenu_menuitem_new_with_id(menuID);
 			dbusmenu_menuitem_property_set(item, DBUSMENU_MENUITEM_PROP_LABEL, cclabel);
 			dbusmenu_menuitem_property_set_bool(item,
 			                                    DBUSMENU_MENUITEM_PROP_ENABLED,
@@ -762,7 +764,7 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_addMenuItemChec
 			// obtener etiqueta del menu
 			const char *cclabel = (*env)->GetStringUTFChars(env, label, 0);
 			// generar menu
-			DbusmenuMenuitem *item = dbusmenu_menuitem_new();
+			DbusmenuMenuitem *item = dbusmenu_menuitem_new_with_id(menuID);
 			dbusmenu_menuitem_property_set(item, DBUSMENU_MENUITEM_PROP_LABEL, cclabel);
 			dbusmenu_menuitem_property_set_bool(item,
 			                                    DBUSMENU_MENUITEM_PROP_ENABLED,
@@ -815,10 +817,11 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_addSeparator(JN
 		if (globalmenu_window != NULL)
 		{
 			// generar separador
-			DbusmenuMenuitem *item = dbusmenu_menuitem_new();
+			DbusmenuMenuitem *item = dbusmenu_menuitem_new(); // We really need to know
+			                                                  // ID;
 			dbusmenu_menuitem_property_set(item,
 			                               DBUSMENU_MENUITEM_PROP_TYPE,
-			                               DBUSMENU_CLIENT_TYPES_SEPARATOR);
+			                               DBUS_MENU_SERVER_TYPE_SEPARATOR);
 			DbusmenuMenuitem *parent =
 			    jayatana_find_menuid(globalmenu_window->dbusMenuRoot, menuParentID);
 			if (parent != NULL)
