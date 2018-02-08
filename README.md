@@ -6,8 +6,8 @@ Vala Panel Application Menu is a Global Menu applet for use with Vala Panel, xfc
 
 **REQUIRED DEPENDENCES**
 
- * GLib (>= 2.44.0)
- * GTK+ (>= 3.20.0)
+ * GLib (>= 2.50.0)
+ * GTK+ (>= 3.22.0)
  * valac (>= 0.24.0)
  * libbamf (>=0.5.0)
     
