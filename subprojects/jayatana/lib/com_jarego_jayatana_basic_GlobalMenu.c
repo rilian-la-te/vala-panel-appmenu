@@ -596,7 +596,8 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_addMenu(
 				// obtener etiqueta del menu
 				const char *cclabel = (*env)->GetStringUTFChars(env, label, 0);
 				// generar menu
-				DbusmenuMenuitem *item = dbusmenu_menuitem_new_with_id(menuID);
+				DbusmenuMenuitem *item =
+				    dbusmenu_menuitem_new_with_id(menuID % G_MAXINT);
 				dbusmenu_menuitem_property_set(item,
 				                               DBUSMENU_MENUITEM_PROP_LABEL,
 				                               cclabel);
@@ -663,8 +664,9 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_addMenuItem(
 			// obtener etiqueta del menu
 			const char *cclabel = (*env)->GetStringUTFChars(env, label, 0);
 			// generar menu
-			DbusmenuMenuitem *item = menuID > 0 ? dbusmenu_menuitem_new_with_id(menuID)
-			                                    : dbusmenu_menuitem_new();
+			DbusmenuMenuitem *item =
+			    menuID > 0 ? dbusmenu_menuitem_new_with_id(menuID % G_MAXINT)
+			               : dbusmenu_menuitem_new();
 			dbusmenu_menuitem_property_set(item, DBUSMENU_MENUITEM_PROP_LABEL, cclabel);
 			dbusmenu_menuitem_property_set_bool(item,
 			                                    DBUSMENU_MENUITEM_PROP_ENABLED,
@@ -710,7 +712,7 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_addMenuItemRadi
 			// obtener etiqueta del menu
 			const char *cclabel = (*env)->GetStringUTFChars(env, label, 0);
 			// generar menu
-			DbusmenuMenuitem *item = dbusmenu_menuitem_new_with_id(menuID);
+			DbusmenuMenuitem *item = dbusmenu_menuitem_new_with_id(menuID % G_MAXINT);
 			dbusmenu_menuitem_property_set(item, DBUSMENU_MENUITEM_PROP_LABEL, cclabel);
 			dbusmenu_menuitem_property_set_bool(item,
 			                                    DBUSMENU_MENUITEM_PROP_ENABLED,
@@ -764,7 +766,7 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_addMenuItemChec
 			// obtener etiqueta del menu
 			const char *cclabel = (*env)->GetStringUTFChars(env, label, 0);
 			// generar menu
-			DbusmenuMenuitem *item = dbusmenu_menuitem_new_with_id(menuID);
+			DbusmenuMenuitem *item = dbusmenu_menuitem_new_with_id(menuID % G_MAXINT);
 			dbusmenu_menuitem_property_set(item, DBUSMENU_MENUITEM_PROP_LABEL, cclabel);
 			dbusmenu_menuitem_property_set_bool(item,
 			                                    DBUSMENU_MENUITEM_PROP_ENABLED,
