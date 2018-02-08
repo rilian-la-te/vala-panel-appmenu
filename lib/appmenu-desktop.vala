@@ -44,7 +44,7 @@ namespace Appmenu
             {"populate-picts", null, "b", "false", state_populate_picts},
             {"populate-video", null, "b", "false", state_populate_video}
         };
-        public DesktopHelper(MenuWidget w, Bamf.Application? app, Bamf.Window? window)
+        public DesktopHelper(MenuWidget w)
         {
 //            if(window != null)
 //                base(w,null,window);
@@ -58,15 +58,7 @@ namespace Appmenu
             {
                 unowned GLib.Menu gmenu = builder.get_object("appmenu-desktop") as GLib.Menu;
                 var menu = new GLib.Menu();
-                string? name = null;
-                if (app != null)
-                {
-                    var desktop_file = app.get_desktop_file();
-                    if (desktop_file != null)
-                        name = new DesktopAppInfo.from_filename(desktop_file).get_name();
-                }
-                if (name == null)
-                    name = GLib.dgettext(Config.GETTEXT_PACKAGE,"_Desktop");
+                string? name = GLib.dgettext(Config.GETTEXT_PACKAGE,"_Desktop");
                 menu.append_submenu(name,gmenu);
                 menu.freeze();
                 widget.set_appmenu(menu);

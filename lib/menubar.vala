@@ -86,7 +86,7 @@ namespace Appmenu
             if (menu.window_id == window_id)
             {
                 helper = null;
-                helper = new DesktopHelper(menu,null,null);
+                helper = new DesktopHelper(menu);
             }
             desktop_menus.remove(window_id);
         }
@@ -140,7 +140,7 @@ namespace Appmenu
                     {
                         helper = null;
                         if (window.get_window_type() == Bamf.WindowType.DESKTOP)
-                            helper = new DesktopHelper(menu,app,win);
+                            helper = new DesktopHelper(menu);
                         else
                             helper = new MenuModelHelper(menu,app,win);
                         found = true;
@@ -168,7 +168,7 @@ namespace Appmenu
             if (found == false)
             {
                 helper = null;
-                helper = new DesktopHelper(menu,null,window);
+                helper = new DesktopHelper(menu);
             }
             return;
         }
