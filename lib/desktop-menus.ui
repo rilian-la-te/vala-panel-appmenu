@@ -36,7 +36,7 @@
   </menu>
   <menu id="appmenu-bamf">
       <item>
-          <attribute name="label" translatable="yes">_New instance</attribute>
+          <attribute name="label" translatable="yes">_New Instance</attribute>
           <attribute name="action">conf.new-instance</attribute>
           <attribute name="hidden-when">action-missing</attribute>
       </item>
@@ -45,12 +45,12 @@
 	  <section id="unity-actions">
 	  </section>
       <item>
-          <attribute name="label" translatable="yes">_Quit all</attribute>
+          <attribute name="label" translatable="yes">_Quit All</attribute>
           <attribute name="action">conf.quit-all-instances</attribute>
           <attribute name="hidden-when">action-missing</attribute>
       </item>
       <item>
-          <attribute name="label" translatable="yes">_Kill all</attribute>
+          <attribute name="label" translatable="yes">_Kill All</attribute>
           <attribute name="action">conf.kill-all-instances</attribute>
           <attribute name="hidden-when">action-missing</attribute>
       </item>
