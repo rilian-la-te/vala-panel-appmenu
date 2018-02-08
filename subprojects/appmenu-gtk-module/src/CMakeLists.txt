@@ -23,7 +23,7 @@ set_target_properties(appmenu-gtk3-module PROPERTIES
 install(TARGETS appmenu-gtk3-module DESTINATION ${GTK3_MODULEDIR})
 
 if(GTK2_FOUND)
-    set(GTK2_MODULEDIR ${GTK2_LIBDIR}/gtk-2.0/modules)
+    set(GTK2_MODULEDIR ${GTK224_LIBDIR}/gtk-2.0/modules)
     add_library(appmenu-gtk2-module MODULE ${MODULE_SOURCES})
     target_include_directories(appmenu-gtk2-module PRIVATE ${GTK2_INCLUDE_DIRS} ${X11_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/../lib)
     target_link_libraries(appmenu-gtk2-module PRIVATE ${GTK2_LIBRARIES} ${X11_LIBRARIES} appmenu-gtk2-parser)

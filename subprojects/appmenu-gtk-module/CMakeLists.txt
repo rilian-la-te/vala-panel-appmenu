@@ -8,8 +8,10 @@ include(CMakeDependentOption)
 find_package (PkgConfig QUIET)
 find_package(GTK2 2.24 REQUIRED gtk)
 pkg_check_modules(GTK3 REQUIRED QUIET
-	gtk+-3.0>=3.10)
+        gtk+-3.0>=3.22)
 find_package(X11)
+pkg_check_modules(GTK224 QUIET
+        gtk+-2.0>=2.24)
 
 cmake_dependent_option(STANDALONE "Build appmenu-gtk-module STANDALONE" ON
         "NOT CORE_FOUND;X11_FOUND" OFF)
