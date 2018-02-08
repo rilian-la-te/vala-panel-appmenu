@@ -8,4 +8,4 @@ JAyatana helps to use DBusMenu for Java programs.
  * GLib (>= 2.40.0)
  * Java (>= 1.7.0)
  * xkbcommon (>= 0.5.0)
- * dbusmenu-glib (>= 0.4.0)
+ * dbusmenu-glib (>= 16.04.0)
