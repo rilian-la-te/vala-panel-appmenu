@@ -11,7 +11,7 @@ find_package(JNI)
 pkg_check_modules(XKBCOMMON
     xkbcommon)
 pkg_check_modules(DBUSMENU
-    dbusmenu-glib-0.4)
+    dbusmenu-glib-0.4>=16.04.0)
 
 cmake_dependent_option(STANDALONE "Build jayatana STANDALONE" ON
         "NOT CORE_FOUND;JAVA_FOUND;JNI_FOUND;XKBCOMMON_FOUND;DBUSMENU_FOUND" OFF)
