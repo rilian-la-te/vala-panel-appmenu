@@ -20,8 +20,7 @@ add_library(jayatana SHARED
     com_jarego_jayatana_jkey2xkey.h
     com_jarego_jayatana_jni.c
     com_jarego_jayatana_jni.h
-    dbusmenu-definitions.h
-    dbusmenu-utils.c)
+    dbusmenu-definitions.h)
 add_dependencies(jayatana java-headers)
 target_include_directories(jayatana  PRIVATE ${JNI_INCLUDE_DIRS} ${LINK_INCLUDE_DIRS} ${TEMP_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}/../java)
 target_link_libraries(jayatana  PRIVATE ${JNI_LIBRARIES} ${LINK_LIBRARIES} ${TEMP_LIBRARIES})
