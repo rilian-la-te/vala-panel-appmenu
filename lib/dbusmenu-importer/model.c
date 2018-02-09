@@ -466,7 +466,7 @@ static void layout_updated_cb(DBusMenuXml *proxy, guint revision, gint parent, D
 static void item_activation_requested_cb(DBusMenuXml *proxy, gint id, guint timestamp,
                                          DBusMenuModel *menu)
 {
-	char *ordinary_name = g_strdup_printf(ACTION_PREFIX "%u", id);
+	g_autofree char *ordinary_name = g_strdup_printf(ACTION_PREFIX "%u", id);
 	g_action_group_activate_action(menu->received_action_group, ordinary_name, NULL);
 	g_debug("activation requested: id - %d, timestamp - %d", id, timestamp);
 }
@@ -490,9 +490,11 @@ static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_pr
 		if (item != NULL)
 		{
 			// It is the best what we can do to update a section
-			//			if (item->is_section)
-			//				dbus_menu_model_update_layout(menu);
-			//			else
+			if (item->is_section)
+			{
+				//                            dbus_menu_model_update_layout(menu);
+			}
+			else
 			{
 				is_item_updated = dbus_menu_item_update_props(item, props);
 				if (is_item_updated)
@@ -514,9 +516,11 @@ static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_pr
 		if (item != NULL)
 		{
 			// It is the best what we can do to update a section
-			//			if (item->is_section)
-			//				dbus_menu_model_update_layout(menu);
-			//			else
+			if (item->is_section)
+			{
+				//				dbus_menu_model_update_layout(menu);
+			}
+			else
 			{
 				is_item_updated = dbus_menu_item_remove_props(item, props);
 				if (is_item_updated)
@@ -576,7 +580,10 @@ static void dbus_menu_model_set_property(GObject *object, guint property_id, con
 	case PROP_XML:
 		menu->xml = DBUS_MENU_XML(g_value_get_object(value));
 		if (menu->xml != NULL && old_xml != menu->xml)
+		{
+			g_signal_handlers_disconnect_by_data(old_xml, menu);
 			on_xml_property_changed(menu);
+		}
 		break;
 	case PROP_ACTION_GROUP:
 		menu->received_action_group = G_ACTION_GROUP(g_value_get_object(value));
