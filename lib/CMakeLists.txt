@@ -34,7 +34,6 @@ OPTIONS
 GENERATE_VAPI
     vala-panel-appmenu
 )
-INCLUDE(GResource)
 glib_compile_resources(RESOURCES
     source
         libappmenu.gresource.xml

@@ -1,12 +1,10 @@
-cmake_minimum_required (VERSION 2.8.12)
-cmake_policy (VERSION 2.8)
+cmake_minimum_required (VERSION 3.3)
+cmake_policy (VERSION 3.3)
 cmake_policy (SET CMP0063 NEW)
 project (dbusmenu-importer C)
 list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 # Vala
-find_package(GLibTools REQUIRED)
-include(GLibHelpers)
 set(ENUM_FILES
         definitions.h
         )
@@ -18,15 +16,10 @@ add_definitions(-Wall -Wextra
                 ) #Vala often forgot cast to GtkWidget or gpointer
 
 find_package (PkgConfig)
-
-#pkg_check_modules(GLIB REQUIRED QUIET
-#    glib-2.0>=2.50
-#    gio-unix-2.0>=2.50
-#    gio-2.0>=2.50)
-
-pkg_check_modules(GIO_UNIX REQUIRED QUIET
-    gio-unix-2.0>=2.50
-    )
+find_package (PkgConfig)
+find_package(GLIB2 2.50 REQUIRED QUIET COMPONENTS GOBJECT GIO GIO_UNIX GMODULE GTHREAD CODEGEN MKENUMS)
+include(GLibProgramHandlers)
+find_package(GTK 3.22 REQUIRED QUIET COMPONENTS GDK)
 
 pkg_check_modules(PIXBUF REQUIRED QUIET
     gdk-pixbuf-2.0)
@@ -64,15 +57,13 @@ set_target_properties(dbusmenu-translator-o PROPERTIES
 #        C_VISIBILITY_PRESET hidden	# Make global variables and functions HIDDEN by default.
         POSITION_INDEPENDENT_CODE ON	# Compile this object code position independent.
 )
-target_include_directories (dbusmenu-translator-o PRIVATE ${GLIB_INCLUDE_DIRS} ${GIO_UNIX_INCLUDE_DIRS} ${PIXBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(dbusmenu-translator-o PRIVATE ${GLIB_LIBRARIES} ${GIO_UNIX_LIBRARIES} ${PIXBUF_LIBRARIES})
+target_include_directories (dbusmenu-translator-o PRIVATE ${PIXBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(dbusmenu-translator-o PRIVATE GLIB2::GIO_UNIX ${PIXBUF_LIBRARIES})
 
 
-pkg_check_modules(GTK REQUIRED QUIET
-    gtk+-3.0)
 add_executable(dbusmenu-test test.c)
-target_link_libraries(dbusmenu-test PRIVATE ${GTK_LIBRARIES} dbusmenu-translator-o)
-target_include_directories (dbusmenu-test PRIVATE ${GLIB_INCLUDE_DIRS} ${GTK_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(dbusmenu-test PRIVATE GLIB2::GIO GTK3::GTK GTK3::GDK dbusmenu-translator-o)
+target_include_directories (dbusmenu-test PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 #xadd_subdirectory(mate-dbusmenu)
