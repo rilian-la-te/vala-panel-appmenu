@@ -1,0 +1,8 @@
+<!ENTITY package "@CMAKE_PROJECT_NAME@">
+<!ENTITY package_bugreport "@PACKAGE_BUGREPORT@">
+<!ENTITY package_name "@CMAKE_PROJECT_NAME@">
+<!ENTITY package_string "@PACKAGE_STRING@">
+<!ENTITY package_tarname "@CPACK_SOURCE_PACKAGE_FILE_NAME@">
+<!ENTITY package_url "@PACKAGE_URL@">
+<!ENTITY package_version "@VERSION@">
+<!ENTITY package_api_version "@PACKAGE_API_VERSION@">
