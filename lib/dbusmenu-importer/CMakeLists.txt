@@ -46,23 +46,23 @@ set(DBUSMENU_C_SOURCES
     debug.h
     )
 
-add_library(dbusmenu-translator-o STATIC
+add_library(dbusmenu-importer STATIC
     ${DBUS_GENERATED_SOURCES}
     ${DBUSMENU_C_SOURCES}
     ${ENUMSC}
     ${ENUMSH}
     )
-#add_dependencies(dbusmenu-translator-o dbus-xml)
-set_target_properties(dbusmenu-translator-o PROPERTIES
+#add_dependencies(dbusmenu-importer dbus-xml)
+set_target_properties(dbusmenu-importer PROPERTIES
 #        C_VISIBILITY_PRESET hidden	# Make global variables and functions HIDDEN by default.
         POSITION_INDEPENDENT_CODE ON	# Compile this object code position independent.
 )
-target_include_directories (dbusmenu-translator-o PRIVATE ${PIXBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(dbusmenu-translator-o PRIVATE GLIB2::GIO_UNIX ${PIXBUF_LIBRARIES})
+target_include_directories (dbusmenu-importer PRIVATE ${PIXBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(dbusmenu-importer PRIVATE GLIB2::GIO_UNIX ${PIXBUF_LIBRARIES})
 
 
 add_executable(dbusmenu-test test.c)
-target_link_libraries(dbusmenu-test PRIVATE GLIB2::GIO GTK3::GTK GTK3::GDK dbusmenu-translator-o)
+target_link_libraries(dbusmenu-test PRIVATE GLIB2::GIO GTK3::GTK GTK3::GDK dbusmenu-importer)
 target_include_directories (dbusmenu-test PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 

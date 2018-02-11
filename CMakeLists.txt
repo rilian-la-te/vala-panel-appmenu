@@ -56,18 +56,7 @@ find_package (PkgConfig)
 find_package(GLIB2 2.50 REQUIRED COMPONENTS GOBJECT GIO GIO_UNIX GMODULE GTHREAD CODEGEN MKENUMS GENMARSHAL COMPILE_SCHEMAS COMPILE_RESOURCES)
 include(GLibProgramHandlers)
 find_package(GTK 3.22 REQUIRED COMPONENTS GDK X11 WAYLAND)
-
-pkg_check_modules (CORE QUIET
-  gtk+-3.0>=3.22
-  glib-2.0>=2.50
-  gio-2.0>=2.50
-  gio-unix-2.0>=2.50
-  gthread-2.0>=2.50
-  gmodule-2.0>=2.50
-  libbamf3)
-
-pkg_check_modules(BAMF REQUIRED
-    libbamf3)
+find_package(BAMF 0.5.0 REQUIRED COMPONENTS LIB DAEMON)
 
 set(CORE_PACKAGES
   gtk+-3.0
@@ -83,14 +72,15 @@ set(TARGET_GLIB ${GLIB_VERSION_MAJOR}.${GLIB_VERSION_MINOR})
 include(CMakeDependentOption)
 
 #set build options
-#pkg_check_modules(WNCK libwnck-3.0>=3.4.0)
-#cmake_dependent_option(ENABLE_WNCK "Enable libwnck-related functions" ON
-#    "WNCK_FOUND" OFF)
-#if (ENABLE_WNCK)
-#    message("Using libwnck, will be X-dependent")
-#    set(WNCK_DEFINE -D WNCK)
-#    set(WNCK_PACKAGES libwnck-3.0)
-#endif()
+find_package(WNCK 3.4.8)
+cmake_dependent_option(ENABLE_WNCK "Enable libwnck-related functions" ON
+    "WNCK_FOUND" OFF)
+if (ENABLE_WNCK)
+    message("Using libwnck, will be X-dependent")
+    set(WNCK_DEFINE -D WNCK)
+    set(WNCK_PACKAGES libwnck-3.0)
+    set(WNCK_TARGETS WNCK::WNCK)
+endif()
 pkg_check_modules(XFCE libxfce4panel-2.0 libxfconf-0)
 cmake_dependent_option(ENABLE_XFCE "Enable Xfce Panel Integration" ON
     "XFCE_FOUND" OFF)

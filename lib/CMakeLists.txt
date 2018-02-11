@@ -47,8 +47,16 @@ set(PLUGIN_VALA_FILES
     budgie-plugin-appmenu.vala
     )
 add_library(appmenu-core STATIC ${CORE_C_FILES} ${VALA_C_CORE})
-target_link_libraries (appmenu-core ${CORE_LIBRARIES} ${WNCK_LIBRARIES} m dbusmenu-translator-o)
-target_include_directories (appmenu-core PRIVATE ${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR}/dbusmenu)
+target_link_libraries (appmenu-core
+    dbusmenu-importer
+    GLIB2::GIO_UNIX
+    GLIB2::GOBJECT
+    GTK3::GTK
+    GTK3::GDK
+    BAMF::LIB
+    ${WNCK_TARGETS}
+    m)
+target_include_directories (appmenu-core PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 add_custom_target(vala-files-ide SOURCES ${VALA_FILES_DBUSMENU} ${CORE_VALA_FILES} ${PLUGIN_VALA_FILES})
 ##########
 # XFCE Part

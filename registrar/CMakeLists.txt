@@ -19,8 +19,8 @@ add_executable (appmenu-registrar
     ${VALA_C_REGISTRAR}
     ${RESOURCES}
 )
-target_link_libraries (appmenu-registrar ${CORE_LIBRARIES} m)
-target_include_directories (appmenu-registrar PRIVATE ${CORE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_BINARY_DIR}/dbusmenu)
+target_link_libraries (appmenu-registrar GLIB2::GIO_UNIX GLIB2::GOBJECT m)
+target_include_directories (appmenu-registrar PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 add_dependencies(appmenu-registrar appmenu-core)
 # Install plugin stuffs
 install(TARGETS appmenu-registrar DESTINATION ${CMAKE_INSTALL_LIBEXECDIR}/vala-panel)
