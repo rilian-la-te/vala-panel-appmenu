@@ -1,8 +1,0 @@
-<!ENTITY package "vala-panel-appmenu">
-<!ENTITY package_bugreport "https://github.com/rilian-la-te/vala-panel-appmenu/issues">
-<!ENTITY package_name "vala-panel-appmenu">
-<!ENTITY package_string "appmenu-gtk-parser">
-<!ENTITY package_tarname "vala-panel-appmenu-0.6.1">
-<!ENTITY package_url "https://github.com/rilian-la-te/vala-panel-appmenu">
-<!ENTITY package_version "0.6.1">
-<!ENTITY package_api_version "2.0">

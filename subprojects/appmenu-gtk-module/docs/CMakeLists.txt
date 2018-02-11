@@ -1,6 +1,6 @@
 set(GTK_DOC_NAME parser)
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${GTK_DOC_NAME}/xml/")
-set(ENTITIES_NAME "${GTK_DOC_NAME}/xml/gtkdocentities.ent")
+set(ENTITIES_NAME "${CMAKE_CURRENT_BINARY_DIR}/${GTK_DOC_NAME}/xml/gtkdocentities.ent")
 set(PACKAGE_BUGREPORT https://github.com/rilian-la-te/vala-panel-appmenu/issues)
 set(PACKAGE_URL https://github.com/rilian-la-te/vala-panel-appmenu)
 set(PACKAGE_STRING appmenu-gtk-parser)
