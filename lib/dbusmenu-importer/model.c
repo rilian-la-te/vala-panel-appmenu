@@ -152,6 +152,8 @@ static bool queue_emit_all(GQueue *queue)
 		                           index->old_num,
 		                           index->new_num);
 		g_free(index);
+		while (g_main_context_pending(NULL))
+			g_main_context_iteration(NULL, false);
 	}
 	return G_SOURCE_REMOVE;
 }
