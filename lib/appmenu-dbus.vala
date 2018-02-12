@@ -27,7 +27,7 @@ namespace Appmenu
     public interface DBusMain : DBusProxy
     {
         [DBus (name = "GetConnectionUnixProcessID")]
-        public abstract int get_connection_unix_process_id(string id) throws Error;
+        public abstract uint get_connection_unix_process_id(string id) throws Error;
         public abstract int start_service_by_name(string service, int flags) throws Error;
         public abstract string[] list_activatable_names() throws Error;
     }
@@ -124,10 +124,8 @@ namespace Appmenu
             {
                 //FIXME: Now using only first part, not parameters
                 try {
-                    string str = "/proc/%d/cmdline".printf(dbus.get_connection_unix_process_id(this.connection));
-                    FileStream stream = FileStream.open(str,"r");
-                    string? exec = null;
-                    stream.scanf("%s",exec);
+                    string str = "/proc/%u/cmdline".printf(dbus.get_connection_unix_process_id(this.connection));
+                    string exec = Launcher.posix_get_cmdline_string(str);
                     var appinfo  = AppInfo.create_from_commandline(exec,null,0) as DesktopAppInfo;
                     appinfo.launch_uris_as_manager(new List<string>(),
                                                 widget.get_display().get_app_launch_context(),

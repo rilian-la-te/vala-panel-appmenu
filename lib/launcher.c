@@ -16,7 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <fcntl.h>
+#include <stdbool.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include "launcher.h"
@@ -98,4 +102,19 @@ void menu_launch_command(GSimpleAction *action, GVariant *param, gpointer user_d
 		g_warning("%s\n", err->message);
 	GtkWidget *window = GTK_WIDGET(user_data);
 	vala_panel_launch(info, NULL, GTK_WIDGET(window));
+}
+
+// FIXME: reads only first section
+char *posix_get_cmdline_string(const char *filename)
+{
+	char *ret = (char *)g_malloc0(1024);
+	int fd    = open(filename, O_RDONLY);
+	bool rr   = read(fd, ret, 1024);
+	if (rr)
+		return ret;
+	else
+	{
+		g_free(ret);
+		return NULL;
+	}
 }

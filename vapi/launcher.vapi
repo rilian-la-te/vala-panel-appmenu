@@ -28,6 +28,8 @@ namespace Launcher
     public static void activate_menu_launch_uri(SimpleAction? action, Variant? param, void* user_data);
     [CCode (cheader_filename="lib/launcher.h",cname="menu_launch_command")]
     public static void activate_menu_launch_command(SimpleAction? action, Variant? param, void* user_data);
+    [CCode (cname="posix_get_cmdline_string",cheader_filename="lib/launcher.h")]
+    public static string? posix_get_cmdline_string(string filename);
 }
 [CCode (cprefix="")]
 namespace MenuMaker
