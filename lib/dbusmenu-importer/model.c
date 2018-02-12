@@ -583,7 +583,8 @@ static void dbus_menu_model_set_property(GObject *object, guint property_id, con
 		menu->xml = DBUS_MENU_XML(g_value_get_object(value));
 		if (menu->xml != NULL && old_xml != menu->xml)
 		{
-			g_signal_handlers_disconnect_by_data(old_xml, menu);
+			if (old_xml != NULL)
+				g_signal_handlers_disconnect_by_data(old_xml, menu);
 			on_xml_property_changed(menu);
 		}
 		break;
