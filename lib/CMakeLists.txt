@@ -6,6 +6,7 @@ add_definitions(-fPIC)
 add_definitions(-DWNCK_I_KNOW_THIS_IS_UNSTABLE)
 set(CORE_VALA_FILES
     appmenu-bamf.vala
+    appmenu-dbus.vala
     appmenu-desktop.vala
     registrar.vala
     menubar.vala

@@ -21,150 +21,60 @@ using Gtk;
 
 namespace Appmenu
 {
-    internal class BamfAppmenu : Helper
+    DBusMenuHelper get_dbus_menu_helper_with_bamf(MenuWidget w, string name, ObjectPath path, Bamf.Application? app)
     {
-        private const string UNITY_QUICKLISTS_KEY = "X-Ayatana-Desktop-Shortcuts";
-        private const string UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME = "%s Shortcut Group";
-        private const string UNITY_QUICKLISTS_TARGET_KEY = "TargetEnvironment";
-        private const string UNITY_QUICKLISTS_TARGET_VALUE = "Unity";
-        private unowned Bamf.Application app;
-        private unowned MenuWidget widget;
-        private GLib.Menu all_menu = new GLib.Menu();
-        private const GLib.ActionEntry[] entries =
+        string? title = null;
+        DesktopAppInfo? info = null;
+        if (app != null)
         {
-            {"new-instance", activate_new, null, null, null},
-            {"activate-action", activate_action, "s", null, null},
-            {"activate-unity-desktop-shortcut",activate_unity,"s",null,null},
-            {"quit-all-instances", activate_quit_all, null, null, null},
-            {"kill-all-instances", activate_kill_all, null, null, null}
-        };
-        public BamfAppmenu(MenuWidget w, Bamf.Application app)
-        {
-            this.app = app;
-            this.widget = w;
-            var configurator = new SimpleActionGroup();
-            configurator.add_action_entries(entries,this);
-            var desktop_file = app.get_desktop_file();
-            var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
-            builder.set_translation_domain(Config.GETTEXT_PACKAGE);
-            unowned GLib.Menu menu = builder.get_object("appmenu-bamf") as GLib.Menu;
-            if (desktop_file != null)
-            {
-                unowned GLib.Menu section = builder.get_object("desktop-actions") as GLib.Menu;
-                var info = new DesktopAppInfo.from_filename(desktop_file);
-                foreach(unowned string action in info.list_actions())
-                    section.append(info.get_action_name(action),"conf.activate-action('%s')".printf(action));
-                section.freeze();
-                try{
-                    section = builder.get_object("unity-actions") as GLib.Menu;
-                    var keyfile = new KeyFile();
-                    keyfile.load_from_file(desktop_file,KeyFileFlags.NONE);
-                    var unity_list = keyfile.get_string_list(KeyFileDesktop.GROUP,UNITY_QUICKLISTS_KEY);
-                    foreach(unowned string action in unity_list)
-                    {
-                        var action_name = keyfile.get_locale_string(UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME.printf(action),KeyFileDesktop.KEY_NAME);
-                        section.append(action_name,"conf.activate-unity-desktop-shortcut('%s')".printf(action));
-                    }
-                    section.freeze();
-                } catch (Error e) {
-                    debug("%s\n",e.message);
-                }
-            }
-            else
-            {
-                (configurator.lookup_action("new-instance") as SimpleAction).set_enabled(false);
-                (configurator.lookup_action("quit-all-instances") as SimpleAction).set_enabled(false);
-                (configurator.lookup_action("kill-all-instances") as SimpleAction).set_enabled(false);
-            }
-            var name = app.get_name();
-            if (desktop_file == null && name.length >= 28)
-                name = name[0:25]+"...";
-            all_menu.append_submenu(name,menu);
-            all_menu.freeze();
-            widget.insert_action_group("conf",configurator);
-            widget.set_appmenu(all_menu);
-        }
-        private void activate_new(GLib.SimpleAction action, Variant? param)
-        {
-            unowned string desktop_file = app.get_desktop_file();
-            var data = new SpawnData();
-            if (desktop_file != null)
-            {
-                try {
-                    var info = new DesktopAppInfo.from_filename(desktop_file);
-                    info.launch_uris_as_manager(new List<string>(),
-                                                widget.get_display().get_app_launch_context(),
-                                                SpawnFlags.SEARCH_PATH,
-                                                data.child_spawn_func,(a,b)=>{});
-                } catch (Error e) {
-                    stderr.printf("%s\n",e.message);
-                }
-            }
-        }
-        private void activate_killall(bool force_kill)
-        {
-            var desktop_file = app.get_desktop_file();
-            var info = new DesktopAppInfo.from_filename(desktop_file);
-            var exec_str = info.get_executable();
-            var signal_name = force_kill ? "KILL" : "QUIT";
-            try {
-                string[] spawn_args = {"killall", "-s", signal_name, exec_str};
-                string[] spawn_env = Environ.get ();
-                Pid child_pid;
-
-                Process.spawn_async ("/",
-                    spawn_args,
-                    spawn_env,
-                    SpawnFlags.SEARCH_PATH | SpawnFlags.DO_NOT_REAP_CHILD | SpawnFlags.STDOUT_TO_DEV_NULL | SpawnFlags.STDERR_TO_DEV_NULL,
-                    null,
-                    out child_pid);
-
-                ChildWatch.add (child_pid, (pid, status) => {
-                    // Triggered when the child indicated by child_pid exits
-                    Process.close_pid (pid);
-                });
-            } catch (SpawnError e) {
-                stderr.printf ("Error: %s\n", e.message);
-            }
-        }
-        private void activate_quit_all(GLib.SimpleAction action, Variant? param)
-        {
-            activate_killall(false);
-        }
-        private void activate_kill_all(GLib.SimpleAction action, Variant? param)
-        {
-            activate_killall(false);
-        }
-        private void activate_action(GLib.SimpleAction action, Variant? param)
-        {
-            var action_name = param.get_string();
             var desktop_file = app.get_desktop_file();
             if (desktop_file != null)
             {
-                var info = new DesktopAppInfo.from_filename(desktop_file);
-                info.launch_action(action_name,widget.get_display().get_app_launch_context());
+                info = new DesktopAppInfo.from_filename(desktop_file);
+                title = info.get_name();
             }
         }
-        private void activate_unity(GLib.SimpleAction action, Variant? param)
+        if (title == null && app != null)
+            title = app.get_name();
+        return new DBusMenuHelper(w,name,path,title,info);
+    }
+    MenuModelHelper get_menu_model_helper_with_bamf(MenuWidget w, Bamf.Window window, Bamf.Application? app)
+    {
+        var gtk_unique_bus_name = window.get_utf8_prop("_GTK_UNIQUE_BUS_NAME");
+        var app_menu_path = window.get_utf8_prop("_GTK_APP_MENU_OBJECT_PATH");
+        var menubar_path = window.get_utf8_prop("_GTK_MENUBAR_OBJECT_PATH");
+        var application_path = window.get_utf8_prop("_GTK_APPLICATION_OBJECT_PATH");
+        var window_path = window.get_utf8_prop("_GTK_WINDOW_OBJECT_PATH");
+        var unity_path = window.get_utf8_prop("_UNITY_OBJECT_PATH");
+        DesktopAppInfo? info = null;
+        string? title = null;
+        if (app != null)
         {
-            unowned string action_name = param.get_string();
             var desktop_file = app.get_desktop_file();
-            var data = new SpawnData();
             if (desktop_file != null)
             {
-                try {
-                    var keyfile = new KeyFile();
-                    keyfile.load_from_file(desktop_file,KeyFileFlags.NONE);
-                    var exec = keyfile.get_string(UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME.printf(action_name),KeyFileDesktop.KEY_EXEC);
-                    var info  = AppInfo.create_from_commandline(exec,null,0) as DesktopAppInfo;
-                    info.launch_uris_as_manager(new List<string>(),
-                                                widget.get_display().get_app_launch_context(),
-                                                SpawnFlags.SEARCH_PATH,
-                                                data.child_spawn_func,(a,b)=>{});
-                } catch (Error e) {
-                    stderr.printf("%s\n",e.message);
-                }
+                info = new DesktopAppInfo.from_filename(desktop_file);
+                title = info.get_name();
             }
         }
+        if (title == null && app != null)
+            title = app.get_name();
+        if (title == null)
+            title = window.get_name();
+        return new MenuModelHelper(w,gtk_unique_bus_name,app_menu_path,menubar_path,application_path,window_path,unity_path,title,info);
+    }
+    DBusAppMenu get_stub_helper_with_bamf(MenuWidget w, Bamf.Application app)
+    {
+        DesktopAppInfo? info = null;
+        string? title = null;
+        var desktop_file = app.get_desktop_file();
+        if (desktop_file != null)
+        {
+            info = new DesktopAppInfo.from_filename(desktop_file);
+            title = info.get_name();
+        }
+        if (title == null)
+            title = app.get_name();
+        return new DBusAppMenu(w,title,null,info);
     }
 }

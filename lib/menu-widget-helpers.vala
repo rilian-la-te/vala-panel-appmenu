@@ -27,18 +27,20 @@ namespace Appmenu
     }
     internal class MenuModelHelper: Helper
     {
-        private Helper bamf_helper = null;
-        public MenuModelHelper(MenuWidget w,Bamf.Application? app,Bamf.Window window)
+        private Helper dbus_helper = null;
+        public MenuModelHelper(MenuWidget w,
+                               string? gtk_unique_bus_name,
+                               string? app_menu_path,
+                               string? menubar_path,
+                               string? application_path,
+                               string? window_path,
+                               string? unity_path,
+                               string? title,
+                               DesktopAppInfo? info)
         {
             GLib.ActionGroup? appmenu_actions = null;
             GLib.ActionGroup? menubar_actions = null;
             GLib.ActionGroup? unity_actions = null;
-            var gtk_unique_bus_name = window.get_utf8_prop("_GTK_UNIQUE_BUS_NAME");
-            var app_menu_path = window.get_utf8_prop("_GTK_APP_MENU_OBJECT_PATH");
-            var menubar_path = window.get_utf8_prop("_GTK_MENUBAR_OBJECT_PATH");
-            var application_path = window.get_utf8_prop("_GTK_APPLICATION_OBJECT_PATH");
-            var window_path = window.get_utf8_prop("_GTK_WINDOW_OBJECT_PATH");
-            var unity_path = window.get_utf8_prop("_UNITY_OBJECT_PATH");
             DBusConnection? dbusconn = null;
             try {
                 dbusconn = Bus.get_sync(BusType.SESSION);
@@ -52,26 +54,15 @@ namespace Appmenu
                 unity_actions = DBusActionGroup.get(dbusconn,gtk_unique_bus_name,unity_path);
             if (window_path != null)
                 menubar_actions = DBusActionGroup.get(dbusconn,gtk_unique_bus_name,window_path);
-            string? name = null;
-            if (app != null)
-            {
-                var desktop_file = app.get_desktop_file();
-                if (desktop_file != null)
-                    name = new DesktopAppInfo.from_filename(desktop_file).get_name();
-            }
-            if (name == null && app != null)
-                name = app.get_name();
-            if (name == null)
-                name = window.get_name();
             GLib.MenuModel? appmenu = null;
             if (app_menu_path != null)
             {
                 appmenu = new GLib.Menu();
-                (appmenu as GLib.Menu).append_submenu(name,DBusMenuModel.get(dbusconn,gtk_unique_bus_name,app_menu_path));
+                (appmenu as GLib.Menu).append_submenu(title,DBusMenuModel.get(dbusconn,gtk_unique_bus_name,app_menu_path));
                 w.set_appmenu(appmenu);
             }
-            else if (app != null)
-                bamf_helper = new BamfAppmenu(w,app);
+            else
+                dbus_helper = new DBusAppMenu(w, title, gtk_unique_bus_name, info);
             if (menubar_path != null)
             {
                 var menubar = DBusMenuModel.get(dbusconn,gtk_unique_bus_name,menubar_path);
@@ -88,11 +79,10 @@ namespace Appmenu
     internal class DBusMenuHelper: Helper
     {
         private DBusMenu.Importer importer = null;
-        private Helper bamf_helper = null;
-        public DBusMenuHelper(MenuWidget w, uint window_id, string name, ObjectPath path, Bamf.Application? app)
+        private Helper dbus_helper = null;
+        public DBusMenuHelper(MenuWidget w, string name, ObjectPath path, string? title, DesktopAppInfo? info)
         {
-            if (app != null)
-                bamf_helper = new BamfAppmenu(w,app);
+            dbus_helper = new DBusAppMenu(w, title, name, info);
             importer = new DBusMenu.Importer(name,(string)path);
             bool is_model_set = false;
             ulong connect_handler = 0;

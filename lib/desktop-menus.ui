@@ -34,10 +34,10 @@
           <attribute name="submenu-action">menu.populate-video</attribute>
       </submenu>
   </menu>
-  <menu id="appmenu-bamf">
+  <menu id="appmenu-stub">
       <item>
-          <attribute name="label" translatable="yes">_New Instance</attribute>
-          <attribute name="action">conf.new-instance</attribute>
+          <attribute name="label" translatable="yes">_New</attribute>
+          <attribute name="action">conf.new</attribute>
           <attribute name="hidden-when">action-missing</attribute>
       </item>
 	  <section id="desktop-actions">
@@ -45,13 +45,8 @@
 	  <section id="unity-actions">
 	  </section>
       <item>
-          <attribute name="label" translatable="yes">_Quit All</attribute>
-          <attribute name="action">conf.quit-all-instances</attribute>
-          <attribute name="hidden-when">action-missing</attribute>
-      </item>
-      <item>
-          <attribute name="label" translatable="yes">_Kill All</attribute>
-          <attribute name="action">conf.kill-all-instances</attribute>
+          <attribute name="label" translatable="yes">_Quit</attribute>
+          <attribute name="action">conf.quit</attribute>
           <attribute name="hidden-when">action-missing</attribute>
       </item>
   </menu>

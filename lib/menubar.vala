@@ -79,7 +79,7 @@ namespace Appmenu
         {
             unowned Bamf.Application app = matcher.get_application_for_xid(window_id);
             helper = null;
-            helper = new DBusMenuHelper(menu,window_id,sender,menu_object_path,app);
+            helper = get_dbus_menu_helper_with_bamf(menu,sender,menu_object_path,app);
         }
         public void unregister_menu_window(uint window_id)
         {
@@ -142,7 +142,7 @@ namespace Appmenu
                         if (window.get_window_type() == Bamf.WindowType.DESKTOP)
                             helper = new DesktopHelper(menu);
                         else
-                            helper = new MenuModelHelper(menu,app,win);
+                            helper = get_menu_model_helper_with_bamf(menu,win,app);
                         found = true;
                     }
                 }
@@ -159,7 +159,7 @@ namespace Appmenu
                     win = win.get_transient();
                     if (win == null && app != null)
                     {
-                        bamf_helper = new BamfAppmenu(menu,app);
+                        bamf_helper = get_stub_helper_with_bamf(menu,app);
                         menu.set_menubar(null);
                         found = true;
                     }
