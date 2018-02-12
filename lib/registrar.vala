@@ -27,7 +27,6 @@ namespace Appmenu
     public const string KDE_APPMENU_VIEW_NAME = "org.kde.kappmenuview";
     public const string KDE_APPMENU_OBJECT = "/KAppMenu";
 
-
     [DBus (name = "com.canonical.AppMenu.Registrar")]
     public interface OuterRegistrar : DBusProxy
     {
@@ -41,8 +40,8 @@ namespace Appmenu
     [DBus (name = "org.kde.kappmenu")]
     public interface KDEAppMenu : DBusProxy
     {
-        public abstract void show_menu(int x,int y,string service, ObjectPath path,int actionId);
-        public abstract void reconfigure();
+        public abstract void show_menu(int x,int y,string service, ObjectPath path,int actionId) throws Error;
+        public abstract void reconfigure() throws Error;
         public signal void reconfigured();
         public signal void show_request(string service, ObjectPath path,int actionId);
         public signal void menu_shown(string service, ObjectPath path);
