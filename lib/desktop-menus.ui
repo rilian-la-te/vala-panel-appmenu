@@ -35,19 +35,23 @@
       </submenu>
   </menu>
   <menu id="appmenu-stub">
-      <item>
-          <attribute name="label" translatable="yes">_New</attribute>
-          <attribute name="action">conf.new</attribute>
-          <attribute name="hidden-when">action-missing</attribute>
-      </item>
+      <section>
+		  <item>
+		      <attribute name="label" translatable="yes">_New</attribute>
+		      <attribute name="action">conf.new</attribute>
+		      <attribute name="hidden-when">action-missing</attribute>
+		  </item>
+	  </section>
 	  <section id="desktop-actions">
 	  </section>
 	  <section id="unity-actions">
 	  </section>
-      <item>
-          <attribute name="label" translatable="yes">_Quit</attribute>
-          <attribute name="action">conf.quit</attribute>
-          <attribute name="hidden-when">action-missing</attribute>
-      </item>
+      <section>
+		  <item>
+		      <attribute name="label" translatable="yes">_Quit</attribute>
+		      <attribute name="action">conf.quit</attribute>
+		      <attribute name="hidden-when">action-missing</attribute>
+		  </item>
+	  </section>
   </menu>
 </interface>
