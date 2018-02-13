@@ -80,9 +80,10 @@ find_path(${_module_name}_INCLUDE_GDK
     PATH_SUFFIXES gdk-${_version_num}
 )
 set(${_module_name}_GDK_INCLUDE_DIR ${${_module_name}_INCLUDE_GDK}
-											  ${${_module_name}_INCLUDE_PANGO}
-											  ${${_module_name}_INCLUDE_CAIRO}
-											  ${${_module_name}_INCLUDE_GDK_PIXBUF})
+									  ${${_module_name}_INCLUDE_PANGO}
+									  ${${_module_name}_INCLUDE_CAIRO}
+									  ${${_module_name}_INCLUDE_GDK_PIXBUF}
+									  ${${_module_name}_GDK_CONFIG_INCLUDE_DIR})
 
 if(${_module_name}_GDK_INCLUDE_DIR AND ${_module_name}_GDK_LIBRARY)
 	set(${_module_name}_GDK_FOUND TRUE)
@@ -100,7 +101,7 @@ if(${_module_name}_GDK_FOUND)
     list(APPEND ${_module_name}_LIBRARIES
                 "${${_module_name}_GDK_LIBRARY}")
     list(APPEND ${_module_name}_INCLUDE_DIRS
-                "${${_module_name}_GDK_INCLUDE}")
+                "${${_module_name}_GDK_INCLUDE_DIR}")
     set(${_module_name}_DEFINITIONS
             ${${_module_name}_DEFINITIONS}
             ${PC_GDK_DEFINITIONS})
@@ -154,12 +155,12 @@ FIND_PATH(${_module_name}_ATK_INCLUDE
 
 # Version detection
 FILE(READ "${${_module_name}_GTK_INCLUDE}/gtk/gtkversion.h" GTKVERSION_H_CONTENTS)
-STRING(REGEX MATCH "#define GTK_MAJOR_VERSION \\(([0-9]+)\\)" _dummy "${GTKVERSION_H_CONTENTS}")
-SET(${_module_name}_VERSION_MAJOR "${CMAKE_MATCH_1}")
-STRING(REGEX MATCH "#define GTK_MINOR_VERSION \\(([0-9]+)\\)" _dummy "${GTKVERSION_H_CONTENTS}")
-SET(${_module_name}_VERSION_MINOR "${CMAKE_MATCH_1}")
-STRING(REGEX MATCH "#define GTK_MICRO_VERSION \\(([0-9]+)\\)" _dummy "${GTKVERSION_H_CONTENTS}")
-SET(${_module_name}_VERSION_MICRO "${CMAKE_MATCH_1}")
+STRING(REGEX MATCH "#define GTK_MAJOR_VERSION([ \t]+)\\(([0-9]+)\\)" _dummy "${GTKVERSION_H_CONTENTS}")
+SET(${_module_name}_VERSION_MAJOR "${CMAKE_MATCH_2}")
+STRING(REGEX MATCH "#define GTK_MINOR_VERSION([ \t]+)\\(([0-9]+)\\)" _dummy "${GTKVERSION_H_CONTENTS}")
+SET(${_module_name}_VERSION_MINOR "${CMAKE_MATCH_2}")
+STRING(REGEX MATCH "#define GTK_MICRO_VERSION([ \t]+)\\(([0-9]+)\\)" _dummy "${GTKVERSION_H_CONTENTS}")
+SET(${_module_name}_VERSION_MICRO "${CMAKE_MATCH_2}")
 SET(${_module_name}_VERSION "${${_module_name}_VERSION_MAJOR}.${${_module_name}_VERSION_MINOR}.${${_module_name}_VERSION_MICRO}")
 SET(GTK_VERSION "${${_module_name}_VERSION}")
 
@@ -181,7 +182,7 @@ if(${_module_name}_GTK_FOUND)
     list(APPEND ${_module_name}_LIBRARIES
                 "${${_module_name}_GTK_LIBRARY}")
     list(APPEND ${_module_name}_INCLUDE_DIRS
-                "${${_module_name}_GTK_INCLUDE}")
+                "${${_module_name}_GTK_INCLUDE_DIRS}")
     set(${_module_name}_DEFINITIONS
             ${${_module_name}_DEFINITIONS}
             ${PC_${_module_name}_DEFINITIONS})
