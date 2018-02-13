@@ -8,6 +8,8 @@
 
 G_BEGIN_DECLS
 
+G_DECLARE_FINAL_TYPE(RegistrarDBusMenu, registrar_dbus_menu, REGISTRAR, DBUS_MENU,GDBusProxy)
+
 G_END_DECLS
 
 #endif // REGISTRARDBUSMENU_H
