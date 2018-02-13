@@ -8,7 +8,7 @@
 struct _RegistrarApplication
 {
 	GApplication parent;
-	GObject *registrar;
+	RegistrarDBusMenu *registrar;
 	u_int32_t dbusmenu_binding;
 };
 
@@ -74,8 +74,8 @@ static void registrar_application_on_dbus_name_aquired(GDBusConnection *connecti
                                                        const char *name, gpointer user_data)
 {
 	RegistrarApplication *self = REGISTRAR_APPLICATION(user_data);
-	//    		appmenu_dbus_menu_registrar_register_object (_tmp1_, _tmp0_,
-	//    APPMENU_DBUSMENU_REG_OBJECT, &_inner_error_);
+	g_autoptr(GError) err      = NULL;
+	registrar_dbus_menu_register(self->registrar, connection, &err);
 	g_application_hold(G_APPLICATION(user_data));
 }
 static void registrar_application_on_dbus_name_lost(GDBusConnection *connection, const char *name,
@@ -127,6 +127,8 @@ static void registrar_application_init(RegistrarApplication *application)
 	bindtextdomain(GETTEXT_PACKAGE, LOCALE_DIR);
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	textdomain(GETTEXT_PACKAGE);
+	application->registrar =
+	    REGISTRAR_DBUS_MENU(g_object_new(registrar_dbus_menu_get_type(), NULL));
 	g_application_add_main_option_entries(G_APPLICATION(application), options);
 }
 
