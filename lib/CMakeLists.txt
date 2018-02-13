@@ -2,12 +2,8 @@
 # Core Parts (GResource, definitions)
 #####
 add_subdirectory(dbusmenu-importer)
-add_definitions(-fPIC)
-add_definitions(-DWNCK_I_KNOW_THIS_IS_UNSTABLE)
 set(CORE_VALA_FILES
     appmenu-bamf.vala
-    appmenu-dbus.vala
-    appmenu-desktop.vala
     registrar.vala
     menubar.vala
     menu-widget.vala
@@ -57,6 +53,10 @@ target_link_libraries (appmenu-core
     BAMF::LIB
     ${WNCK_TARGETS}
     m)
+set_target_properties(appmenu-core PROPERTIES
+#        C_VISIBILITY_PRESET hidden	# Make global variables and functions HIDDEN by default.
+        POSITION_INDEPENDENT_CODE ON	# Compile this object code position independent.
+)
 target_include_directories (appmenu-core PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 add_custom_target(vala-files-ide SOURCES ${VALA_FILES_DBUSMENU} ${CORE_VALA_FILES} ${PLUGIN_VALA_FILES})
 ##########

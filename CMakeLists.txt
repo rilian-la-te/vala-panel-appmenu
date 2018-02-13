@@ -92,10 +92,10 @@ pkg_check_modules(MATE libmatepanelapplet-4.0)
 cmake_dependent_option(ENABLE_MATE "Enable mate-panel Integration" ON
     "MATE_FOUND" OFF)
 
-pkg_check_modules(PEAS libpeas-1.0)
+find_package(PEAS 1.14 COMPONENTS PEAS)
 pkg_check_modules(VALAPANEL vala-panel)
 pkg_check_modules(VP_NEW vala-panel>=0.3.50 QUIET)
-pkg_check_modules(BUDGIE budgie-1.0 libpeas-1.0)
+pkg_check_modules(BUDGIE budgie-1.0)
 
 cmake_dependent_option(ENABLE_VALAPANEL "Enable Vala Panel Integration" ON
     "VALAPANEL_FOUND; PEAS_FOUND" OFF)
