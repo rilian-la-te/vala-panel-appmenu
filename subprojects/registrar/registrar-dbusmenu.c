@@ -312,21 +312,6 @@ static void registrar_dbus_menu_dbus_interface_method_call(
 	}
 }
 
-static GVariant *registrar_dbus_menu_dbus_interface_get_property(
-    GDBusConnection *connection, const char *sender, const char *object_path,
-    const char *interface_name, const char *property_name, GError **error, gpointer user_data)
-{
-	return NULL;
-}
-
-static bool registrar_dbus_menu_dbus_interface_set_property(
-    GDBusConnection *connection, const char *sender, const char *object_path,
-    const char *interface_name, const char *property_name, GVariant *value, GError **error,
-    gpointer user_data)
-{
-	return false;
-}
-
 static void _dbus_registrar_dbus_menu_window_registered(GObject *_sender, uint window_id,
                                                         const char *service, const char *path,
                                                         gpointer *_data)
@@ -369,9 +354,7 @@ static void _dbus_registrar_dbus_menu_window_unregistered(GObject *_sender, uint
 	                              NULL);
 }
 static const GDBusInterfaceVTable _interface_vtable =
-    { registrar_dbus_menu_dbus_interface_method_call,
-      registrar_dbus_menu_dbus_interface_get_property,
-      registrar_dbus_menu_dbus_interface_set_property };
+    { registrar_dbus_menu_dbus_interface_method_call, NULL, NULL };
 
 static void _registrar_dbus_menu_unregister_object(gpointer user_data)
 {
