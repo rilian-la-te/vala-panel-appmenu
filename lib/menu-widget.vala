@@ -42,7 +42,6 @@ namespace Appmenu
     }
     public class MenuWidget: Gtk.Bin
     {
-        public uint window_id {get; protected set construct;}
         public MenuWidgetCompletionFlags completed_menus {get; internal set;}
         public bool compact_mode {get; set;}
         public bool bold_application_name {get; set;}

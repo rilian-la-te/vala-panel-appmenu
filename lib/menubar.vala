@@ -83,11 +83,6 @@ namespace Appmenu
         }
         public void unregister_menu_window(uint window_id)
         {
-            if (menu.window_id == window_id)
-            {
-                helper = null;
-                helper = new DesktopHelper(menu);
-            }
             desktop_menus.remove(window_id);
         }
         private void on_window_opened(Bamf.View view)
