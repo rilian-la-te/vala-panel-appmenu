@@ -41,7 +41,7 @@ struct _RegistrarDBusMenu
 	GHashTable *menus;
 };
 
-G_DEFINE_TYPE(RegistrarDBusMenu, registrar_dbus_menu, G_TYPE_DBUS_PROXY)
+G_DEFINE_TYPE(RegistrarDBusMenu, registrar_dbus_menu, G_TYPE_OBJECT)
 
 enum
 {
@@ -63,8 +63,8 @@ void registrar_dbus_menu_register_window(RegistrarDBusMenu *self, uint window_id
 	              registrar_dbus_menu_signals[WINDOW_REGISTERED_SIGNAL],
 	              0,
 	              window_id,
-	              menu_object_path,
-	              sender);
+	              sender,
+	              menu_object_path);
 }
 
 void registrar_dbus_menu_unregister_window(RegistrarDBusMenu *self, uint window_id)
@@ -255,8 +255,6 @@ static void _dbus_registrar_dbus_menu_get_menu_for_window(RegistrarDBusMenu *sel
 	                               NULL);
 	g_object_unref(invocation);
 	g_object_unref(_reply_message);
-	g_clear_pointer(&service, g_free);
-	g_clear_pointer(&path, g_free);
 }
 
 static void _dbus_registrar_dbus_menu_get_menus(RegistrarDBusMenu *self, GVariant *_parameters_,
@@ -334,7 +332,6 @@ static void _dbus_registrar_dbus_menu_window_registered(GObject *_sender, uint w
                                                         gpointer *_data)
 {
 	GDBusConnection *_connection;
-	const char *_path;
 	GVariant *_arguments;
 	GVariantBuilder _arguments_builder;
 	_connection = (GDBusConnection *)_data;
@@ -392,13 +389,12 @@ uint registrar_dbus_menu_register(RegistrarDBusMenu *object, GDBusConnection *co
                                   GError **error)
 {
 	uint result;
-	g_object_ref(connection);
 	GDBusNodeInfo *info = g_dbus_node_info_new_for_xml(introspection_xml, NULL);
 	result              = g_dbus_connection_register_object(connection,
                                                    DBUSMENU_REG_OBJECT,
                                                    (GDBusInterfaceInfo *)info->interfaces[0],
                                                    &_interface_vtable,
-                                                   connection,
+                                                   object,
                                                    _registrar_dbus_menu_unregister_object,
                                                    error);
 	if (!result)

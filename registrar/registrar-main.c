@@ -76,7 +76,12 @@ static void registrar_application_on_dbus_name_aquired(GDBusConnection *connecti
 	RegistrarApplication *self = REGISTRAR_APPLICATION(user_data);
 	g_autoptr(GError) err      = NULL;
 	registrar_dbus_menu_register(self->registrar, connection, &err);
-	g_application_hold(G_APPLICATION(user_data));
+	if (!err)
+		g_application_hold(G_APPLICATION(user_data));
+	else
+	{
+		g_print("%s\n", err->message);
+	}
 }
 static void registrar_application_on_dbus_name_lost(GDBusConnection *connection, const char *name,
                                                     gpointer user_data)
@@ -130,6 +135,7 @@ static void registrar_application_init(RegistrarApplication *application)
 	application->registrar =
 	    REGISTRAR_DBUS_MENU(g_object_new(registrar_dbus_menu_get_type(), NULL));
 	g_application_add_main_option_entries(G_APPLICATION(application), options);
+	g_application_hold(application);
 }
 
 static void registrar_application_class_init(RegistrarApplicationClass *klass)
@@ -143,10 +149,8 @@ static void registrar_application_class_init(RegistrarApplicationClass *klass)
 	G_OBJECT_CLASS(klass)->finalize               = registrar_application_finalize;
 }
 
-#if 0
 int main(int argc, char *argv[])
 {
-    RegistrarApplication *app = registrar_application_new();
-    return g_application_run(G_APPLICATION(app), argc, argv);
+	RegistrarApplication *app = registrar_application_new();
+	return g_application_run(G_APPLICATION(app), argc, argv);
 }
-#endif
