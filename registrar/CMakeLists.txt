@@ -1,3 +1,4 @@
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(REGISTRAR_C_FILES
     registrar-main.c
     registrar-dbusmenu.c)
@@ -16,7 +17,6 @@ add_executable (appmenu-registrar
     ${RESOURCES}
 )
 target_link_libraries (appmenu-registrar GLIB2::GIO_UNIX GLIB2::GOBJECT m)
-target_include_directories (appmenu-registrar PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 # Install plugin stuffs
 install(TARGETS appmenu-registrar DESTINATION ${CMAKE_INSTALL_LIBEXECDIR}/vala-panel)
 
