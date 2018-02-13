@@ -16,10 +16,9 @@ add_definitions(-Wall -Wextra
                 ) #Vala often forgot cast to GtkWidget or gpointer
 
 find_package (PkgConfig)
-find_package (PkgConfig)
-find_package(GLIB2 2.50 REQUIRED QUIET COMPONENTS GOBJECT GIO GIO_UNIX GMODULE GTHREAD CODEGEN MKENUMS)
+find_package(GLIB2 2.50 REQUIRED QUIET COMPONENTS GOBJECT GIO GIO_UNIX GMODULE GTHREAD CODEGEN MKENUMS )
 include(GLibProgramHandlers)
-find_package(GTK 3.22 REQUIRED QUIET COMPONENTS GDK)
+find_package(GTK 3.22 REQUIRED QUIET COMPONENTS GDK )
 
 pkg_check_modules(PIXBUF REQUIRED QUIET
     gdk-pixbuf-2.0)
