@@ -8,7 +8,7 @@ G_BEGIN_DECLS
 G_DECLARE_FINAL_TYPE(RegistrarApplication, registrar_application, REGISTRAR, APPLICATION,
                      GApplication)
 
-RegistrarApplication* registrar_application_new ();
+RegistrarApplication *registrar_application_new();
 
 G_END_DECLS
 

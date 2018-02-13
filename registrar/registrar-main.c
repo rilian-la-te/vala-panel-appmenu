@@ -16,20 +16,33 @@ G_DEFINE_TYPE(RegistrarApplication, registrar_application, G_TYPE_APPLICATION)
 
 static const GOptionEntry options[4] =
     { { "version", 'v', 0, G_OPTION_ARG_NONE, NULL, N_("Print version and exit"), NULL },
-      { "reference",'r', 0, G_OPTION_ARG_NONE, NULL, N_("Reference a registrar (need more unreferences to quit automatically)"), NULL },
-      { "unreference", 'u', 0, G_OPTION_ARG_NONE, NULL, N_("Unreference a registrar (need less unreferences to quit automatically, or quits if refcount reaches zero)"), NULL },
+      { "reference",
+	'r',
+	0,
+	G_OPTION_ARG_NONE,
+	NULL,
+	N_("Reference a registrar (need more unreferences to quit automatically)"),
+	NULL },
+      { "unreference",
+	'u',
+	0,
+	G_OPTION_ARG_NONE,
+	NULL,
+	N_("Unreference a registrar (need less unreferences to quit automatically, or quits if "
+	   "refcount reaches zero)"),
+	NULL },
       { NULL } };
 
-RegistrarApplication* registrar_application_new ()
+RegistrarApplication *registrar_application_new()
 {
-    return REGISTRAR_APPLICATION(
-                g_object_new (registrar_application_get_type(),
-                         "application-id",
-                         "org.valapanel.AppMenu.Registrar",
-                         "flags",
-                         G_APPLICATION_HANDLES_COMMAND_LINE,
-                         "resource-base-path",
-                         "/org/valapanel/registrar", NULL));
+	return REGISTRAR_APPLICATION(g_object_new(registrar_application_get_type(),
+	                                          "application-id",
+	                                          "org.valapanel.AppMenu.Registrar",
+	                                          "flags",
+	                                          G_APPLICATION_HANDLES_COMMAND_LINE,
+	                                          "resource-base-path",
+	                                          "/org/valapanel/registrar",
+	                                          NULL));
 }
 static void registrar_application_activate(GApplication *base)
 {
@@ -111,10 +124,10 @@ static void registrar_application_finalize(GObject *obj)
 
 static void registrar_application_init(RegistrarApplication *application)
 {
-    bindtextdomain(GETTEXT_PACKAGE, LOCALE_DIR);
-    bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
-    textdomain(GETTEXT_PACKAGE);
-    g_application_add_main_option_entries(G_APPLICATION(application), options);
+	bindtextdomain(GETTEXT_PACKAGE, LOCALE_DIR);
+	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+	textdomain(GETTEXT_PACKAGE);
+	g_application_add_main_option_entries(G_APPLICATION(application), options);
 }
 
 static void registrar_application_class_init(RegistrarApplicationClass *klass)
