@@ -37,7 +37,7 @@ G_DEFINE_BOXED_TYPE(DBusAddress, dbus_address, dbus_address_copy, dbus_address_f
 
 struct _RegistrarDBusMenu
 {
-	GDBusProxy parent;
+	GObject parent;
 	GHashTable *menus;
 };
 
@@ -392,7 +392,6 @@ uint registrar_dbus_menu_register(RegistrarDBusMenu *object, GDBusConnection *co
                                   GError **error)
 {
 	uint result;
-	gpointer *data;
 	g_object_ref(connection);
 	GDBusNodeInfo *info = g_dbus_node_info_new_for_xml(introspection_xml, NULL);
 	result              = g_dbus_connection_register_object(connection,

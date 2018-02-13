@@ -8,7 +8,9 @@
 
 G_BEGIN_DECLS
 
-G_DECLARE_FINAL_TYPE(RegistrarDBusMenu, registrar_dbus_menu, REGISTRAR, DBUS_MENU, GDBusProxy)
+G_DECLARE_FINAL_TYPE(RegistrarDBusMenu, registrar_dbus_menu, REGISTRAR, DBUS_MENU, GObject)
+uint registrar_dbus_menu_register(RegistrarDBusMenu *object, GDBusConnection *connection,
+                                  GError **error);
 
 G_END_DECLS
 
