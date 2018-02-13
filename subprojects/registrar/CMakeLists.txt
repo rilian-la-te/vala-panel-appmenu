@@ -9,7 +9,7 @@ set(REGISTRAR_C_FILES
     registrar-main.c
     registrar-dbusmenu.c)
 configure_file (config.h.in config.h)
-find_package(GLIB2 2.50 REQUIRED QUIET COMPONENTS GOBJECT GIO GIO_UNIX GMODULE GTHREAD CODEGEN MKENUMS GENMARSHAL COMPILE_SCHEMAS COMPILE_RESOURCES)
+find_package(GLIB2 2.50 REQUIRED QUIET COMPONENTS GOBJECT GIO GIO_UNIX GENMARSHAL)
 include(GLibProgramHandlers)
 add_glib_marshal(MARSHALC MARSHALH "registrar-marshal" g_cclosure_user_marshal)
 file(STRINGS data/com.canonical.AppMenu.Registrar.xml XML_RAW)
