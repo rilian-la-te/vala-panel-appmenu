@@ -1,22 +1,20 @@
-cmake_minimum_required (VERSION 2.8)
-cmake_policy (VERSION 2.8)
+cmake_minimum_required (VERSION 3.4)
+cmake_policy (VERSION 3.4)
 project (appmenu-gtk-module C)
-cmake_policy(SET CMP0054 NEW)
+list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 enable_testing ()
 include(GNUInstallDirs)
 include(CMakeDependentOption)
 find_package (PkgConfig QUIET)
-find_package(GTK2 2.24 REQUIRED gtk)
-pkg_check_modules(GTK3 REQUIRED QUIET
-        gtk+-3.0>=3.22)
-find_package(X11)
-pkg_check_modules(GTK224 QUIET
-        gtk+-2.0>=2.24)
+find_package(GLIB2 REQUIRED QUIET COMPONENTS GLIB GOBJECT GIO GIO_UNIX COMPILE_SCHEMAS)
+include(GLibProgramHandlers)
+find_package(GTK 3.22 QUIET COMPONENTS GDK GTK X11 WAYLAND)
+find_package(GTK 2.24 COMPONENTS GDK GTK X11)
+set(GTK2_FOUND ${GTK_FOUND})
 
 cmake_dependent_option(STANDALONE "Build appmenu-gtk-module STANDALONE" ON
-        "NOT CORE_FOUND;X11_FOUND" OFF)
-cmake_dependent_option(ENABLE_APPMENU_GTK_MODULE "Build appmenu-gtk-module" ON
-	"X11_FOUND" OFF)
+        "NOT CORE_FOUND" OFF)
+option(ENABLE_APPMENU_GTK_MODULE "Build appmenu-gtk-module" ON)
 cmake_dependent_option(ENABLE_GTK_MODULE_DEMOS "Enable demo programs and docs for gtk module" OFF
         "ENABLE_APPMENU_GTK_MODULE" OFF)
 

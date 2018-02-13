@@ -6,7 +6,6 @@ set(PACKAGE_URL https://github.com/rilian-la-te/vala-panel-appmenu)
 set(PACKAGE_STRING appmenu-gtk-parser)
 set(PACKAGE_API_VERSION 2.0)
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/gtkdocentities.ent.in ${ENTITIES_NAME})
-
 gtk_doc_add_module(
         ${GTK_DOC_NAME} 
 	XML
@@ -17,10 +16,10 @@ gtk_doc_add_module(
 		unity-gtk-menu-item-private.h		
 		unity-gtk-action-group-private.h	
 		unity-gtk-action-private.h
-	LIBRARIES
-		appmenu-gtk3-parser
         SOURCE
-           ${CMAKE_CURRENT_SOURCE_DIR}/../lib
+            ${CMAKE_CURRENT_SOURCE_DIR}/../lib
+        LIBRARIES
+            appmenu-gtk3-parser
 )
 
 add_custom_target(documentation ALL DEPENDS doc-parser)

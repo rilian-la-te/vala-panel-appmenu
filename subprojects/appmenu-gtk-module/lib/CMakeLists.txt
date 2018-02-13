@@ -22,23 +22,21 @@ endif()
 add_library(appmenu-gtk3-parser SHARED
         ${LIB_SOURCES}
         ${GTK3_SOURCES})
-
-target_include_directories(appmenu-gtk3-parser PRIVATE ${GTK3_INCLUDE_DIRS} ${X11_INCLUDE_DIRS})
-target_link_libraries(appmenu-gtk3-parser PRIVATE ${GTK3_LIBRARIES} ${X11_LIBRARIES})
+target_link_libraries(appmenu-gtk3-parser PRIVATE ${GLIB2_LIBRARIES} ${GTK3_LIBRARIES})
+target_include_directories(appmenu-gtk3-parser PRIVATE ${GLIB2_INCLUDE_DIRS} ${GTK3_INCLUDE_DIRS})
 set_target_properties(appmenu-gtk3-parser PROPERTIES
 	VERSION ${VERSION}
 	SOVERSION ${VERSION_MAJOR})
 install(TARGETS appmenu-gtk3-parser DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 if (GTK2_FOUND)
-	add_library(appmenu-gtk2-parser SHARED
+        add_library(appmenu-gtk2-parser SHARED
 		${LIB_SOURCES})
 	set_target_properties(appmenu-gtk2-parser PROPERTIES
 		VERSION ${VERSION}
 		SOVERSION ${VERSION_MAJOR})
-        target_include_directories(appmenu-gtk2-parser PRIVATE ${GTK2_INCLUDE_DIRS} ${X11_INCLUDE_DIRS})
-        target_link_libraries(appmenu-gtk2-parser PRIVATE ${GTK2_LIBRARIES} ${X11_LIBRARIES})
-	install(TARGETS appmenu-gtk2-parser DESTINATION ${CMAKE_INSTALL_LIBDIR})
+        target_link_libraries(appmenu-gtk2-parser PRIVATE GLIB2::GIO_UNIX GTK2::GTK)
+        install(TARGETS appmenu-gtk2-parser DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 
 set(LIB_PUBLIC_HEADERS

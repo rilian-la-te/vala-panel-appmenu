@@ -1,1 +1,3 @@
 Activating active radio menu item de-activates it.
+Wayland support without GTK compositor.
+DBusMenu backend.

@@ -4,3 +4,11 @@ if(ENABLE_DEMOS)
 endif()
 #TODO: Fix autopilot
 #add_subdirectory(autopilot)
+add_test(
+    NAME
+        autopilot
+    COMMAND
+        ${CMAKE_CURRENT_BINARY_DIR}/autopilot/test.sh
+    WORKING_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}/autopilot
+)
