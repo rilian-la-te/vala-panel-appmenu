@@ -1,6 +1,10 @@
 set(REGISTRAR_VALA_FILES
     main.vala
     dbusmenu.vala)
+set(REGISTRAR_C_FILES
+    registrar-main.c
+    registrar-dbusmenu.c)
+configure_file (config.h.in config.h)
 vala_precompile(VALA_C_REGISTRAR appmenu-registrar
     ${REGISTRAR_VALA_FILES}
     ${CMAKE_BINARY_DIR}/vapi/config.vala
@@ -17,6 +21,7 @@ OPTIONS
 )
 add_executable (appmenu-registrar
     ${VALA_C_REGISTRAR}
+    ${REGISTRAR_C_FILES}
     ${RESOURCES}
 )
 target_link_libraries (appmenu-registrar GLIB2::GIO_UNIX GLIB2::GOBJECT m)

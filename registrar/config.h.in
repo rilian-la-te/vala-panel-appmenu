@@ -1,0 +1,8 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#define GETTEXT_PACKAGE "@GETTEXT_PACKAGE@"
+#define LOCALE_DIR "@CMAKE_INSTALL_FULL_LOCALEDIR@"
+#define VERSION "@VERSION@"
+
+#endif
