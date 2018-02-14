@@ -26,7 +26,6 @@ namespace Appmenu
         private HashTable<uint,unowned Bamf.Window> desktop_menus;
         private Bamf.Matcher matcher;
         private Helper helper;
-        private Helper bamf_helper;
         private unowned MenuWidget? menu
         {
             get {return this.get_child() as MenuWidget;}
@@ -61,13 +60,6 @@ namespace Appmenu
             SignalHandler.disconnect_by_data(proxy,this);
             SignalHandler.disconnect_by_data(matcher,this);
             base.destroy();
-        }
-        protected override void map()
-        {
-            base.map();
-            unowned Gtk.Settings gtksettings = this.get_settings();
-            gtksettings.gtk_shell_shows_app_menu = false;
-            gtksettings.gtk_shell_shows_menubar = false;
         }
         public void register_menu_window(uint window_id, string sender, ObjectPath menu_object_path)
         {
@@ -154,7 +146,7 @@ namespace Appmenu
                     win = win.get_transient();
                     if (win == null && app != null)
                     {
-                        bamf_helper = get_stub_helper_with_bamf(menu,app);
+                        helper = get_stub_helper_with_bamf(menu,app);
                         menu.set_menubar(null);
                         found = true;
                     }
