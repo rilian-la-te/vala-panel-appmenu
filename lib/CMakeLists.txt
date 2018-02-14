@@ -3,6 +3,7 @@
 #####
 add_subdirectory(dbusmenu-importer)
 set(CORE_VALA_FILES
+    appmenu-backend.vala
     appmenu-bamf.vala
     registrar.vala
     menubar.vala
@@ -21,7 +22,6 @@ PACKAGES
 OPTIONS
     --vapidir=${CMAKE_SOURCE_DIR}/vapi
     --vapidir=${CMAKE_CURRENT_BINARY_DIR}
-    --vapidir=${CMAKE_BINARY_DIR}/dbusmenu
     --vapidir=${CMAKE_CURRENT_SOURCE_DIR}/dbusmenu-importer
     --target-glib=2.44
     --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
@@ -54,7 +54,6 @@ target_link_libraries (appmenu-core
     ${WNCK_TARGETS}
     m)
 set_target_properties(appmenu-core PROPERTIES
-#        C_VISIBILITY_PRESET hidden	# Make global variables and functions HIDDEN by default.
         POSITION_INDEPENDENT_CODE ON	# Compile this object code position independent.
 )
 target_include_directories (appmenu-core PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
