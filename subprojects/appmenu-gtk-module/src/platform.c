@@ -27,6 +27,10 @@
 #include "datastructs-private.h"
 #include "datastructs.h"
 
+#ifndef PID_MAX_LIMIT
+#define PID_MAX_LIMIT (4 * 1024 * 1024)
+#endif
+
 #ifdef GDK_WINDOWING_X11
 G_GNUC_INTERNAL char *gtk_widget_get_x11_property_string(GtkWidget *widget, const char *name)
 {
@@ -290,13 +294,9 @@ G_GNUC_INTERNAL WindowData *gtk_wayland_window_get_window_data(GtkWindow *window
 		struct wl_surface *proxy = gdk_wayland_window_get_wl_surface(
 		    GDK_WAYLAND_WINDOW(gtk_widget_get_window(window)));
 		window_data->window_id         = wl_proxy_get_id(proxy);
-		window_data->wayland_window_fd = wl_display_get_fd(
-		    gdk_wayland_display_get_wl_display(gdk_display_get_default()));
+		window_data->wayland_window_id = getpid() + PID_MAX_LIMIT * wl_proxy_get_id(proxy);
 		// This is for testing uniqueness of this window ID
-		g_debug("%u.%d\n",
-		        wl_proxy_get_id(proxy),
-		        wl_display_get_fd(
-		            gdk_wayland_display_get_wl_display(gdk_display_get_default())));
+		g_debug("%lu\n", window_data->wayland_window_id);
 
 		const char *unique_bus_name     = g_dbus_connection_get_unique_name(connection);
 		g_autofree char *application_id = NULL;
