@@ -53,28 +53,22 @@ namespace Appmenu
             w.insert_action_group("menu",group);
             var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
             builder.set_translation_domain(Config.GETTEXT_PACKAGE);
-            if ((widget.completed_menus & MenuWidgetCompletionFlags.APPMENU) == 0)
-            {
-                unowned GLib.Menu gmenu = builder.get_object("appmenu-desktop") as GLib.Menu;
-                var menu = new GLib.Menu();
-                string? name = GLib.dgettext(Config.GETTEXT_PACKAGE,"_Desktop");
-                menu.append_submenu(name,gmenu);
-                menu.freeze();
-                widget.set_appmenu(menu);
-            }
-            if ((widget.completed_menus & MenuWidgetCompletionFlags.MENUBAR) == 0)
-            {
-                GLib.Menu append_menu = new GLib.Menu();
-                widget.set_menubar(append_menu);
-                files_menu = builder.get_object("files") as GLib.Menu;
-                documents_menu = builder.get_object("docs") as GLib.Menu;
-                music_menu = builder.get_object("music") as GLib.Menu;
-                pictures_menu = builder.get_object("picts") as GLib.Menu;
-                videos_menu = builder.get_object("video") as GLib.Menu;
-                unowned GLib.Menu gmenu = builder.get_object("menubar") as GLib.Menu;
-                append_menu.append_section(null,gmenu);
-                append_menu.freeze();
-            }
+            unowned GLib.Menu gmenu = builder.get_object("appmenu-desktop") as GLib.Menu;
+            var menu = new GLib.Menu();
+            string? name = GLib.dgettext(Config.GETTEXT_PACKAGE,"_Desktop");
+            menu.append_submenu(name,gmenu);
+            menu.freeze();
+            widget.set_appmenu(menu);
+            GLib.Menu append_menu = new GLib.Menu();
+            widget.set_menubar(append_menu);
+            files_menu = builder.get_object("files") as GLib.Menu;
+            documents_menu = builder.get_object("docs") as GLib.Menu;
+            music_menu = builder.get_object("music") as GLib.Menu;
+            pictures_menu = builder.get_object("picts") as GLib.Menu;
+            videos_menu = builder.get_object("video") as GLib.Menu;
+            gmenu = builder.get_object("menubar") as GLib.Menu;
+            append_menu.append_section(null,gmenu);
+            append_menu.freeze();
         }
         internal void activate_menu_id(SimpleAction action, Variant? param)
         {

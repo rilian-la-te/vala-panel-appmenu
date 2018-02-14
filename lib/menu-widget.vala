@@ -33,16 +33,8 @@ namespace Appmenu
             Posix.setpgid(0,this.pid);
         }
     }
-    [Flags]
-    public enum MenuWidgetCompletionFlags
-    {
-        NONE,
-        APPMENU,
-        MENUBAR
-    }
     public class MenuWidget: Gtk.Bin
     {
-        public MenuWidgetCompletionFlags completed_menus {get; internal set;}
         public bool compact_mode {get; set;}
         public bool bold_application_name {get; set;}
         private Gtk.Adjustment? scroll_adj = null;
@@ -123,19 +115,11 @@ namespace Appmenu
         public void set_appmenu(GLib.MenuModel? appmenu_model)
         {
             this.appmenu = appmenu_model;
-            if (appmenu_model != null)
-                completed_menus |= MenuWidgetCompletionFlags.APPMENU;
-            else
-                completed_menus &= ~MenuWidgetCompletionFlags.APPMENU;
             this.restock();
         }
         public void set_menubar(GLib.MenuModel? menubar_model)
         {
             this.menubar = menubar_model;
-            if (menubar_model != null)
-                completed_menus |= MenuWidgetCompletionFlags.MENUBAR;
-            else
-                completed_menus &= ~MenuWidgetCompletionFlags.MENUBAR;
             this.restock();
         }
         protected bool on_scroll_event(Gtk.Widget w, Gdk.EventScroll event)
