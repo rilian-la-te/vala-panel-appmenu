@@ -214,6 +214,8 @@ namespace Appmenu
                 var menubar = DBusMenuModel.get(dbusconn,gtk_unique_bus_name,menubar_path);
                 w.set_menubar(menubar);
             }
+            else
+                w.set_menubar(null);
             if (appmenu_actions != null)
                 w.insert_action_group("app",appmenu_actions);
             if (menubar_actions != null)
