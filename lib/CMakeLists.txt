@@ -3,12 +3,15 @@
 #####
 add_subdirectory(dbusmenu-importer)
 set(CORE_VALA_FILES
-    appmenu-backend.vala
+    appmenu-abstractions.vala
     appmenu-bamf.vala
     registrar.vala
     menubar.vala
     menu-widget.vala
-    menu-widget-helpers.vala
+    helper-desktop.vala
+    helper-dbus.vala
+    helper-dbusmenu.vala
+    helper-menumodel.vala
     ${CMAKE_BINARY_DIR}/vapi/config.vala
 )
 vala_precompile(VALA_C_CORE appmenu-core

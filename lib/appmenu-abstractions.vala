@@ -29,6 +29,10 @@ namespace Appmenu
         MENUMODEL,
         DBUSMENU
     }
+    internal abstract class Helper: Object
+    {
+
+    }
     public abstract class Backend : Object
     {
         protected ModelType type = ModelType.NONE;
