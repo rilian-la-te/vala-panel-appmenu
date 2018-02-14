@@ -171,13 +171,12 @@ namespace Appmenu
         private void lookup_menu(Bamf.Window? window)
         {
             uint xid = 0;
-            bool found = false;
             Bamf.Window? win = window;
-            while (win != null && found == false)
+            while (win != null && type == ModelType.NONE)
             {
                 xid = window.get_xid();
                 unowned Bamf.Application app = matcher.get_application_for_window(win);
-                if (!found)
+                if (type == ModelType.NONE)
                 {
                     string name;
                     ObjectPath path;
@@ -188,12 +187,11 @@ namespace Appmenu
                         this.active_application = app;
                         this.active_window = win;
                         this.type = ModelType.DBUSMENU;
-                        found = true;
                     }
                 }
                 /* First look to see if we can get these from the
                    GMenuModel access */
-                if (!found)
+                if (type == ModelType.NONE)
                 {
                     var uniquename = window.get_utf8_prop ("_GTK_UNIQUE_BUS_NAME");
                     if (uniquename != null)
@@ -204,7 +202,6 @@ namespace Appmenu
                             this.type = ModelType.DESKTOP;
                         else
                             this.type = ModelType.MENUMODEL;
-                        found = true;
                     }
                 }
                 if (type == ModelType.NONE)
@@ -216,11 +213,10 @@ namespace Appmenu
                         this.active_window = win;
                         this.active_application = app;
                         type = ModelType.STUB;
-                        found = true;
                     }
                 }
             }
-            if (found == false)
+            if (type == ModelType.NONE)
             {
                 this.active_window = null;
                 this.active_application = null;
