@@ -213,8 +213,10 @@ G_GNUC_INTERNAL WindowData *gtk_x11_window_get_window_data(GtkWindow *window)
 			gtk_widget_set_x11_property_string(GTK_WIDGET(window),
 			                                   _UNITY_OBJECT_PATH,
 			                                   object_path);
-
-		if (old_menubar_object_path == NULL)
+		// FIXME: We do not export empty mutable mmodels, but we should, because it can be
+		// made non-empty by items-changed signal
+		if (old_menubar_object_path == NULL &&
+		    g_menu_model_get_n_items(G_MENU_MODEL(window_data->menu_model)))
 			gtk_widget_set_x11_property_string(GTK_WIDGET(window),
 			                                   _GTK_MENUBAR_OBJECT_PATH,
 			                                   object_path);
