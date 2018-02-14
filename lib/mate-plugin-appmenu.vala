@@ -24,12 +24,38 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
     if (iid != "AppmenuApplet") {
         return false;
     }
-
     applet.flags = MatePanel.AppletFlags.HAS_HANDLE | MatePanel.AppletFlags.EXPAND_MAJOR;
-
     var layout = new Appmenu.MenuWidget();
+    var settings = MatePanel.AppletSettings.@new(applet,"org.valapanel.appmenu");
+    settings.bind(Key.COMPACT_MODE,layout,Key.COMPACT_MODE,SettingsBindFlags.DEFAULT);
+    settings.bind(Key.BOLD_APPLICATION_NAME,layout,Key.BOLD_APPLICATION_NAME,SettingsBindFlags.DEFAULT);
     applet.add(layout);
     applet.show_all();
+    var action_group = new Gtk.ActionGroup ("AppmenuApplet Menu Actions");
+    action_group.set_translation_domain (Config.GETTEXT_PACKAGE);
+    Gtk.Action a = new Gtk.Action("AppMenuAppletPreferences",N_("_Preferences"),null,Gtk.Stock.PREFERENCES);
+    a.activate.connect(()=>
+    {
+        var dlg = new Gtk.Dialog.with_buttons( _("Configure AppMenu"), layout.get_toplevel() as Window,
+                                              DialogFlags.DESTROY_WITH_PARENT,
+                                              _("_Close"),
+                                              ResponseType.CLOSE,
+                                              null );
+        Gtk.Box dlg_vbox = dlg.get_content_area() as Gtk.Box;
+        var entry = new CheckButton.with_label(_("Use Compact mode (all menus in application menu"));
+        settings.bind(Key.COMPACT_MODE,entry,"active",SettingsBindFlags.DEFAULT);
+        dlg_vbox.pack_start(entry,false,false,2);
+        entry = new CheckButton.with_label(_("Use bold application name"));
+        settings.bind(Key.BOLD_APPLICATION_NAME,entry,"active",SettingsBindFlags.DEFAULT);
+        dlg_vbox.pack_start(entry,false,false,2);
+        dlg.show_all();
+        dlg.present();
+        dlg.response.connect(()=>{
+            dlg.destroy();
+        });
+    });
+    action_group.add_action (a);
+    applet.setup_menu("""<menuitem name="Appmenu Preferences Item" action="AppMenuAppletPreferences" />""",action_group);
     return true;
 }
 

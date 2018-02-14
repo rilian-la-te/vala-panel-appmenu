@@ -18,6 +18,12 @@
 
 using GLib;
 
+namespace Key
+{
+    public const string COMPACT_MODE = "compact-mode";
+    public const string BOLD_APPLICATION_NAME = "bold-application-name";
+}
+
 namespace Appmenu
 {
     [Compact]
@@ -35,8 +41,8 @@ namespace Appmenu
     }
     public class MenuWidget: Gtk.Bin
     {
-        public bool compact_mode {get; set;}
-        public bool bold_application_name {get; set;}
+        public bool compact_mode {get; set; default = false;}
+        public bool bold_application_name {get; set; default = false;}
         private Gtk.Adjustment? scroll_adj = null;
         private Gtk.ScrolledWindow? scroller = null;
         private Gtk.CssProvider provider;
@@ -51,11 +57,6 @@ namespace Appmenu
             unowned Gtk.StyleContext context = this.get_style_context();
             context.add_class("-vala-panel-appmenu-core");
             unowned Gtk.StyleContext mcontext = mwidget.get_style_context();
-#if BOLD
-            this.bold_application_name = true;
-#else
-            this.bold_application_name = false;
-#endif
             this.notify.connect(()=>{
                 this.restock();
             });

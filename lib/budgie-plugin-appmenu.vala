@@ -45,24 +45,41 @@ public class GlobalMenuApplet: Applet
             context.add_class("budgie-menubar");
         }
     }
-
+    public override Widget? get_settings_ui()
+    {
+        var dlg = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
+        var entry = new CheckButton.with_label(_("Use Compact mode (all menus in application menu)"));
+        this.settings.bind(Key.COMPACT_MODE,entry,"active",SettingsBindFlags.DEFAULT);
+        dlg.pack_start(entry,false,false,2);
+        entry = new CheckButton.with_label(_("Use bold application name"));
+        this.settings.bind(Key.BOLD_APPLICATION_NAME,entry,"active",SettingsBindFlags.DEFAULT);
+        dlg.pack_start(entry,false,false,2);
+        dlg.show_all();
+        return dlg;
+    }
     public override bool supports_settings()
     {
-        return false;
+        return true;
     }
     public GlobalMenuApplet (string uuid)
     {
         Object(uuid: uuid);
+        settings_schema = "org.valapanel.appmenu";
+        settings_prefix = "/com/solus-project/budgie-panel/instance/appmenu";
+        settings = get_applet_settings(uuid);
         var layout = new Appmenu.MenuWidget();
         layout.add.connect_after((w)=>{
             add_budgie_style(layout);
         });
+        settings.bind(Key.COMPACT_MODE,layout,Key.COMPACT_MODE,SettingsBindFlags.DEFAULT);
+        settings.bind(Key.BOLD_APPLICATION_NAME,layout,Key.BOLD_APPLICATION_NAME,SettingsBindFlags.DEFAULT);
         this.add(layout);
         this.hexpand_set = true;
         this.vexpand_set = true;
         add_budgie_style(layout);
         show_all();
     }
+    private GLib.Settings settings;
 } // End class
 
 [ModuleInit]
