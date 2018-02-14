@@ -56,6 +56,7 @@ namespace Appmenu
         {
             Object();
         }
+        public signal void registrar_changed(bool have_registrar);
         public signal void window_registered(uint window_id, string service, ObjectPath path);
         public signal void window_unregistered(uint window_id);
         private void create_outer_registrar()
@@ -65,9 +66,11 @@ namespace Appmenu
                 watched_name = Bus.watch_name(BusType.SESSION,REG_IFACE,GLib.BusNameWatcherFlags.NONE,
                                                         () => {
                                                             have_registrar = true;
+                                                            registrar_changed(true);
                                                             },
                                                         () => {
                                                             have_registrar = false;
+                                                            registrar_changed(false);
                                                             }
                                                         );
                 outer_registrar.window_registered.connect((w,s,p)=>{this.window_registered(w,s,p);});
