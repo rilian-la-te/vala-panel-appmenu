@@ -27,7 +27,7 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
 
     applet.flags = MatePanel.AppletFlags.HAS_HANDLE | MatePanel.AppletFlags.EXPAND_MAJOR;
 
-    var layout = new Appmenu.AppMenuBar();
+    var layout = new Appmenu.MenuWidget();
     applet.add(layout);
     applet.show_all();
     return true;

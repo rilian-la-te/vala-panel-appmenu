@@ -53,7 +53,7 @@ public class GlobalMenuApplet: Applet
     public GlobalMenuApplet (string uuid)
     {
         Object(uuid: uuid);
-        var layout = new Appmenu.AppMenuBar();
+        var layout = new Appmenu.MenuWidget();
         layout.add.connect_after((w)=>{
             add_budgie_style(layout);
         });

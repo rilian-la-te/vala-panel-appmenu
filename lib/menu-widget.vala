@@ -50,6 +50,7 @@ namespace Appmenu
         private Gtk.CssProvider provider;
         private GLib.MenuModel? appmenu = null;
         private GLib.MenuModel? menubar = null;
+        private Backend backend = new BackendBAMF();
         private Gtk.MenuBar mwidget = new Gtk.MenuBar();
         construct
         {
@@ -65,6 +66,12 @@ namespace Appmenu
 #endif
             this.notify.connect(()=>{
                 this.restock();
+            });
+            backend.active_model_changed.connect(()=>{
+                Timeout.add(50,()=>{
+                    backend.set_active_window_menu(this);
+                    return Source.REMOVE;
+                });
             });
             mcontext.add_class("-vala-panel-appmenu-private");
             Gtk.StyleContext.add_provider_for_screen(this.get_screen(), provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);

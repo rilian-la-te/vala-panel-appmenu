@@ -49,7 +49,7 @@ public class GlobalMenuApplet: Applet
     public override void create()
     {
 #endif
-        var layout = new Appmenu.AppMenuBar();
+        var layout = new Appmenu.MenuWidget();
         this.add(layout);
         show_all();
     }

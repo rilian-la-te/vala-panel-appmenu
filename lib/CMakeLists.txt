@@ -6,7 +6,6 @@ set(CORE_VALA_FILES
     appmenu-abstractions.vala
     appmenu-bamf.vala
     registrar.vala
-    menubar.vala
     menu-widget.vala
     helper-desktop.vala
     helper-dbus.vala
