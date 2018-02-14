@@ -71,6 +71,7 @@ namespace MatePanel {
 	public delegate bool AppletFactoryCallback (MatePanel.Applet applet, string iid);
 	[CCode (cheader_filename = "mate-panel-applet.h", cname = "MATE_PANEL_APPLET_FLAGS_ALL")]
 	public const int APPLET_FLAGS_ALL;
+	[CCode (cheader_filename = "mate-panel-applet-gsettings.h")]
 	namespace AppletSettings
 	{
 		public GLib.Settings @new(Applet applet, string schema);
