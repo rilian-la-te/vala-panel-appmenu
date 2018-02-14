@@ -162,5 +162,12 @@ namespace Appmenu
             }
             return false;
         }
+        protected override void map()
+        {
+            base.map();
+            unowned Gtk.Settings gtksettings = this.get_settings();
+            gtksettings.gtk_shell_shows_app_menu = false;
+            gtksettings.gtk_shell_shows_menubar = false;
+        }
     }
 }
