@@ -61,24 +61,22 @@ namespace Appmenu
         public signal void window_unregistered(uint window_id);
         private void create_outer_registrar()
         {
-            try{
-                outer_registrar = Bus.get_proxy_sync(BusType.SESSION,REG_IFACE,REG_OBJECT);
-                watched_name = Bus.watch_name(BusType.SESSION,REG_IFACE,GLib.BusNameWatcherFlags.NONE,
-                                                        () => {
+            watched_name = Bus.watch_name(BusType.SESSION,REG_IFACE,GLib.BusNameWatcherFlags.NONE,
+                                                    () => {
+                                                        try{
+                                                            outer_registrar = Bus.get_proxy_sync(BusType.SESSION,REG_IFACE,REG_OBJECT);
+                                                            outer_registrar.window_registered.connect((w,s,p)=>{this.window_registered(w,s,p);});
+                                                            outer_registrar.window_unregistered.connect((w)=>{this.window_unregistered(w);});
                                                             have_registrar = true;
                                                             registrar_changed(true);
-                                                            },
-                                                        () => {
-                                                            have_registrar = false;
-                                                            registrar_changed(false);
-                                                            }
-                                                        );
-                outer_registrar.window_registered.connect((w,s,p)=>{this.window_registered(w,s,p);});
-                outer_registrar.window_unregistered.connect((w)=>{this.window_unregistered(w);});
-            } catch (Error e) {
-                stderr.printf("%s\n",e.message);
-                return;
-            }
+                                                        } catch (Error e) {stderr.printf("%s\n",e.message);}
+                                                        },
+                                                    () => {
+                                                        have_registrar = false;
+                                                        outer_registrar = null;
+                                                        registrar_changed(false);
+                                                        }
+                                                    );
         }
         construct
         {
