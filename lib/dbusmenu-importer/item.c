@@ -315,7 +315,7 @@ static bool dbus_menu_item_update_shortcut(DBusMenuItem *item, GVariant *value)
 {
 	GString *new_accel_string = g_string_new(NULL);
 	if (g_variant_n_children(value) != 1)
-		g_warning("Unable to parse shortcut correctly, too many keys. Taking first.");
+		g_debug("Unable to parse shortcut correctly, too many keys. Taking first.");
 
 	GVariantIter iter;
 	GVariant *child = g_variant_get_child_value(value, 0);
