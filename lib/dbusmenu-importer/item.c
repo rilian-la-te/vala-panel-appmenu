@@ -214,7 +214,7 @@ static bool check_and_update_mutable_attribute(DBusMenuItem *item, const char *k
 static bool dbus_menu_item_update_enabled(DBusMenuItem *item, bool enabled)
 {
 	bool updated = false;
-	if (item->action_type == DBUS_MENU_ACTION_SUBMENU)
+	if (item->action_type == DBUS_MENU_ACTION_SUBMENU && !item->toggled)
 	{
 		DBusMenuModel *submenu = DBUS_MENU_MODEL(
 		    g_hash_table_lookup(item->links,
@@ -273,6 +273,7 @@ G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item)
 			dbus_menu_model_update_layout(submenu);
 	}
 	dbus_menu_item_update_enabled(item, true);
+	item->toggled = true;
 }
 
 G_GNUC_INTERNAL bool dbus_menu_item_copy_attributes(DBusMenuItem *src, DBusMenuItem *dst)
@@ -568,6 +569,8 @@ G_GNUC_INTERNAL void dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem
 	DBusMenuXml *xml;
 	DBusMenuModel *submenu = NULL;
 	g_object_get(parent, "xml", &xml, NULL);
+	if (dst->toggled)
+		dst->enabled = true;
 	if (src == NULL)
 	{
 		if (dst->action_type == DBUS_MENU_ACTION_SUBMENU)
