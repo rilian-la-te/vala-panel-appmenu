@@ -272,6 +272,7 @@ G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item)
 		if (DBUS_MENU_IS_MODEL(submenu))
 			dbus_menu_model_update_layout(submenu);
 	}
+	dbus_menu_item_update_enabled(item, true);
 }
 
 G_GNUC_INTERNAL bool dbus_menu_item_copy_attributes(DBusMenuItem *src, DBusMenuItem *dst)
