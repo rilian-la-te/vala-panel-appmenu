@@ -44,9 +44,7 @@ namespace Appmenu
             unowned Gtk.StyleContext context = this.get_style_context();
             context.add_class("-vala-panel-appmenu-core");
             unowned Gtk.StyleContext mcontext = mwidget.get_style_context();
-            this.notify.connect(()=>{
-                this.restock();
-            });
+            Signal.connect(this,"notify",(GLib.Callback)restock,null);
             backend.active_model_changed.connect(()=>{
                 Timeout.add(50,()=>{
                     backend.set_active_window_menu(this);
