@@ -26,19 +26,6 @@ namespace Key
 
 namespace Appmenu
 {
-    [Compact]
-    private class SpawnData
-    {
-        internal Posix.pid_t pid; /* getpgid(getppid()); */
-        public SpawnData()
-        {
-            pid = Posix.getpgid(Posix.getppid());
-        }
-        public void child_spawn_func()
-        {
-            Posix.setpgid(0,this.pid);
-        }
-    }
     public class MenuWidget: Gtk.Bin
     {
         public bool compact_mode {get; set; default = false;}

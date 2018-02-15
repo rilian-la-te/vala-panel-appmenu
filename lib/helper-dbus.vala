@@ -108,17 +108,9 @@ namespace Appmenu
         }
         private void activate_new(GLib.SimpleAction action, Variant? param)
         {
-            var data = new SpawnData();
             if (info != null)
             {
-                try {
-                    info.launch_uris_as_manager(new List<string>(),
-                                                widget.get_display().get_app_launch_context(),
-                                                SpawnFlags.SEARCH_PATH,
-                                                data.child_spawn_func,(a,b)=>{});
-                } catch (Error e) {
-                    stderr.printf("%s\n",e.message);
-                }
+                MenuMaker.launch(info,new List<string>(),widget);
             }
             else if (connection != null)
             {
@@ -127,10 +119,7 @@ namespace Appmenu
                     string str = "/proc/%u/cmdline".printf(dbus.get_connection_unix_process_id(this.connection));
                     string exec = Launcher.posix_get_cmdline_string(str);
                     var appinfo  = AppInfo.create_from_commandline(exec,null,0) as DesktopAppInfo;
-                    appinfo.launch_uris_as_manager(new List<string>(),
-                                                widget.get_display().get_app_launch_context(),
-                                                SpawnFlags.SEARCH_PATH,
-                                                data.child_spawn_func,(a,b)=>{});
+                    MenuMaker.launch(appinfo,new List<string>(),widget);
                 } catch (Error e) {
                     stderr.printf("%s\n",e.message);
                 }
@@ -152,16 +141,12 @@ namespace Appmenu
         private void activate_unity(GLib.SimpleAction action, Variant? param)
         {
             unowned string action_name = param.get_string();
-            var data = new SpawnData();
             try {
                 var keyfile = new KeyFile();
                 keyfile.load_from_file(info.get_filename(),KeyFileFlags.NONE);
                 var exec = keyfile.get_string(UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME.printf(action_name),KeyFileDesktop.KEY_EXEC);
-                var info  = AppInfo.create_from_commandline(exec,null,0) as DesktopAppInfo;
-                info.launch_uris_as_manager(new List<string>(),
-                                            widget.get_display().get_app_launch_context(),
-                                            SpawnFlags.SEARCH_PATH,
-                                            data.child_spawn_func,(a,b)=>{});
+                var appinfo  = AppInfo.create_from_commandline(exec,null,0) as DesktopAppInfo;
+                MenuMaker.launch(appinfo,new List<string>(),widget);
             } catch (Error e) {
                 stderr.printf("%s\n",e.message);
             }
