@@ -404,6 +404,38 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 		dbus_menu_model_update_layout(menu);
 }
 
+static void dbus_menu_update_item_properties_from_layout_sync(DBusMenuModel *menu,
+                                                              DBusMenuItem *item, int sect_n,
+                                                              int pos)
+{
+	g_return_if_fail(DBUS_MENU_IS_MODEL(menu));
+	g_autoptr(GVariant) props;
+	g_autoptr(GVariant) items;
+	g_autoptr(GVariant) layout     = NULL;
+	g_autoptr(GError) error        = NULL;
+	g_autoptr(GQueue) signal_queue = g_queue_new();
+	guint id, revision;
+	dbus_menu_xml_call_get_layout_sync(menu->xml,
+	                                   menu->parent_id,
+	                                   0,
+	                                   property_names,
+	                                   &revision,
+	                                   &layout,
+	                                   menu->cancellable,
+	                                   &error);
+	if (error != NULL)
+	{
+		if (!g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+			g_warning("%s", error->message);
+		return;
+	}
+	g_variant_get(layout, "(i@a{sv}@av)", &id, &props, &items);
+	bool is_item_updated = dbus_menu_item_update_props(item, props);
+	if (is_item_updated)
+		add_signal_to_queue(menu, signal_queue, sect_n, pos, 1, 1);
+	queue_emit_all(signal_queue);
+}
+
 G_GNUC_INTERNAL void dbus_menu_model_update_layout_sync(DBusMenuModel *menu)
 {
 	g_return_if_fail(DBUS_MENU_IS_MODEL(menu));
@@ -450,17 +482,17 @@ G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
 
 static void layout_updated_cb(DBusMenuXml *proxy, guint revision, gint parent, DBusMenuModel *menu)
 {
-	if (((uint)parent == menu->parent_id) && revision > menu->current_revision && parent == 0)
-	{
-		g_debug("Remote attempt to update root\n");
-		dbus_menu_model_update_layout(menu);
-	}
-	else if (((uint)parent == menu->parent_id) && revision > menu->current_revision)
+	if (((uint)parent == menu->parent_id) && menu->current_revision < revision)
 	{
 		g_debug("Remote attempt to update %u with rev %u\n", parent, revision);
-		//		menu->layout_update_required = true;
 		dbus_menu_model_update_layout(menu);
+		menu->current_revision = revision;
+		return;
 	}
+	int sect_n = 0, position = 0;
+	DBusMenuItem *item = dbus_menu_model_find(menu, (uint)parent, &sect_n, &position);
+	if (item != NULL)
+		dbus_menu_update_item_properties_from_layout_sync(menu, item, sect_n, position);
 }
 
 static void item_activation_requested_cb(DBusMenuXml *proxy, gint id, guint timestamp,
