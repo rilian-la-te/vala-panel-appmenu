@@ -590,7 +590,8 @@ static void dbus_menu_model_set_property(GObject *object, guint property_id, con
 		menu->received_action_group = G_ACTION_GROUP(g_value_get_object(value));
 		break;
 	case PROP_PARENT_ID:
-		menu->parent_id = g_value_get_uint(value);
+		menu->layout_update_required = true;
+		menu->parent_id              = g_value_get_uint(value);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
