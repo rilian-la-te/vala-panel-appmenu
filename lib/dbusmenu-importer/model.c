@@ -385,8 +385,7 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 	guint revision;
 	if (!DBUS_MENU_IS_MODEL(user_data))
 		return;
-	DBusMenuModel *menu = DBUS_MENU_MODEL(user_data);
-
+	DBusMenuModel *menu     = DBUS_MENU_MODEL(user_data);
 	g_autoptr(GError) error = NULL;
 	dbus_menu_xml_call_get_layout_finish((DBusMenuXml *)(source_object),
 	                                     &revision,
@@ -399,7 +398,6 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 			g_warning("%s", error->message);
 		return;
 	}
-
 	layout_parse(menu, layout);
 	menu->layout_update_in_progress = false;
 	if (menu->layout_update_required)

@@ -481,7 +481,7 @@ G_GNUC_INTERNAL bool dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *p
 	{
 		if (g_strcmp0(prop, "accessible-desc") == 0)
 		{
-			// TODO: Can we supported this property?
+			// TODO: Can we support this property?
 			// properties_is_updated = true;
 		}
 		else if (g_strcmp0(prop, "enabled") == 0)
