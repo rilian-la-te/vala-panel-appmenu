@@ -52,6 +52,13 @@ static bool dbus_menu_importer_check(DBusMenuImporter *menu)
 	return false;
 }
 
+static void dbus_menu_importer_on_root_model_changed(GMenuModel *model, gint position, gint removed,
+                                                     gint added, gpointer user_data)
+{
+	DBusMenuImporter *menu = DBUS_MENU_IMPORTER(user_data);
+	g_object_notify_by_pspec(menu, properties[PROP_MODEL]);
+}
+
 static void proxy_ready_cb(GObject *source_object, GAsyncResult *res, gpointer user_data)
 {
 	g_autoptr(GError) error = NULL;
@@ -122,6 +129,7 @@ static void dbus_menu_importer_dispose(GObject *object)
 	g_cancellable_cancel(menu->cancellable);
 	g_clear_object(&menu->cancellable);
 	g_clear_object(&menu->proxy);
+	g_signal_handlers_disconnect_by_data(menu->top_model, menu);
 	g_clear_object(&menu->top_model);
 	g_clear_object(&menu->all_actions);
 
@@ -229,6 +237,10 @@ static void dbus_menu_importer_init(DBusMenuImporter *menu)
 	menu->all_actions = g_simple_action_group_new();
 	menu->top_model =
 	    dbus_menu_model_new(0, NULL, menu->proxy, G_ACTION_GROUP(menu->all_actions));
+	g_signal_connect(menu->top_model,
+	                 "items-changed",
+	                 G_CALLBACK(dbus_menu_importer_on_root_model_changed),
+	                 menu);
 	menu->cancellable = g_cancellable_new();
 }
 
