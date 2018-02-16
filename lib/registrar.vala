@@ -83,7 +83,7 @@ namespace Appmenu
             have_registrar = false;
             try{
                 var con = Bus.get_sync(BusType.SESSION);
-                con.call.begin(
+                con.call_sync(
                     DBUS_NAME,
                     REG_OBJECT,
                     REG_IFACE,
