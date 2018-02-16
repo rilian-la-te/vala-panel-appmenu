@@ -51,8 +51,6 @@ public class AppmenuPlugin : Xfce.PanelPlugin {
     {
         var dlg = new Gtk.Dialog.with_buttons( _("Configure AppMenu"), this.get_toplevel() as Window,
                                               DialogFlags.DESTROY_WITH_PARENT,
-                                              _("_Close"),
-                                              ResponseType.CLOSE,
                                               null );
         Gtk.Box dlg_vbox = dlg.get_content_area() as Gtk.Box;
         var entry = new CheckButton.with_label(_("Use Compact mode (all menus in application menu"));
