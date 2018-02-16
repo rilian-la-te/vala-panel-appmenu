@@ -62,6 +62,10 @@ public class GlobalMenuApplet: Applet
         this.add(layout);
         show_all();
     }
+    ~GlobalMenuApplet()
+    {
+        layout.unref();
+    }
 #if NEW
     public override Widget get_settings_ui()
     {
