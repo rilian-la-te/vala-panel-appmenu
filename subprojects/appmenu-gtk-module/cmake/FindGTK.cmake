@@ -117,17 +117,23 @@ if(${_module_name}_GDK_FOUND)
                 "${_module_name}::GDK")
 endif()
 
-# Platforms detection
-FILE(READ "${${_module_name}_GDK_CONFIG_INCLUDE_DIR}/gdkconfig.h" GDKCONFIG_H_CONTENTS)
-foreach(_platform ${GTK_COMP_PLATFORMS})
-	STRING(FIND "${GDKCONFIG_H_CONTENTS}" "#define GDK_WINDOWING_${_platform}" _INT)
-	if(_INT LESS 0)
+if(${_module_name}_GDK_FOUND)
+	# Platforms detection
+	FILE(READ "${${_module_name}_GDK_CONFIG_INCLUDE_DIR}/gdkconfig.h" GDKCONFIG_H_CONTENTS)
+	foreach(_platform ${GTK_COMP_PLATFORMS})
+		STRING(FIND "${GDKCONFIG_H_CONTENTS}" "#define GDK_WINDOWING_${_platform}" _INT)
+		if(_INT LESS 0)
+			set(${_module_name}_${_platform}_FOUND FALSE)
+		else()
+			set(${_module_name}_${_platform}_FOUND TRUE)
+		endif()
+		set(GTK_${_platform}_FOUND ${${_module_name}_${_platform}_FOUND})
+	endforeach()
+else()
+	foreach(_platform ${GTK_COMP_PLATFORMS})
 		set(${_module_name}_${_platform}_FOUND FALSE)
-	else()
-		set(${_module_name}_${_platform}_FOUND TRUE)
-	endif()
-	set(GTK_${_platform}_FOUND ${${_module_name}_${_platform}_FOUND})
-endforeach()
+	endforeach()
+endif()
 
 #Search for GTK and dependencies in include files
 
@@ -153,17 +159,6 @@ FIND_PATH(${_module_name}_ATK_INCLUDE
     PATH_SUFFIXES atk-1.0
 )
 
-# Version detection
-FILE(READ "${${_module_name}_GTK_INCLUDE}/gtk/gtkversion.h" GTKVERSION_H_CONTENTS)
-STRING(REGEX MATCH "#define GTK_MAJOR_VERSION([ \t]+)\\(([0-9]+)\\)" _dummy "${GTKVERSION_H_CONTENTS}")
-SET(${_module_name}_VERSION_MAJOR "${CMAKE_MATCH_2}")
-STRING(REGEX MATCH "#define GTK_MINOR_VERSION([ \t]+)\\(([0-9]+)\\)" _dummy "${GTKVERSION_H_CONTENTS}")
-SET(${_module_name}_VERSION_MINOR "${CMAKE_MATCH_2}")
-STRING(REGEX MATCH "#define GTK_MICRO_VERSION([ \t]+)\\(([0-9]+)\\)" _dummy "${GTKVERSION_H_CONTENTS}")
-SET(${_module_name}_VERSION_MICRO "${CMAKE_MATCH_2}")
-SET(${_module_name}_VERSION "${${_module_name}_VERSION_MAJOR}.${${_module_name}_VERSION_MINOR}.${${_module_name}_VERSION_MICRO}")
-SET(GTK_VERSION "${${_module_name}_VERSION}")
-
 set(${_module_name}_GTK_INCLUDE_DIRS ${${_module_name}_ATK_INCLUDE}
 									 ${${_module_name}_GTK_INCLUDE})
 
@@ -173,6 +168,21 @@ else()
 	set(${_module_name}_GTK_FOUND FALSE)
 endif()
 set(GTK_GTK_FOUND ${${_module_name}_GTK_FOUND})
+
+if(${_module_name}_GTK_FOUND)
+	# Version detection
+	FILE(READ "${${_module_name}_GTK_INCLUDE}/gtk/gtkversion.h" GTKVERSION_H_CONTENTS)
+	STRING(REGEX MATCH "#define GTK_MAJOR_VERSION([ \t]+)\\(([0-9]+)\\)" _dummy "${GTKVERSION_H_CONTENTS}")
+	SET(${_module_name}_VERSION_MAJOR "${CMAKE_MATCH_2}")
+	STRING(REGEX MATCH "#define GTK_MINOR_VERSION([ \t]+)\\(([0-9]+)\\)" _dummy "${GTKVERSION_H_CONTENTS}")
+	SET(${_module_name}_VERSION_MINOR "${CMAKE_MATCH_2}")
+	STRING(REGEX MATCH "#define GTK_MICRO_VERSION([ \t]+)\\(([0-9]+)\\)" _dummy "${GTKVERSION_H_CONTENTS}")
+	SET(${_module_name}_VERSION_MICRO "${CMAKE_MATCH_2}")
+	SET(${_module_name}_VERSION "${${_module_name}_VERSION_MAJOR}.${${_module_name}_VERSION_MINOR}.${${_module_name}_VERSION_MICRO}")
+	SET(GTK_VERSION "${${_module_name}_VERSION}")
+else()
+	set(GTK_VERSION "0.0.0-NOTFOUND")
+endif()
 
 mark_as_advanced(
 	${_module_name}_GTK_LIBRARY
