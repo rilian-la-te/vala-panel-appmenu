@@ -31,7 +31,6 @@ G_BEGIN_DECLS
 typedef struct
 {
 	u_int32_t id;
-	bool is_section;
 	GActionGroup *referenced_action_group;
 	// FIXME: Cannot have activatable submenu item.
 	GAction *referenced_action;
@@ -50,6 +49,8 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id,
 
 G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data);
 
+G_GNUC_INTERNAL bool dbus_menu_item_update_enabled(DBusMenuItem *item, bool enabled);
+
 G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *props);
 
 G_GNUC_INTERNAL bool dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *props);
@@ -62,6 +63,7 @@ G_GNUC_INTERNAL void dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem
                                                  DBusMenuModel *parent);
 
 G_GNUC_INTERNAL void dbus_menu_item_generate_action(DBusMenuItem *item, DBusMenuModel *parent);
+
 G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item);
 
 G_GNUC_INTERNAL int dbus_menu_item_id_compare_func(const DBusMenuItem *a, gconstpointer b,

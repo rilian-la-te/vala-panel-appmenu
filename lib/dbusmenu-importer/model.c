@@ -213,7 +213,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		DBusMenuItem *old      = NULL;
 		DBusMenuItem *new_item = dbus_menu_item_new(cid, menu, cprops);
 		// We receive a section (separator or x-kde-title)
-		if (new_item->is_section)
+		if (new_item->action_type == DBUS_MENU_ACTION_SECTION)
 		{
 			bool is_valid_section = !new_item->toggled;
 			// Section is valid, so, parse it
@@ -291,11 +291,15 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 				dbus_menu_item_copy_submenu(NULL, new_item, menu);
 				dbus_menu_item_generate_action(new_item, menu);
 				if (menu->parent_id == 0)
+				{
+					dbus_menu_item_update_enabled(new_item, true);
+					new_item->toggled = true;
 					g_timeout_add_full(100,
 					                   300,
 					                   (GSourceFunc)preload_idle,
 					                   new_item,
 					                   NULL);
+				}
 				current_iter = g_sequence_insert_before(current_iter, new_item);
 				added++;
 			}
@@ -313,11 +317,15 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 					dbus_menu_item_generate_action(new_item, menu);
 					// if it is root, preload submenu
 					if (menu->parent_id == 0)
+					{
+						dbus_menu_item_update_enabled(new_item, true);
+						new_item->toggled = true;
 						g_timeout_add_full(100,
 						                   300,
 						                   (GSourceFunc)preload_idle,
 						                   new_item,
 						                   NULL);
+					}
 					g_sequence_set(current_iter, new_item);
 				}
 				else
@@ -522,7 +530,7 @@ static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_pr
 		if (item != NULL)
 		{
 			// It is the best what we can do to update a section
-			if (item->is_section)
+			if (item->action_type == DBUS_MENU_ACTION_SECTION)
 			{
 				//                            dbus_menu_model_update_layout(menu);
 			}
@@ -548,7 +556,7 @@ static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_pr
 		if (item != NULL)
 		{
 			// It is the best what we can do to update a section
-			if (item->is_section)
+			if (item->action_type == DBUS_MENU_ACTION_SECTION)
 			{
 				//				dbus_menu_model_update_layout(menu);
 			}

@@ -42,7 +42,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id,
 {
 	DBusMenuItem *item = g_slice_new0(DBusMenuItem);
 	item->id           = id;
-	item->is_section   = true;
+	item->action_type  = DBUS_MENU_ACTION_SECTION;
 	item->enabled      = false;
 	item->toggled      = false;
 	item->attributes =
@@ -63,10 +63,9 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 	const char *prop;
 	GVariant *value;
 	item_set_magic(item);
-	item->is_section = false;
-	item->enabled    = true;
-	item->toggled    = false;
-	item->id         = id;
+	item->enabled = true;
+	item->toggled = false;
+	item->id      = id;
 	item->attributes =
 	    g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)g_variant_unref);
 	item->links =
@@ -135,7 +134,8 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 			const char *type = g_variant_get_string(value, NULL);
 			if (!g_strcmp0(type, DBUS_MENU_TYPE_SEPARATOR))
 			{
-				item->is_section = true;
+				item->action_type    = DBUS_MENU_ACTION_SECTION;
+				action_creator_found = true;
 			}
 			else if (!g_strcmp0(type, DBUS_MENU_TYPE_NORMAL))
 			{
@@ -150,10 +150,11 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 		}
 		else if (g_strcmp0(prop, "x-kde-title") == 0)
 		{
-			item->is_section = true;
+			item->action_type = DBUS_MENU_ACTION_SECTION;
 			g_hash_table_insert(item->attributes,
 			                    g_strdup(G_MENU_ATTRIBUTE_LABEL),
 			                    value);
+			action_creator_found = true;
 		}
 		else if (!action_creator_found)
 		{
@@ -185,7 +186,6 @@ G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data)
 G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_copy(DBusMenuItem *src)
 {
 	DBusMenuItem *dst            = g_slice_new0(DBusMenuItem);
-	dst->is_section              = src->is_section;
 	dst->id                      = src->id;
 	dst->action_type             = src->action_type;
 	dst->enabled                 = src->enabled;
@@ -211,7 +211,7 @@ static bool check_and_update_mutable_attribute(DBusMenuItem *item, const char *k
 	return false;
 }
 
-static bool dbus_menu_item_update_enabled(DBusMenuItem *item, bool enabled)
+G_GNUC_INTERNAL bool dbus_menu_item_update_enabled(DBusMenuItem *item, bool enabled)
 {
 	bool updated = false;
 	if (item->action_type == DBUS_MENU_ACTION_SUBMENU && !item->toggled)
@@ -272,8 +272,6 @@ G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item)
 		if (DBUS_MENU_IS_MODEL(submenu))
 			dbus_menu_model_update_layout(submenu);
 	}
-	dbus_menu_item_update_enabled(item, true);
-	item->toggled = true;
 }
 
 G_GNUC_INTERNAL bool dbus_menu_item_copy_attributes(DBusMenuItem *src, DBusMenuItem *dst)
@@ -427,7 +425,7 @@ G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 		else if (g_strcmp0(prop, "visible") == 0)
 		{
 			bool vis = g_variant_get_boolean(value);
-			if (item->is_section)
+			if (item->action_type == DBUS_MENU_ACTION_SECTION)
 			{
 				item->toggled = !vis;
 				continue;
@@ -554,8 +552,6 @@ G_GNUC_INTERNAL bool dbus_menu_item_compare_immutable(DBusMenuItem *a, DBusMenuI
 {
 	if (a->id != b->id)
 		return false;
-	if (a->is_section != b->is_section)
-		return false;
 	if (a->referenced_action_group != b->referenced_action_group)
 		return false;
 	if (a->action_type != b->action_type)
@@ -569,12 +565,12 @@ G_GNUC_INTERNAL void dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem
 	DBusMenuXml *xml;
 	DBusMenuModel *submenu = NULL;
 	g_object_get(parent, "xml", &xml, NULL);
-	if (dst->toggled)
-		dst->enabled = true;
 	if (src == NULL)
 	{
 		if (dst->action_type == DBUS_MENU_ACTION_SUBMENU)
 		{
+			if (dst->toggled)
+				dst->enabled = true;
 			submenu =
 			    dbus_menu_model_new(dst->id, parent, xml, dst->referenced_action_group);
 			g_hash_table_insert(dst->links,
@@ -587,6 +583,8 @@ G_GNUC_INTERNAL void dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem
 	if (dst->action_type == DBUS_MENU_ACTION_SUBMENU &&
 	    src->action_type == DBUS_MENU_ACTION_SUBMENU)
 	{
+		if (src->toggled || dst->toggled)
+			dst->enabled = dst->toggled = true;
 		submenu =
 		    DBUS_MENU_MODEL(g_hash_table_lookup(src->links,
 		                                        src->enabled ? G_MENU_LINK_SUBMENU
@@ -601,6 +599,8 @@ G_GNUC_INTERNAL void dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem
 
 G_GNUC_INTERNAL void dbus_menu_item_generate_action(DBusMenuItem *item, DBusMenuModel *parent)
 {
+	if (item->action_type == DBUS_MENU_ACTION_SECTION)
+		return;
 	DBusMenuXml *xml;
 	DBusMenuModel *submenu =
 	    g_hash_table_lookup(item->links,
