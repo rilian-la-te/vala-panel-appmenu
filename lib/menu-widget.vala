@@ -88,7 +88,7 @@ namespace Appmenu
         {
             Object();
         }
-        protected override void destroy()
+        ~MenuWidget()
         {
             try
             {
