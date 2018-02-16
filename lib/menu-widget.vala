@@ -37,6 +37,7 @@ namespace Appmenu
         private GLib.MenuModel? menubar = null;
         private Backend backend = new BackendBAMF();
         private Gtk.MenuBar mwidget = new Gtk.MenuBar();
+        private ulong backend_connector = 0;
         construct
         {
             provider = new Gtk.CssProvider();
@@ -45,7 +46,7 @@ namespace Appmenu
             context.add_class("-vala-panel-appmenu-core");
             unowned Gtk.StyleContext mcontext = mwidget.get_style_context();
             Signal.connect(this,"notify",(GLib.Callback)restock,null);
-            backend.active_model_changed.connect(()=>{
+            backend_connector = backend.active_model_changed.connect(()=>{
                 Timeout.add(50,()=>{
                     backend.set_active_window_menu(this);
                     return Source.REMOVE;
@@ -67,45 +68,10 @@ namespace Appmenu
             this.add(scroller);
             scroller.add(mwidget);
             this.show_all();
-            try
-            {
-                var con = Bus.get_sync(BusType.SESSION);
-                con.call.begin(
-                    "org.valapanel.AppMenu.Registrar",
-                    "/Registrar",
-                    "org.valapanel.AppMenu.Registrar",
-                    "Reference",
-                    null,null,
-                    DBusCallFlags.NONE, -1);
-
-            }
-            catch(Error e)
-            {
-                stderr.printf("%s\n",e.message);
-            }
         }
         public MenuWidget()
         {
             Object();
-        }
-        ~MenuWidget()
-        {
-            try
-            {
-                var con = Bus.get_sync(BusType.SESSION,null);
-                con.call.begin(
-                    "org.valapanel.AppMenu.Registrar",
-                    "/Registrar",
-                    "org.valapanel.AppMenu.Registrar",
-                    "UnReference",
-                    null,null,
-                    DBusCallFlags.NO_AUTO_START, -1);
-
-            }
-            catch(Error e)
-            {
-                stderr.printf("%s\n",e.message);
-            }
         }
         private void restock()
         {

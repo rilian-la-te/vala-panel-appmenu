@@ -41,9 +41,41 @@ namespace Appmenu
         {
             proxy = new DBusMenuRegistrarProxy();
         }
-        protected Backend()
+        construct
         {
-
+            try
+            {
+                var con = Bus.get_sync(BusType.SESSION);
+                con.call.begin(
+                    "org.valapanel.AppMenu.Registrar",
+                    "/Registrar",
+                    "org.valapanel.AppMenu.Registrar",
+                    "Reference",
+                    null,null,
+                    DBusCallFlags.NONE, -1);
+            }
+            catch(Error e)
+            {
+                stderr.printf("%s\n",e.message);
+            }
+        }
+        ~Backend()
+        {
+            try
+            {
+                var con = Bus.get_sync(BusType.SESSION,null);
+                con.call.begin(
+                    "org.valapanel.AppMenu.Registrar",
+                    "/Registrar",
+                    "org.valapanel.AppMenu.Registrar",
+                    "UnReference",
+                    null,null,
+                    DBusCallFlags.NO_AUTO_START, -1);
+            }
+            catch(Error e)
+            {
+                stderr.printf("%s\n",e.message);
+            }
         }
         public signal void active_model_changed();
         public abstract void set_active_window_menu(MenuWidget widget);
