@@ -17,3 +17,4 @@
  */
 
 const char* introspection_xml = "@XML_CONTENTS@";
+const char* private_xml = "@PRIVATE_CONTENTS@";

@@ -57,6 +57,7 @@ struct _RegistrarDBusMenu
 {
 	GObject parent;
 	GHashTable *menus;
+	uint registered_object;
 };
 
 G_DEFINE_TYPE(RegistrarDBusMenu, registrar_dbus_menu, G_TYPE_OBJECT)
@@ -374,34 +375,34 @@ static void _dbus_registrar_dbus_menu_window_unregistered(GObject *_sender, uint
 static const GDBusInterfaceVTable _interface_vtable =
     { registrar_dbus_menu_dbus_interface_method_call, NULL, NULL };
 
-static void _registrar_dbus_menu_unregister_object(gpointer user_data)
+void registrar_dbus_menu_unregister(RegistrarDBusMenu *data, GDBusConnection *con)
 {
-	GObject *data = G_OBJECT(user_data);
+	g_dbus_connection_unregister_object(con, data->registered_object);
 	g_signal_handlers_disconnect_by_func(data,
 	                                     _dbus_registrar_dbus_menu_window_registered,
-	                                     data);
+	                                     con);
 	g_signal_handlers_disconnect_by_func(data,
 	                                     _dbus_registrar_dbus_menu_window_unregistered,
-	                                     data);
+	                                     con);
 	g_object_unref(data);
 }
 
 uint registrar_dbus_menu_register(RegistrarDBusMenu *object, GDBusConnection *connection,
                                   GError **error)
 {
-	uint result;
 	GDBusNodeInfo *info = g_dbus_node_info_new_for_xml(introspection_xml, NULL);
-	result              = g_dbus_connection_register_object(connection,
-                                                   DBUSMENU_REG_OBJECT,
-                                                   (GDBusInterfaceInfo *)info->interfaces[0],
-                                                   &_interface_vtable,
-                                                   object,
-                                                   _registrar_dbus_menu_unregister_object,
-                                                   error);
+	uint result         = g_dbus_connection_register_object(connection,
+                                                        DBUSMENU_REG_OBJECT,
+                                                        (GDBusInterfaceInfo *)info->interfaces[0],
+                                                        &_interface_vtable,
+                                                        object,
+                                                        NULL,
+                                                        error);
 	if (!result)
 	{
 		return 0;
 	}
+	object->registered_object = result;
 	g_signal_connect(object,
 	                 "window-registered",
 	                 (GCallback)_dbus_registrar_dbus_menu_window_registered,

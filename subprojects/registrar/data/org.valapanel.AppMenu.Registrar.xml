@@ -1,0 +1,8 @@
+<node>
+  <interface name="org.valapanel.AppMenu.Registrar">
+    <method name="Reference">
+    </method>
+    <method name="UnReference">
+    </method>
+  </interface>
+</node>

@@ -14,6 +14,8 @@ include(GLibProgramHandlers)
 add_glib_marshal(MARSHALC MARSHALH "registrar-marshal" g_cclosure_user_marshal)
 file(STRINGS data/com.canonical.AppMenu.Registrar.xml XML_RAW)
 string(CONCAT XML_CONTENTS ${XML_RAW})
+file(STRINGS data/org.valapanel.AppMenu.Registrar.xml PRIVATE_RAW)
+string(CONCAT PRIVATE_CONTENTS ${PRIVATE_RAW})
 configure_file(registrar-xml.c.in registrar-xml.c ESCAPE_QUOTES)
 
 add_executable (appmenu-registrar

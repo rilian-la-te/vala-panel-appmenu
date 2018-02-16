@@ -81,6 +81,20 @@ namespace Appmenu
         construct
         {
             have_registrar = false;
+            try{
+                var con = Bus.get_sync(BusType.SESSION);
+                con.call.begin(
+                    DBUS_NAME,
+                    REG_OBJECT,
+                    REG_IFACE,
+                    "GetMenus",
+                    null,null,
+                    DBusCallFlags.NONE, -1);
+            }
+            catch(Error e)
+            {
+                stderr.printf("%s\n",e.message);
+            }
             create_outer_registrar();
         }
         public void get_menu_for_window(uint window, out string name, out ObjectPath path)

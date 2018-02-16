@@ -67,10 +67,45 @@ namespace Appmenu
             this.add(scroller);
             scroller.add(mwidget);
             this.show_all();
+            try
+            {
+                var con = Bus.get_sync(BusType.SESSION);
+                con.call.begin(
+                    "org.valapanel.AppMenu.Registrar",
+                    "/Registrar",
+                    "org.valapanel.AppMenu.Registrar",
+                    "Reference",
+                    null,null,
+                    DBusCallFlags.NONE, -1);
+
+            }
+            catch(Error e)
+            {
+                stderr.printf("%s\n",e.message);
+            }
         }
         public MenuWidget()
         {
             Object();
+        }
+        protected override void destroy()
+        {
+            try
+            {
+                var con = Bus.get_sync(BusType.SESSION,null);
+                con.call.begin(
+                    "org.valapanel.AppMenu.Registrar",
+                    "/Registrar",
+                    "org.valapanel.AppMenu.Registrar",
+                    "UnReference",
+                    null,null,
+                    DBusCallFlags.NO_AUTO_START, -1);
+
+            }
+            catch(Error e)
+            {
+                stderr.printf("%s\n",e.message);
+            }
         }
         private void restock()
         {

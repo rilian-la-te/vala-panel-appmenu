@@ -23,12 +23,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define MAIN_OBJECT_PATH "/Registrar"
+
 struct _RegistrarApplication
 {
 	GApplication parent;
 	RegistrarDBusMenu *registrar;
 	u_int32_t dbusmenu_binding;
+	u_int32_t private_binding;
 };
+
+extern const char *private_xml;
 
 G_DEFINE_TYPE(RegistrarApplication, registrar_application, G_TYPE_APPLICATION)
 
@@ -53,20 +58,18 @@ static const GOptionEntry options[4] =
 
 RegistrarApplication *registrar_application_new()
 {
-	return REGISTRAR_APPLICATION(g_object_new(registrar_application_get_type(),
-	                                          "application-id",
-	                                          "org.valapanel.AppMenu.Registrar",
-	                                          "flags",
-	                                          G_APPLICATION_HANDLES_COMMAND_LINE,
-	                                          "resource-base-path",
-	                                          "/org/valapanel/registrar",
-	                                          NULL));
+	return REGISTRAR_APPLICATION(
+	    g_object_new(registrar_application_get_type(),
+	                 "application-id",
+	                 "org.valapanel.AppMenu.Registrar",
+	                 "flags",
+	                 G_APPLICATION_HANDLES_COMMAND_LINE | G_APPLICATION_IS_SERVICE,
+	                 "resource-base-path",
+	                 "/org/valapanel/registrar",
+	                 NULL));
 }
 static void registrar_application_activate(GApplication *base)
 {
-	RegistrarApplication *self = REGISTRAR_APPLICATION(base);
-	if (self->dbusmenu_binding > 0)
-		g_application_hold(base);
 }
 static int registrar_application_handle_local_options(GApplication *application,
                                                       GVariantDict *options)
@@ -94,9 +97,7 @@ static void registrar_application_on_dbus_name_aquired(GDBusConnection *connecti
 	RegistrarApplication *self = REGISTRAR_APPLICATION(user_data);
 	g_autoptr(GError) err      = NULL;
 	registrar_dbus_menu_register(self->registrar, connection, &err);
-	if (!err)
-		g_application_hold(G_APPLICATION(user_data));
-	else
+	if (err)
 	{
 		g_print("%s\n", err->message);
 	}
@@ -105,8 +106,31 @@ static void registrar_application_on_dbus_name_lost(GDBusConnection *connection,
                                                     gpointer user_data)
 {
 	GApplication *app = G_APPLICATION(user_data);
-	g_application_release(app);
 }
+
+static void registrar_application_method_call(GDBusConnection *connection, const char *sender,
+                                              const char *object_path, const char *interface_name,
+                                              const char *method_name, GVariant *parameters,
+                                              GDBusMethodInvocation *invocation, gpointer user_data)
+{
+	GApplication *app = G_APPLICATION(user_data);
+	if (g_strcmp0(method_name, "Reference") == 0)
+	{
+		g_application_hold(app);
+	}
+	else if (g_strcmp0(method_name, "UnReference") == 0)
+	{
+		g_application_release(app);
+	}
+	else
+	{
+		g_object_unref(invocation);
+	}
+}
+static const GDBusInterfaceVTable _interface_vtable = { registrar_application_method_call,
+	                                                NULL,
+	                                                NULL };
+
 static bool registrar_application_dbus_register(GApplication *base, GDBusConnection *connection,
                                                 const char *object_path, GError **error)
 {
@@ -125,7 +149,17 @@ static bool registrar_application_dbus_register(GApplication *base, GDBusConnect
 	                                 registrar_application_on_dbus_name_lost,
 	                                 self,
 	                                 NULL);
-	return ret && self->dbusmenu_binding;
+	GDBusNodeInfo *info = g_dbus_node_info_new_for_xml(private_xml, NULL);
+	self->private_binding =
+	    g_dbus_connection_register_object(connection,
+	                                      MAIN_OBJECT_PATH,
+	                                      (GDBusInterfaceInfo *)info->interfaces[0],
+	                                      &_interface_vtable,
+	                                      self,
+	                                      NULL,
+	                                      error);
+
+	return ret && self->dbusmenu_binding && self->private_binding;
 }
 static void registrar_application_dbus_unregister(GApplication *base, GDBusConnection *connection,
                                                   const char *object_path)
@@ -134,8 +168,9 @@ static void registrar_application_dbus_unregister(GApplication *base, GDBusConne
 	g_return_if_fail(connection != NULL);
 	g_return_if_fail(object_path != NULL);
 	g_bus_unown_name(self->dbusmenu_binding);
+	registrar_dbus_menu_unregister(self->registrar, connection);
+	g_dbus_connection_unregister_object(connection, self->private_binding);
 	self->dbusmenu_binding = 0;
-	g_application_release(base);
 	G_APPLICATION_CLASS(registrar_application_parent_class)
 	    ->dbus_unregister(base, connection, object_path);
 }
@@ -153,7 +188,6 @@ static void registrar_application_init(RegistrarApplication *application)
 	application->registrar =
 	    REGISTRAR_DBUS_MENU(g_object_new(registrar_dbus_menu_get_type(), NULL));
 	g_application_add_main_option_entries(G_APPLICATION(application), options);
-	g_application_hold(application);
 }
 
 static void registrar_application_class_init(RegistrarApplicationClass *klass)
