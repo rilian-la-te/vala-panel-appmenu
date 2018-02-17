@@ -40,7 +40,7 @@ Post-Build Instructions
   - Add the following lines to this .gtkrc file:
    `gtk-shell-shows-app-menu=1`
    `gtk-shell-shows-menubar=1`
-   `gtk-modules=appmenu-gtk-module`
+   `gtk-modules=unity-gtk-module`
   - If above does not work, try adding following lines to your .profile or .bashrc (in your home directory) in order to enable the unity-gtk-module:
     ```sh
     if [ -n "$GTK_MODULES" ]; then
