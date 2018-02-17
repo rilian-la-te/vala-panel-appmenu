@@ -26,9 +26,11 @@ Usage Instructions
 **XFCE**
 - Type following into your console
 `xfconf-query -c xsettings -p /Gtk/Modules -n -t string -s "appmenu-gtk-module"`
+
 **BUDGIE***
 - Type following into your console
 `gsettings set org.gnome.settings-daemon.plugins.xsettings enabled-gtk-modules "['appmenu-gtk-module']"`
+
 **OTHER**
 - Create file .gtkrc-2.0 into your home directory, if it do not exists already
     - Add to this file `gtk-modules="appmenu-gtk-module"`
