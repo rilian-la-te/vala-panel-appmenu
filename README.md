@@ -25,7 +25,7 @@ Compilation Instructions
       * `-DENABLE_VALAPANEL=[ON/OFF]` Use `ON` to compile for Vala Panel
       * `-DENABLE_MATE=[ON/OFF]` Use `ON` to compile for MATE Panel
       * `-DENABLE_JAYATANA=[ON/OFF]` Use `ON` to include Jayatana library (enable global menu for java swing applications)
-      * `-DENABLE_UNITY_GTK_MODULE=ON` Use this flag if you are compiling for a distro other than Arch (see instructions below for including unity-gtk-module with Arch) or Ubuntu (Ubuntu users can install unity-gtk-module from the ubuntu repositories--see 'Post-build Instructions', below).
+      * `-DENABLE_APPMENU_GTK_MODULE=ON` Use this flag if you are compiling for a distro other than Arch (see instructions below for including unity-gtk-module with Arch) or Ubuntu (Ubuntu users can install unity-gtk-module from the ubuntu repositories--see 'Post-build Instructions', below).
       * `-DMAKE_BOLD_APPNAME=[ON/OFF]` Use `ON` to make appname menu font bold (similar to macOS menu style).
       * `-DCMAKE_INSTALL_PREFIX=[path]` By default, Vala-Panel-Appmenu will install in the `/usr/local` directory. You can use this flag to change that. For some DEs (XFCE, for example), it is required to match install prefix with panel prefix (`/usr` in most distros), so, do not forget it.
   * once you've decided on any flags you want to include, type (from your build directory) `cmake [flags] ..`
@@ -40,7 +40,8 @@ Post-Build Instructions
   - Add the following lines to this .gtkrc file:
    `gtk-shell-shows-app-menu=1`
    `gtk-shell-shows-menubar=1`
-  - Add the following lines to your .profile and .bashrc (in your home directory) in order to enable the unity-gtk-module:
+   `gtk-modules=appmenu-gtk-module`
+  - If above does not work, try adding following lines to your .profile or .bashrc (in your home directory) in order to enable the unity-gtk-module:
     ```sh
     if [ -n "$GTK_MODULES" ]; then
         GTK_MODULES="${GTK_MODULES}:unity-gtk-module"
@@ -84,7 +85,7 @@ To install unity-gtk-module for your distro:
 
  **DISTROS OTHER THAN ARCH OR UBUNTU**
  - When building vala-panel-appmenu with CMAKE, use the flag, `-DENABLE_APPMENU_GTK_MODULE=ON`
- - Follow instructions in the (appmenu-gtk-module) [README](appmenu-gtk-module/README.md)
+ - Follow instructions in the (appmenu-gtk-module) [README](subprojects/appmenu-gtk-module/README.md)
 
 **ALL DISTROS**
 - To get QT menus to work, install your distribution's qt4 and qt5 appmenu packages. In Ubuntu 17.04, for example, this involves typing `sudo apt-get install appmenu-qt`.
