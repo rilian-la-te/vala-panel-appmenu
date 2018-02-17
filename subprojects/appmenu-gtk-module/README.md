@@ -24,11 +24,11 @@ Ubuntu users now does not need to install this.
 Usage Instructions
 ---
 **XFCE**
-- Type following into your console
+- Type following into your console:
 `xfconf-query -c xsettings -p /Gtk/Modules -n -t string -s "appmenu-gtk-module"`
 
 **BUDGIE***
-- Type following into your console
+- Type following into your console:
 `gsettings set org.gnome.settings-daemon.plugins.xsettings enabled-gtk-modules "['appmenu-gtk-module']"`
 
 **OTHER**
