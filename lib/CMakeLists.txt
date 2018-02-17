@@ -37,7 +37,10 @@ glib_compile_resources(RESOURCES
         libappmenu.gresource.xml
 )
 include_directories(${CMAKE_SOURCE_DIR})
-set(CORE_C_FILES launcher.c launcher.h)
+set(CORE_C_FILES
+    launcher.c
+    launcher.h
+)
 set(PLUGIN_VALA_FILES
     valapanel-plugin-appmenu.vala
     xfce4-plugin-appmenu.vala
@@ -85,9 +88,8 @@ if (ENABLE_XFCE)
         ${VALA_C_XFCE}
         ${RESOURCES}
     )
-    target_link_libraries (appmenu-xfce ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${XFCE_LIBRARIES} m appmenu-core)
-    target_include_directories (appmenu-xfce PRIVATE ${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${XFCE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
-    link_directories (${CORE_LIBRARY_DIRS} ${WNCK_LIBRARY_DIRS} ${XFCE_LIBRARY_DIRS})
+    target_link_libraries (appmenu-xfce ${CORE_LIBRARIES} ${WNCK_TARGETS} ${XFCE_LIBRARIES} m appmenu-core)
+    target_include_directories (appmenu-xfce PRIVATE ${CORE_INCLUDE_DIRS} ${XFCE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
     add_dependencies(appmenu-xfce appmenu-core)
     # Install plugin stuffs
     install(TARGETS appmenu-xfce DESTINATION ${CMAKE_INSTALL_LIBDIR}/xfce4/panel/plugins)
@@ -124,9 +126,8 @@ if(ENABLE_VALAPANEL)
     )
     set_target_properties(appmenu-valapanel PROPERTIES
         OUTPUT_NAME appmenu)
-    target_include_directories (appmenu-valapanel PRIVATE ${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${VALAPANEL_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
-    target_link_libraries (appmenu-valapanel ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${VALAPANEL_LIBRARIES} m appmenu-core)
-    link_directories (${CORE_LIBRARY_DIRS} ${WNCK_LIBRARY_DIRS} ${VALAPANEL_LIBRARY_DIRS})
+    target_include_directories (appmenu-valapanel PRIVATE ${CORE_INCLUDE_DIRS} ${VALAPANEL_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
+    target_link_libraries (appmenu-valapanel ${CORE_LIBRARIES} ${WNCK_TARGETS} ${VALAPANEL_LIBRARIES} m appmenu-core)
     # Install plugin stuffs
     install(TARGETS appmenu-valapanel DESTINATION ${CMAKE_INSTALL_LIBDIR}/vala-panel/applets)
 endif()
@@ -159,9 +160,8 @@ if(ENABLE_BUDGIE)
         ${RESOURCES}
     )
     add_dependencies(appmenu-budgie appmenu-core)
-    target_include_directories (appmenu-budgie PRIVATE ${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${BUDGIE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
-    target_link_libraries (appmenu-budgie ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${BUDGIE_LIBRARIES} m appmenu-core)
-    link_directories (${CORE_LIBRARY_DIRS} ${WNCK_LIBRARY_DIRS} ${BUDGIE_LIBRARY_DIRS})
+    target_include_directories (appmenu-budgie PRIVATE ${CORE_INCLUDE_DIRS} ${BUDGIE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
+    target_link_libraries (appmenu-budgie ${CORE_LIBRARIES} ${WNCK_TARGETS} ${BUDGIE_LIBRARIES} m appmenu-core)
     # Install plugin stuffs
     install(TARGETS appmenu-budgie DESTINATION ${CMAKE_INSTALL_LIBDIR}/budgie-desktop/plugins/budgie-vala-panel-appmenu-plugin)
 endif()
@@ -190,9 +190,8 @@ if (ENABLE_MATE)
         ${VALA_C_MATE}
 	${RESOURCES}
     )
-    target_link_libraries (appmenu-mate ${CORE_LIBRARIES} ${WNCK_LIBRARIES} ${MATE_LIBRARIES} m appmenu-core)
-    target_include_directories (appmenu-mate PRIVATE ${CORE_INCLUDE_DIRS} ${WNCK_INCLUDE_DIRS} ${MATE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
-    link_directories (${CORE_LIBRARY_DIRS} ${WNCK_LIBRARY_DIRS} ${MATE_LIBRARY_DIRS})
+    target_link_libraries (appmenu-mate ${CORE_LIBRARIES} ${WNCK_TARGETS} ${MATE_LIBRARIES} m appmenu-core)
+    target_include_directories (appmenu-mate PRIVATE ${CORE_INCLUDE_DIRS} ${MATE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
     add_dependencies(appmenu-mate appmenu-core)
     # Install plugin stuffs
     install(TARGETS appmenu-mate DESTINATION ${CMAKE_INSTALL_LIBEXECDIR}/mate-panel)
