@@ -35,60 +35,25 @@ Post-Build Instructions
 ---
 - Install bamfdaemon (if it is not bundled with libbamf)
   - It is strongly recommend to add bamfdaemon to autostart
-- Enable unity-gtk-module on Ubuntu:
-  - Create a .gtkrc in your home(~) directory, if there isn't one already.
-  - Add the following lines to this .gtkrc file:
-   `gtk-shell-shows-app-menu=1`
-   `gtk-shell-shows-menubar=1`
-   `gtk-modules=unity-gtk-module`
-  - If above does not work, try adding following lines to your .profile or .bashrc (in your home directory) in order to enable the unity-gtk-module:
-    ```sh
-    if [ -n "$GTK_MODULES" ]; then
-        GTK_MODULES="${GTK_MODULES}:unity-gtk-module"
-    else
-        GTK_MODULES="unity-gtk-module"
-    fi
- 
-    if [ -z "$UBUNTU_MENUPROXY" ]; then
-        UBUNTU_MENUPROXY=1
-    fi
-
-    export GTK_MODULES
-    export UBUNTU_MENUPROXY
-    ```
-- Enable appmenu-gtk-module on other distros:
-  - Add the following lines to your .profile and .bashrc (in your home directory) in order to enable the appmenu-gtk-module:
-    ```sh
-    if [ -n "$GTK_MODULES" ]; then
-        GTK_MODULES="${GTK_MODULES}:appmenu-gtk-module"
-    else
-        GTK_MODULES="appmenu-gtk-module"
-    fi
- 
-    if [ -z "$UBUNTU_MENUPROXY" ]; then
-        UBUNTU_MENUPROXY=1
-    fi
-
-    export GTK_MODULES
-    export UBUNTU_MENUPROXY
-    ```
+- Install GTK module using instructions below
+- To get QT menus to work, install your distribution's qt4 and qt5 appmenu packages. In Ubuntu 17.04, for example, this involves typing `sudo apt-get install appmenu-qt`
   
-To install unity-gtk-module for your distro:
+To install and enable unity-gtk-module for your distro:
 
  **UBUNTU-BASED DISTROS**
  - Install unity-gtk-module by typing `sudo apt-get install unity-gtk-module-common unity-gtk2-module unity-gtk3-module`
+ - Follow instructions in (appmenu-gtk-module) [README](subprojects/appmenu-gtk-module/README.md), but replace any occurence of `appmenu-gtk-module` to `unity-gtk-module`
 
  **ARCH-BASED DISTROS**
 * Install from AUR [appmenu-gtk-module-git](https://aur.archlinux.org/packages/appmenu-gtk-module-git/) for GTK applications to work
 * Install [Appmenu](https://aur.archlinux.org/packages/appmenu-qt/) to get appmenu for Qt4 Applications to work. Qt 5.7 must work out of the box.
 * Install these [libdbusmenu-glib](https://archlinux.org/packages/libdbusmenu-glib/) [libdbusmenu-gtk3](https://archlinux.org/packages/libdbusmenu-gtk3/) [libdbusmenu-gtk2](https://archlinux.org/packages/libdbusmenu-gtk2/) to get Chromium/Google Chrome to work
+ - Follow instructions in the (appmenu-gtk-module) [README](subprojects/appmenu-gtk-module/README.md), if it is not enabled automatically.
 
  **DISTROS OTHER THAN ARCH OR UBUNTU**
  - When building vala-panel-appmenu with CMAKE, use the flag, `-DENABLE_APPMENU_GTK_MODULE=ON`
  - Follow instructions in the (appmenu-gtk-module) [README](subprojects/appmenu-gtk-module/README.md)
 
-**ALL DISTROS**
-- To get QT menus to work, install your distribution's qt4 and qt5 appmenu packages. In Ubuntu 17.04, for example, this involves typing `sudo apt-get install appmenu-qt`.
 
 **NOTE**: 
 Vala-Panel-Appmenu conflicts with [qt5ct](https://sourceforge.net/p/qt5ct/tickets/34/) before 21.04.2017, so, if you are using an older version of qt5ct, use another PlatformTheme.
