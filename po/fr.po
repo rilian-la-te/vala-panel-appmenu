@@ -1,5 +1,80 @@
 msgid ""
 msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-12-18 01:33+0300\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Quentin Bouteiller <translates@quent1.fr>\n"
+"Language-Team: \n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
+"X-Generator: Poedit 2.0.4\n"
+
+#: ../lib/appmenu-desktop.vala:39 ../lib/appmenu-desktop.vala:65
+msgid "_Desktop"
+msgstr "_Bureau"
+
+#: ../lib/appmenu-desktop.vala:153 ../lib/appmenu-desktop.vala:205
+msgid "No files"
+msgstr "Aucun fichier"
+
+#: ../lib/appmenu-bamf.vala:37 ../lib/desktop-menus.ui:40
+msgid "_New Window..."
+msgstr "_Nouvelle fenêtre..."
+
+#: ../lib/appmenu-bamf.vala:38 ../lib/desktop-menus.ui:45
+msgid "Close _This"
+msgstr "_Fermer"
+
+#: ../lib/appmenu-bamf.vala:39 ../lib/desktop-menus.ui:50
+msgid "Close _All"
+msgstr "_Tout fermer"
+
+#: ../lib/menu-widget-menumodel.vala:42 ../lib/menu-widget-menumodel.vala:63
+msgid "_Application"
+msgstr "_Application"
+
+#: ../lib/desktop-menus.ui:6
+msgid "_Desktop Settings"
+msgstr "Paramètres du _bureau"
+
+#: ../lib/desktop-menus.ui:10
+msgid "_System Settings"
+msgstr "Paramètres _système"
+
+#: ../lib/desktop-menus.ui:17
+msgid "_Files"
+msgstr "_Fichiers"
+
+#: ../data/xfce/appmenu.desktop.xfce.in:5
+#, fuzzy
+msgid "AppMenu Plugin"
+msgstr "Extension AppMenu"
+
+#: ../data/xfce/appmenu.desktop.xfce.in:6
+#, fuzzy
+msgid "Display AppMenu (Global Menu)"
+msgstr "Afficher l'AppMenu (menu global)"
+
+#: ../data/xfce/appmenu.desktop.xfce.in:7
+msgid "applications-system"
+msgstr ""
+
+#: ../lib/desktop-menus.ui:21
+msgid "_Documents"
+msgstr "_Documents"
+
+#: ../lib/desktop-menus.ui:25
+msgid "_Music"
+msgstr "_Musique"
+
+#: ../lib/desktop-menus.ui:29
+msgid "_Pictures"
+msgstr "_Images"
+
+#: ../lib/desktop-menus.ui:33
+msgid "_Video"
+msgstr "_Vidéos"
