@@ -40,7 +40,7 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
                                               DialogFlags.DESTROY_WITH_PARENT,
                                               null );
         Gtk.Box dlg_vbox = dlg.get_content_area() as Gtk.Box;
-        var entry = new CheckButton.with_label(_("Use Compact mode (all menus in application menu"));
+        var entry = new CheckButton.with_label(_("Use Compact mode (all menus in application menu)"));
         settings.bind(Key.COMPACT_MODE,entry,"active",SettingsBindFlags.DEFAULT);
         dlg_vbox.pack_start(entry,false,false,2);
         entry = new CheckButton.with_label(_("Use bold application name"));
