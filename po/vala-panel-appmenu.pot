@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-18 01:33+0300\n"
+"POT-Creation-Date: 2018-02-19 02:58+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -53,15 +53,19 @@ msgstr ""
 msgid "_Files"
 msgstr ""
 
-#: ../data/xfce/appmenu.desktop.xfce.in:5
+#: ../data/xfce/appmenu.desktop.xfce.in:5 ../data/appmenu.desktop.plugin.in:4
+#: ../data/appmenu.desktop.xfce.in:5
 msgid "AppMenu Plugin"
 msgstr ""
 
-#: ../data/xfce/appmenu.desktop.xfce.in:6
+#: ../data/xfce/appmenu.desktop.xfce.in:6 ../data/appmenu.desktop.plugin.in:5
+#: ../data/appmenu.desktop.xfce.in:6
 msgid "Display AppMenu (Global Menu)"
 msgstr ""
 
 #: ../data/xfce/appmenu.desktop.xfce.in:7
+#: ../data/appmenu-mate.desktop.plugin.in:11 ../data/appmenu.desktop.xfce.in:7
+#: ../data/appmenu-mate.desktop.in:11
 msgid "applications-system"
 msgstr ""
 
@@ -79,4 +83,69 @@ msgstr ""
 
 #: ../lib/desktop-menus.ui:33
 msgid "_Video"
+msgstr ""
+
+#: ../lib/budgie-plugin-appmenu.vala:51 ../lib/valapanel-plugin-appmenu.vala:73
+#: ../lib/valapanel-plugin-appmenu.vala:88 ../lib/mate-plugin-appmenu.vala:43
+#: ../lib/xfce4-plugin-appmenu.vala:56
+msgid "Use Compact mode (all menus in application menu)"
+msgstr ""
+
+#: ../lib/budgie-plugin-appmenu.vala:54 ../lib/mate-plugin-appmenu.vala:46
+#: ../lib/valapanel-plugin-appmenu.vala:76
+#: ../lib/valapanel-plugin-appmenu.vala:91 ../lib/xfce4-plugin-appmenu.vala:59
+msgid "Use bold application name"
+msgstr ""
+
+#: ../lib/helper-dbus.vala:101
+msgid "Application"
+msgstr ""
+
+#: ../lib/mate-plugin-appmenu.vala:36
+msgid "_Preferences"
+msgstr ""
+
+#: ../lib/mate-plugin-appmenu.vala:39 ../lib/valapanel-plugin-appmenu.vala:85
+#: ../lib/xfce4-plugin-appmenu.vala:52
+msgid "Configure AppMenu"
+msgstr ""
+
+#: ../lib/mate-plugin-appmenu.vala:43 ../lib/xfce4-plugin-appmenu.vala:56
+msgid "Use Compact mode (all menus in application menu"
+msgstr ""
+
+#: ../lib/xfce4-plugin-appmenu.vala:62
+msgid "Expand plugin on panel"
+msgstr ""
+
+#: ../lib/desktop-menus.ui:40
+msgid "_New"
+msgstr ""
+
+#: ../lib/desktop-menus.ui:51
+msgid "_Quit"
+msgstr ""
+
+#: ../data/appmenu-budgie.desktop.plugin.in:4
+msgid "Global Menu"
+msgstr ""
+
+#: ../data/appmenu-budgie.desktop.plugin.in:5
+msgid "Show menus from windows"
+msgstr ""
+
+#: ../data/appmenu-budgie.desktop.plugin.in:9
+msgid "view-grid-symbolic"
+msgstr ""
+
+#: ../data/appmenu-mate.desktop.plugin.in:5 ../data/appmenu-mate.desktop.in:5
+msgid "Appmenu applet factory"
+msgstr ""
+
+#: ../data/appmenu-mate.desktop.plugin.in:9 ../data/appmenu-mate.desktop.in:9
+msgid "Global Application Menu"
+msgstr ""
+
+#: ../data/appmenu-mate.desktop.plugin.in:10
+msgid "All menus will hosts here"
 msgstr ""
