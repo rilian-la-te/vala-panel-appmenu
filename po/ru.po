@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-18 01:33+0300\n"
+"POT-Creation-Date: 2018-02-19 02:58+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Poedit 2.0.5\n"
+"X-Generator: Poedit 2.0.6\n"
 
 #: ../lib/appmenu-desktop.vala:39 ../lib/appmenu-desktop.vala:65
 msgid "_Desktop"
@@ -50,15 +50,19 @@ msgstr "Параметы _системы"
 msgid "_Files"
 msgstr "_Файлы"
 
-#: ../data/xfce/appmenu.desktop.xfce.in:5
+#: ../data/xfce/appmenu.desktop.xfce.in:5 ../data/appmenu.desktop.plugin.in:4
+#: ../data/appmenu.desktop.xfce.in:5
 msgid "AppMenu Plugin"
 msgstr "Плагин AppMenu"
 
-#: ../data/xfce/appmenu.desktop.xfce.in:6
+#: ../data/xfce/appmenu.desktop.xfce.in:6 ../data/appmenu.desktop.plugin.in:5
+#: ../data/appmenu.desktop.xfce.in:6
 msgid "Display AppMenu (Global Menu)"
 msgstr "Показывает меню приложений (Глобальное меню)"
 
 #: ../data/xfce/appmenu.desktop.xfce.in:7
+#: ../data/appmenu-mate.desktop.plugin.in:11 ../data/appmenu.desktop.xfce.in:7
+#: ../data/appmenu-mate.desktop.in:11
 msgid "applications-system"
 msgstr "applications-system"
 
@@ -78,6 +82,71 @@ msgstr "_Рисунки"
 msgid "_Video"
 msgstr "_Видео"
 
+#: ../lib/budgie-plugin-appmenu.vala:51 ../lib/valapanel-plugin-appmenu.vala:73
+#: ../lib/valapanel-plugin-appmenu.vala:88 ../lib/mate-plugin-appmenu.vala:43
+#: ../lib/xfce4-plugin-appmenu.vala:56
+msgid "Use Compact mode (all menus in application menu)"
+msgstr "Компактный режим (все меню в меню приложения)"
+
+#: ../lib/budgie-plugin-appmenu.vala:54 ../lib/mate-plugin-appmenu.vala:46
+#: ../lib/valapanel-plugin-appmenu.vala:76
+#: ../lib/valapanel-plugin-appmenu.vala:91 ../lib/xfce4-plugin-appmenu.vala:59
+msgid "Use bold application name"
+msgstr "Писать название приложения полужирным шрифтом"
+
+#: ../lib/helper-dbus.vala:101
+msgid "Application"
+msgstr "Приложение"
+
+#: ../lib/mate-plugin-appmenu.vala:36
+msgid "_Preferences"
+msgstr "_Настройки"
+
+#: ../lib/mate-plugin-appmenu.vala:39 ../lib/valapanel-plugin-appmenu.vala:85
+#: ../lib/xfce4-plugin-appmenu.vala:52
+msgid "Configure AppMenu"
+msgstr "Настройка AppMenu"
+
+#: ../lib/mate-plugin-appmenu.vala:43 ../lib/xfce4-plugin-appmenu.vala:56
+msgid "Use Compact mode (all menus in application menu"
+msgstr "Компактный режим (все меню в меню приложения)"
+
+#: ../lib/xfce4-plugin-appmenu.vala:62
+msgid "Expand plugin on panel"
+msgstr "Расширить плагин на панели"
+
+#: ../lib/desktop-menus.ui:40
+msgid "_New"
+msgstr "_Новое окно"
+
+#: ../lib/desktop-menus.ui:51
+msgid "_Quit"
+msgstr "_Выход"
+
+#: ../data/appmenu-budgie.desktop.plugin.in:4
+msgid "Global Menu"
+msgstr "Глобальное меню"
+
+#: ../data/appmenu-budgie.desktop.plugin.in:5
+msgid "Show menus from windows"
+msgstr "Показывает меню окон"
+
+#: ../data/appmenu-budgie.desktop.plugin.in:9
+msgid "view-grid-symbolic"
+msgstr "view-grid-symbolic"
+
+#: ../data/appmenu-mate.desktop.plugin.in:5 ../data/appmenu-mate.desktop.in:5
+msgid "Appmenu applet factory"
+msgstr "Фабрика апплета Appmenu"
+
+#: ../data/appmenu-mate.desktop.plugin.in:9 ../data/appmenu-mate.desktop.in:9
+msgid "Global Application Menu"
+msgstr "Глобальное меню"
+
+#: ../data/appmenu-mate.desktop.plugin.in:10
+msgid "All menus will hosts here"
+msgstr "Все меню будут находиться здесь"
+
 #~ msgid "Desktop Settings"
 #~ msgstr "Параметры рабочего стола"
 
@@ -86,6 +155,3 @@ msgstr "_Видео"
 
 #~ msgid "Files"
 #~ msgstr "Файлы"
-
-#~ msgid "Application"
-#~ msgstr "Приложение"
