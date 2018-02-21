@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-04-02 13:41+0600\n"
-"PO-Revision-Date: 2017-10-20 12:15+0800\n"
+"PO-Revision-Date: 2018-02-21 10:45+0800\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -77,3 +77,68 @@ msgstr "图片"
 #: ../lib/desktop-menus.ui:33
 msgid "_Video"
 msgstr "视频"
+
+#: ../lib/budgie-plugin-appmenu.vala:51 ../lib/valapanel-plugin-appmenu.vala:73
+#: ../lib/valapanel-plugin-appmenu.vala:88 ../lib/mate-plugin-appmenu.vala:43
+#: ../lib/xfce4-plugin-appmenu.vala:56
+msgid "Use Compact mode (all menus in application menu)"
+msgstr "使用紧凑模式(应用程序菜单位于应用菜单中)"
+
+#: ../lib/budgie-plugin-appmenu.vala:54 ../lib/mate-plugin-appmenu.vala:46
+#: ../lib/valapanel-plugin-appmenu.vala:76
+#: ../lib/valapanel-plugin-appmenu.vala:91 ../lib/xfce4-plugin-appmenu.vala:59
+msgid "Use bold application name"
+msgstr "应用程序名使用粗体"
+
+#: ../lib/helper-dbus.vala:101
+msgid "Application"
+msgstr "应用程序"
+
+#: ../lib/mate-plugin-appmenu.vala:36
+msgid "_Preferences"
+msgstr "首选项(_P)"
+
+#: ../lib/mate-plugin-appmenu.vala:39 ../lib/valapanel-plugin-appmenu.vala:85
+#: ../lib/xfce4-plugin-appmenu.vala:52
+msgid "Configure AppMenu"
+msgstr "配置 AppMenu"
+
+#: ../lib/mate-plugin-appmenu.vala:43 ../lib/xfce4-plugin-appmenu.vala:56
+msgid "Use Compact mode (all menus in application menu"
+msgstr "使用紧凑模式(应用程序菜单位于应用菜单中)"
+
+#: ../lib/xfce4-plugin-appmenu.vala:62
+msgid "Expand plugin on panel"
+msgstr "扩展面板上的插件"
+
+#: ../lib/desktop-menus.ui:40
+msgid "_New"
+msgstr "新建(_N)"
+
+#: ../lib/desktop-menus.ui:51
+msgid "_Quit"
+msgstr "退出(_Q)"
+
+#: ../data/appmenu-budgie.desktop.plugin.in:4
+msgid "Global Menu"
+msgstr "全局菜单"
+
+#: ../data/appmenu-budgie.desktop.plugin.in:5
+msgid "Show menus from windows"
+msgstr "显示窗口菜单"
+
+#: ../data/appmenu-budgie.desktop.plugin.in:9
+msgid "view-grid-symbolic"
+msgstr "view-grid-symbolic"
+
+#: ../data/appmenu-mate.desktop.plugin.in:5 ../data/appmenu-mate.desktop.in:5
+msgid "Appmenu applet factory"
+msgstr "Appmenu小程序工厂"
+
+#: ../data/appmenu-mate.desktop.plugin.in:9 ../data/appmenu-mate.desktop.in:9
+msgid "Global Application Menu"
+msgstr "全局菜单"
+
+#: ../data/appmenu-mate.desktop.plugin.in:10
+msgid "All menus will hosts here"
+msgstr "所有菜单位于这里"
