@@ -23,7 +23,7 @@ add_library(appmenu-gtk3-parser SHARED
         ${LIB_SOURCES}
         ${GTK3_SOURCES})
 target_link_libraries(appmenu-gtk3-parser PRIVATE ${GLIB2_LIBRARIES} ${GTK3_LIBRARIES})
-target_include_directories(appmenu-gtk3-parser PRIVATE ${GLIB2_INCLUDE_DIRS} ${GTK3_INCLUDE_DIRS})
+target_include_directories(appmenu-gtk3-parser PRIVATE ${GLIB2_INCLUDE_DIRS} ${GTK3_INCLUDE_DIRS} ${WAYLAND_INCLUDE})
 set_target_properties(appmenu-gtk3-parser PROPERTIES
 	VERSION ${VERSION}
 	SOVERSION ${VERSION_MAJOR})

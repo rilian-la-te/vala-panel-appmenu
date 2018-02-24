@@ -12,6 +12,12 @@ find_package(GTK 3.22 QUIET COMPONENTS GDK GTK X11 WAYLAND)
 find_package(GTK 2.24 COMPONENTS GDK GTK X11)
 set(GTK2_FOUND ${GTK_FOUND})
 
+find_path(WAYLAND_INCLUDE
+    NAMES wayland-client.h
+    HINTS ${CMAKE_FULL_INCLUDE_DIR}
+    PATH_SUFFIXES wayland
+)
+
 cmake_dependent_option(STANDALONE "Build appmenu-gtk-module STANDALONE" ON
         "NOT CORE_FOUND" OFF)
 option(ENABLE_APPMENU_GTK_MODULE "Build appmenu-gtk-module" ON)
