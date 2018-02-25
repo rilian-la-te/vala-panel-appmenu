@@ -16,7 +16,7 @@ set(MODULE_SOURCES
 get_filename_component(GTK3_LIBDIR ${GTK3_GTK_LIBRARY} DIRECTORY)
 set(GTK3_MODULEDIR ${GTK3_LIBDIR}/gtk-3.0/modules)
 add_library(appmenu-gtk3-module MODULE ${MODULE_SOURCES})
-target_include_directories(appmenu-gtk3-module PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../lib)
+target_include_directories(appmenu-gtk3-module PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../lib ${WAYLAND_INCLUDE})
 target_link_libraries(appmenu-gtk3-module PRIVATE appmenu-gtk3-parser GLIB2::GIO_UNIX GTK3::GTK)
 set_target_properties(appmenu-gtk3-module PROPERTIES
     OUTPUT_NAME appmenu-gtk-module
