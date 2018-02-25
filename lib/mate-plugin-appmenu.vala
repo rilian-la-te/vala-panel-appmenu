@@ -24,7 +24,7 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
     if (iid != "AppmenuApplet") {
         return false;
     }
-    applet.flags = MatePanel.AppletFlags.HAS_HANDLE | MatePanel.AppletFlags.EXPAND_MAJOR;
+    applet.flags = MatePanel.AppletFlags.HAS_HANDLE | MatePanel.AppletFlags.EXPAND_MAJOR | MatePanel.AppletFlags.EXPAND_MINOR;
     var layout = new Appmenu.MenuWidget();
     var settings = MatePanel.AppletSettings.@new(applet,"org.valapanel.appmenu");
     settings.bind(Key.COMPACT_MODE,layout,Key.COMPACT_MODE,SettingsBindFlags.DEFAULT);
