@@ -127,6 +127,14 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 		                                      (gboolean *)&need_update,
 		                                      NULL,
 		                                      NULL);
+		// Use opened before actual open. For Firefox.
+		dbus_menu_xml_call_event_sync(xml,
+		                              id,
+		                              "opened",
+		                              g_variant_new("v", g_variant_new_int32(0)),
+		                              CURRENT_TIME,
+		                              NULL,
+		                              NULL);
 		if (g_menu_model_get_n_items(model) == 0)
 			need_update = true;
 		need_update = need_update || dbus_menu_model_is_layout_update_required(model);
@@ -136,13 +144,6 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 			if (DBUS_MENU_IS_MODEL(model))
 				dbus_menu_model_update_layout(model);
 		}
-		dbus_menu_xml_call_event_sync(xml,
-		                              id,
-		                              "opened",
-		                              g_variant_new("v", g_variant_new_int32(0)),
-		                              CURRENT_TIME,
-		                              NULL,
-		                              NULL);
 		g_simple_action_set_state(action, g_variant_new_boolean(true));
 		//         TODO: change state to false after menu closing, not by time
 		//                g_timeout_add(500, (GSourceFunc)source_state_false, action);
