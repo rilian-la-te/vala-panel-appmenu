@@ -276,7 +276,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 			else
 				dbus_menu_item_free(new_item);
 		}
-		else
+		else if (!dbus_menu_item_is_firefox_stub(new_item))
 		{
 			// There is no section, but had less items in current_section now. Append
 			// item

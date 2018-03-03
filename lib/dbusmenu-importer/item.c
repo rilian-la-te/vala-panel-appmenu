@@ -211,6 +211,56 @@ static bool check_and_update_mutable_attribute(DBusMenuItem *item, const char *k
 	return false;
 }
 
+G_GNUC_INTERNAL bool dbus_menu_item_is_firefox_stub(DBusMenuItem *item)
+{
+	const char *hidden_when =
+	    (const char *)g_hash_table_lookup(item->attributes, G_MENU_ATTRIBUTE_HIDDEN_WHEN);
+	const char *action =
+	    (const char *)g_hash_table_lookup(item->attributes, G_MENU_ATTRIBUTE_ACTION);
+	const char *label =
+	    (const char *)g_hash_table_lookup(item->attributes, G_MENU_ATTRIBUTE_LABEL);
+	if (!g_strcmp0(hidden_when, G_MENU_HIDDEN_WHEN_ACTION_MISSING) &&
+	    !g_strcmp0(action, DBUS_MENU_DISABLED_ACTION) && !g_strcmp0(label, "Label Empty"))
+		return true;
+	return false;
+}
+
+G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item)
+{
+	if (!item_check_magic(item))
+		return;
+	if (item->action_type != DBUS_MENU_ACTION_SUBMENU)
+		return;
+	uint id;
+	DBusMenuXml *xml;
+	bool need_update;
+	DBusMenuModel *submenu = DBUS_MENU_MODEL(
+	    g_hash_table_lookup(item->links,
+	                        item->enabled ? G_MENU_LINK_SUBMENU : DBUS_MENU_DISABLED_SUBMENU));
+	g_object_get(submenu, "parent-id", &id, "xml", &xml, NULL);
+	dbus_menu_xml_call_about_to_show_sync(xml, id, (gboolean *)&need_update, NULL, NULL);
+	need_update = need_update || dbus_menu_model_is_layout_update_required(submenu);
+	if (need_update)
+	{
+		if (DBUS_MENU_IS_MODEL(submenu))
+			dbus_menu_model_update_layout(submenu);
+	}
+}
+
+G_GNUC_INTERNAL bool dbus_menu_item_copy_attributes(DBusMenuItem *src, DBusMenuItem *dst)
+{
+	GHashTableIter iter;
+	g_hash_table_iter_init(&iter, src->attributes);
+	bool is_updated = false;
+	char *key;
+	GVariant *value;
+	while (g_hash_table_iter_next(&iter, &key, &value))
+	{
+		is_updated = check_and_update_mutable_attribute(dst, key, value) || is_updated;
+	}
+	return is_updated;
+}
+
 G_GNUC_INTERNAL bool dbus_menu_item_update_enabled(DBusMenuItem *item, bool enabled)
 {
 	bool updated = false;
@@ -250,42 +300,6 @@ G_GNUC_INTERNAL bool dbus_menu_item_update_enabled(DBusMenuItem *item, bool enab
 	item->enabled = enabled;
 	dbus_menu_item_try_to_update_action_properties(item);
 	return updated;
-}
-
-G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item)
-{
-	if (!item_check_magic(item))
-		return;
-	if (item->action_type != DBUS_MENU_ACTION_SUBMENU)
-		return;
-	uint id;
-	DBusMenuXml *xml;
-	bool need_update;
-	DBusMenuModel *submenu = DBUS_MENU_MODEL(
-	    g_hash_table_lookup(item->links,
-	                        item->enabled ? G_MENU_LINK_SUBMENU : DBUS_MENU_DISABLED_SUBMENU));
-	g_object_get(submenu, "parent-id", &id, "xml", &xml, NULL);
-	dbus_menu_xml_call_about_to_show_sync(xml, id, (gboolean *)&need_update, NULL, NULL);
-	need_update = need_update || dbus_menu_model_is_layout_update_required(submenu);
-	if (need_update)
-	{
-		if (DBUS_MENU_IS_MODEL(submenu))
-			dbus_menu_model_update_layout(submenu);
-	}
-}
-
-G_GNUC_INTERNAL bool dbus_menu_item_copy_attributes(DBusMenuItem *src, DBusMenuItem *dst)
-{
-	GHashTableIter iter;
-	g_hash_table_iter_init(&iter, src->attributes);
-	bool is_updated = false;
-	char *key;
-	GVariant *value;
-	while (g_hash_table_iter_next(&iter, &key, &value))
-	{
-		is_updated = check_and_update_mutable_attribute(dst, key, value) || is_updated;
-	}
-	return is_updated;
 }
 
 static void dbus_menu_item_try_to_update_action_properties(DBusMenuItem *item)
