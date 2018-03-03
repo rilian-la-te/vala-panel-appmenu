@@ -17,3 +17,10 @@
 menubar.-vala-panel-appmenu-bold > menuitem:first-child > label {
    font-weight: bolder;
 }
+
+.-vala-panel-appmenu-private > separator {
+	
+    background-color: transparent;
+    background-image: none;
+	opacity: 0;
+}
