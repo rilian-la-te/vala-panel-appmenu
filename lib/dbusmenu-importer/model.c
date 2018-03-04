@@ -195,6 +195,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 	uint old_sections                     = g_sequence_get_length(menu->sections);
 	uint added                            = 0;
 	int change_pos                        = -1;
+	bool on_border                        = true;
 	GSequenceIter *sections_iter          = g_sequence_get_begin_iter(menu->sections);
 	DBusMenuSectionModel *current_section = DBUS_MENU_SECTION_MODEL(
 	    g_hash_table_lookup(((DBusMenuItem *)g_sequence_get(sections_iter))->links,
@@ -215,13 +216,17 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		// We receive a section (separator or x-kde-title)
 		if (new_item->action_type == DBUS_MENU_ACTION_SECTION)
 		{
-			bool is_valid_section = !new_item->toggled;
+			bool is_valid_section = !new_item->toggled && !on_border;
+			// If old section is empty - new section is invalid
+			if (g_menu_model_get_n_items(current_section) == 0)
+				is_valid_section = false;
 			// Section is valid, so, parse it
 			if (is_valid_section)
 			{
 				// Do some common tasks: increment section_num and iter
 				section_num++;
 				sections_iter = g_sequence_iter_next(sections_iter);
+				on_border     = true;
 				// If there is a last section in old model, append new section and
 				// set iter
 				if (g_sequence_iter_is_end(sections_iter))
@@ -346,26 +351,34 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 				}
 			}
 			current_iter = g_sequence_iter_next(current_iter);
+			on_border    = false;
 		}
+		else
+			dbus_menu_item_free(new_item);
 		g_variant_unref(cprops);
 		g_variant_unref(value);
 		g_variant_unref(child);
 	}
-	// We need to manage last section's changes.
+	// We need to manage last section's changes. And check its validity
+	bool is_valid_section = !on_border;
+	// If old section is empty - new section is invalid
+	if (g_menu_model_get_n_items(current_section) == 0 && g_menu_model_get_n_items(menu) > 1)
+		is_valid_section = false;
 	current_iter = g_sequence_iter_next(current_iter);
 	int removed =
 	    g_sequence_iter_get_position(g_sequence_get_end_iter(current_section->items)) -
 	    g_sequence_iter_get_position(current_iter);
 	g_sequence_remove_range(current_iter, g_sequence_get_end_iter(current_section->items));
 	// Now calculate a sections changed signal
-	section_num++;
+	if (is_valid_section)
+		section_num++;
 	int secdiff = old_sections - section_num;
 	g_sequence_remove_range(g_sequence_get_iter_at_pos(menu->sections, section_num),
 	                        g_sequence_get_end_iter(menu->sections));
 	// If section number is not changed, emit a signal about last section.
 	// Because if we emit it and section will be a part of sections signal, this can
 	// duplicate menu items
-	if ((removed > 0 || added > 0) && !secdiff)
+	if ((removed > 0 || added > 0) && secdiff == 0)
 	{
 		add_signal_to_queue(menu,
 		                    signal_queue,
@@ -379,7 +392,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		add_signal_to_queue(menu,
 		                    signal_queue,
 		                    -1,
-		                    old_sections,
+		                    old_sections < section_num ? old_sections : section_num,
 		                    (secdiff) > 0 ? (uint)secdiff - 1 : 0,
 		                    (secdiff) < 0 ? (uint)-secdiff : 0);
 	g_variant_unref(items);
