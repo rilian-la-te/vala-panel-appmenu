@@ -449,9 +449,8 @@ G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 			if (item->action_type == DBUS_MENU_ACTION_SECTION)
 			{
 				item->toggled = !vis;
-				continue;
 			}
-			if (vis)
+			else if (vis)
 			{
 				g_autofree char *name =
 				    dbus_menu_action_get_name(item->id, item->action_type, true);
