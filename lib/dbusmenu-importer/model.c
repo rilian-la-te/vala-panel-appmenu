@@ -593,6 +593,7 @@ static void on_xml_property_changed(DBusMenuModel *model)
 {
 	if (!DBUS_MENU_IS_XML(model->xml))
 		return;
+	g_object_ref(model->xml);
 	g_signal_connect(model->xml,
 	                 "items-properties-updated",
 	                 G_CALLBACK(items_properties_updated_cb),
@@ -638,6 +639,8 @@ static void dbus_menu_model_set_property(GObject *object, guint property_id, con
 				g_signal_handlers_disconnect_by_data(old_xml, menu);
 			on_xml_property_changed(menu);
 		}
+		if (old_xml != menu->xml)
+			g_clear_object(&old_xml);
 		break;
 	case PROP_ACTION_GROUP:
 		menu->received_action_group = G_ACTION_GROUP(g_value_get_object(value));
@@ -748,8 +751,9 @@ static void dbus_menu_model_constructed(GObject *object)
 static void dbus_menu_model_finalize(GObject *object)
 {
 	DBusMenuModel *menu = (DBusMenuModel *)(object);
-	if (DBUS_MENU_IS_XML(menu->xml))
+	if (menu->xml)
 		g_signal_handlers_disconnect_by_data(menu->xml, menu);
+	g_clear_object(&menu->xml);
 	g_cancellable_cancel(menu->cancellable);
 	g_clear_object(&menu->cancellable);
 	g_clear_pointer(&menu->sections, g_sequence_free);

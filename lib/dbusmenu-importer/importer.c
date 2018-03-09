@@ -128,9 +128,9 @@ static void dbus_menu_importer_dispose(GObject *object)
 	}
 	g_cancellable_cancel(menu->cancellable);
 	g_clear_object(&menu->cancellable);
-	g_clear_object(&menu->proxy);
 	g_signal_handlers_disconnect_by_data(menu->top_model, menu);
 	g_clear_object(&menu->top_model);
+	g_clear_object(&menu->proxy);
 	g_clear_object(&menu->all_actions);
 
 	G_OBJECT_CLASS(dbus_menu_importer_parent_class)->dispose(object);
