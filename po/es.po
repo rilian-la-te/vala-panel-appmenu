@@ -1,3 +1,4 @@
+
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
@@ -20,6 +21,15 @@ msgstr ""
 #: ../lib/appmenu-desktop.vala:39
 msgid "_Desktop"
 msgstr "_Escritorio"
+
+msgid "Use Compact mode (all menus in application menu)"
+msgstr "Utilizar modo compacto (Todos los menus en un menu)"
+
+#: ../lib/budgie-plugin-appmenu.vala:54 ../lib/mate-plugin-appmenu.vala:46
+#: ../lib/valapanel-plugin-appmenu.vala:76
+#: ../lib/valapanel-plugin-appmenu.vala:91 ../lib/xfce4-plugin-appmenu.vala:59
+msgid "Use bold application name"
+msgstr "Resaltar nombre de la aplicación en negrita"
 
 #: ../lib/appmenu-desktop.vala:153
 msgid "No files"
@@ -53,6 +63,29 @@ msgstr "Configuración del _Sistema"
 msgid "_Files"
 msgstr "_Archivos"
 
+
+
+
+#: ../lib/desktop-menus.ui:21
+msgid "_Documents"
+msgstr "_Documentos"
+
+#: ../lib/desktop-menus.ui:25
+msgid "_Music"
+msgstr "_Música"
+
+#: ../lib/desktop-menus.ui:29
+msgid "_Pictures"
+msgstr "_Imágenes"
+
+#: ../lib/desktop-menus.ui:33
+msgid "_Video"
+msgstr "_Videos"
+
+
+
+
+
 #: ../data/xfce/appmenu.desktop.xfce.in:5
 msgid "AppMenu Plugin"
 msgstr "Módulo AppMenu"
@@ -64,3 +97,9 @@ msgstr "Mostrar AppMenu (Menú Global)"
 #: ../data/xfce/appmenu.desktop.xfce.in:7
 msgid "applications-system"
 msgstr "aplicaciones-sistema"
+
+msgid "_New"
+msgstr "_Nuevo"
+
+msgid "_Quit"
+msgstr "_Salir"
