@@ -74,8 +74,7 @@ When using the Vala-panel-appmenu as an XFCE or MATE menu applet, you have to co
 `gsettings set org.mate.interface gtk-shell-shows-menubar true`
 
 **BUDGIE**
-- If you using gnome-settings-daemon, you should go to dconf-editor and set:
-key `org.gnome.settings-daemon.plugins.xsettings.overrides` to `{'Gtk/ShellShowsAppMenu': <0>, 'Gtk/ShellShowsMenubar': <1>}`
+- If you using gnome-settings-daemon, you should go to dconf-editor and set key `org.gnome.settings-daemon.plugins.xsettings.overrides` to `{'Gtk/ShellShowsAppMenu': <0>, 'Gtk/ShellShowsMenubar': <1>}`
 
 - If commands above does not work, create or edit .config/gtk-3.0/settings.ini file in your home(~) directory and add the following lines to it under `[Settings]`:
   `gtk-shell-shows-app-menu=true`
