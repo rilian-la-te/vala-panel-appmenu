@@ -1,5 +1,5 @@
-cmake_minimum_required (VERSION 2.8)
-cmake_policy (VERSION 2.8)
+cmake_minimum_required (VERSION 3.6 FATAL_ERROR)
+cmake_policy (VERSION 3.6)
 project (jayatana C)
 cmake_policy(SET CMP0054 NEW)
 enable_testing ()
@@ -9,9 +9,11 @@ find_package (PkgConfig QUIET)
 find_package(Java)
 find_package(JNI)
 pkg_check_modules(XKBCOMMON
-    xkbcommon)
+    xkbcommon
+    IMPORTED_TARGET)
 pkg_check_modules(DBUSMENU
-    dbusmenu-glib-0.4>=16.04.0)
+    dbusmenu-glib-0.4>=16.04.0
+    IMPORTED_TARGET)
 
 cmake_dependent_option(STANDALONE "Build jayatana STANDALONE" ON
         "NOT CORE_FOUND;JAVA_FOUND;JNI_FOUND;XKBCOMMON_FOUND;DBUSMENU_FOUND" OFF)
