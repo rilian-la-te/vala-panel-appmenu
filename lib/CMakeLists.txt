@@ -1,6 +1,7 @@
 #####
 # Core Parts (GResource, definitions)
 #####
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_subdirectory(dbusmenu-importer)
 set(CORE_VALA_FILES
     appmenu-abstractions.vala
@@ -25,7 +26,7 @@ OPTIONS
     --vapidir=${CMAKE_SOURCE_DIR}/vapi
     --vapidir=${CMAKE_CURRENT_BINARY_DIR}
     --vapidir=${CMAKE_CURRENT_SOURCE_DIR}/dbusmenu-importer
-    --target-glib=2.44
+    --target-glib=2.50
     --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
     --thread
     ${WNCK_DEFINE}
@@ -60,7 +61,6 @@ target_link_libraries (appmenu-core
 set_target_properties(appmenu-core PROPERTIES
         POSITION_INDEPENDENT_CODE ON	# Compile this object code position independent.
 )
-target_include_directories (appmenu-core PRIVATE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 add_custom_target(vala-files-ide SOURCES ${VALA_FILES_DBUSMENU} ${CORE_VALA_FILES} ${PLUGIN_VALA_FILES})
 ##########
 # XFCE Part
@@ -77,20 +77,16 @@ if (ENABLE_XFCE)
     OPTIONS
         --vapidir=${CMAKE_SOURCE_DIR}/vapi
         --vapidir=${CMAKE_CURRENT_BINARY_DIR}
-	--target-glib=2.44
+        --target-glib=2.50
         --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
         --thread
         ${WNCK_DEFINE}
     )
-    set (XF_CFLAGS ${CORE_CFLAGS} ${WNCK_CFLAGS} ${XFCE_CFLAGS})
-    add_definitions(${XF_CFLAGS})
     add_library (appmenu-xfce MODULE
         ${VALA_C_XFCE}
         ${RESOURCES}
     )
-    target_link_libraries (appmenu-xfce ${CORE_LIBRARIES} ${WNCK_TARGETS} ${XFCE_LIBRARIES} m appmenu-core)
-    target_include_directories (appmenu-xfce PRIVATE ${CORE_INCLUDE_DIRS} ${XFCE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
-    add_dependencies(appmenu-xfce appmenu-core)
+    target_link_libraries (appmenu-xfce appmenu-core PkgConfig::XFCE)
     # Install plugin stuffs
     install(TARGETS appmenu-xfce DESTINATION ${CMAKE_INSTALL_LIBDIR}/xfce4/panel/plugins)
 endif()
@@ -110,7 +106,7 @@ if(ENABLE_VALAPANEL)
         --vapidir=${CMAKE_SOURCE_DIR}/vapi
         --vapidir=${CMAKE_CURRENT_BINARY_DIR}
         --vapidir=${CMAKE_BINARY_DIR}/dbusmenu
-	--target-glib=2.44
+        --target-glib=2.50
         --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
         --thread
         ${WNCK_DEFINE}
@@ -118,16 +114,13 @@ if(ENABLE_VALAPANEL)
     )
 
     # Build library for plugins and application
-    set (VP_CFLAGS ${CORE_CFLAGS} ${WNCK_CFLAGS} ${VALAPANEL_CFLAGS})
-    add_definitions(${VP_CFLAGS})
     add_library (appmenu-valapanel MODULE
         ${VALA_C_VALAPANEL}
         ${RESOURCES}
     )
     set_target_properties(appmenu-valapanel PROPERTIES
         OUTPUT_NAME appmenu)
-    target_include_directories (appmenu-valapanel PRIVATE ${CORE_INCLUDE_DIRS} ${VALAPANEL_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
-    target_link_libraries (appmenu-valapanel ${CORE_LIBRARIES} ${WNCK_TARGETS} ${VALAPANEL_LIBRARIES} m appmenu-core)
+    target_link_libraries (appmenu-valapanel appmenu-core PEAS::PEAS PkgConfig::VALAPANEL)
     # Install plugin stuffs
     install(TARGETS appmenu-valapanel DESTINATION ${CMAKE_INSTALL_LIBDIR}/vala-panel/applets)
 endif()
@@ -146,22 +139,18 @@ if(ENABLE_BUDGIE)
     OPTIONS
         --vapidir=${CMAKE_SOURCE_DIR}/vapi
         --vapidir=${CMAKE_CURRENT_BINARY_DIR}
-        --target-glib=2.44
+        --target-glib=2.50
         --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
         --thread
         ${WNCK_DEFINE}
     )
 
     # Build library for plugins and application
-    set (VP_CFLAGS ${CORE_CFLAGS} ${WNCK_CFLAGS} ${BUDGIE_CFLAGS})
-    add_definitions(${VP_CFLAGS})
     add_library (appmenu-budgie MODULE
         ${VALA_C_BUDGIE}
         ${RESOURCES}
     )
-    add_dependencies(appmenu-budgie appmenu-core)
-    target_include_directories (appmenu-budgie PRIVATE ${CORE_INCLUDE_DIRS} ${BUDGIE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
-    target_link_libraries (appmenu-budgie ${CORE_LIBRARIES} ${WNCK_TARGETS} ${BUDGIE_LIBRARIES} m appmenu-core)
+    target_link_libraries (appmenu-budgie appmenu-core PEAS::PEAS PkgConfig::BUDGIE)
     # Install plugin stuffs
     install(TARGETS appmenu-budgie DESTINATION ${CMAKE_INSTALL_LIBDIR}/budgie-desktop/plugins/budgie-vala-panel-appmenu-plugin)
 endif()
@@ -179,20 +168,16 @@ if (ENABLE_MATE)
     OPTIONS
 	--vapidir=${CMAKE_SOURCE_DIR}/vapi
 	--vapidir=${CMAKE_CURRENT_BINARY_DIR}
-	--target-glib=2.44
+        --target-glib=2.50
 	--gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
 	--thread
 	${WNCK_DEFINE}
     )
-    set (MA_CFLAGS ${CORE_CFLAGS} ${WNCK_CFLAGS} ${MATE_CFLAGS})
-    add_definitions(${MA_CFLAGS})
     add_executable (appmenu-mate
         ${VALA_C_MATE}
 	${RESOURCES}
     )
-    target_link_libraries (appmenu-mate ${CORE_LIBRARIES} ${WNCK_TARGETS} ${MATE_LIBRARIES} m appmenu-core)
-    target_include_directories (appmenu-mate PRIVATE ${CORE_INCLUDE_DIRS} ${MATE_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
-    add_dependencies(appmenu-mate appmenu-core)
+    target_link_libraries (appmenu-mate appmenu-core PkgConfig::MATE)
     # Install plugin stuffs
     install(TARGETS appmenu-mate DESTINATION ${CMAKE_INSTALL_LIBEXECDIR}/mate-panel)
 endif()

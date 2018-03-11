@@ -1,5 +1,5 @@
-cmake_minimum_required (VERSION 3.3)
-cmake_policy (VERSION 3.3)
+cmake_minimum_required (VERSION 3.6 FATAL_ERROR)
+cmake_policy (VERSION 3.6)
 project (vala-panel-appmenu C)
 enable_testing ()
 include(GNUInstallDirs)
@@ -83,18 +83,18 @@ if (ENABLE_WNCK)
     set(WNCK_PACKAGES libwnck-3.0)
     set(WNCK_TARGETS WNCK::WNCK)
 endif()
-pkg_check_modules(XFCE libxfce4panel-2.0 libxfconf-0)
+pkg_check_modules(XFCE libxfce4panel-2.0 libxfconf-0 IMPORTED_TARGET)
 cmake_dependent_option(ENABLE_XFCE "Enable Xfce Panel Integration" ON
     "XFCE_FOUND" OFF)
 
-pkg_check_modules(MATE libmatepanelapplet-4.0)
+pkg_check_modules(MATE libmatepanelapplet-4.0 IMPORTED_TARGET)
 cmake_dependent_option(ENABLE_MATE "Enable mate-panel Integration" ON
     "MATE_FOUND" OFF)
 
 find_package(PEAS 1.14 COMPONENTS PEAS)
-pkg_check_modules(VALAPANEL vala-panel)
+pkg_check_modules(VALAPANEL vala-panel IMPORTED_TARGET)
 pkg_check_modules(VP_NEW vala-panel>=0.3.50 QUIET)
-pkg_check_modules(BUDGIE budgie-1.0)
+pkg_check_modules(BUDGIE budgie-1.0 IMPORTED_TARGET)
 
 cmake_dependent_option(ENABLE_VALAPANEL "Enable Vala Panel Integration" ON
     "VALAPANEL_FOUND; PEAS_FOUND" OFF)
