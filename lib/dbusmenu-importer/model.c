@@ -430,8 +430,8 @@ static void dbus_menu_update_item_properties_from_layout_sync(DBusMenuModel *men
                                                               int pos)
 {
 	g_return_if_fail(DBUS_MENU_IS_MODEL(menu));
-	g_autoptr(GVariant) props;
-	g_autoptr(GVariant) items;
+	g_autoptr(GVariant) props      = NULL;
+	g_autoptr(GVariant) items      = NULL;
 	g_autoptr(GVariant) layout     = NULL;
 	g_autoptr(GError) error        = NULL;
 	g_autoptr(GQueue) signal_queue = g_queue_new();
