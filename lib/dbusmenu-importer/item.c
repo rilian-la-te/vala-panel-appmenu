@@ -167,6 +167,10 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 			action_creator_found = true;
 		}
 	}
+	if (item->action_type != DBUS_MENU_ACTION_SECTION)
+		g_hash_table_insert(item->attributes,
+		                    g_strdup(G_MENU_ATTRIBUTE_LABEL),
+		                    g_variant_new_string(""));
 	dbus_menu_item_update_props(item, props);
 	return item;
 }
