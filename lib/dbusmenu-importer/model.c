@@ -360,7 +360,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		g_variant_unref(child);
 	}
 	// We need to manage last section's changes. And check its validity
-	bool is_valid_section = !on_border;
+	bool is_valid_section = !on_border || section_num == 0;
 	// If old section is empty - new section is invalid
 	if (g_menu_model_get_n_items(current_section) == 0 && g_menu_model_get_n_items(menu) > 1)
 		is_valid_section = false;
@@ -503,6 +503,8 @@ G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
 
 static void layout_updated_cb(DBusMenuXml *proxy, guint revision, gint parent, DBusMenuModel *menu)
 {
+	if (!DBUS_MENU_IS_XML(proxy))
+		return;
 	if (((uint)parent == menu->parent_id) && menu->current_revision < revision)
 	{
 		g_debug("Remote attempt to update %u with rev %u\n", parent, revision);
@@ -519,6 +521,8 @@ static void layout_updated_cb(DBusMenuXml *proxy, guint revision, gint parent, D
 static void item_activation_requested_cb(DBusMenuXml *proxy, gint id, guint timestamp,
                                          DBusMenuModel *menu)
 {
+	if (!DBUS_MENU_IS_XML(proxy))
+		return;
 	g_autofree char *ordinary_name = g_strdup_printf(ACTION_PREFIX "%u", id);
 	g_action_group_activate_action(menu->received_action_group, ordinary_name, NULL);
 	g_debug("activation requested: id - %d, timestamp - %d", id, timestamp);
@@ -527,6 +531,8 @@ static void item_activation_requested_cb(DBusMenuXml *proxy, gint id, guint time
 static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_props,
                                         GVariant *removed_props, DBusMenuModel *menu)
 {
+	if (!DBUS_MENU_IS_XML(proxy))
+		return;
 	if (menu->layout_update_in_progress == true)
 		return;
 	GVariantIter iter;
