@@ -236,12 +236,14 @@ G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item)
 	if (item->action_type != DBUS_MENU_ACTION_SUBMENU)
 		return;
 	uint id;
-	DBusMenuXml *xml;
+	DBusMenuXml *xml = NULL;
 	bool need_update;
 	DBusMenuModel *submenu = DBUS_MENU_MODEL(
 	    g_hash_table_lookup(item->links,
 	                        item->enabled ? G_MENU_LINK_SUBMENU : DBUS_MENU_DISABLED_SUBMENU));
 	g_object_get(submenu, "parent-id", &id, "xml", &xml, NULL);
+	if (!xml || !DBUS_MENU_IS_XML(xml))
+		return;
 	dbus_menu_xml_call_event_sync(xml,
 	                              id,
 	                              "opened",
