@@ -98,9 +98,9 @@ static void name_vanished_cb(GDBusConnection *connection, const char *name, gpoi
 {
 	DBusMenuImporter *menu = DBUS_MENU_IMPORTER(user_data);
 
-	g_clear_object(&menu->proxy);
-	g_object_set(menu->top_model, "xml", menu->proxy, NULL);
+	g_object_set(menu->top_model, "xml", NULL, NULL);
 	g_object_notify_by_pspec(menu, properties[PROP_MODEL]);
+	g_clear_object(&menu->proxy);
 }
 
 static void dbus_menu_importer_constructed(GObject *object)
