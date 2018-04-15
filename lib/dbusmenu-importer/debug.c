@@ -49,7 +49,7 @@ static void indent_string(GString *string, gint indent)
 G_GNUC_INTERNAL GString *g_menu_markup_print_string(GString *string, GMenuModel *model, gint indent,
                                                     gint tabstop)
 {
-	gboolean need_nl = FALSE;
+	gboolean need_nl = false;
 	gint i, n;
 
 	if
@@ -91,7 +91,7 @@ G_GNUC_INTERNAL GString *g_menu_markup_print_string(GString *string, GMenuModel 
 				char *str;
 				const char *type;
 
-				printed = g_variant_print(value, TRUE);
+				printed = g_variant_print(value, true);
 				type    = g_variant_type_peek_string(g_variant_get_type(value));
 				str     = g_markup_printf_escaped(
                                     "<attribute name='%s' type='%s'>%s</attribute>\n",
@@ -137,7 +137,7 @@ G_GNUC_INTERNAL GString *g_menu_markup_print_string(GString *string, GMenuModel 
 			g_string_append(string, contents->str);
 			indent_string(string, indent);
 			g_string_append(string, "</item>\n");
-			need_nl = TRUE;
+			need_nl = true;
 		}
 
 		else
@@ -147,11 +147,11 @@ G_GNUC_INTERNAL GString *g_menu_markup_print_string(GString *string, GMenuModel 
 
 			indent_string(string, indent);
 			g_string_append_printf(string, "<item%s/>\n", attrs->str);
-			need_nl = FALSE;
+			need_nl = false;
 		}
 
-		g_string_free(contents, TRUE);
-		g_string_free(attrs, TRUE);
+		g_string_free(contents, true);
+		g_string_free(attrs, true);
 	}
 
 	return string;

@@ -27,7 +27,8 @@
 #define CURRENT_TIME 0L
 #define HAS_ICON_NAME "has-icon-name"
 
-typedef enum {
+typedef enum
+{
 	DBUS_MENU_ACTION_SECTION,
 	DBUS_MENU_ACTION_NORMAL,
 	DBUS_MENU_ACTION_CHECKMARK,
