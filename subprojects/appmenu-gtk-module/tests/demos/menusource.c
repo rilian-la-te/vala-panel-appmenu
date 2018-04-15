@@ -13,7 +13,11 @@
 #include <gdk/gdkx.h>
 #include <libwnck/libwnck.h>
 
-typedef enum { MENU_BAR_MODE_GLOBAL, MENU_BAR_MODE_WHEN_MAXIMIZED } MenuBarMode;
+typedef enum
+{
+	MENU_BAR_MODE_GLOBAL,
+	MENU_BAR_MODE_WHEN_MAXIMIZED
+} MenuBarMode;
 
 enum
 {
