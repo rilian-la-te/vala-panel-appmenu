@@ -187,8 +187,7 @@ static bool set_gtk_shell_shows_menubar(bool shows)
 	g_autoptr(GSettings) gsettings = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
 	bool need_set                  = !g_settings_get_boolean(gsettings, INNER_MENU_KEY);
 
-	if (need_set)
-		g_object_set(settings, "gtk-shell-shows-menubar", shows, NULL);
+	g_object_set(settings, "gtk-shell-shows-menubar", need_set ? shows : false, NULL);
 
 	return true;
 }
