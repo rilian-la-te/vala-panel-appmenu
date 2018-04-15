@@ -79,17 +79,17 @@ G_GNUC_INTERNAL bool gtk_widget_shell_shows_menubar(GtkWidget *widget)
 	GParamSpec *pspec;
 	gboolean shell_shows_menubar;
 
-	g_return_val_if_fail(GTK_IS_WIDGET(widget), FALSE);
+	g_return_val_if_fail(GTK_IS_WIDGET(widget), false);
 
 	settings = gtk_widget_get_settings(widget);
 
-	g_return_val_if_fail(GTK_IS_SETTINGS(settings), FALSE);
+	g_return_val_if_fail(GTK_IS_SETTINGS(settings), false);
 
 	pspec =
 	    g_object_class_find_property(G_OBJECT_GET_CLASS(settings), "gtk-shell-shows-menubar");
 
-	g_return_val_if_fail(G_IS_PARAM_SPEC(pspec), FALSE);
-	g_return_val_if_fail(pspec->value_type == G_TYPE_BOOLEAN, FALSE);
+	g_return_val_if_fail(G_IS_PARAM_SPEC(pspec), false);
+	g_return_val_if_fail(pspec->value_type == G_TYPE_BOOLEAN, false);
 
 	g_object_get(settings, "gtk-shell-shows-menubar", &shell_shows_menubar, NULL);
 
@@ -128,14 +128,14 @@ static gboolean is_dbus_present()
 	gboolean is_present;
 	GError *error = NULL;
 
-	is_present = FALSE;
+	is_present = false;
 
 	connection = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &error);
 	if (connection == NULL)
 	{
 		g_warning("Unable to connect to dbus: %s", error->message);
 		g_error_free(error);
-		return FALSE;
+		return false;
 	}
 
 	ret = g_dbus_connection_call_sync(connection,
@@ -153,7 +153,7 @@ static gboolean is_dbus_present()
 	{
 		g_warning("Unable to query dbus: %s", error->message);
 		g_error_free(error);
-		return FALSE;
+		return false;
 	}
 	names = g_variant_get_child_value(ret, 0);
 	g_variant_get(names, "as", &iter);
@@ -161,7 +161,7 @@ static gboolean is_dbus_present()
 	{
 		if (g_str_equal(name, "com.canonical.AppMenu.Registrar"))
 		{
-			is_present = TRUE;
+			is_present = true;
 			break;
 		}
 	}
@@ -174,20 +174,22 @@ static gboolean is_dbus_present()
 
 static bool set_gtk_shell_shows_menubar(bool shows)
 {
-	GtkSettings *settings;
-	GParamSpec *pspec;
+	GtkSettings *settings = gtk_settings_get_default();
 
-	settings = gtk_settings_get_default();
+	g_return_val_if_fail(GTK_IS_SETTINGS(settings), false);
 
-	g_return_val_if_fail(GTK_IS_SETTINGS(settings), FALSE);
-
-	pspec =
+	GParamSpec *pspec =
 	    g_object_class_find_property(G_OBJECT_GET_CLASS(settings), "gtk-shell-shows-menubar");
 
-	g_return_val_if_fail(G_IS_PARAM_SPEC(pspec), FALSE);
-	g_return_val_if_fail(pspec->value_type == G_TYPE_BOOLEAN, FALSE);
+	g_return_val_if_fail(G_IS_PARAM_SPEC(pspec), false);
+	g_return_val_if_fail(pspec->value_type == G_TYPE_BOOLEAN, false);
 
-	g_object_set(settings, "gtk-shell-shows-menubar", shows, NULL);
+	g_autoptr(GSettings) gsettings = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
+	bool need_set                  = !g_settings_get_boolean(gsettings, INNER_MENU_KEY);
+
+	if (need_set)
+		g_object_set(settings, "gtk-shell-shows-menubar", shows, NULL);
+
 	return true;
 }
 
@@ -203,7 +205,7 @@ static void on_name_vanished(GDBusConnection *connection, const char *name, gpoi
 {
 	g_debug("Name %s does not exist on the session bus\n", name);
 
-	set_gtk_shell_shows_menubar(FALSE);
+	set_gtk_shell_shows_menubar(false);
 }
 #endif
 

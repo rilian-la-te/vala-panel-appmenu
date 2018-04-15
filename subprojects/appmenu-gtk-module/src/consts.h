@@ -28,6 +28,7 @@
 #define UNITY_GTK_MODULE_SCHEMA "org.appmenu.gtk-module"
 #define BLACKLIST_KEY "blacklist"
 #define WHITELIST_KEY "whitelist"
+#define INNER_MENU_KEY "always-show-inner-menu"
 
 #define _GTK_UNIQUE_BUS_NAME "_GTK_UNIQUE_BUS_NAME"
 #define _UNITY_OBJECT_PATH "_UNITY_OBJECT_PATH"

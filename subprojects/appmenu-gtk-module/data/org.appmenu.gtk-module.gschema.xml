@@ -11,5 +11,10 @@
       <description>List of applications where appmenu-gtk-module should be enabled.</description>
       <default>[]</default>
     </key>
+    <key name="always-show-inner-menu" type="b">
+      <summary>Always show menus in application</summary>
+      <description>If this is enabled, menus will not removed from applications even if registrar found. Useful for HUD-only usage.</description>
+      <default>false</default>
+    </key>
   </schema>
 </schemalist>
