@@ -85,7 +85,7 @@ namespace Appmenu
                 menu.append_section(null,this.appmenu);
             if (this.menubar != null)
                 menu.append_section(null,this.menubar);
-            if (this.compact_mode)
+            if (this.compact_mode && this.menubar != null)
             {
                 var compact = new GLib.Menu();
                 string? name = null;
