@@ -38,6 +38,7 @@ namespace Appmenu
         private Backend backend = new BackendBAMF();
         private Gtk.MenuBar mwidget = new Gtk.MenuBar();
         private ulong backend_connector = 0;
+        private ulong compact_connector = 0;
         construct
         {
             provider = new Gtk.CssProvider();
@@ -85,8 +86,24 @@ namespace Appmenu
                 menu.append_section(null,this.appmenu);
             if (this.menubar != null)
                 menu.append_section(null,this.menubar);
-            if (this.compact_mode && this.menubar != null)
+
+            int items = -1;
+            if (this.menubar != null)
+                items = this.menubar.get_n_items();
+
+            if (this.compact_mode && items == 0)
             {
+                compact_connector = this.menubar.items_changed.connect((a,b,c)=>{
+                    restock();
+                });
+            }
+            if (this.compact_mode && items > 0)
+            {
+                if(compact_connector > 0)
+                {
+                    this.menubar.disconnect(compact_connector);
+                    compact_connector = 0;
+                }
                 var compact = new GLib.Menu();
                 string? name = null;
                 if(this.appmenu != null)
