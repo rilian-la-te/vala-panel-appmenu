@@ -435,7 +435,7 @@ static void dbus_menu_update_item_properties_from_layout_sync(DBusMenuModel *men
 	g_autoptr(GQueue) signal_queue = g_queue_new();
 	guint id, revision;
 	dbus_menu_xml_call_get_layout_sync(menu->xml,
-	                                   menu->parent_id,
+	                                   item->id,
 	                                   0,
 	                                   property_names,
 	                                   &revision,
