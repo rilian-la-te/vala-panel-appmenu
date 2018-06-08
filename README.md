@@ -45,7 +45,7 @@ To install and enable unity-gtk-module for your distro:
 
  **ARCH-BASED DISTROS**
 * Install from AUR [appmenu-gtk-module-git](https://aur.archlinux.org/packages/appmenu-gtk-module-git/) for GTK applications to work
-* Install [Appmenu](https://aur.archlinux.org/packages/appmenu-qt/) to get appmenu for Qt4 Applications to work. Qt 5.7 must work out of the box.
+* Install [Appmenu](https://www.archlinux.org/packages/community/x86_64/appmenu-qt4/) to get appmenu for Qt4 Applications to work. Qt 5.7 must work out of the box.
 * Install these [libdbusmenu-glib](https://archlinux.org/packages/libdbusmenu-glib/) [libdbusmenu-gtk3](https://archlinux.org/packages/libdbusmenu-gtk3/) [libdbusmenu-gtk2](https://archlinux.org/packages/libdbusmenu-gtk2/) to get Chromium/Google Chrome to work
  - Follow instructions in the (appmenu-gtk-module) [README](subprojects/appmenu-gtk-module/README.md), if it is not enabled automatically.
 
@@ -64,21 +64,27 @@ When using the Vala-panel-appmenu as an XFCE or MATE menu applet, you have to co
 
 **XFCE**
 - If you are using Vala-Panel-Appmenu for XFCE-Panel, type the following lines into your console:
-`xfconf-query -c xsettings -p /Gtk/ShellShowsMenubar -n -t bool -s true`
-`xfconf-query -c xsettings -p /Gtk/ShellShowsAppmenu -n -t bool -s true`
+```
+xfconf-query -c xsettings -p /Gtk/ShellShowsMenubar -n -t bool -s true
+xfconf-query -c xsettings -p /Gtk/ShellShowsAppmenu -n -t bool -s true
+```
 
 **MATE**
 - Enable the appmenu and menubar in gtk with these steps:
 - If you are using MATE>=1.19 (or 1.18 in Ubuntu), use this commands:
-`gsettings set org.mate.interface gtk-shell-shows-app-menu true`
-`gsettings set org.mate.interface gtk-shell-shows-menubar true`
+```
+gsettings set org.mate.interface gtk-shell-shows-app-menu true
+gsettings set org.mate.interface gtk-shell-shows-menubar true
+```
 
 **BUDGIE**
 - If you using gnome-settings-daemon, you should go to dconf-editor and set key `org.gnome.settings-daemon.plugins.xsettings.overrides` to `{'Gtk/ShellShowsAppMenu': <0>, 'Gtk/ShellShowsMenubar': <1>}`
 
 - If commands above does not work, create or edit .config/gtk-3.0/settings.ini file in your home(~) directory and add the following lines to it under `[Settings]`:
-  `gtk-shell-shows-app-menu=true`
-  `gtk-shell-shows-menubar=true`  
+```
+  gtk-shell-shows-app-menu=true
+  gtk-shell-shows-menubar=true
+```
 
 ---
 Experimental Features
