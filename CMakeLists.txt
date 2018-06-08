@@ -93,7 +93,7 @@ cmake_dependent_option(ENABLE_MATE "Enable mate-panel Integration" ON
 
 find_package(PEAS 1.14 COMPONENTS PEAS)
 pkg_check_modules(VALAPANEL vala-panel IMPORTED_TARGET)
-pkg_check_modules(VP_NEW vala-panel>=0.3.50 QUIET)
+pkg_check_modules(VP_NEW vala-panel>=0.4.50 QUIET)
 pkg_check_modules(BUDGIE budgie-1.0 IMPORTED_TARGET)
 
 cmake_dependent_option(ENABLE_VALAPANEL "Enable Vala Panel Integration" ON
