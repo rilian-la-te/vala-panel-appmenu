@@ -31,6 +31,11 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
     settings.bind(Key.BOLD_APPLICATION_NAME,layout,Key.BOLD_APPLICATION_NAME,SettingsBindFlags.DEFAULT);
     applet.add(layout);
     applet.show_all();
+    unowned Gtk.Settings gtksettings = applet.get_settings();
+    gtksettings.gtk_shell_shows_menubar = false;
+    gtksettings.notify["gtk-shell-shows-menubar"].connect(()=>{
+            gtksettings.gtk_shell_shows_menubar = false;
+    });
     var action_group = new Gtk.ActionGroup ("AppmenuApplet Menu Actions");
     action_group.set_translation_domain (Config.GETTEXT_PACKAGE);
     Gtk.Action a = new Gtk.Action("AppMenuAppletPreferences",N_("_Preferences"),null,Gtk.Stock.PREFERENCES);
