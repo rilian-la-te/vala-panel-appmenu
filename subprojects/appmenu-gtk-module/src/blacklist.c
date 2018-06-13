@@ -43,6 +43,7 @@ static const char *const BLACKLIST[] = { "acroread",
 	                                 "mate-indicator-applet",
 	                                 "mate-indicator-applet-appmenu",
 	                                 "mate-indicator-applet-complete",
+	                                 "appmenu-mate",
 	                                 NULL };
 
 static bool is_string_in_array(const char *string, GVariant *array)
