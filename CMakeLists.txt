@@ -97,9 +97,9 @@ pkg_check_modules(VP_NEW vala-panel>=0.4.50 QUIET)
 pkg_check_modules(BUDGIE budgie-1.0 IMPORTED_TARGET)
 
 cmake_dependent_option(ENABLE_VALAPANEL "Enable Vala Panel Integration" ON
-    "VALAPANEL_FOUND; PEAS_FOUND" OFF)
+    "VALAPANEL_FOUND" OFF)
 if (VP_NEW_FOUND)
-    message("Using 0.4 ValaPanelApplet api")
+    message("Using 0.5 ValaPanelApplet api")
     set(NEW_DEFINE -D NEW)
     set(NEW_IFACE ON)
 endif()

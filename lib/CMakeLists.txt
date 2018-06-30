@@ -120,7 +120,11 @@ if(ENABLE_VALAPANEL)
     )
     set_target_properties(appmenu-valapanel PROPERTIES
         OUTPUT_NAME appmenu)
-    target_link_libraries (appmenu-valapanel appmenu-core PEAS::PEAS PkgConfig::VALAPANEL)
+    if(NEW_IFACE)
+        target_link_libraries (appmenu-valapanel appmenu-core PkgConfig::VALAPANEL)
+    else()
+        target_link_libraries (appmenu-valapanel appmenu-core PEAS::PEAS PkgConfig::VALAPANEL)
+    endif()
     # Install plugin stuffs
     install(TARGETS appmenu-valapanel DESTINATION ${CMAKE_INSTALL_LIBDIR}/vala-panel/applets)
 endif()

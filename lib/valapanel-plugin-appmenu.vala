@@ -21,6 +21,18 @@ using GLib;
 using ValaPanel;
 using Appmenu;
 
+
+#if NEW
+public class AppmenuApplet : AppletPlugin
+{
+    public override Applet get_applet_widget(ValaPanel.Toplevel toplevel,
+                                    GLib.Settings? settings,
+                                    string number)
+    {
+        return new GlobalMenuApplet(toplevel,settings,number);
+    }
+}
+#else
 public class AppmenuApplet : AppletPlugin, Peas.ExtensionBase
 {
     public Applet get_applet_widget(ValaPanel.Toplevel toplevel,
@@ -30,6 +42,7 @@ public class AppmenuApplet : AppletPlugin, Peas.ExtensionBase
         return new GlobalMenuApplet(toplevel,settings,number);
     }
 }
+#endif
 public class GlobalMenuApplet: Applet
 {
     unowned MenuWidget layout;
@@ -62,6 +75,20 @@ public class GlobalMenuApplet: Applet
     }
 } // End class
 
+#if NEW
+[ModuleInit]
+public void g_io_appmenu_load(GLib.TypeModule module)
+{
+    // boilerplate - all modules need this
+    module.use();
+    GLib.IOExtensionPoint.implement(ValaPanel.Applet.EXTENSION_POINT,typeof(AppmenuApplet),"appmenu",10);
+}
+
+public void g_io_appmenu_unload(GLib.IOModule module)
+{
+    // boilerplate - all modules need this
+}
+#else
 [ModuleInit]
 public void peas_register_types(TypeModule module)
 {
@@ -69,3 +96,4 @@ public void peas_register_types(TypeModule module)
     var objmodule = module as Peas.ObjectModule;
     objmodule.register_extension_type(typeof(ValaPanel.AppletPlugin), typeof(AppmenuApplet));
 }
+#endif
