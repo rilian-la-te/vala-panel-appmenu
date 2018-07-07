@@ -1,8 +1,8 @@
 [Applet Factory]
 Id=AppmenuAppletFactory
-Location=@CMAKE_INSTALL_FULL_LIBEXECDIR@/mate-panel/appmenu-mate
+Location=@CMAKE_INSTALL_FULL_LIBDIR@/mate-panel/libappmenu-mate.so
 Name=Appmenu applet factory
-InProcess=false
+InProcess=true
 
 [AppmenuApplet]
 Name=Global Application Menu

@@ -57,18 +57,16 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
     return true;
 }
 
-/*In-process applet not working for some reason*/
-//public int _mate_panel_applet_shlib_factory()
-//{
-//    GLib.Intl.bindtextdomain(Config.GETTEXT_PACKAGE,Config.LOCALE_DIR);
-//    GLib.Intl.bind_textdomain_codeset(Config.GETTEXT_PACKAGE,"UTF-8");
-//    return MatePanel.Applet.factory_main("AppmenuAppletFactory", false, typeof (MatePanel.Applet), factory_callback);
-//}
 
-void main(string[] args) {
+public int _mate_panel_applet_shlib_factory()
+{
     GLib.Intl.bindtextdomain(Config.GETTEXT_PACKAGE,Config.LOCALE_DIR);
     GLib.Intl.bind_textdomain_codeset(Config.GETTEXT_PACKAGE,"UTF-8");
     Gdk.disable_multidevice();
-    Gtk.init(ref args);
-    MatePanel.Applet.factory_main("AppmenuAppletFactory", true, typeof (MatePanel.Applet), factory_callback);
+    return MatePanel.Applet.factory_main("AppmenuAppletFactory", false, typeof (MatePanel.Applet), factory_callback);
 }
+
+//void main(string[] args) {
+//    Gtk.init(ref args);
+//    MatePanel.Applet.factory_main("SNTrayAppletFactory", true, typeof (MatePanel.Applet), StatusNotifier.factory_callback);
+//}

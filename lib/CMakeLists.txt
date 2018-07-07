@@ -177,9 +177,9 @@ if (ENABLE_MATE)
 	--thread
 	${WNCK_DEFINE}
     )
-    add_executable (appmenu-mate
-        ${VALA_C_MATE}
-	${RESOURCES}
+    add_library (appmenu-mate MODULE
+		${MATE_LIB_FILES}
+		${RESOURCES}
     )
     target_link_libraries (appmenu-mate appmenu-core PkgConfig::MATE)
     # Install plugin stuffs
