@@ -62,8 +62,7 @@ public int _mate_panel_applet_shlib_factory()
 {
     GLib.Intl.bindtextdomain(Config.GETTEXT_PACKAGE,Config.LOCALE_DIR);
     GLib.Intl.bind_textdomain_codeset(Config.GETTEXT_PACKAGE,"UTF-8");
-    Gdk.disable_multidevice();
-    return MatePanel.Applet.factory_main("AppmenuAppletFactory", false, typeof (MatePanel.Applet), factory_callback);
+    return MatePanel.Applet.factory_setup_in_process("AppmenuAppletFactory", typeof (MatePanel.Applet), factory_callback);
 }
 
 //void main(string[] args) {
