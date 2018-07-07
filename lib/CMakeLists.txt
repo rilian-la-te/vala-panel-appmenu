@@ -178,10 +178,10 @@ if (ENABLE_MATE)
 	${WNCK_DEFINE}
     )
     add_library (appmenu-mate MODULE
-		${MATE_LIB_FILES}
+                ${VALA_C_MATE}
 		${RESOURCES}
     )
     target_link_libraries (appmenu-mate appmenu-core PkgConfig::MATE)
     # Install plugin stuffs
-    install(TARGETS appmenu-mate DESTINATION ${CMAKE_INSTALL_LIBEXECDIR}/mate-panel)
+    install(TARGETS appmenu-mate DESTINATION ${CMAKE_INSTALL_LIBDIR}/mate-panel)
 endif()
