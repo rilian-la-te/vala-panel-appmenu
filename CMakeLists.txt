@@ -87,7 +87,7 @@ pkg_check_modules(XFCE libxfce4panel-2.0 libxfconf-0 IMPORTED_TARGET)
 cmake_dependent_option(ENABLE_XFCE "Enable Xfce Panel Integration" ON
     "XFCE_FOUND" OFF)
 
-pkg_check_modules(MATE libmatepanelapplet-4.0 IMPORTED_TARGET)
+pkg_check_modules(MATE libmatepanelapplet-4.0>=1.20 IMPORTED_TARGET)
 cmake_dependent_option(ENABLE_MATE "Enable mate-panel Integration" ON
     "MATE_FOUND" OFF)
 
