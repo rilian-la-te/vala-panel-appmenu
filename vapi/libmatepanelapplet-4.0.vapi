@@ -7,6 +7,7 @@ namespace MatePanel {
 		[CCode (has_construct_function = false, type = "GtkWidget*")]
 		public Applet ();
 		public static int factory_main (string factory_id, bool out_process, GLib.Type applet_type, MatePanel.AppletFactoryCallback callback);
+		public static int factory_setup_in_process (string factory_id, GLib.Type applet_type, MatePanel.AppletFactoryCallback callback);
 		public MatePanel.AppletBackgroundType get_background (out Gdk.RGBA color,out Cairo.Pattern pixmap);
 		public MatePanel.AppletFlags get_flags ();
 		public bool get_locked_down ();

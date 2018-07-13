@@ -87,7 +87,7 @@ pkg_check_modules(XFCE libxfce4panel-2.0 libxfconf-0 IMPORTED_TARGET)
 cmake_dependent_option(ENABLE_XFCE "Enable Xfce Panel Integration" ON
     "XFCE_FOUND" OFF)
 
-pkg_check_modules(MATE libmatepanelapplet-4.0 IMPORTED_TARGET)
+pkg_check_modules(MATE libmatepanelapplet-4.0>=1.20 IMPORTED_TARGET)
 cmake_dependent_option(ENABLE_MATE "Enable mate-panel Integration" ON
     "MATE_FOUND" OFF)
 
@@ -97,9 +97,9 @@ pkg_check_modules(VP_NEW vala-panel>=0.4.50 QUIET)
 pkg_check_modules(BUDGIE budgie-1.0 IMPORTED_TARGET)
 
 cmake_dependent_option(ENABLE_VALAPANEL "Enable Vala Panel Integration" ON
-    "VALAPANEL_FOUND; PEAS_FOUND" OFF)
+    "VALAPANEL_FOUND" OFF)
 if (VP_NEW_FOUND)
-    message("Using 0.4 ValaPanelApplet api")
+    message("Using 0.5 ValaPanelApplet api")
     set(NEW_DEFINE -D NEW)
     set(NEW_IFACE ON)
 endif()
