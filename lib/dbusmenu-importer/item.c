@@ -347,7 +347,7 @@ static bool dbus_menu_item_update_shortcut(DBusMenuItem *item, GVariant *value)
 	GVariantIter iter;
 	GVariant *child = g_variant_get_child_value(value, 0);
 	g_variant_iter_init(&iter, child);
-	gchar *string;
+	char *string;
 
 	while (g_variant_iter_loop(&iter, "s", &string))
 	{
