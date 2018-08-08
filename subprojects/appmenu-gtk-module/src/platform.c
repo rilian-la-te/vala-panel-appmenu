@@ -27,10 +27,6 @@
 #include "datastructs-private.h"
 #include "datastructs.h"
 
-#ifndef PID_MAX_LIMIT
-#define PID_MAX_LIMIT (4 * 1024 * 1024)
-#endif
-
 #ifdef GDK_WINDOWING_X11
 G_GNUC_INTERNAL char *gtk_widget_get_x11_property_string(GtkWidget *widget, const char *name)
 {
@@ -251,136 +247,168 @@ G_GNUC_INTERNAL WindowData *gtk_wayland_window_get_window_data(GtkWindow *window
 	WindowData *window_data;
 
 	g_return_val_if_fail(GTK_IS_WINDOW(window), NULL);
-	if (!GDK_IS_WAYLAND_WINDOW(gtk_widget_get_window(window)))
-		return NULL;
 
 	window_data = g_object_get_qdata(G_OBJECT(window), window_data_quark());
 	if (window_data == NULL)
 	{
-		window_data                        = window_data_new();
-		window_data->menu_model            = g_menu_new();
-		window_data->action_group          = NULL;
-		GtkApplication *application        = gtk_window_get_application(window);
-		GDBusConnection *connection        = NULL;
-		GDBusMenuModel *old_menu_model     = NULL;
+		static guint window_id;
+		GMenuModel *old_menu_model         = NULL;
 		GDBusActionGroup *old_action_group = NULL;
-		g_autoptr(GError) err              = NULL;
+		GtkApplication *application;
+		GApplication *gApp;
+		GDBusConnection *connection;
 
-		g_return_val_if_fail(window_data->menu_model == NULL ||
-		                         G_IS_MENU_MODEL(window_data->menu_model),
-		                     NULL);
+		char *unique_bus_name;
+		char *object_path;
+		char *menubar_object_path;
+		char *application_id;
+		char *application_object_path;
 
-		if (application != NULL)
-		{
-			g_return_val_if_fail(GTK_IS_APPLICATION(application), NULL);
-			g_return_val_if_fail(g_application_get_is_registered(
-			                         G_APPLICATION(application)),
-			                     NULL);
-			g_return_val_if_fail(!g_application_get_is_remote(
-			                         G_APPLICATION(application)),
-			                     NULL);
-
-			connection = g_application_get_dbus_connection(G_APPLICATION(application));
-		}
-		else
-		{
-			connection = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &err);
-			g_return_val_if_fail(!err, NULL);
-		}
-
-		g_return_val_if_fail(G_IS_DBUS_CONNECTION(connection), NULL);
-		struct wl_surface *proxy = gdk_wayland_window_get_wl_surface(
-		    GDK_WAYLAND_WINDOW(gtk_widget_get_window(window)));
-		window_data->window_id         = wl_proxy_get_id(proxy);
-		window_data->wayland_window_id = getpid() + PID_MAX_LIMIT * wl_proxy_get_id(proxy);
-		// This is for testing uniqueness of this window ID
-		g_debug("%lu\n", window_data->wayland_window_id);
-
-		const char *unique_bus_name     = g_dbus_connection_get_unique_name(connection);
-		g_autofree char *application_id = NULL;
-		g_autofree char *object_path    = NULL;
-		g_autofree char *application_object_path = NULL;
-		g_autofree char *window_object_path      = NULL;
+		window_data             = window_data_new();
+		window_data->menu_model = g_menu_new();
 
 		if (GTK_IS_APPLICATION_WINDOW(window))
 		{
-			object_path = g_strdup_printf("%s/menus/menubar",
-			                              g_application_get_dbus_object_path(
-			                                  G_APPLICATION(application)));
-		}
-		else if (GTK_IS_APPLICATION(application))
-		{
-			GApplication *gApp = G_APPLICATION(application);
+			char *unity_object_path;
+
+			application = gtk_window_get_application(window);
+			g_return_val_if_fail(GTK_IS_APPLICATION(application), NULL);
+
+			window_data->action_group = NULL;
+
+			gApp = G_APPLICATION(application);
+			g_return_val_if_fail(g_application_get_is_registered(gApp), NULL);
+			g_return_val_if_fail(!g_application_get_is_remote(gApp), NULL);
+			g_return_val_if_fail(window_data->menu_model == NULL ||
+			                         G_IS_MENU_MODEL(window_data->menu_model),
+			                     NULL);
+
 			application_id =
 			    g_strdup_printf("%s", g_application_get_application_id(gApp));
-			object_path = g_strdup_printf("%s/menus/menubar/%d",
-			                              g_application_get_dbus_object_path(gApp),
-			                              window_data->window_id);
 			application_object_path =
 			    g_strdup_printf("%s", g_application_get_dbus_object_path(gApp));
-			window_object_path =
-			    g_strdup_printf("%s/window/%d", object_path, window_data->window_id);
-		}
-		else
-		{
-			application_id =
-			    g_strdup_printf("%s",
-			                    g_get_prgname() != NULL ? g_get_prgname()
-			                                            : gdk_get_program_class());
-			object_path = g_strdup_printf("%s/menus/menubar/%d",
-			                              OBJECT_PATH,
-			                              window_data->window_id);
-			application_object_path = g_strdup_printf("%s", OBJECT_PATH);
-			window_object_path =
-			    g_strdup_printf("%s/window/%d", object_path, window_data->window_id);
-		}
 
-		old_menu_model = (GTK_IS_APPLICATION_WINDOW(window))
-		                     ? G_MENU_MODEL(gtk_application_get_menubar(application))
-		                     : NULL;
-		if (old_menu_model != NULL)
-		{
-			old_action_group =
-			    g_dbus_action_group_get(connection, unique_bus_name, object_path);
-			window_data->old_model = g_object_ref(old_menu_model);
-			g_menu_append_section(window_data->menu_model, NULL, old_menu_model);
-		}
+			window_data->window_id = window_id++; // IN THE GNOME IMPLEMENTATION THIS IS
+			                                      // STARTED IN ONE NOT CERO (So, we make
+			                                      // is similar)
 
-		// Set the actions
-		window_data->action_group =
-		    unity_gtk_action_group_new(G_ACTION_GROUP(old_action_group));
-		window_data->action_group_export_id =
-		    g_dbus_connection_export_action_group(connection,
-		                                          object_path,
-		                                          G_ACTION_GROUP(window_data->action_group),
-		                                          NULL);
+			connection  = g_application_get_dbus_connection(gApp);
+			object_path = g_strdup_printf(OBJECT_PATH "/%d", window_id);
 
-		// Set the menubar
-		if (GTK_IS_APPLICATION_WINDOW(window))
+			unique_bus_name =
+			    g_strdup_printf("%s", g_dbus_connection_get_unique_name(connection));
+			unity_object_path =
+			    g_strdup_printf("%s%s",
+			                    g_application_get_dbus_object_path(gApp) != NULL
+			                        ? g_application_get_dbus_object_path(gApp)
+			                        : object_path,
+			                    g_application_get_dbus_object_path(gApp) != NULL
+			                        ? "/menus/menubar"
+			                        : "");
+			menubar_object_path = g_strdup_printf("%s", unity_object_path);
+
+			old_menu_model = G_MENU_MODEL(gtk_application_get_menubar(application));
+			if (old_menu_model != NULL)
+			{
+				old_action_group       = g_dbus_action_group_get(connection,
+                                                                           unique_bus_name,
+                                                                           unity_object_path);
+				window_data->old_model = g_object_ref(old_menu_model);
+				g_menu_append_section(window_data->menu_model,
+				                      NULL,
+				                      old_menu_model);
+			}
+
+			// Set the actions
+			window_data->action_group =
+			    unity_gtk_action_group_new(G_ACTION_GROUP(old_action_group));
+			window_data->action_group_export_id =
+			    g_dbus_connection_export_action_group(connection,
+			                                          unity_object_path,
+			                                          G_ACTION_GROUP(
+			                                              window_data->action_group),
+			                                          NULL);
+
+			// Set the menubar
 			gtk_application_set_menubar(GTK_APPLICATION(application),
 			                            G_MENU_MODEL(window_data->menu_model));
+
+			g_free(unity_object_path);
+		}
 		else
 		{
+			GdkWindow *gdk_win;
+			const char *app_menu_path = NULL;
+
+			window_data->window_id = window_id++;
+
+			connection = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, NULL);
+			unique_bus_name =
+			    g_strdup_printf("%s", g_dbus_connection_get_unique_name(connection));
+			gdk_win     = gtk_widget_get_window(GTK_WIDGET(window));
+			application = gtk_window_get_application(window);
+
+			old_menu_model = G_MENU_MODEL(window_data->menu_model);
+
+			window_data->action_group =
+			    unity_gtk_action_group_new(G_ACTION_GROUP(old_action_group));
+
+			if (GTK_IS_APPLICATION(application))
+			{
+				gApp = G_APPLICATION(application);
+				application_id =
+				    g_strdup_printf("%s", g_application_get_application_id(gApp));
+				object_path =
+				    g_strdup_printf("%s/menus/menubar/%d",
+				                    g_application_get_dbus_object_path(gApp),
+				                    window_data->window_id);
+				application_object_path =
+				    g_strdup_printf("%s", g_application_get_dbus_object_path(gApp));
+				menubar_object_path = g_strdup_printf("%s/window/%d",
+				                                      object_path,
+				                                      window_data->window_id);
+			}
+			else
+			{
+				application_id          = g_strdup_printf("%s",
+                                                                 g_get_prgname() != NULL
+                                                                     ? g_get_prgname()
+                                                                     : gdk_get_program_class());
+				object_path             = g_strdup_printf("%s/menus/menubar/%d",
+                                                              OBJECT_PATH,
+                                                              window_data->window_id);
+				application_object_path = g_strdup_printf("%s", OBJECT_PATH);
+				menubar_object_path     = g_strdup_printf("%s/window/%d",
+                                                                      object_path,
+                                                                      window_data->window_id);
+			}
+
 			window_data->menu_model_export_id =
 			    g_dbus_connection_export_menu_model(connection,
 			                                        object_path,
 			                                        G_MENU_MODEL(
 			                                            window_data->menu_model),
-			                                        &err);
-			gdk_wayland_window_set_dbus_properties_libgtk_only(gtk_widget_get_window(
-			                                                       window),
+			                                        NULL);
+			window_data->action_group_export_id =
+			    g_dbus_connection_export_action_group(connection,
+			                                          object_path,
+			                                          G_ACTION_GROUP(
+			                                              window_data->action_group),
+			                                          NULL);
+
+			gdk_wayland_window_set_dbus_properties_libgtk_only(gdk_win,
 			                                                   application_id,
-			                                                   "/",
+			                                                   app_menu_path,
 			                                                   object_path,
-			                                                   window_object_path,
+			                                                   menubar_object_path,
 			                                                   application_object_path,
 			                                                   unique_bus_name);
 		}
-
-		if (err)
-			g_print("%s\n", err->message);
-		g_return_val_if_fail(!err, NULL);
-
+		g_free(unique_bus_name);
+		g_free(object_path);
+		g_free(menubar_object_path);
+		g_free(application_id);
+		g_free(application_object_path);
 		g_object_set_qdata_full(G_OBJECT(window),
 		                        window_data_quark(),
 		                        window_data,

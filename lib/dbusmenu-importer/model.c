@@ -78,7 +78,7 @@ static void dbus_menu_model_get_item_attributes(GMenuModel *model, gint position
 {
 	DBusMenuModel *menu = DBUS_MENU_MODEL(model);
 	DBusMenuItem *item  = (DBusMenuItem *)g_sequence_get(
-	    (GSequenceIter *)g_sequence_get_iter_at_pos(menu->sections, position));
+            (GSequenceIter *)g_sequence_get_iter_at_pos(menu->sections, position));
 
 	*table = g_hash_table_ref(item->attributes);
 }
@@ -87,7 +87,7 @@ static void dbus_menu_model_get_item_links(GMenuModel *model, gint position, GHa
 {
 	DBusMenuModel *menu = DBUS_MENU_MODEL(model);
 	DBusMenuItem *item  = (DBusMenuItem *)g_sequence_get(
-	    (GSequenceIter *)g_sequence_get_iter_at_pos(menu->sections, position));
+            (GSequenceIter *)g_sequence_get_iter_at_pos(menu->sections, position));
 
 	*table = g_hash_table_ref(item->links);
 }
@@ -369,7 +369,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 	// If old section is empty - new section is invalid
 	if (g_menu_model_get_n_items(current_section) == 0 && g_menu_model_get_n_items(menu) > 1)
 		is_valid_section = false;
-	current_iter             = g_sequence_iter_next(current_iter);
+	current_iter = g_sequence_iter_next(current_iter);
 	int removed =
 	    g_sequence_iter_get_position(g_sequence_get_end_iter(current_section->items)) -
 	    g_sequence_iter_get_position(current_iter);
