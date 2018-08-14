@@ -80,8 +80,8 @@ public class GlobalMenuApplet: Applet
 public void g_io_appmenu_load(GLib.TypeModule module)
 {
     // boilerplate - all modules need this
-    GLib.Intl.bindtextdomain(Config.GETTEXT_PACKAGE,Config.LOCALE_DIR);
-    GLib.Intl.bind_textdomain_codeset(Config.GETTEXT_PACKAGE,"UTF-8");
+//    GLib.Intl.bindtextdomain(Config.GETTEXT_PACKAGE,Config.LOCALE_DIR);
+//    GLib.Intl.bind_textdomain_codeset(Config.GETTEXT_PACKAGE,"UTF-8");
     module.use();
     GLib.IOExtensionPoint.implement(ValaPanel.Applet.EXTENSION_POINT,typeof(AppmenuApplet),"appmenu",10);
 }
