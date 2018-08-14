@@ -60,8 +60,8 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
 
 public int _mate_panel_applet_shlib_factory()
 {
-    GLib.Intl.bindtextdomain(Config.GETTEXT_PACKAGE,Config.LOCALE_DIR);
-    GLib.Intl.bind_textdomain_codeset(Config.GETTEXT_PACKAGE,"UTF-8");
+//    GLib.Intl.bindtextdomain(Config.GETTEXT_PACKAGE,Config.LOCALE_DIR);
+//    GLib.Intl.bind_textdomain_codeset(Config.GETTEXT_PACKAGE,"UTF-8");
     return MatePanel.Applet.factory_setup_in_process("AppmenuAppletFactory", typeof (MatePanel.Applet), factory_callback);
 }
 
