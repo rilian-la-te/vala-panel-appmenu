@@ -10,12 +10,13 @@ Vala Panel Application Menu is a Global Menu applet for use with Vala Panel, xfc
  * GTK+ (>= 3.22.0)
  * valac (>= 0.24.0)
  * libbamf (>=0.5.0)
-    
+
 ---
-Compilation Instructions
+Compilation Instructions (Non-Distribution-Specific)
 ---
+  * Install all the required dependencies listed above. These packages may have different names depending on your distribution. Please see [below](#dependency-packages) for the package names on some specific distributions (i.e. Ubuntu).
   * Clone this repository to your `home` directory by typing:
-  `git clone https://github.com/rilian-la-te/vala-panel-appmenu.git` then `cd` into the directory.
+  `git clone https://gitlab.com/vala-panel-project/vala-panel-appmenu.git` then `cd` into the directory.
   * type `git submodule init && git submodule update` to download the submodules (this will download the cmake and dbus-menu submodules you see in the repository, above)
   * type `mkdir build && cd build` (to keep things tidy)
   * You're **almost** ready to run `cmake`. First, review the following flags:
@@ -103,6 +104,21 @@ Basic Instructions for Enabling JAyatana:
 export _JAVA_OPTIONS="${_JAVA_OPTIONS} -javaagent:/usr/share/java/jayatanaag.jar"
 export JAYATANA_FORCE=1
 ```
+
+---
+Dependency Packages
+---
+**Ubuntu 18.04**
+
+*All variants require:* `git build-essential cmake bamfdaemon libdbusmenu-glib-dev libgtk2.0-dev gobject-introspection libbamf3-dev libdbus-glib-1-dev libffi-dev libgirepository1.0-dev libpeas-dev libstartup-notification0-dev libwnck-3-dev libwnck-common libwnck22 libxml2-utils libxres-dev libvala-0.40-0 valac valac-0.40-vapi`
+
+*Ubuntu Budgie also needs:* `budgie-core-dev gir1.2-budgie-1.0 libbudgie-plugin0 libbudgietheme0 libraven0`
+
+*Ubuntu MATE also needs:* `libmate-panel-applet-dev`
+
+*Xubuntu also needs:* `exo-utils libexo-1-0 libexo-2-0 libexo-common libexo-helpers libgarcon-1-0 libgarcon-common libxfce4panel-2.0-4 libxfce4panel-2.0-dev libxfce4ui-1-0 libxfce4ui-2-0 libxfce4ui-common libxfce4util7 libxfce4util-common libxfce4util-dev libxfconf-0-2 libxfconf-0-dev xfce4-panel xfce4-panel-dev xfconf`
+
+*Vala Panel also needs:* `libvalapanel0 libvalapanel-dev`
 
 Author
 ===
