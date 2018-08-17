@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-19 02:58+0300\n"
+"POT-Creation-Date: 2018-08-17 15:49+0300\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 1.8.7.1\n"
 
 #: ../lib/appmenu-desktop.vala:39 ../lib/appmenu-desktop.vala:65
 msgid "_Desktop"
@@ -84,13 +84,14 @@ msgstr "_Видео"
 
 #: ../lib/budgie-plugin-appmenu.vala:51 ../lib/valapanel-plugin-appmenu.vala:73
 #: ../lib/valapanel-plugin-appmenu.vala:88 ../lib/mate-plugin-appmenu.vala:43
-#: ../lib/xfce4-plugin-appmenu.vala:56
+#: ../lib/xfce4-plugin-appmenu.vala:56 ../lib/valapanel-plugin-appmenu.vala:67
 msgid "Use Compact mode (all menus in application menu)"
 msgstr "Компактный режим (все меню в меню приложения)"
 
 #: ../lib/budgie-plugin-appmenu.vala:54 ../lib/mate-plugin-appmenu.vala:46
 #: ../lib/valapanel-plugin-appmenu.vala:76
 #: ../lib/valapanel-plugin-appmenu.vala:91 ../lib/xfce4-plugin-appmenu.vala:59
+#: ../lib/valapanel-plugin-appmenu.vala:70
 msgid "Use bold application name"
 msgstr "Писать название приложения полужирным шрифтом"
 
