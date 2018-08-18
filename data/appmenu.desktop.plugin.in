@@ -1,6 +1,0 @@
-[Plugin]
-Module=appmenu
-Name=AppMenu Plugin
-Description=Display AppMenu (Global Menu)
-X-ValaPanel-Expandable=true
-Expandable=true
