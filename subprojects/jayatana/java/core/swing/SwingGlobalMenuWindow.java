@@ -97,7 +97,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 				@Override
 				public void run() {
 					if (state == GlobalMenu.REGISTER_STATE_INITIAL) {
-						// ocular barra de menús
+                                                // ocular barra de menus
 						menubar.setVisible(false);
 						
 						// Correcion para Netbeans
@@ -143,7 +143,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 			}
 		}
 		menubar.removeContainerListener(SwingGlobalMenuWindow.this);
-		// hacer barra de menús visible nuevamente
+                // hacer barra de menus visible nuevamente
 		menubar.setVisible(true);
 	}
 	
