@@ -30,13 +30,10 @@ add_jar(jayatana-java
         core/swing/SwingGlobalMenuWindow.java
     OUTPUT_NAME
         jayatana
-    )
-create_javah(TARGET java-headers
-    CLASSES
-        com.jarego.jayatana.basic.GMainLoop
-        com.jarego.jayatana.basic.GlobalMenu      
-    CLASSPATH
-        jayatana-java
+    GENERATE_NATIVE_HEADERS
+        java-headers
+    DESTINATION
+        ${CMAKE_CURRENT_BINARY_DIR}/../lib/
     )
 install_jar(jayatana-java DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/java)
 configure_file(agent/MANIFEST.MF.in ${CMAKE_CURRENT_BINARY_DIR}/agent/MANIFEST.MF)

@@ -5,8 +5,9 @@ cmake_policy(SET CMP0054 NEW)
 enable_testing ()
 include(GNUInstallDirs)
 include(CMakeDependentOption)
+include(FeatureSummary)
 find_package (PkgConfig QUIET)
-find_package(Java)
+find_package(Java 1.8)
 find_package(JNI)
 pkg_check_modules(XKBCOMMON
     xkbcommon
@@ -19,6 +20,8 @@ cmake_dependent_option(STANDALONE "Build jayatana STANDALONE" ON
         "NOT CORE_FOUND;JAVA_FOUND;JNI_FOUND;XKBCOMMON_FOUND;DBUSMENU_FOUND" OFF)
 cmake_dependent_option(ENABLE_JAYATANA "Build jayatana fork" OFF
     "JAVA_FOUND;JNI_FOUND;XKBCOMMON_FOUND;DBUSMENU_FOUND" OFF)
+
+add_feature_info(JAyatana ENABLE_JAYATANA "Java support for global menus")
 
 if(STANDALONE)
 	set (CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}")

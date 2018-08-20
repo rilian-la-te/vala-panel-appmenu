@@ -3,6 +3,7 @@ cmake_policy (VERSION 3.6)
 project (vala-panel-appmenu C)
 enable_testing ()
 include(GNUInstallDirs)
+include(FeatureSummary)
 set (DATADIR "${CMAKE_INSTALL_FULL_DATADIR}/vala-panel")
 set (PKGDATADIR "${DATADIR}")
 set (GETTEXT_PACKAGE "vala-panel-appmenu")
@@ -84,8 +85,8 @@ include(CMakeDependentOption)
 find_package(WNCK 3.4.8)
 cmake_dependent_option(ENABLE_WNCK "Enable libwnck-related functions" ON
     "WNCK_FOUND" OFF)
+add_feature_info(LibWnck ENABLE_WNCK "alternative supporting backend")
 if (ENABLE_WNCK)
-    message("Using libwnck, will be X-dependent")
     set(WNCK_DEFINE -D WNCK)
     set(WNCK_PACKAGES libwnck-3.0)
     set(WNCK_TARGETS WNCK::WNCK)
@@ -93,10 +94,12 @@ endif()
 pkg_check_modules(XFCE libxfce4panel-2.0 libxfconf-0 IMPORTED_TARGET)
 cmake_dependent_option(ENABLE_XFCE "Enable Xfce Panel Integration" ON
     "XFCE_FOUND" OFF)
+add_feature_info(Xfce ENABLE_XFCE "Xfce Panel Integration")
 
 pkg_check_modules(MATE libmatepanelapplet-4.0>=1.20 IMPORTED_TARGET)
 cmake_dependent_option(ENABLE_MATE "Enable mate-panel Integration" ON
     "MATE_FOUND" OFF)
+add_feature_info(MATE ENABLE_MATE "MATE Panel Integration")
 
 find_package(PEAS 1.14 COMPONENTS PEAS)
 pkg_check_modules(VALAPANEL vala-panel IMPORTED_TARGET)
@@ -106,15 +109,20 @@ pkg_check_modules(BUDGIE budgie-1.0 IMPORTED_TARGET)
 cmake_dependent_option(ENABLE_VALAPANEL "Enable Vala Panel Integration" ON
     "VALAPANEL_FOUND" OFF)
 if (VP_NEW_FOUND)
-    message("Using 0.5 ValaPanelApplet api")
+    add_feature_info(ValaPanel ENABLE_VALAPANEL "Vala Panel Integration - 0.5.x")
     set(NEW_DEFINE -D NEW)
     set(NEW_IFACE ON)
+else()
+    add_feature_info(ValaPanel ENABLE_VALAPANEL "Vala Panel Integration - 0.4.x")
 endif()
 
 cmake_dependent_option(ENABLE_BUDGIE "Enable budgie-desktop plugin" ON
     "BUDGIE_FOUND; PEAS_FOUND" OFF)
+add_feature_info(Budgie ENABLE_BUDGIE "Budgie Desktop Integration")
 
 add_subdirectory(subprojects)
 ADD_SUBDIRECTORY(lib)
 add_subdirectory(data)
 add_subdirectory(po)
+
+feature_summary(WHAT ALL)

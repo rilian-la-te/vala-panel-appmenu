@@ -5,6 +5,7 @@ list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 enable_testing ()
 include(GNUInstallDirs)
 include(CMakeDependentOption)
+include(FeatureSummary)
 find_package (PkgConfig QUIET)
 find_package(GLIB2 REQUIRED QUIET COMPONENTS GLIB GOBJECT GIO GIO_UNIX COMPILE_SCHEMAS)
 include(GLibProgramHandlers)
@@ -23,6 +24,10 @@ cmake_dependent_option(STANDALONE "Build appmenu-gtk-module STANDALONE" ON
 option(ENABLE_APPMENU_GTK_MODULE "Build appmenu-gtk-module" ON)
 cmake_dependent_option(ENABLE_GTK_MODULE_DEMOS "Enable demo programs and docs for gtk module" OFF
         "ENABLE_APPMENU_GTK_MODULE" OFF)
+set(APPMENU_GTK2_MODULE ${GTK2_FOUND} AND ${ENABLE_APPMENU_GTK_MODULE})
+add_feature_info(Gtk3Module ENABLE_APPMENU_GTK_MODULE "Gtk+ module for AppMenu - Gtk3 version")
+add_feature_info(GtkModuleDemos ENABLE_GTK_MODULE_DEMOS "Gtk+ module for AppMenu - demos")
+add_feature_info(Gtk2Module APPMENU_GTK2_MODULE "Gtk+ module for AppMenu - Gtk2 version")
 
 if(STANDALONE)
         set (CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}")
