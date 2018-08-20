@@ -55,7 +55,8 @@ public class GlobalMenuApplet: Applet
         settings.bind(Key.COMPACT_MODE,layout,Key.COMPACT_MODE,SettingsBindFlags.DEFAULT);
         settings.bind(Key.BOLD_APPLICATION_NAME,layout,Key.BOLD_APPLICATION_NAME,SettingsBindFlags.DEFAULT);
         this.add(layout);
-        show_all();
+        layout.show();
+        this.show();
     }
     ~GlobalMenuApplet()
     {
@@ -67,10 +68,12 @@ public class GlobalMenuApplet: Applet
         var entry = new CheckButton.with_label(_("Use Compact mode (all menus in application menu)"));
         this.settings.bind(Key.COMPACT_MODE,entry,"active",SettingsBindFlags.DEFAULT);
         dlg.pack_start(entry,false,false,2);
+        entry.show();
         entry = new CheckButton.with_label(_("Use bold application name"));
         this.settings.bind(Key.BOLD_APPLICATION_NAME,entry,"active",SettingsBindFlags.DEFAULT);
         dlg.pack_start(entry,false,false,2);
-        dlg.show_all();
+        entry.show();
+        dlg.show();
         return dlg;
     }
 } // End class

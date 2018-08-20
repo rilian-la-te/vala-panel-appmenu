@@ -68,7 +68,9 @@ namespace Appmenu
             scroller.set_propagate_natural_width(true);
             this.add(scroller);
             scroller.add(mwidget);
-            this.show_all();
+            mwidget.show();
+            scroller.show();
+            this.show();
         }
         public MenuWidget()
         {

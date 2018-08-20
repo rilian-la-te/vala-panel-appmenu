@@ -45,7 +45,7 @@ public class AppmenuPlugin : Xfce.PanelPlugin {
         }
         this.shrink = true;
         this.set_expand(true);
-        widget.show_all();
+        widget.show();
     }
     public override void configure_plugin()
     {
@@ -62,7 +62,7 @@ public class AppmenuPlugin : Xfce.PanelPlugin {
         entry = new CheckButton.with_label(_("Expand plugin on panel"));
         entry.bind_property("active",widget,"hexpand",BindingFlags.SYNC_CREATE);
         dlg_vbox.pack_start(entry,false,false,2);
-        dlg.show_all();
+        dlg.show();
         dlg.present();
         dlg.unmap.connect(()=>{
             dlg.destroy();

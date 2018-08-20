@@ -30,7 +30,8 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
     settings.bind(Key.COMPACT_MODE,layout,Key.COMPACT_MODE,SettingsBindFlags.DEFAULT);
     settings.bind(Key.BOLD_APPLICATION_NAME,layout,Key.BOLD_APPLICATION_NAME,SettingsBindFlags.DEFAULT);
     applet.add(layout);
-    applet.show_all();
+    layout.show();
+    applet.show();
     var action_group = new Gtk.ActionGroup ("AppmenuApplet Menu Actions");
     action_group.set_translation_domain (Config.GETTEXT_PACKAGE);
     Gtk.Action a = new Gtk.Action("AppMenuAppletPreferences",N_("_Preferences"),null,Gtk.Stock.PREFERENCES);
@@ -43,10 +44,12 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
         var entry = new CheckButton.with_label(_("Use Compact mode (all menus in application menu)"));
         settings.bind(Key.COMPACT_MODE,entry,"active",SettingsBindFlags.DEFAULT);
         dlg_vbox.pack_start(entry,false,false,2);
+        entry.show();
         entry = new CheckButton.with_label(_("Use bold application name"));
         settings.bind(Key.BOLD_APPLICATION_NAME,entry,"active",SettingsBindFlags.DEFAULT);
         dlg_vbox.pack_start(entry,false,false,2);
-        dlg.show_all();
+        entry.show();
+        dlg.show();
         dlg.present();
         dlg.response.connect(()=>{
             dlg.destroy();

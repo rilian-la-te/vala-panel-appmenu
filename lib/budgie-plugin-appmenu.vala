@@ -54,7 +54,7 @@ public class GlobalMenuApplet: Applet
         entry = new CheckButton.with_label(_("Use bold application name"));
         this.settings.bind(Key.BOLD_APPLICATION_NAME,entry,"active",SettingsBindFlags.DEFAULT);
         dlg.pack_start(entry,false,false,2);
-        dlg.show_all();
+        dlg.show();
         return dlg;
     }
     public override bool supports_settings()
@@ -77,7 +77,8 @@ public class GlobalMenuApplet: Applet
         this.hexpand_set = true;
         this.vexpand_set = true;
         add_budgie_style(layout);
-        show_all();
+        layout.show();
+        this.show();
     }
     private GLib.Settings settings;
 } // End class
