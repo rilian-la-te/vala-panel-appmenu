@@ -97,15 +97,15 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 				@Override
 				public void run() {
 					if (state == GlobalMenu.REGISTER_STATE_INITIAL) {
-                                                // ocular barra de menus
+                                                //set menubar visibility
 						menubar.setVisible(false);
 						
-						// Correcion para Netbeans
+                                                // Correction for Netbeans
 						netbeansPlatform = "org.openide.awt.MenuBar".equals(
 								menubar.getClass().getName());
 						// -----------------------
 						
-						// registrar escuchadores de cambios de componentes
+                                                // register listeners of component changes
 						for (Component comp : menubar.getComponents()) {
 							if (comp instanceof JMenu) {
 								((JMenu)comp).addPropertyChangeListener(SwingGlobalMenuWindow.this);
@@ -113,7 +113,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 							}
 						}
 						menubar.addContainerListener(SwingGlobalMenuWindow.this);
-						// registrar escucahdores de aceleradores de teclado
+                                                // register keyboard accelerator listeners
 						Toolkit.getDefaultToolkit().addAWTEventListener(
 								SwingGlobalMenuWindow.this, KeyEvent.KEY_EVENT_MASK);
 						((Window)getWindow()).addWindowListener(SwingGlobalMenuWindow.this);
@@ -132,7 +132,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
          */
 	@Override
 	protected void unregister() {
-		// eliminar escuchadores de eventos
+                // remove listeners from events
 		((Window)getWindow()).removeWindowListener(SwingGlobalMenuWindow.this);
 		((Window)getWindow()).addComponentListener(SwingGlobalMenuWindow.this);
 		Toolkit.getDefaultToolkit().removeAWTEventListener(SwingGlobalMenuWindow.this);
@@ -143,7 +143,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 			}
 		}
 		menubar.removeContainerListener(SwingGlobalMenuWindow.this);
-                // hacer barra de menus visible nuevamente
+                // make menubar visible again
 		menubar.setVisible(true);
 	}
 	
@@ -350,7 +350,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 						for (PopupMenuListener pl : popupMenu.getPopupMenuListeners())
 							if (pl != null) pl.popupMenuWillBecomeVisible(pevent);
 						
-						// Correcion para Netbeans
+                                                // Correction for netbeans
 						if (netbeansPlatform)
 							menuAboutToShowForNetbeansPlatform(menu);
 						// -----------------------
