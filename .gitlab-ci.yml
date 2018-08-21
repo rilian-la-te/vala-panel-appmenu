@@ -66,7 +66,7 @@ build-jayatana-main:
   script:
    - pacman -S --noconfirm glib2 libdbusmenu-glib cmake base-devel ninja libxkbcommon java-environment
    - cd subprojects/jayatana
-   - echo ${JAVA_HOME}
+   - archlinux-java set java-10-openjdk/jre
    - mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr -GNinja
    - ninja
    - ninja install
