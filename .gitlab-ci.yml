@@ -64,7 +64,7 @@ build-jayatana-main:
   image: pritunl/archlinux
   stage: build
   script:
-   - pacman -S --noconfirm glib2 libdbusmenu-glib cmake base-devel ninja libxkbcommon java-environment jdk8-openjdk
+   - pacman -S --noconfirm glib2 libdbusmenu-glib cmake base-devel ninja libxkbcommon jdk8-openjdk
    - cd subprojects/jayatana
    - mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr -GNinja
    - ninja
