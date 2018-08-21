@@ -56,12 +56,15 @@ public class AppmenuPlugin : Xfce.PanelPlugin {
         var entry = new CheckButton.with_label(_("Use Compact mode (all menus in application menu)"));
         entry.bind_property("active",widget,Key.COMPACT_MODE,BindingFlags.SYNC_CREATE);
         dlg_vbox.pack_start(entry,false,false,2);
+        entry.show();
         entry = new CheckButton.with_label(_("Use bold application name"));
         entry.bind_property("active",widget,Key.BOLD_APPLICATION_NAME,BindingFlags.SYNC_CREATE);
         dlg_vbox.pack_start(entry,false,false,2);
+        entry.show();
         entry = new CheckButton.with_label(_("Expand plugin on panel"));
         entry.bind_property("active",widget,"hexpand",BindingFlags.SYNC_CREATE);
         dlg_vbox.pack_start(entry,false,false,2);
+        entry.show();
         dlg.show();
         dlg.present();
         dlg.unmap.connect(()=>{
