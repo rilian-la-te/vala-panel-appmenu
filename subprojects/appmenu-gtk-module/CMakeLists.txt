@@ -22,8 +22,7 @@ find_path(WAYLAND_INCLUDE
 cmake_dependent_option(STANDALONE "Build appmenu-gtk-module STANDALONE" ON
         "NOT CORE_FOUND" OFF)
 option(ENABLE_APPMENU_GTK_MODULE "Build appmenu-gtk-module" ON)
-cmake_dependent_option(ENABLE_GTK_MODULE_DEMOS "Enable demo programs and docs for gtk module" OFF
-        "ENABLE_APPMENU_GTK_MODULE" OFF)
+
 set(APPMENU_GTK2_MODULE ${GTK2_FOUND} AND ${ENABLE_APPMENU_GTK_MODULE})
 add_feature_info(Gtk3Module ENABLE_APPMENU_GTK_MODULE "Gtk+ module for AppMenu - Gtk3 version")
 add_feature_info(GtkModuleDemos ENABLE_GTK_MODULE_DEMOS "Gtk+ module for AppMenu - demos")
@@ -32,6 +31,7 @@ add_feature_info(Gtk2Module APPMENU_GTK2_MODULE "Gtk+ module for AppMenu - Gtk2 
 if(STANDALONE)
         set (CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}")
         set (CPACK_SOURCE_IGNORE_FILES "/build/;/.gitmodules;/.git;/.gitignore;~$;${CPACK_SOURCE_IGNORE_FILES}")
+        set (CPACK_SOURCE_GENERATOR "TXZ")
         include (CPack)
         add_custom_target (dist COMMAND ${CMAKE_MAKE_PROGRAM} package_source)
 endif()
@@ -49,3 +49,5 @@ if(ENABLE_GTK_MODULE_DEMOS)
                 add_subdirectory(docs)
         endif()
 endif()
+cmake_dependent_option(ENABLE_GTK_MODULE_DEMOS "Enable demo programs and docs for gtk module" OFF
+        "ENABLE_APPMENU_GTK_MODULE" OFF)
