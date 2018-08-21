@@ -131,8 +131,8 @@ static const GDBusInterfaceVTable _interface_vtable = { registrar_application_me
 	                                                NULL,
 	                                                NULL };
 
-static bool registrar_application_dbus_register(GApplication *base, GDBusConnection *connection,
-                                                const char *object_path, GError **error)
+static int registrar_application_dbus_register(GApplication *base, GDBusConnection *connection,
+                                               const char *object_path, GError **error)
 {
 	RegistrarApplication *self = REGISTRAR_APPLICATION(base);
 	g_return_val_if_fail(connection != NULL, false);

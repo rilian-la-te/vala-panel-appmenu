@@ -44,8 +44,9 @@ DBusAddress *dbus_address_copy(const DBusAddress *src)
 	return ret;
 }
 
-void dbus_address_free(DBusAddress *addr)
+void dbus_address_free(void *obj)
 {
+	DBusAddress *addr = (DBusAddress *)obj;
 	g_free(addr->bus_name);
 	g_free(addr->object_path);
 	g_slice_free1(sizeof(DBusAddress), addr);
@@ -392,12 +393,12 @@ uint registrar_dbus_menu_register(RegistrarDBusMenu *object, GDBusConnection *co
 {
 	GDBusNodeInfo *info = g_dbus_node_info_new_for_xml(introspection_xml, NULL);
 	uint result         = g_dbus_connection_register_object(connection,
-                                                        DBUSMENU_REG_OBJECT,
-                                                        (GDBusInterfaceInfo *)info->interfaces[0],
-                                                        &_interface_vtable,
-                                                        object,
-                                                        NULL,
-                                                        error);
+	                                                DBUSMENU_REG_OBJECT,
+	                                                (GDBusInterfaceInfo *)info->interfaces[0],
+	                                                &_interface_vtable,
+	                                                object,
+	                                                NULL,
+	                                                error);
 	if (!result)
 	{
 		return 0;
