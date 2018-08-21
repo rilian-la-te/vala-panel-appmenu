@@ -32,7 +32,7 @@ build-gtk-module-main:
   image: pritunl/archlinux
   stage: build
   script:
-   - pacman -S --noconfirm gtk3 gtk2 cmake base-devel ninja
+   - pacman -S --noconfirm gtk3 gtk2 cmake base-devel ninja git
    - git clone https://gitlab.com/vala-panel-project/cmake-vala.git
    - cd cmake-vala && cmake . -DCMAKE_INSTALL_PREFIX=/usr -GNinja && ninja install && cd .. && rm -rf cmake-vala
    - cd subprojects/appmenu-gtk-module
@@ -50,7 +50,7 @@ build-registrar-main:
   image: pritunl/archlinux
   stage: build
   script:
-   - pacman -S --noconfirm glib2 cmake base-devel ninja python
+   - pacman -S --noconfirm glib2 cmake base-devel ninja python git
    - git clone https://gitlab.com/vala-panel-project/cmake-vala.git
    - cd cmake-vala && cmake . -DCMAKE_INSTALL_PREFIX=/usr -GNinja && ninja install && cd .. && rm -rf cmake-vala
    - cd subprojects/registrar
@@ -68,7 +68,7 @@ build-jayatana-main:
   image: pritunl/archlinux
   stage: build
   script:
-   - pacman -S --noconfirm glib2 libdbusmenu-glib cmake base-devel ninja libxkbcommon jdk8-openjdk
+   - pacman -S --noconfirm glib2 libdbusmenu-glib cmake base-devel ninja libxkbcommon jdk8-openjdk git
    - git clone https://gitlab.com/vala-panel-project/cmake-vala.git
    - cd cmake-vala && cmake . -DCMAKE_INSTALL_PREFIX=/usr -GNinja && ninja install && cd .. && rm -rf cmake-vala
    - cd subprojects/jayatana
