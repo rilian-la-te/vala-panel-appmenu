@@ -56,7 +56,7 @@ build-registrar-main:
    - ninja dist
   artifacts:
     paths:
-    - "subprojects/appmenu-gtk-module/build/appmenu-registrar*.tar.xz"
+    - "subprojects/registrar/build/appmenu-registrar*.tar.xz"
     expire_in: 1 week
 
 
