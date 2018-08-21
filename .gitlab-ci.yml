@@ -1,0 +1,76 @@
+stages:
+  - build
+before_script:
+  - mkdir -p _ccache
+  - export CCACHE_BASEDIR=${PWD}
+  - export CCACHE_DIR=${PWD}/_ccache
+
+cache:
+  paths:
+    - _ccache/
+
+build-applet-main:
+  image: pritunl/archlinux
+  stage: build
+  script:
+   - pacman -S --noconfirm libwnck3 gtk3 vala cmake git base-devel clang ninja xfce4-panel mate-panel budgie-desktop gobject-introspection bamf
+   - git clone https://gitlab.com/vala-panel-project/cmake-vala.git
+   - cd cmake-vala && cmake . -DCMAKE_INSTALL_PREFIX=/usr -GNinja && ninja install && cd .. && rm -rf cmake-vala
+   - git clone https://gitlab.com/vala-panel-project/vala-panel.git
+   - cd vala-panel && cmake . -DCMAKE_INSTALL_PREFIX=/usr -GNinja && ninja install && cd .. && rm -rf vala-panel
+   - mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_JAYATANA=OFF -DENABLE_APPMENU_GTK_MODULE=OFF -GNinja
+   - ninja
+   - ninja install
+   - ninja dist
+  artifacts:
+    paths:
+    - "build/vala-panel-appmenu*.tar.xz"
+    expire_in: 1 week
+
+
+build-gtk-module-main:
+  image: pritunl/archlinux
+  stage: build
+  script:
+   - pacman -S --noconfirm gtk3 gtk2 cmake base-devel ninja
+   - cd subprojects/appmenu-gtk-module
+   - mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr -GNinja
+   - ninja
+   - ninja install
+   - ninja dist
+  artifacts:
+    paths:
+    - "subprojects/appmenu-gtk-module/build/appmenu-gtk-module*.tar.xz"
+    expire_in: 1 week
+
+
+build-registrar-main:
+  image: pritunl/archlinux
+  stage: build
+  script:
+   - pacman -S --noconfirm glib2 cmake base-devel ninja
+   - cd subprojects/registrar
+   - mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr -GNinja
+   - ninja
+   - ninja install
+   - ninja dist
+  artifacts:
+    paths:
+    - "subprojects/appmenu-gtk-module/build/appmenu-registrar*.tar.xz"
+    expire_in: 1 week
+
+
+build-jayatana-main:
+  image: pritunl/archlinux
+  stage: build
+  script:
+   - pacman -S --noconfirm glib2 libdbusmenu-glib cmake base-devel ninja libxkbcommon java-environment
+   - cd subprojects/jayatana
+   - mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr -GNinja
+   - ninja
+   - ninja install
+   - ninja dist
+  artifacts:
+    paths:
+    - "subprojects/appmenu-gtk-module/build/jayatana*.tar.xz"
+    expire_in: 1 week
