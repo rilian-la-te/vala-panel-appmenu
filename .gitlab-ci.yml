@@ -48,7 +48,7 @@ build-registrar-main:
   image: pritunl/archlinux
   stage: build
   script:
-   - pacman -S --noconfirm glib2 cmake base-devel ninja
+   - pacman -S --noconfirm glib2 cmake base-devel ninja python
    - cd subprojects/registrar
    - mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr -GNinja
    - ninja
@@ -72,5 +72,5 @@ build-jayatana-main:
    - ninja dist
   artifacts:
     paths:
-    - "subprojects/appmenu-gtk-module/build/jayatana*.tar.xz"
+    - "subprojects/jayatana/build/jayatana*.tar.xz"
     expire_in: 1 week
