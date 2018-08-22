@@ -289,8 +289,8 @@ G_GNUC_INTERNAL WindowData *gtk_wayland_window_get_window_data(GtkWindow *window
 			    g_strdup_printf("%s", g_application_get_dbus_object_path(gApp));
 
 			window_data->window_id = window_id++; // IN THE GNOME IMPLEMENTATION THIS IS
-			                                      // STARTED IN ONE NOT CERO (So, we make
-			                                      // is similar)
+			                                      // STARTED IN ONE NOT CERO (So, we
+			                                      // make is similar)
 
 			connection  = g_application_get_dbus_connection(gApp);
 			object_path = g_strdup_printf(OBJECT_PATH "/%d", window_id);

@@ -393,12 +393,12 @@ uint registrar_dbus_menu_register(RegistrarDBusMenu *object, GDBusConnection *co
 {
 	GDBusNodeInfo *info = g_dbus_node_info_new_for_xml(introspection_xml, NULL);
 	uint result         = g_dbus_connection_register_object(connection,
-	                                                DBUSMENU_REG_OBJECT,
-	                                                (GDBusInterfaceInfo *)info->interfaces[0],
-	                                                &_interface_vtable,
-	                                                object,
-	                                                NULL,
-	                                                error);
+                                                        DBUSMENU_REG_OBJECT,
+                                                        (GDBusInterfaceInfo *)info->interfaces[0],
+                                                        &_interface_vtable,
+                                                        object,
+                                                        NULL,
+                                                        error);
 	if (!result)
 	{
 		return 0;
