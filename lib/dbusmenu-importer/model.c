@@ -78,7 +78,7 @@ static void dbus_menu_model_get_item_attributes(GMenuModel *model, gint position
 {
 	DBusMenuModel *menu = DBUS_MENU_MODEL(model);
 	DBusMenuItem *item  = (DBusMenuItem *)g_sequence_get(
-            (GSequenceIter *)g_sequence_get_iter_at_pos(menu->sections, position));
+	    (GSequenceIter *)g_sequence_get_iter_at_pos(menu->sections, position));
 
 	*table = g_hash_table_ref(item->attributes);
 }
@@ -87,7 +87,7 @@ static void dbus_menu_model_get_item_links(GMenuModel *model, gint position, GHa
 {
 	DBusMenuModel *menu = DBUS_MENU_MODEL(model);
 	DBusMenuItem *item  = (DBusMenuItem *)g_sequence_get(
-            (GSequenceIter *)g_sequence_get_iter_at_pos(menu->sections, position));
+	    (GSequenceIter *)g_sequence_get_iter_at_pos(menu->sections, position));
 
 	*table = g_hash_table_ref(item->links);
 }
@@ -160,6 +160,20 @@ static bool preload_idle(DBusMenuItem *item)
 {
 	dbus_menu_item_preload(item);
 	return G_SOURCE_REMOVE;
+}
+
+static void menu_item_copy_and_load(DBusMenuModel *menu, DBusMenuItem *old, DBusMenuItem *new_item)
+{
+	dbus_menu_item_copy_submenu(old, new_item, menu);
+	dbus_menu_item_generate_action(new_item, menu);
+	// It is a preload hack. If this is a toplevel menu, we need to fetch menu under toplevel to
+	// avoid menu jumping bug
+	if (menu->parent_id == 0)
+	{
+		dbus_menu_item_update_enabled(new_item, true);
+		new_item->toggled = true;
+		g_timeout_add_full(100, 300, (GSourceFunc)preload_idle, new_item, NULL);
+	}
 }
 
 // We deal only with layouts with depth 1 (not all)
@@ -291,21 +305,8 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 					    change_pos < 0
 					        ? g_sequence_iter_get_position(current_iter)
 					        : change_pos;
-				dbus_menu_item_copy_submenu(NULL, new_item, menu);
-				dbus_menu_item_generate_action(new_item, menu);
-				// It is a preload hack. If this is a toplevel menu, we need to
-				// fetch menu under
-				// toplevel to avoid menu jumping bug
-				if (menu->parent_id == 0)
-				{
-					dbus_menu_item_update_enabled(new_item, true);
-					new_item->toggled = true;
-					g_timeout_add_full(100,
-					                   300,
-					                   (GSourceFunc)preload_idle,
-					                   new_item,
-					                   NULL);
-				}
+
+				menu_item_copy_and_load(menu, NULL, new_item);
 				// Insert new item
 				current_iter = g_sequence_insert_before(current_iter, new_item);
 				added++;
@@ -320,20 +321,8 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 				bool updated = dbus_menu_item_update_props(old, cprops);
 				if (diff)
 				{
-					// Immutable properties was different, replace items
-					dbus_menu_item_copy_submenu(old, new_item, menu);
-					dbus_menu_item_generate_action(new_item, menu);
-					// if it is root, preload submenu
-					if (menu->parent_id == 0)
-					{
-						dbus_menu_item_update_enabled(new_item, true);
-						new_item->toggled = true;
-						g_timeout_add_full(100,
-						                   300,
-						                   (GSourceFunc)preload_idle,
-						                   new_item,
-						                   NULL);
-					}
+					// Immutable properties was different, replace menu item
+					menu_item_copy_and_load(menu, old, new_item);
 					g_sequence_set(current_iter, new_item);
 				}
 				else
@@ -369,7 +358,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 	// If old section is empty - new section is invalid
 	if (g_menu_model_get_n_items(current_section) == 0 && g_menu_model_get_n_items(menu) > 1)
 		is_valid_section = false;
-	current_iter = g_sequence_iter_next(current_iter);
+	current_iter             = g_sequence_iter_next(current_iter);
 	int removed =
 	    g_sequence_iter_get_position(g_sequence_get_end_iter(current_section->items)) -
 	    g_sequence_iter_get_position(current_iter);
@@ -533,23 +522,18 @@ static void item_activation_requested_cb(DBusMenuXml *proxy, gint id, guint time
 	g_debug("activation requested: id - %d, timestamp - %d", id, timestamp);
 }
 
-static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_props,
-                                        GVariant *removed_props, DBusMenuModel *menu)
+static void items_properties_loop(DBusMenuModel *menu, GVariant *up_props, GQueue *signal_queue,
+                                  bool is_removal)
 {
-	if (!DBUS_MENU_IS_XML(proxy))
-		return;
-	if (menu->layout_update_in_progress == true)
-		return;
 	GVariantIter iter;
 	guint id;
 	GVariant *props;
-	DBusMenuItem *item;
-	g_autoptr(GQueue) signal_queue = g_queue_new();
-	g_variant_iter_init(&iter, updated_props);
-	while (g_variant_iter_loop(&iter, "(i@a{sv})", &id, &props))
+	g_variant_iter_init(&iter, up_props);
+	while (g_variant_iter_loop(&iter, !is_removal ? "(i@a{sv})" : "(i@as)", &id, &props))
 	{
 		int sect_n = 0, position = 0;
-		item = (DBusMenuItem *)dbus_menu_model_find(menu, id, &sect_n, &position);
+		DBusMenuItem *item =
+		    (DBusMenuItem *)dbus_menu_model_find(menu, id, &sect_n, &position);
 		bool is_item_updated = false;
 		if (item != NULL)
 		{
@@ -560,7 +544,9 @@ static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_pr
 			}
 			else
 			{
-				is_item_updated = dbus_menu_item_update_props(item, props);
+				is_item_updated = !is_removal
+				                      ? dbus_menu_item_update_props(item, props)
+				                      : dbus_menu_item_remove_props(item, props);
 				if (is_item_updated)
 					add_signal_to_queue(menu,
 					                    signal_queue,
@@ -571,32 +557,18 @@ static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_pr
 			}
 		}
 	}
-	g_variant_iter_init(&iter, removed_props);
-	while (g_variant_iter_loop(&iter, "(i@as)", &id, &props))
-	{
-		int sect_n = 0, position = 0;
-		item = (DBusMenuItem *)dbus_menu_model_find(menu, id, &sect_n, &position);
-		bool is_item_updated = false;
-		if (item != NULL)
-		{
-			// It is the best what we can do to update a section
-			if (item->action_type == DBUS_MENU_ACTION_SECTION)
-			{
-				//				dbus_menu_model_update_layout(menu);
-			}
-			else
-			{
-				is_item_updated = dbus_menu_item_remove_props(item, props);
-				if (is_item_updated)
-					add_signal_to_queue(menu,
-					                    signal_queue,
-					                    sect_n,
-					                    position,
-					                    1,
-					                    1);
-			}
-		}
-	}
+}
+
+static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_props,
+                                        GVariant *removed_props, DBusMenuModel *menu)
+{
+	if (!DBUS_MENU_IS_XML(proxy))
+		return;
+	if (menu->layout_update_in_progress == true)
+		return;
+	g_autoptr(GQueue) signal_queue = g_queue_new();
+	items_properties_loop(menu, updated_props, signal_queue, false);
+	items_properties_loop(menu, removed_props, signal_queue, true);
 	queue_emit_all(signal_queue);
 }
 
