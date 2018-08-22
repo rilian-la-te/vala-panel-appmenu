@@ -174,31 +174,36 @@ static GIcon *gtk_image_get_icon(GtkImage *image)
 		}
 	}
 #elif GTK_MAJOR_VERSION == 3
-	{
-		GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(image));
-
-		if (context != NULL)
+		G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 		{
-			char *stock      = NULL;
-			GtkIconSize size = GTK_ICON_SIZE_INVALID;
+			GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(image));
 
-			gtk_image_get_stock(image, &stock, &size);
-
-			if (stock != NULL)
+			if (context != NULL)
 			{
-				GtkIconSet *set = gtk_style_context_lookup_icon_set(context, stock);
+				char *stock      = NULL;
+				GtkIconSize size = GTK_ICON_SIZE_INVALID;
 
-				if (set != NULL)
+				gtk_image_get_stock(image, &stock, &size);
+
+				if (stock != NULL)
 				{
-					GdkPixbuf *pixbuf =
-					    gtk_icon_set_render_icon_pixbuf(set, context, size);
+					GtkIconSet *set =
+					    gtk_style_context_lookup_icon_set(context, stock);
 
-					if (pixbuf != NULL)
-						icon = G_ICON(pixbuf);
+					if (set != NULL)
+					{
+						GdkPixbuf *pixbuf =
+						    gtk_icon_set_render_icon_pixbuf(set,
+						                                    context,
+						                                    size);
+
+						if (pixbuf != NULL)
+							icon = G_ICON(pixbuf);
+					}
 				}
 			}
 		}
-	}
+		G_GNUC_END_IGNORE_DEPRECATIONS
 #endif
 
 	break;
@@ -229,26 +234,28 @@ static GIcon *gtk_image_get_icon(GtkImage *image)
 		}
 	}
 #elif GTK_MAJOR_VERSION == 3
-	{
-		GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(image));
-
-		if (context != NULL)
+		G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 		{
-			GtkIconSet *set  = NULL;
-			GtkIconSize size = GTK_ICON_SIZE_INVALID;
+			GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(image));
 
-			gtk_image_get_icon_set(image, &set, &size);
-
-			if (set != NULL)
+			if (context != NULL)
 			{
-				GdkPixbuf *pixbuf =
-				    gtk_icon_set_render_icon_pixbuf(set, context, size);
+				GtkIconSet *set  = NULL;
+				GtkIconSize size = GTK_ICON_SIZE_INVALID;
 
-				if (pixbuf != NULL)
-					icon = G_ICON(pixbuf);
+				gtk_image_get_icon_set(image, &set, &size);
+
+				if (set != NULL)
+				{
+					GdkPixbuf *pixbuf =
+					    gtk_icon_set_render_icon_pixbuf(set, context, size);
+
+					if (pixbuf != NULL)
+						icon = G_ICON(pixbuf);
+				}
 			}
 		}
-	}
+		G_GNUC_END_IGNORE_DEPRECATIONS
 #endif
 
 	break;
@@ -742,6 +749,7 @@ const char *unity_gtk_menu_item_get_label(UnityGtkMenuItem *item)
 
 		if (label_label != NULL && label_label[0] != '\0')
 		{
+			G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 			if (GTK_IS_IMAGE_MENU_ITEM(item->menu_item))
 			{
 				GtkImageMenuItem *image_menu_item =
@@ -755,6 +763,7 @@ const char *unity_gtk_menu_item_get_label(UnityGtkMenuItem *item)
 						label_label = stock_item.label;
 				}
 			}
+			G_GNUC_END_IGNORE_DEPRECATIONS
 		}
 
 		if (label_label == NULL || label_label[0] == '\0')
@@ -785,6 +794,7 @@ GIcon *unity_gtk_menu_item_get_icon(UnityGtkMenuItem *item)
 
 	g_return_val_if_fail(UNITY_GTK_IS_MENU_ITEM(item), NULL);
 
+	G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	if (item->menu_item != NULL && !GTK_IS_IMAGE_MENU_ITEM(item->menu_item))
 	{
 		GtkImage *image = gtk_menu_item_get_nth_image(item->menu_item, 0);
@@ -792,16 +802,17 @@ GIcon *unity_gtk_menu_item_get_icon(UnityGtkMenuItem *item)
 		if (image != NULL)
 			icon = gtk_image_get_icon(image);
 	}
-
+	G_GNUC_END_IGNORE_DEPRECATIONS
 	return icon;
 }
 
 gboolean unity_gtk_menu_item_is_visible(UnityGtkMenuItem *item)
 {
 	g_return_val_if_fail(UNITY_GTK_IS_MENU_ITEM(item), FALSE);
-
+	G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	return item->menu_item != NULL && gtk_widget_get_visible(GTK_WIDGET(item->menu_item)) &&
 	       !GTK_IS_TEAROFF_MENU_ITEM(item->menu_item);
+	G_GNUC_END_IGNORE_DEPRECATIONS
 }
 
 gboolean unity_gtk_menu_item_is_sensitive(UnityGtkMenuItem *item)
