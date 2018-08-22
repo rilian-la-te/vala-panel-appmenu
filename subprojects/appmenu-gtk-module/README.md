@@ -1,4 +1,3 @@
-
 ---
 Application Menu GTK+ Module
 ---
@@ -41,6 +40,7 @@ Add to this file:
 
 **IF ABOVE DOES NOT WORK**
 * Add to .profile or .bashrc:
+
 ```sh
 if [ -n "$GTK_MODULES" ]; then
     GTK_MODULES="${GTK_MODULES}:appmenu-gtk-module"
