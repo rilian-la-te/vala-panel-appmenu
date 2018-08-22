@@ -11,7 +11,6 @@ set(ENUM_FILES
 add_glib_enumtypes(ENUMSC ENUMSH importer-enums ${ENUM_FILES})
 add_definitions(-Wall -Wextra
                 -Wno-unused-parameter# Vala loves to create variables
-                -pedantic
                 -Wno-incompatible-pointer-types
                 ) #Vala often forgot cast to GtkWidget or gpointer
 
