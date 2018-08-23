@@ -27,6 +27,7 @@ package com.jarego.jayatana.swing;
 
 import java.lang.String;
 import java.util.Set;
+import java.util.HashSet;
 
 import java.awt.AWTEvent;
 import java.awt.Component;
@@ -94,6 +95,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 		super(window);
                 this.window = window;
 		this.menubar = menubar;
+                this.approved_checkboxes = new HashSet<JMenuItem>();
 	}
 
 
