@@ -26,6 +26,7 @@
 package com.jarego.jayatana.swing;
 
 import java.lang.String;
+import java.util.Set;
 
 import java.awt.AWTEvent;
 import java.awt.Component;
@@ -75,8 +76,10 @@ import com.jarego.jayatana.basic.GlobalMenuAdapter;
 public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowListener,
 		AWTEventListener, ContainerListener, PropertyChangeListener, ComponentListener {
 	private JMenuBar menubar;
+        private Window window;
 	private boolean netbeansPlatform;
         private boolean ideaWindow;
+        private Set<JMenuItem> approved_checkboxes;
 	private boolean fullscreen = false;
         private final String NETBEANS_PLATFORM = "org.openide.awt.MenuBar";
         private final String IDEA_SUBSTRING = "com.intellij";
@@ -89,6 +92,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 	 */
 	public SwingGlobalMenuWindow(Window window, JMenuBar menubar) {
 		super(window);
+                this.window = window;
 		this.menubar = menubar;
 	}
 
@@ -96,13 +100,23 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
         /**
          * Check for MenuBar is Netbeans one.
          *
-         * @param menubar menu bar.
+         * @return is Netbeans menubar
          */
         public boolean checkIsNetbeans() {
-            return "org.openide.awt.MenuBar".equals(
-                            menubar.getClass().getName());
+            return NETBEANS_PLATFORM.equals(menubar.getClass().getName());
         }
-	
+
+        /**
+         * Check for Environment is JetBrains one.
+         *
+         * @return is JetBrains environment
+         */
+        public boolean checkIsJetBrains() {
+            boolean by_menubar = menubar.getClass().getName().contains(IDEA_SUBSTRING);
+            boolean by_window = window.getClass().getName().contains(IDEA_SUBSTRING);
+            return by_menubar || by_window;
+        }
+
 	/**
          * Register Java Swing menu.
 	 */
@@ -118,6 +132,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 						
                                                 // Correction for Netbeans
                                                 netbeansPlatform = checkIsNetbeans();
+                                                ideaWindow = checkIsJetBrains();
 						// -----------------------
 						
                                                 // register listeners of component changes
@@ -203,8 +218,16 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 			modifiers = menuitem.getAccelerator().getModifiers();
 			keycode = menuitem.getAccelerator().getKeyCode();
 		}
-		
-		if (menuitem instanceof JRadioButtonMenuItem) {
+
+
+                if(ideaWindow &&
+                    menuitem instanceof JCheckBoxMenuItem &&
+                    !approved_checkboxes.contains(menuitem) &&
+                    !((JCheckBoxMenuItem)menuitem).isSelected()) {
+                        addMenuItem(parent.hashCode(), menuitem.hashCode(), menuitem.getText(),
+                                        (char)menuitem.getMnemonic(), menuitem.isEnabled(), modifiers, keycode);
+
+                } else if (menuitem instanceof JRadioButtonMenuItem) {
 			addMenuItemRadio(parent.hashCode(), menuitem.hashCode(),
 					menuitem.getText(), (char)menuitem.getMnemonic(), menuitem.isEnabled(), modifiers,
 					keycode, menuitem.isSelected());
@@ -212,6 +235,8 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 			addMenuItemCheck(parent.hashCode(), menuitem.hashCode(),
 					menuitem.getText(), (char)menuitem.getMnemonic(), menuitem.isEnabled(), modifiers,
 					keycode, menuitem.isSelected());
+                        if(ideaWindow && ((JCheckBoxMenuItem)menuitem).isSelected() && !approved_checkboxes.contains(menuitem))
+                                approved_checkboxes.add(menuitem);
 		} else {
 			addMenuItem(parent.hashCode(), menuitem.hashCode(), menuitem.getText(),
 					(char)menuitem.getMnemonic(), menuitem.isEnabled(), modifiers, keycode);
