@@ -45,3 +45,6 @@ docs/reference/unity-gtk-module/unity-gtk-module.interfaces
 docs/reference/unity-gtk-module/unity-gtk-module.prerequisites
 docs/reference/unity-gtk-module/unity-gtk-module.signals
 libtool
+data/appmenu.desktop.plugin.in
+data/*.desktop.in
+CMakeLists.txt.user
