@@ -25,6 +25,8 @@
  */
 package com.jarego.jayatana.swing;
 
+import java.lang.String;
+
 import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -74,7 +76,10 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 		AWTEventListener, ContainerListener, PropertyChangeListener, ComponentListener {
 	private JMenuBar menubar;
 	private boolean netbeansPlatform;
+        private boolean ideaWindow;
 	private boolean fullscreen = false;
+        private final String NETBEANS_PLATFORM = "org.openide.awt.MenuBar";
+        private final String IDEA_SUBSTRING = "com.intellij";
 	
 	/**
          * Instance class of menu driver for java Swing windows.
@@ -86,6 +91,17 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 		super(window);
 		this.menubar = menubar;
 	}
+
+
+        /**
+         * Check for MenuBar is Netbeans one.
+         *
+         * @param menubar menu bar.
+         */
+        public boolean checkIsNetbeans() {
+            return "org.openide.awt.MenuBar".equals(
+                            menubar.getClass().getName());
+        }
 	
 	/**
          * Register Java Swing menu.
@@ -101,8 +117,7 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 						menubar.setVisible(false);
 						
                                                 // Correction for Netbeans
-						netbeansPlatform = "org.openide.awt.MenuBar".equals(
-								menubar.getClass().getName());
+                                                netbeansPlatform = checkIsNetbeans();
 						// -----------------------
 						
                                                 // register listeners of component changes
