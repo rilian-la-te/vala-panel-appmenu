@@ -13,13 +13,14 @@ include(UseJava)
 add_library(jayatana SHARED
     com_jarego_jayatana_basic_GlobalMenu.c
     com_jarego_jayatana_basic_GMainLoop.c
-    com_jarego_jayatana_collections.c
-    com_jarego_jayatana_collections.h
     com_jarego_jayatana_jkey2xkey.c
     com_jarego_jayatana_jkey2xkey.h
     com_jarego_jayatana_jni.c
     com_jarego_jayatana_jni.h
-    dbusmenu-definitions.h)
+    jayatana-window.c
+    jayatana-window.h
+    dbusmenu-definitions.h
+    )
 add_dependencies(jayatana java-headers)
 target_include_directories(jayatana  PRIVATE ${JNI_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}/../java)
 target_link_libraries(jayatana  PRIVATE ${JNI_LIBRARIES} PkgConfig::GLIB PkgConfig::XKBCOMMON PkgConfig::DBUSMENU)

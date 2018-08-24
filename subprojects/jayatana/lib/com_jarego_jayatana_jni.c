@@ -34,5 +34,5 @@
 jint JNI_OnLoad(JavaVM *jvm, void *reserved)
 {
 	jayatana_jvm = jvm;
-	return JNI_VERSION_1_6;
+	return JNI_VERSION_1_8;
 }

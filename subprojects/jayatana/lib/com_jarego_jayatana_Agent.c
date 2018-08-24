@@ -139,7 +139,7 @@ JNIEXPORT jint JNICALL Agent_OnLoad(JavaVM *vm, char *options, void *reserved)
 jint JNI_OnLoad(JavaVM *vm, void *reserved)
 {
 	com_jarego_jayatana_Initialize(vm, 0);
-	return JNI_VERSION_1_6;
+	return JNI_VERSION_1_8;
 }
 
 /**
