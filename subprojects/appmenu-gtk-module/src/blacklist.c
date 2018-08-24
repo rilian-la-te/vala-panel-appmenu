@@ -79,12 +79,9 @@ static bool is_listed(const char *name, const char *key)
 G_GNUC_INTERNAL
 bool is_blacklisted(const char *name)
 {
-	guint n;
-	guint i;
+	uint n = sizeof(BLACKLIST) / sizeof(const char *);
 
-	n = sizeof(BLACKLIST) / sizeof(const char *);
-
-	for (i = 0; i < n; i++)
+	for (uint i = 0; i < n; i++)
 	{
 		if (g_strcmp0(name, BLACKLIST[i]) == 0)
 			return !is_listed(name, WHITELIST_KEY);
