@@ -17,6 +17,7 @@ typedef struct
 	jlong windowXID;
 	jobject globalThat;
 
+	int menu_counter;
 	char *windowXIDPath;
 	bool gdBusProxyRegistered;
 	guint gBusWatcher;

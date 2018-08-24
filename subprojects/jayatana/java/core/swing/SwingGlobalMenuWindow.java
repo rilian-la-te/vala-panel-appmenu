@@ -222,23 +222,21 @@ public class SwingGlobalMenuWindow extends GlobalMenuAdapter implements WindowLi
 		}
 
 
-                if(ideaWindow &&
-                    menuitem instanceof JCheckBoxMenuItem &&
-                    !approved_checkboxes.contains(menuitem) &&
-                    !((JCheckBoxMenuItem)menuitem).isSelected()) {
-                        addMenuItem(parent.hashCode(), menuitem.hashCode(), menuitem.getText(),
-                                        (char)menuitem.getMnemonic(), menuitem.isEnabled(), modifiers, keycode);
-
-                } else if (menuitem instanceof JRadioButtonMenuItem) {
+                if (menuitem instanceof JRadioButtonMenuItem) {
 			addMenuItemRadio(parent.hashCode(), menuitem.hashCode(),
 					menuitem.getText(), (char)menuitem.getMnemonic(), menuitem.isEnabled(), modifiers,
 					keycode, menuitem.isSelected());
 		} else if (menuitem instanceof JCheckBoxMenuItem) {
-			addMenuItemCheck(parent.hashCode(), menuitem.hashCode(),
-					menuitem.getText(), (char)menuitem.getMnemonic(), menuitem.isEnabled(), modifiers,
-					keycode, menuitem.isSelected());
-                        if(ideaWindow && ((JCheckBoxMenuItem)menuitem).isSelected() && !approved_checkboxes.contains(menuitem))
-                                approved_checkboxes.add(menuitem);
+                        if(ideaWindow && !(menuitem.isSelected()) && !approved_checkboxes.contains(menuitem))
+                                addMenuItem(parent.hashCode(), menuitem.hashCode(), menuitem.getText(),
+                                                (char)menuitem.getMnemonic(), menuitem.isEnabled(), modifiers, keycode);
+                        else {
+                                addMenuItemCheck(parent.hashCode(), menuitem.hashCode(),
+                                                menuitem.getText(), (char)menuitem.getMnemonic(), menuitem.isEnabled(), modifiers,
+                                                keycode, menuitem.isSelected());
+                                if(ideaWindow && !approved_checkboxes.contains(menuitem))
+                                        approved_checkboxes.add(menuitem);
+                        }
 		} else {
 			addMenuItem(parent.hashCode(), menuitem.hashCode(), menuitem.getText(),
 					(char)menuitem.getMnemonic(), menuitem.isEnabled(), modifiers, keycode);

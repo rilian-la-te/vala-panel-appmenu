@@ -4,7 +4,8 @@
 JAyatanaWindow *jayatana_window_new()
 {
 	JAyatanaWindow *ret = (JAyatanaWindow *)g_malloc0(sizeof(JAyatanaWindow));
-	ret->menu_items = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_object_unref);
+	ret->menu_items   = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_object_unref);
+	ret->menu_counter = 1;
 	return ret;
 }
 
@@ -13,6 +14,7 @@ JAyatanaWindow *jayatana_window_copy(JAyatanaWindow *src)
 	JAyatanaWindow *ret = (JAyatanaWindow *)g_malloc0(sizeof(JAyatanaWindow));
 	ret->windowXID      = src->windowXID;
 	ret->globalThat     = src->globalThat;
+	ret->menu_counter   = src->menu_counter;
 
 	ret->windowXIDPath        = g_strdup(src->windowXIDPath);
 	ret->gdBusProxyRegistered = src->gdBusProxyRegistered;
@@ -59,7 +61,7 @@ DbusmenuMenuitem *jayatana_window_get_dbusmenu_item(JAyatanaWindow *win, jint id
 	it             = DBUSMENU_MENUITEM(g_hash_table_lookup(win->menu_items, checksum));
 	if (it == NULL)
 	{
-		it = dbusmenu_menuitem_new_with_id(id);
+		it = dbusmenu_menuitem_new_with_id(id > 0 ? id : win->menu_counter++);
 		g_hash_table_insert(win->menu_items, checksum, it);
 	}
 	else

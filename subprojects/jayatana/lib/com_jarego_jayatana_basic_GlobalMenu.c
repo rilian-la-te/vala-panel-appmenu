@@ -601,12 +601,12 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_addMenu(
 				                 DBUSMENU_MENUITEM_SIGNAL_ABOUT_TO_SHOW,
 				                 G_CALLBACK(jayatana_item_about_to_show),
 				                 NULL);
-				gint id = g_random_int_range(30000, 60000); // We really need to
-				                                            // find a better way to
-				                                            // generate ID;
+				gint id = g_random_int_range(50000, 100000); // We really need to
+				                                             // find a better way to
+				                                             // generate ID;
 				char *label = g_strdup_printf("-jayatana-private: %d", id);
 				DbusmenuMenuitem *foo =
-				    jayatana_window_get_dbusmenu_item(globalmenu_window, id, label);
+				    jayatana_window_get_dbusmenu_item(globalmenu_window, -1, label);
 				g_free(label);
 				dbusmenu_menuitem_property_set(foo,
 				                               DBUSMENU_MENUITEM_PROP_LABEL,
@@ -801,11 +801,11 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_addSeparator(JN
 		if (globalmenu_window != NULL)
 		{
 			// generar separador
-			gint id = g_random_int_range(1, 30000); // We really need to find a better
+			gint id = g_random_int_range(1, 50000); // We really need to find a better
 			                                        // way to generate ID;
 			char *label = g_strdup_printf("-jayatana-private: %d", id);
 			DbusmenuMenuitem *item =
-			    jayatana_window_get_dbusmenu_item(globalmenu_window, id, label);
+			    jayatana_window_get_dbusmenu_item(globalmenu_window, -1, label);
 			g_free(label);
 			dbusmenu_menuitem_property_set(item,
 			                               DBUSMENU_MENUITEM_PROP_TYPE,
