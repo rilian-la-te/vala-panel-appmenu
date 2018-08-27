@@ -35,6 +35,15 @@ add_jar(jayatana-java
     DESTINATION
         ${CMAKE_CURRENT_BINARY_DIR}/../lib/
     )
+if (${CMAKE_VERSION} VERSION_LESS 3.11.0)
+create_javah(TARGET java-headers
+    CLASSES
+        com.jarego.jayatana.basic.GMainLoop
+        com.jarego.jayatana.basic.GlobalMenu
+    CLASSPATH
+        jayatana-java
+    )
+endif()
 install_jar(jayatana-java DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/java)
 configure_file(agent/MANIFEST.MF.in ${CMAKE_CURRENT_BINARY_DIR}/agent/MANIFEST.MF)
 add_jar(agent-java
