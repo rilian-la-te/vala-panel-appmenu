@@ -92,3 +92,4 @@ release-main:
     - python3 -m gitlab_release ${PRIVATE_TOKEN} build/vala-panel*.tar.xz subprojects/jayatana/build/jayatana*.tar.xz subprojects/registrar/build/appmenu-registrar*.tar.xz subprojects/appmenu-gtk-module/build/appmenu-gtk-module*.tar.xz
   only:
     - tags
+
