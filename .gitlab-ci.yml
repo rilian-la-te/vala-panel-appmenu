@@ -1,5 +1,6 @@
 stages:
   - build
+  - release
 before_script:
   - mkdir -p _ccache
   - export CCACHE_BASEDIR=${PWD}
@@ -80,3 +81,14 @@ build-jayatana-main:
     paths:
     - "subprojects/jayatana/build/jayatana*.tar.xz"
     expire_in: 1 week
+
+
+release-main:
+  image: pritunl/archlinux
+  stage: release
+  script:
+    - pacman -S --noconfirm python3 python-pip
+    - pip3 install gitlab_release
+    - python3 -m gitlab_release ${PRIVATE_TOKEN} build/vala-panel*.tar.xz subprojects/jayatana/build/jayatana*.tar.xz subprojects/registrar/build/appmenu-registrar*.tar.xz subprojects/appmenu-gtk-module/build/appmenu-gtk-module*.tar.xz
+  only:
+    - tags
