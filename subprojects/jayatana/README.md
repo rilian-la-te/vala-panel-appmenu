@@ -14,7 +14,7 @@ JAyatana helps to use DBusMenu for Java Swing programs (enables Global Menu for 
 1. System-wide way (recommended only if you have many Java programs with menus):
 - add `JAVA_TOOL_OPTIONS=-javaagent:/usr/share/java/jayatanaag.jar $JAVA_TOOL_OPTIONS` into your *.profile* file.
 
-2. Application-specific ways (useful if you usually have one or 2 Java programs, like Android Studio) And if above does not work.
+2. Application-specific ways (useful if you usually have one or 2 Java programs, like Android Studio) and if above does not work.
 
 *2.1. Intellij programs (Idea, PhpStorm, CLion, Android Studio)*
 - Edit *.vmoptions file, and add `-javaagent:/usr/share/java/jayatanaag.jar` to the end of file.
