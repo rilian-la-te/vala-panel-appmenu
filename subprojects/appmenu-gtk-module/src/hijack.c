@@ -86,7 +86,7 @@ static void hijacked_window_realize(GtkWidget *widget)
 #endif
 
 	if (pre_hijacked_window_realize != NULL)
-		(*pre_hijacked_window_realize)(widget);
+		pre_hijacked_window_realize(widget);
 
 #ifdef GDK_WINDOWING_X11
 	if (is_hint_viable
