@@ -373,8 +373,9 @@ static void _dbus_registrar_dbus_menu_window_unregistered(GObject *_sender, uint
 	                              _arguments,
 	                              NULL);
 }
-static const GDBusInterfaceVTable _interface_vtable =
-    { registrar_dbus_menu_dbus_interface_method_call, NULL, NULL };
+static const GDBusInterfaceVTable _interface_vtable = {
+	registrar_dbus_menu_dbus_interface_method_call, NULL, NULL
+};
 
 void registrar_dbus_menu_unregister(RegistrarDBusMenu *data, GDBusConnection *con)
 {

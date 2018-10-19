@@ -91,10 +91,9 @@ static void hijacked_window_realize(GtkWidget *widget)
 #ifdef GDK_WINDOWING_X11
 	if (is_hint_viable
 #if GTK_MAJOR_VERSION == 3
-	    &&
-	    GDK_IS_X11_DISPLAY(gdk_display_get_default()) && (!GTK_IS_APPLICATION_WINDOW(widget))
+	    && GDK_IS_X11_DISPLAY(gdk_display_get_default()) && (!GTK_IS_APPLICATION_WINDOW(widget))
 #endif
-	        )
+	)
 		gtk_window_get_window_data(GTK_WINDOW(widget));
 #endif
 }
