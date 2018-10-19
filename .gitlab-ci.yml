@@ -14,6 +14,7 @@ build-applet-main:
   image: base/devel
   stage: build
   script:
+   - pacman -Sy
    - pacman -S --noconfirm libwnck3 gtk3 vala cmake git base-devel clang ninja xfce4-panel mate-panel budgie-desktop gobject-introspection bamf
    - git clone https://gitlab.com/vala-panel-project/cmake-vala.git
    - cd cmake-vala && cmake . -DCMAKE_INSTALL_PREFIX=/usr -GNinja && ninja install && cd .. && rm -rf cmake-vala
@@ -33,6 +34,7 @@ build-gtk-module-main:
   image: base/devel
   stage: build
   script:
+   - pacman -Sy
    - pacman -S --noconfirm gtk3 gtk2 cmake base-devel ninja git
    - git clone https://gitlab.com/vala-panel-project/cmake-vala.git
    - cd cmake-vala && cmake . -DCMAKE_INSTALL_PREFIX=/usr -GNinja && ninja install && cd .. && rm -rf cmake-vala
@@ -51,6 +53,7 @@ build-registrar-main:
   image: base/devel
   stage: build
   script:
+   - pacman -Sy
    - pacman -S --noconfirm glib2 cmake base-devel ninja python git
    - git clone https://gitlab.com/vala-panel-project/cmake-vala.git
    - cd cmake-vala && cmake . -DCMAKE_INSTALL_PREFIX=/usr -GNinja && ninja install && cd .. && rm -rf cmake-vala
@@ -69,6 +72,7 @@ build-jayatana-main:
   image: base/devel
   stage: build
   script:
+   - pacman -Sy
    - pacman -S --noconfirm glib2 libdbusmenu-glib cmake base-devel ninja libxkbcommon jdk8-openjdk git
    - git clone https://gitlab.com/vala-panel-project/cmake-vala.git
    - cd cmake-vala && cmake . -DCMAKE_INSTALL_PREFIX=/usr -GNinja && ninja install && cd .. && rm -rf cmake-vala
@@ -87,6 +91,7 @@ release-main:
   image: base/devel
   stage: release
   script:
+    - pacman -Sy
     - pacman -S --noconfirm python3 python-pip
     - pip3 install gitlab_release
     - python3 -m gitlab_release ${PRIVATE_TOKEN} build/vala-panel*.tar.xz subprojects/jayatana/build/jayatana*.tar.xz subprojects/registrar/build/appmenu-registrar*.tar.xz subprojects/appmenu-gtk-module/build/appmenu-gtk-module*.tar.xz
