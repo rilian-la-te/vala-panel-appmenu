@@ -11,7 +11,7 @@ cache:
     - _ccache/
 
 build-applet-main:
-  image: pritunl/archlinux
+  image: base/devel
   stage: build
   script:
    - pacman -S --noconfirm libwnck3 gtk3 vala cmake git base-devel clang ninja xfce4-panel mate-panel budgie-desktop gobject-introspection bamf
@@ -30,7 +30,7 @@ build-applet-main:
 
 
 build-gtk-module-main:
-  image: pritunl/archlinux
+  image: base/devel
   stage: build
   script:
    - pacman -S --noconfirm gtk3 gtk2 cmake base-devel ninja git
@@ -48,7 +48,7 @@ build-gtk-module-main:
 
 
 build-registrar-main:
-  image: pritunl/archlinux
+  image: base/devel
   stage: build
   script:
    - pacman -S --noconfirm glib2 cmake base-devel ninja python git
@@ -66,7 +66,7 @@ build-registrar-main:
 
 
 build-jayatana-main:
-  image: pritunl/archlinux
+  image: base/devel
   stage: build
   script:
    - pacman -S --noconfirm glib2 libdbusmenu-glib cmake base-devel ninja libxkbcommon jdk8-openjdk git
@@ -84,7 +84,7 @@ build-jayatana-main:
 
 
 release-main:
-  image: pritunl/archlinux
+  image: base/devel
   stage: release
   script:
     - pacman -S --noconfirm python3 python-pip
