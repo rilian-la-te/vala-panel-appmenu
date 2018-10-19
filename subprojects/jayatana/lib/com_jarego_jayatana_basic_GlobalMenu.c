@@ -42,6 +42,8 @@
 #define REGISTER_STATE_INITIAL 0
 #define REGISTER_STATE_REFRESH 1
 
+static int32_t id_stub = 100;
+
 /**
  * Generate new instance of JAyatanaWindow
  */
@@ -601,9 +603,9 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_addMenu(
 				                 DBUSMENU_MENUITEM_SIGNAL_ABOUT_TO_SHOW,
 				                 G_CALLBACK(jayatana_item_about_to_show),
 				                 NULL);
-				gint id = g_random_int_range(50000, 100000); // We really need to
-				                                             // find a better way to
-				                                             // generate ID;
+				gint id = id_stub++; // We really need to
+				                     // find a better way to
+				                     // generate ID;
 				char *label = g_strdup_printf("-jayatana-private: %d", id);
 				DbusmenuMenuitem *foo =
 				    jayatana_window_get_dbusmenu_item(globalmenu_window, -1, label);
@@ -801,8 +803,8 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_addSeparator(JN
 		if (globalmenu_window != NULL)
 		{
 			// generar separador
-			gint id = g_random_int_range(1, 50000); // We really need to find a better
-			                                        // way to generate ID;
+			gint id = id_stub++; // We really need to find a better
+			                     // way to generate ID;
 			char *label = g_strdup_printf("-jayatana-private: %d", id);
 			DbusmenuMenuitem *item =
 			    jayatana_window_get_dbusmenu_item(globalmenu_window, -1, label);
