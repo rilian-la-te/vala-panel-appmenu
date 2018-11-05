@@ -86,7 +86,7 @@ public void g_io_appmenu_load(GLib.TypeModule module)
 //    GLib.Intl.bindtextdomain(Config.GETTEXT_PACKAGE,Config.LOCALE_DIR);
 //    GLib.Intl.bind_textdomain_codeset(Config.GETTEXT_PACKAGE,"UTF-8");
     module.use();
-    GLib.IOExtensionPoint.implement(ValaPanel.Applet.EXTENSION_POINT,typeof(AppmenuApplet),"appmenu",10);
+    GLib.IOExtensionPoint.implement(ValaPanel.Applet.EXTENSION_POINT,typeof(AppmenuApplet),"org.valapanel.appmenu",10);
 }
 
 public void g_io_appmenu_unload(GLib.IOModule module)
