@@ -42,6 +42,12 @@ set(CORE_C_FILES
     launcher.c
     launcher.h
 )
+if(WNCK_FOUND)
+	list(APPEND CORE_C_FILES
+		matcher.c
+		matcher.h
+	)
+endif()
 set(PLUGIN_VALA_FILES
     valapanel-plugin-appmenu.vala
     xfce4-plugin-appmenu.vala
