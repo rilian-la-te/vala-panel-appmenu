@@ -22,5 +22,5 @@ public class ValaPanel.Matcher : GLib.Object
     public Matcher();
     public static string? get_x11_atom_string(long xid, Gdk.Atom atom, bool utf8);
     public static string? get_gtk_application_id(long xid);
-    public GLib.DesktopAppInfo match_wnck_window(Wnck.Window? window);
+    public unowned GLib.DesktopAppInfo match_wnck_window(Wnck.Window? window);
 }
