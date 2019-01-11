@@ -42,6 +42,12 @@ set(CORE_C_FILES
     launcher.c
     launcher.h
 )
+if(WNCK_FOUND)
+	list(APPEND CORE_C_FILES
+		matcher.c
+		matcher.h
+	)
+endif()
 add_library(appmenu-core STATIC ${CORE_C_FILES} ${VALA_C_CORE})
 target_link_libraries (appmenu-core
     dbusmenu-importer
