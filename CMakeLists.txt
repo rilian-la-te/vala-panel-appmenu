@@ -122,6 +122,7 @@ add_feature_info(Budgie ENABLE_BUDGIE "Budgie Desktop Integration")
 
 add_subdirectory(subprojects)
 ADD_SUBDIRECTORY(lib)
+ADD_SUBDIRECTORY(applets)
 add_subdirectory(data)
 add_subdirectory(po)
 
