@@ -11,7 +11,7 @@ cache:
     - _ccache/
 
 build-applet-main:
-  image: base/devel
+  image: archlinux/base
   stage: build
   script:
    - pacman -Sy
@@ -31,7 +31,7 @@ build-applet-main:
 
 
 build-gtk-module-main:
-  image: base/devel
+  image: archlinux/base
   stage: build
   script:
    - pacman -Sy
@@ -50,7 +50,7 @@ build-gtk-module-main:
 
 
 build-registrar-main:
-  image: base/devel
+  image: archlinux/base
   stage: build
   script:
    - pacman -Sy
@@ -69,7 +69,7 @@ build-registrar-main:
 
 
 build-jayatana-main:
-  image: base/devel
+  image: archlinux/base
   stage: build
   script:
    - pacman -Sy
@@ -88,7 +88,7 @@ build-jayatana-main:
 
 
 release-main:
-  image: base/devel
+  image: archlinux/base
   stage: release
   script:
     - pacman -Sy
