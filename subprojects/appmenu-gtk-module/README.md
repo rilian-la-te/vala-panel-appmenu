@@ -58,3 +58,7 @@ export UBUNTU_MENUPROXY
 
 **IF NONE OF THESE ARE WORKING**
 * Add above snippet to any place where environment variables should set.
+
+**YOU SHOULD RELOGIN AFTER INSTALLING THIS MODULE FIRST TIME**
+
+

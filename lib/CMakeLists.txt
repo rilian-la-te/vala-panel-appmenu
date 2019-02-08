@@ -33,10 +33,6 @@ OPTIONS
 GENERATE_VAPI
     vala-panel-appmenu
 )
-glib_compile_resources(RESOURCES
-    source
-        libappmenu.gresource.xml
-)
 include_directories(${CMAKE_SOURCE_DIR})
 set(CORE_C_FILES
     launcher.c

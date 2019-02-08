@@ -6,6 +6,10 @@ set(PLUGIN_VALA_FILES
     budgie-plugin-appmenu.vala
     )
 add_custom_target(plugin-files-ide SOURCES ${PLUGIN_VALA_FILES})
+glib_compile_resources(RESOURCES
+    source
+        ../lib/libappmenu.gresource.xml
+)
 
 ##########
 # XFCE Part
