@@ -3,6 +3,10 @@
 #####
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_subdirectory(dbusmenu-importer)
+
+if(${VALA_VERSION} VERSION_LESS "0.40.4")
+    set(ADDONS_PACKAGE gio-addons-2.0)
+endif()
 set(CORE_VALA_FILES
     appmenu-abstractions.vala
     appmenu-bamf.vala
@@ -19,7 +23,7 @@ vala_precompile(VALA_C_CORE appmenu-core
 PACKAGES
     ${CORE_PACKAGES}
     dbus-menu-importer
-    gio-addons-2.0
+    ${ADDONS_PACKAGE}
     launcher
     ${WNCK_PACKAGES}
 OPTIONS
@@ -28,7 +32,6 @@ OPTIONS
     --vapidir=${CMAKE_CURRENT_SOURCE_DIR}/dbusmenu-importer
     --target-glib=2.50
     --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
-    --thread
     ${WNCK_DEFINE}
 GENERATE_VAPI
     vala-panel-appmenu

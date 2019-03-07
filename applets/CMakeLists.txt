@@ -29,7 +29,6 @@ if (ENABLE_XFCE)
         --vapidir=${CMAKE_CURRENT_BINARY_DIR}
         --target-glib=2.50
         --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
-        --thread
         ${WNCK_DEFINE}
     )
     add_library (appmenu-xfce MODULE
@@ -59,7 +58,6 @@ if(ENABLE_VALAPANEL)
         --vapidir=${CMAKE_BINARY_DIR}/dbusmenu
         --target-glib=2.50
         --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
-        --thread
         ${WNCK_DEFINE}
         ${NEW_DEFINE}
     )
@@ -97,7 +95,6 @@ if(ENABLE_BUDGIE)
         --vapidir=${CMAKE_CURRENT_BINARY_DIR}
         --target-glib=2.50
         --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
-        --thread
         ${WNCK_DEFINE}
     )
 
@@ -127,7 +124,6 @@ if (ENABLE_MATE)
         --vapidir=${CMAKE_CURRENT_BINARY_DIR}
         --target-glib=2.50
         --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
-        --thread
         ${WNCK_DEFINE}
     )
     add_library (appmenu-mate MODULE
