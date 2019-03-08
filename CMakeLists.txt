@@ -77,6 +77,10 @@ set(CORE_PACKAGES
   libbamf3
   posix)
 
+if(${VALA_VERSION} VERSION_LESS "0.40.4")
+    set(ADDONS_PACKAGE gio-addons-2.0)
+endif()
+
 #set requred variables
 set(TARGET_GLIB ${GLIB_VERSION_MAJOR}.${GLIB_VERSION_MINOR})
 include(CMakeDependentOption)

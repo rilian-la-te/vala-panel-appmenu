@@ -4,9 +4,6 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_subdirectory(dbusmenu-importer)
 
-if(${VALA_VERSION} VERSION_LESS "0.40.4")
-    set(ADDONS_PACKAGE gio-addons-2.0)
-endif()
 set(CORE_VALA_FILES
     appmenu-abstractions.vala
     appmenu-bamf.vala
