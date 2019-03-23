@@ -167,13 +167,11 @@ static void menu_item_copy_and_load(DBusMenuModel *menu, DBusMenuItem *old, DBus
 	dbus_menu_item_copy_submenu(old, new_item, menu);
 	dbus_menu_item_generate_action(new_item, menu);
 	// It is a preload hack. If this is a toplevel menu, we need to fetch menu under toplevel to
-	// avoid menu jumping bug
-	if (menu->parent_id == 0)
-	{
-		dbus_menu_item_update_enabled(new_item, true);
-		new_item->toggled = true;
-		g_timeout_add_full(100, 300, (GSourceFunc)preload_idle, new_item, NULL);
-	}
+	// avoid menu jumping bug. Now we need to use it for all menus - no menus are preloadded,
+	// AFAIK
+	dbus_menu_item_update_enabled(new_item, true);
+	new_item->toggled = true;
+	g_timeout_add_full(100, 300, (GSourceFunc)preload_idle, new_item, NULL);
 }
 
 // We deal only with layouts with depth 1 (not all)
