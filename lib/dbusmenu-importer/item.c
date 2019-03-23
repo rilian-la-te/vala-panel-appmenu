@@ -235,7 +235,7 @@ G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item)
 		return;
 	if (item->action_type != DBUS_MENU_ACTION_SUBMENU)
 		return;
-	uint id;
+	int id;
 	DBusMenuXml *xml = NULL;
 	bool need_update;
 	DBusMenuModel *submenu = DBUS_MENU_MODEL(
