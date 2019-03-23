@@ -77,7 +77,7 @@ set(CORE_PACKAGES
   libbamf3
   posix)
 
-if(${VALA_VERSION} VERSION_LESS "0.40.4")
+if(${VALA_VERSION} VERSION_LESS "0.43.91")
     set(ADDONS_PACKAGE gio-addons-2.0)
 endif()
 
