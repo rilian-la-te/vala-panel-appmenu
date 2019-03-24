@@ -52,6 +52,8 @@ public class GlobalMenuApplet: Applet
         (this.action_group.lookup_action(AppletAction.CONFIGURE) as SimpleAction).set_enabled(true);
         var layout = new Appmenu.MenuWidget();
         this.layout = layout;
+        this.background_widget = layout;
+        this.init_background();
         settings.bind(Key.COMPACT_MODE,layout,Key.COMPACT_MODE,SettingsBindFlags.DEFAULT);
         settings.bind(Key.BOLD_APPLICATION_NAME,layout,Key.BOLD_APPLICATION_NAME,SettingsBindFlags.DEFAULT);
         this.add(layout);
