@@ -49,7 +49,7 @@ static const char *const BLACKLIST[] = { "acroread",
 static bool is_string_in_array(const char *string, GVariant *array)
 {
 	GVariantIter iter;
-	const char *element;
+	char *element;
 
 	g_return_val_if_fail(array != NULL, false);
 	g_return_val_if_fail(g_variant_is_of_type(array, G_VARIANT_TYPE("as")), false);
@@ -58,7 +58,10 @@ static bool is_string_in_array(const char *string, GVariant *array)
 	while (g_variant_iter_loop(&iter, "&s", &element))
 	{
 		if (g_strcmp0(element, string) == 0)
+		{
+			g_clear_pointer(&element, g_free);
 			return true;
+		}
 	}
 
 	return false;
@@ -66,9 +69,10 @@ static bool is_string_in_array(const char *string, GVariant *array)
 
 static bool is_listed(const char *name, const char *key)
 {
-	g_autoptr(GSettings) settings = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
-	g_autoptr(GVariant) array     = g_settings_get_value(settings, key);
-	bool listed                   = is_string_in_array(name, array);
+	GSettings *settings       = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
+	g_autoptr(GVariant) array = g_settings_get_value(settings, key);
+	bool listed               = is_string_in_array(name, array);
+	g_clear_object(&settings);
 	return listed;
 }
 
