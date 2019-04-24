@@ -3,3 +3,7 @@ option('valapanel', type: 'feature', value: 'auto', description: 'Vala Panel Int
 option('xfce', type: 'feature', value: 'auto', description: 'Xfce Panel Integration')
 option('mate', type: 'feature', value: 'auto', description: 'MATE Panel Integration')
 option('budgie', type: 'feature', value: 'auto', description: 'Budgie Desktop Integration')
+
+option('registrar', type: 'feature', value: 'auto', description: 'DBusMenu registrar')
+option('appmenu-gtk-module', type: 'feature', value: 'auto', description: 'Gtk+ module for AppMenu')
+option('jayatana', type: 'feature', value: 'auto', description: 'Java support for global menus')

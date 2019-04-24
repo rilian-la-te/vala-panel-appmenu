@@ -14,6 +14,9 @@ am_cflags = [
 ]
 add_project_arguments(am_cflags, language: 'c')
 
+vapi_dir = join_paths(meson.current_source_dir(), 'vapi')
+add_project_arguments(['--vapidir', vapi_dir], language: 'vala')
+
 ##################
 # Module imports #
 ##################
@@ -33,11 +36,19 @@ schema_dir = join_paths(get_option('datadir'), 'glib-2.0', 'schemas')
 ################
 # Dependencies #
 ################
+glib_ver = '>=2.52.0'
+giounix = dependency('gio-unix-2.0', version: glib_ver)
+
+gdkpixbuf = dependency('gdk-pixbuf-2.0', required: false)
+
 gtk_ver = '>=3.22.0'
 gtk = dependency('gtk+-3.0', version: gtk_ver)
 
 bamf_ver = '>=0.5.0'
 bamf = dependency('libbamf3', version: bamf_ver)
+
+wnck_ver = '>=3.4.8'
+wnck = dependency('libwnck-3.0', version: wnck_ver, required: get_option('wnck'))
 
 vp_ver = '>=0.4.88'
 vp = dependency('vala-panel', version:  vp_ver, required: get_option('valapanel'))
@@ -66,21 +77,28 @@ conf_data.set('CMAKE_INSTALL_PREFIX', prefix)
 config = configure_file(input : join_paths('vapi','config.vala.in'),
                output : 'config.vala',
 			   configuration : conf_data)
-			  
+
 desktop_kwargs = {
       'type': 'desktop',
       'args' : ['--keyword=Description'],
       'po_dir': join_paths(meson.current_source_dir(),'po'),
       'install': true,
 }
-			   
+
+#################
+#  Subprojects  #
+#################
+subproject('registrar', required: get_option('registrar'))
+subproject('jayatana', required: get_option('jayatana'))
+subproject('appmenu-gtk-module', required: get_option('appmenu-gtk-module'))
 
 subdir('lib')
+subdir('applets')
 subdir('data')
 subdir('po')
 
 readmes = [
     'README.md',
-    'LICENSE', 
+    'LICENSE',
 ]
 install_data(readmes, install_dir : join_paths(get_option('datadir'), meson.project_name(), 'doc'))

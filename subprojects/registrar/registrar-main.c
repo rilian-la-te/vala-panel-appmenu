@@ -18,6 +18,7 @@
 
 #include "registrar-main.h"
 #include "config.h"
+#include "version.h"
 #include "registrar-dbusmenu.h"
 #include <glib/gi18n.h>
 #include <stdbool.h>

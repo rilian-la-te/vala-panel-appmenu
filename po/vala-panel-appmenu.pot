@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-17 15:48+0300\n"
+"POT-Creation-Date: 2019-04-24 16:13+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,10 +18,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: ../lib/appmenu-desktop.vala:39 ../lib/appmenu-desktop.vala:65
+#: ../lib/helper-desktop.vala:58
 msgid "_Desktop"
 msgstr ""
 
 #: ../lib/appmenu-desktop.vala:153 ../lib/appmenu-desktop.vala:205
+#: ../lib/helper-desktop.vala:192
 msgid "No files"
 msgstr ""
 
@@ -54,18 +56,23 @@ msgid "_Files"
 msgstr ""
 
 #: ../data/xfce/appmenu.desktop.xfce.in:5 ../data/appmenu.desktop.plugin.in:4
-#: ../data/appmenu.desktop.xfce.in:5
+#: ../data/appmenu.desktop.xfce.in:5 ../data/appmenu.desktop.in:5
+#: ../data/appmenu.plugin.desktop.in:4
+#: ../data/org.valapanel.appmenu.desktop.in:4
 msgid "AppMenu Plugin"
 msgstr ""
 
 #: ../data/xfce/appmenu.desktop.xfce.in:6 ../data/appmenu.desktop.plugin.in:5
-#: ../data/appmenu.desktop.xfce.in:6
+#: ../data/appmenu.desktop.xfce.in:6 ../data/appmenu.desktop.in:6
+#: ../data/appmenu.plugin.desktop.in:5
+#: ../data/org.valapanel.appmenu.desktop.in:5
 msgid "Display AppMenu (Global Menu)"
 msgstr ""
 
 #: ../data/xfce/appmenu.desktop.xfce.in:7
 #: ../data/appmenu-mate.desktop.plugin.in:11 ../data/appmenu.desktop.xfce.in:7
-#: ../data/appmenu-mate.desktop.in:11
+#: ../data/appmenu-mate.desktop.in:11 ../data/appmenu-mate.plugin.desktop.in:11
+#: ../data/appmenu.desktop.in:7
 msgid "applications-system"
 msgstr ""
 
@@ -128,25 +135,40 @@ msgid "_Quit"
 msgstr ""
 
 #: ../data/appmenu-budgie.desktop.plugin.in:4
+#: ../data/appmenu-budgie.desktop.in:4
 msgid "Global Menu"
 msgstr ""
 
 #: ../data/appmenu-budgie.desktop.plugin.in:5
+#: ../data/appmenu-budgie.desktop.in:5
 msgid "Show menus from windows"
 msgstr ""
 
 #: ../data/appmenu-budgie.desktop.plugin.in:9
+#: ../data/appmenu-budgie.desktop.in:9
 msgid "view-grid-symbolic"
 msgstr ""
 
 #: ../data/appmenu-mate.desktop.plugin.in:5 ../data/appmenu-mate.desktop.in:5
+#: ../data/appmenu-mate.plugin.desktop.in:5
 msgid "Appmenu applet factory"
 msgstr ""
 
 #: ../data/appmenu-mate.desktop.plugin.in:9 ../data/appmenu-mate.desktop.in:9
+#: ../data/appmenu-mate.plugin.desktop.in:9
 msgid "Global Application Menu"
 msgstr ""
 
-#: ../data/appmenu-mate.desktop.plugin.in:10
+#: ../data/appmenu-mate.desktop.plugin.in:10 ../data/appmenu-mate.desktop.in:10
+#: ../data/appmenu-mate.plugin.desktop.in:10
 msgid "All menus will hosts here"
+msgstr ""
+
+#: ../lib/menu-widget.vala:114
+msgid "Compact Menu"
+msgstr ""
+
+#: ../data/appmenu.desktop.plugin.in:6 ../data/appmenu.plugin.desktop.in:6
+#: ../data/org.valapanel.appmenu.desktop.in:6
+msgid "preferences-system-symbolic"
 msgstr ""

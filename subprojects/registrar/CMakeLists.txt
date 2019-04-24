@@ -12,6 +12,7 @@ set(REGISTRAR_C_FILES
     registrar-main.c
     registrar-dbusmenu.c)
 configure_file (config.h.in config.h)
+configure_file (version.h.in version.h)
 
 find_package(GLIB2 2.50 REQUIRED QUIET COMPONENTS GOBJECT GIO GIO_UNIX GENMARSHAL)
 include(GLibProgramHandlers)
