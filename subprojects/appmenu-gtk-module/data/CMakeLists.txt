@@ -3,11 +3,7 @@ add_custom_target(data-files-module SOURCES org.appmenu.gtk-module.gschema.xml a
 add_schema("org.appmenu.gtk-module.gschema.xml" "bin")
 pkg_check_modules(SYSTEMD "systemd")
 if (SYSTEMD_FOUND AND "${SYSTEMD_SERVICES_INSTALL_DIR}" STREQUAL "")
-    execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE}
-        --variable=systemduserunitdir systemd
-       OUTPUT_VARIABLE SYSTEMD_SERVICES_INSTALL_DIR)
-    string(REGEX REPLACE "[ \t\n]+" "" SYSTEMD_SERVICES_INSTALL_DIR
-        "${SYSTEMD_SERVICES_INSTALL_DIR}")
+    pkg_get_variable(SYSTEMD_SERVICES_INSTALL_DIR systemd systemduserunitdir)
 elseif (NOT SYSTEMD_FOUND AND SYSTEMD_SERVICES_INSTALL_DIR)
     message (FATAL_ERROR "Variable SYSTEMD_SERVICES_INSTALL_DIR is\
         defined, but we can't find systemd using pkg-config")
