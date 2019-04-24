@@ -13,15 +13,15 @@ set(CORE_VALA_FILES
     helper-dbus.vala
     helper-dbusmenu.vala
     helper-menumodel.vala
+    dbus-menu-importer.vapi
+    launcher.vapi
     ${CMAKE_BINARY_DIR}/vapi/config.vala
 )
 vala_precompile(VALA_C_CORE appmenu-core
     ${CORE_VALA_FILES}
 PACKAGES
     ${CORE_PACKAGES}
-    dbus-menu-importer
     ${ADDONS_PACKAGE}
-    launcher
     ${WNCK_PACKAGES}
 OPTIONS
     --vapidir=${CMAKE_SOURCE_DIR}/vapi
