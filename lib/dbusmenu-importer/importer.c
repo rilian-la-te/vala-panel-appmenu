@@ -56,7 +56,7 @@ static void dbus_menu_importer_on_root_model_changed(GMenuModel *model, gint pos
                                                      gint added, gpointer user_data)
 {
 	DBusMenuImporter *menu = DBUS_MENU_IMPORTER(user_data);
-	g_object_notify_by_pspec(menu, properties[PROP_MODEL]);
+	g_object_notify_by_pspec(G_OBJECT(menu), properties[PROP_MODEL]);
 }
 
 static void proxy_ready_cb(GObject *source_object, GAsyncResult *res, gpointer user_data)
@@ -77,7 +77,7 @@ static void proxy_ready_cb(GObject *source_object, GAsyncResult *res, gpointer u
 	}
 	if (dbus_menu_importer_check(menu))
 		g_object_set(menu->top_model, "xml", proxy, NULL);
-	g_object_notify_by_pspec(menu, properties[PROP_MODEL]);
+	g_object_notify_by_pspec(G_OBJECT(menu), properties[PROP_MODEL]);
 }
 
 static void name_appeared_cb(GDBusConnection *connection, const char *name, const char *name_owner,
@@ -99,7 +99,7 @@ static void name_vanished_cb(GDBusConnection *connection, const char *name, gpoi
 	DBusMenuImporter *menu = DBUS_MENU_IMPORTER(user_data);
 
 	g_object_set(menu->top_model, "xml", NULL, NULL);
-	g_object_notify_by_pspec(menu, properties[PROP_MODEL]);
+	g_object_notify_by_pspec(G_OBJECT(menu), properties[PROP_MODEL]);
 	g_clear_object(&menu->proxy);
 }
 

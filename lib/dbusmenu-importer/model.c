@@ -92,7 +92,7 @@ static void dbus_menu_model_get_item_links(GMenuModel *model, gint position, GHa
 	*table = g_hash_table_ref(item->links);
 }
 
-static bool dbus_menu_model_is_mutable(GMenuModel *model)
+static int dbus_menu_model_is_mutable(GMenuModel *model)
 {
 	return true;
 }
@@ -137,7 +137,7 @@ static void add_signal_to_queue(DBusMenuModel *model, GQueue *queue, int sect_nu
 	data->pos         = pos;
 	data->old_num     = removed;
 	data->new_num     = added;
-	gpointer l        = g_queue_find_custom(queue, data, queue_compare_func);
+	gpointer l        = g_queue_find_custom(queue, data, (GCompareFunc)queue_compare_func);
 	if (!l)
 		g_queue_push_head(queue, data);
 }
@@ -228,7 +228,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		{
 			bool is_valid_section = !new_item->toggled && !on_border;
 			// If old section is empty - new section is invalid
-			if (g_menu_model_get_n_items(current_section) == 0)
+			if (g_menu_model_get_n_items(G_MENU_MODEL(current_section)) == 0)
 				is_valid_section = false;
 			// Section is valid, so, parse it
 			if (is_valid_section)
@@ -354,7 +354,8 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 	// We need to manage last section's changes. And check its validity
 	bool is_valid_section = !on_border || section_num == 0;
 	// If old section is empty - new section is invalid
-	if (g_menu_model_get_n_items(current_section) == 0 && g_menu_model_get_n_items(menu) > 1)
+	if (g_menu_model_get_n_items(G_MENU_MODEL(current_section)) == 0 &&
+	    g_menu_model_get_n_items(G_MENU_MODEL(menu)) > 1)
 		is_valid_section = false;
 	current_iter = g_sequence_iter_next(current_iter);
 	int removed =

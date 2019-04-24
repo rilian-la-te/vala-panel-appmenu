@@ -81,7 +81,7 @@ static GAction *dbus_menu_action_new(DBusMenuXml *xml, u_int32_t id, DBusMenuAct
 	{
 		ret = g_simple_action_new_stateful(name, NULL, g_variant_new_boolean(false));
 		g_signal_connect(ret, "activate", G_CALLBACK(activate_checkbox_cb), xml);
-		return ret;
+		return G_ACTION(ret);
 	}
 	else if (action_type == DBUS_MENU_ACTION_RADIO)
 	{
@@ -90,13 +90,13 @@ static GAction *dbus_menu_action_new(DBusMenuXml *xml, u_int32_t id, DBusMenuAct
 		                                   g_variant_new_string(
 		                                       DBUS_MENU_ACTION_RADIO_UNSELECTED));
 		g_signal_connect(ret, "activate", G_CALLBACK(state_radio_cb), xml);
-		return ret;
+		return G_ACTION(ret);
 	}
 	else if (action_type == DBUS_MENU_ACTION_NORMAL)
 	{
 		ret = g_simple_action_new(name, NULL);
 		g_signal_connect(ret, "activate", G_CALLBACK(activate_ordinary_cb), xml);
-		return ret;
+		return G_ACTION(ret);
 	}
 	g_assert_not_reached();
 }
@@ -116,7 +116,7 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 	u_int32_t id;
 	g_object_get(model, "parent-id", &id, "xml", &xml, NULL);
 	bool request_open = g_variant_get_boolean(parameter);
-	GVariant *statev  = g_action_get_state(action);
+	GVariant *statev  = g_action_get_state(G_ACTION(action));
 	bool opened       = g_variant_get_boolean(statev);
 	g_variant_unref(statev);
 	bool need_update = true;
@@ -135,7 +135,7 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 		                                      (gboolean *)&need_update,
 		                                      NULL,
 		                                      NULL);
-		if (g_menu_model_get_n_items(model) == 0)
+		if (g_menu_model_get_n_items(G_MENU_MODEL(model)) == 0)
 			need_update = true;
 		need_update = need_update || dbus_menu_model_is_layout_update_required(model);
 		if (need_update)
@@ -181,7 +181,7 @@ static GAction *dbus_menu_submenu_action_new(DBusMenuModel *model)
                                                           G_VARIANT_TYPE_BOOLEAN,
                                                           g_variant_new_boolean(false));
 	g_signal_connect(ret, "change-state", G_CALLBACK(state_submenu_cb), model);
-	return ret;
+	return G_ACTION(ret);
 }
 
 G_GNUC_INTERNAL char *dbus_menu_action_get_name(uint id, DBusMenuActionType action_type,

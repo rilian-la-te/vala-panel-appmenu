@@ -267,7 +267,7 @@ G_GNUC_INTERNAL bool dbus_menu_item_copy_attributes(DBusMenuItem *src, DBusMenuI
 	bool is_updated = false;
 	char *key;
 	GVariant *value;
-	while (g_hash_table_iter_next(&iter, &key, &value))
+	while (g_hash_table_iter_next(&iter, (void **)&key, (void **)&value))
 	{
 		is_updated = check_and_update_mutable_attribute(dst, key, value) || is_updated;
 	}

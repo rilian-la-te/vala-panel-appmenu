@@ -127,7 +127,6 @@ void registrar_dbus_menu_get_menus(RegistrarDBusMenu *self, GVariant **menus)
 	g_hash_table_iter_init(&iter, self->menus);
 	while (g_hash_table_iter_next(&iter, &key, &value))
 	{
-		DBusAddress *val = (DBusAddress *)value;
 		char *name;
 		char *path;
 		registrar_dbus_menu_get_menu_for_window(self, GPOINTER_TO_UINT(key), &name, &path);
@@ -247,19 +246,16 @@ static void _dbus_registrar_dbus_menu_get_menu_for_window(RegistrarDBusMenu *sel
                                                           GVariant *_parameters_,
                                                           GDBusMethodInvocation *invocation)
 {
-	GError *error = NULL;
 	GVariantIter _arguments_iter;
-	uint window = 0U;
-	GVariant *_tmp3_;
+	uint window                  = 0U;
 	GDBusMessage *_reply_message = NULL;
 	GVariant *_reply;
 	GVariantBuilder _reply_builder;
 	char *service = NULL;
 	char *path    = NULL;
 	g_variant_iter_init(&_arguments_iter, _parameters_);
-	GVariant *value = g_variant_iter_next_value(&_arguments_iter);
-	window          = g_variant_get_uint32(value);
-	g_variant_unref(value);
+	g_autoptr(GVariant) value = g_variant_iter_next_value(&_arguments_iter);
+	window                    = g_variant_get_uint32(value);
 	registrar_dbus_menu_get_menu_for_window(self, window, &service, &path);
 	_reply_message =
 	    g_dbus_message_new_method_reply(g_dbus_method_invocation_get_message(invocation));
@@ -280,7 +276,6 @@ static void _dbus_registrar_dbus_menu_get_menu_for_window(RegistrarDBusMenu *sel
 static void _dbus_registrar_dbus_menu_get_menus(RegistrarDBusMenu *self, GVariant *_parameters_,
                                                 GDBusMethodInvocation *invocation)
 {
-	GError *error = NULL;
 	GVariantIter _arguments_iter;
 	GDBusMessage *_reply_message = NULL;
 	GVariant *_reply;
@@ -358,7 +353,6 @@ static void _dbus_registrar_dbus_menu_window_unregistered(GObject *_sender, uint
                                                           gpointer *_data)
 {
 	GDBusConnection *_connection;
-	const char *_path;
 	GVariant *_arguments;
 	GVariantBuilder _arguments_builder;
 	_connection = (GDBusConnection *)_data;
@@ -373,9 +367,8 @@ static void _dbus_registrar_dbus_menu_window_unregistered(GObject *_sender, uint
 	                              _arguments,
 	                              NULL);
 }
-static const GDBusInterfaceVTable _interface_vtable = {
-	registrar_dbus_menu_dbus_interface_method_call, NULL, NULL
-};
+static const GDBusInterfaceVTable _interface_vtable =
+    { registrar_dbus_menu_dbus_interface_method_call, NULL, NULL };
 
 void registrar_dbus_menu_unregister(RegistrarDBusMenu *data, GDBusConnection *con)
 {

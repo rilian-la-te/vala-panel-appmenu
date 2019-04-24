@@ -18,8 +18,8 @@
 
 #include "registrar-main.h"
 #include "config.h"
-#include "version.h"
 #include "registrar-dbusmenu.h"
+#include "version.h"
 #include <glib/gi18n.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -38,25 +38,24 @@ extern const char *private_xml;
 
 G_DEFINE_TYPE(RegistrarApplication, registrar_application, G_TYPE_APPLICATION)
 
-static const GOptionEntry options[4] = {
-	{ "version", 'v', 0, G_OPTION_ARG_NONE, NULL, N_("Print version and exit"), NULL },
-	{ "reference",
-	  'r',
-	  0,
-	  G_OPTION_ARG_NONE,
-	  NULL,
-	  N_("Reference a registrar (need more unreferences to quit automatically)"),
-	  NULL },
-	{ "unreference",
-	  'u',
-	  0,
-	  G_OPTION_ARG_NONE,
-	  NULL,
-	  N_("Unreference a registrar (need less unreferences to quit automatically, or quits if "
-	     "refcount reaches zero)"),
-	  NULL },
-	{ NULL }
-};
+static const GOptionEntry options[4] =
+    { { "version", 'v', 0, G_OPTION_ARG_NONE, NULL, N_("Print version and exit"), NULL },
+      { "reference",
+	'r',
+	0,
+	G_OPTION_ARG_NONE,
+	NULL,
+	N_("Reference a registrar (need more unreferences to quit automatically)"),
+	NULL },
+      { "unreference",
+	'u',
+	0,
+	G_OPTION_ARG_NONE,
+	NULL,
+	N_("Unreference a registrar (need less unreferences to quit automatically, or quits if "
+	   "refcount reaches zero)"),
+	NULL },
+      { NULL } };
 
 RegistrarApplication *registrar_application_new()
 {
@@ -107,7 +106,8 @@ static void registrar_application_on_dbus_name_aquired(GDBusConnection *connecti
 static void registrar_application_on_dbus_name_lost(GDBusConnection *connection, const char *name,
                                                     gpointer user_data)
 {
-	GApplication *app = G_APPLICATION(user_data);
+	RegistrarApplication *self = REGISTRAR_APPLICATION(user_data);
+	registrar_dbus_menu_unregister(self->registrar, connection);
 }
 
 static void registrar_application_method_call(GDBusConnection *connection, const char *sender,
@@ -180,6 +180,7 @@ static void registrar_application_finalize(GObject *obj)
 {
 	RegistrarApplication *self = REGISTRAR_APPLICATION(obj);
 	g_clear_object(&self->registrar);
+	G_OBJECT_CLASS(registrar_application_parent_class)->finalize(obj);
 }
 
 static void registrar_application_init(RegistrarApplication *application)
@@ -194,13 +195,13 @@ static void registrar_application_init(RegistrarApplication *application)
 
 static void registrar_application_class_init(RegistrarApplicationClass *klass)
 {
-	((GApplicationClass *)klass)->handle_local_options =
+	G_APPLICATION_CLASS(klass)->handle_local_options =
 	    registrar_application_handle_local_options;
-	((GApplicationClass *)klass)->command_line    = registrar_application_command_line;
-	((GApplicationClass *)klass)->dbus_register   = registrar_application_dbus_register;
-	((GApplicationClass *)klass)->activate        = registrar_application_activate;
-	((GApplicationClass *)klass)->dbus_unregister = registrar_application_dbus_unregister;
-	G_OBJECT_CLASS(klass)->finalize               = registrar_application_finalize;
+	G_APPLICATION_CLASS(klass)->command_line    = registrar_application_command_line;
+	G_APPLICATION_CLASS(klass)->dbus_register   = registrar_application_dbus_register;
+	G_APPLICATION_CLASS(klass)->activate        = registrar_application_activate;
+	G_APPLICATION_CLASS(klass)->dbus_unregister = registrar_application_dbus_unregister;
+	G_OBJECT_CLASS(klass)->finalize             = registrar_application_finalize;
 }
 
 int main(int argc, char *argv[])
