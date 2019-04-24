@@ -48,10 +48,10 @@ public class GlobalMenuApplet: Applet
     public override Widget? get_settings_ui()
     {
         var dlg = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
-        var entry = new CheckButton.with_label(_("Use Compact mode (all menus in application menu)"));
+        var entry = new CheckButton.with_label(dgettext(Config.GETTEXT_PACKAGE,"Use Compact mode (all menus in application menu)"));
         this.settings.bind(Key.COMPACT_MODE,entry,"active",SettingsBindFlags.DEFAULT);
         dlg.pack_start(entry,false,false,2);
-        entry = new CheckButton.with_label(_("Use bold application name"));
+        entry = new CheckButton.with_label(dgettext(Config.GETTEXT_PACKAGE,"Use bold application name"));
         this.settings.bind(Key.BOLD_APPLICATION_NAME,entry,"active",SettingsBindFlags.DEFAULT);
         dlg.pack_start(entry,false,false,2);
         dlg.show();

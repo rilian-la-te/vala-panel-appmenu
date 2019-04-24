@@ -89,8 +89,6 @@ static void matcher_reload_ids(ValaPanelMatcher *self)
 	GList *app_info_list = g_app_info_get_all();
 	for (GList *l = app_info_list; l != NULL; l = g_list_next(l))
 	{
-		if (!G_IS_DESKTOP_APP_INFO(l->data))
-			continue;
 		GDesktopAppInfo *dinfo = G_DESKTOP_APP_INFO(l->data);
 		const char *id         = g_app_info_get_id(G_APP_INFO(dinfo));
 		if (g_desktop_app_info_get_startup_wm_class(dinfo) != NULL)

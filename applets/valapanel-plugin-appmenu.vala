@@ -22,7 +22,6 @@ using ValaPanel;
 using Appmenu;
 
 
-#if NEW
 public class AppmenuApplet : AppletPlugin
 {
     public override Applet get_applet_widget(ValaPanel.Toplevel toplevel,
@@ -32,17 +31,7 @@ public class AppmenuApplet : AppletPlugin
         return new GlobalMenuApplet(toplevel,settings,number);
     }
 }
-#else
-public class AppmenuApplet : AppletPlugin, Peas.ExtensionBase
-{
-    public Applet get_applet_widget(ValaPanel.Toplevel toplevel,
-                                    GLib.Settings? settings,
-                                    string number)
-    {
-        return new GlobalMenuApplet(toplevel,settings,number);
-    }
-}
-#endif
+
 public class GlobalMenuApplet: Applet
 {
     unowned MenuWidget layout;
@@ -70,11 +59,11 @@ public class GlobalMenuApplet: Applet
     public override Widget get_settings_ui()
     {
         var dlg = new Gtk.Box(Gtk.Orientation.VERTICAL,0);
-        var entry = new CheckButton.with_label(_("Use Compact mode (all menus in application menu)"));
+        var entry = new CheckButton.with_label(dgettext(Config.GETTEXT_PACKAGE,"Use Compact mode (all menus in application menu)"));
         this.settings.bind(Key.COMPACT_MODE,entry,"active",SettingsBindFlags.DEFAULT);
         dlg.pack_start(entry,false,false,2);
         entry.show();
-        entry = new CheckButton.with_label(_("Use bold application name"));
+        entry = new CheckButton.with_label(dgettext(Config.GETTEXT_PACKAGE,"Use bold application name"));
         this.settings.bind(Key.BOLD_APPLICATION_NAME,entry,"active",SettingsBindFlags.DEFAULT);
         dlg.pack_start(entry,false,false,2);
         entry.show();
@@ -83,7 +72,6 @@ public class GlobalMenuApplet: Applet
     }
 } // End class
 
-#if NEW
 [ModuleInit]
 public void g_io_appmenu_load(GLib.TypeModule module)
 {
@@ -98,12 +86,3 @@ public void g_io_appmenu_unload(GLib.IOModule module)
 {
     // boilerplate - all modules need this
 }
-#else
-[ModuleInit]
-public void peas_register_types(TypeModule module)
-{
-    // boilerplate - all modules need this
-    var objmodule = module as Peas.ObjectModule;
-    objmodule.register_extension_type(typeof(ValaPanel.AppletPlugin), typeof(AppmenuApplet));
-}
-#endif

@@ -37,15 +37,15 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
     Gtk.Action a = new Gtk.Action("AppMenuAppletPreferences",N_("_Preferences"),null,Gtk.Stock.PREFERENCES);
     a.activate.connect(()=>
     {
-        var dlg = new Gtk.Dialog.with_buttons( _("Configure AppMenu"), layout.get_toplevel() as Window,
+        var dlg = new Gtk.Dialog.with_buttons( dgettext(Config.GETTEXT_PACKAGE,"Configure AppMenu"), layout.get_toplevel() as Window,
                                               DialogFlags.DESTROY_WITH_PARENT,
                                               null );
         Gtk.Box dlg_vbox = dlg.get_content_area() as Gtk.Box;
-        var entry = new CheckButton.with_label(_("Use Compact mode (all menus in application menu)"));
+        var entry = new CheckButton.with_label(dgettext(Config.GETTEXT_PACKAGE,"Use Compact mode (all menus in application menu)"));
         settings.bind(Key.COMPACT_MODE,entry,"active",SettingsBindFlags.DEFAULT);
         dlg_vbox.pack_start(entry,false,false,2);
         entry.show();
-        entry = new CheckButton.with_label(_("Use bold application name"));
+        entry = new CheckButton.with_label(dgettext(Config.GETTEXT_PACKAGE,"Use bold application name"));
         settings.bind(Key.BOLD_APPLICATION_NAME,entry,"active",SettingsBindFlags.DEFAULT);
         dlg_vbox.pack_start(entry,false,false,2);
         entry.show();

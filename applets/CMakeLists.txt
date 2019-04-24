@@ -59,7 +59,6 @@ if(ENABLE_VALAPANEL)
         --target-glib=2.50
         --gresources=${CMAKE_CURRENT_SOURCE_DIR}/libappmenu.gresource.xml
         ${WNCK_DEFINE}
-        ${NEW_DEFINE}
     )
 
     # Build library for plugins and application
@@ -69,11 +68,7 @@ if(ENABLE_VALAPANEL)
     )
     set_target_properties(appmenu-valapanel PROPERTIES
         OUTPUT_NAME appmenu)
-    if(NEW_IFACE)
-        target_link_libraries (appmenu-valapanel appmenu-core PkgConfig::VALAPANEL)
-    else()
-        target_link_libraries (appmenu-valapanel appmenu-core PEAS::PEAS PkgConfig::VALAPANEL)
-    endif()
+    target_link_libraries (appmenu-valapanel appmenu-core PkgConfig::VALAPANEL)
     # Install plugin stuffs
     install(TARGETS appmenu-valapanel DESTINATION ${CMAKE_INSTALL_LIBDIR}/vala-panel/applets)
 endif()
