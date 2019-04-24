@@ -7,5 +7,5 @@ Name: appmenu-gtk3-parser
 Description: GtkMenuShell to GMenuModel parser
 Version: @VERSION@
 Requires: gtk+-3.0
-Cflags: -I@DOLLAR@{includedir}/appmenu-gtk-parser
-Libs: -L@DOLLAR@{libdir} -lappmenu-gtk3-parser
+Cflags: -I${includedir}/appmenu-gtk-parser
+Libs: -L${libdir} -lappmenu-gtk3-parser
