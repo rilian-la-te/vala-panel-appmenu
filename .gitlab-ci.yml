@@ -88,11 +88,10 @@ build-jayatana-main:
 
 
 release-main:
-  image: archlinux/base
+  image: alpine:edge
   stage: release
   script:
-    - pacman -Sy
-    - pacman -S --noconfirm python3 python-pip
+    - apk add --no-cache python3
     - pip3 install gitlab_release
     - python3 -m gitlab_release ${PRIVATE_TOKEN} build/vala-panel*.tar.xz subprojects/jayatana/build/jayatana*.tar.xz subprojects/registrar/build/appmenu-registrar*.tar.xz subprojects/appmenu-gtk-module/build/appmenu-gtk-module*.tar.xz
   only:
