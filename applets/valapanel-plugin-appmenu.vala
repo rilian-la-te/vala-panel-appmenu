@@ -22,16 +22,6 @@ using ValaPanel;
 using Appmenu;
 
 
-public class AppmenuApplet : AppletPlugin
-{
-    public override Applet get_applet_widget(ValaPanel.Toplevel toplevel,
-                                    GLib.Settings? settings,
-                                    string number)
-    {
-        return new GlobalMenuApplet(toplevel,settings,number);
-    }
-}
-
 public class GlobalMenuApplet: Applet
 {
     unowned MenuWidget layout;
@@ -79,7 +69,7 @@ public void g_io_appmenu_load(GLib.TypeModule module)
 //    GLib.Intl.bindtextdomain(Config.GETTEXT_PACKAGE,Config.LOCALE_DIR);
 //    GLib.Intl.bind_textdomain_codeset(Config.GETTEXT_PACKAGE,"UTF-8");
     module.use();
-    GLib.IOExtensionPoint.implement(ValaPanel.Applet.EXTENSION_POINT,typeof(AppmenuApplet),"org.valapanel.appmenu",10);
+    GLib.IOExtensionPoint.implement(ValaPanel.Applet.EXTENSION_POINT,typeof(GlobalMenuApplet),"org.valapanel.appmenu",10);
 }
 
 public void g_io_appmenu_unload(GLib.IOModule module)

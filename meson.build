@@ -50,7 +50,7 @@ bamf = dependency('libbamf3', version: bamf_ver)
 wnck_ver = '>=3.4.8'
 wnck = dependency('libwnck-3.0', version: wnck_ver, required: get_option('wnck'))
 
-vp_ver = '>=0.4.88'
+vp_ver = '>=0.4.89'
 vp = dependency('vala-panel', version:  vp_ver, required: get_option('valapanel'))
 vala_panel_found = vp.found()
 
