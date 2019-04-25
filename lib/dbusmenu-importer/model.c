@@ -80,7 +80,7 @@ static void dbus_menu_model_get_item_attributes(GMenuModel *model, gint position
 	DBusMenuItem *item  = (DBusMenuItem *)g_sequence_get(
             (GSequenceIter *)g_sequence_get_iter_at_pos(menu->sections, position));
 
-	*table = g_hash_table_ref(item->attributes);
+	*table = g_hash_table_ref(item->attrs);
 }
 
 static void dbus_menu_model_get_item_links(GMenuModel *model, gint position, GHashTable **table)

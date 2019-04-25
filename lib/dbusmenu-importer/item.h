@@ -31,10 +31,10 @@ G_BEGIN_DECLS
 typedef struct
 {
 	u_int32_t id;
-	GActionGroup *referenced_action_group;
+	GActionGroup *ref_action_group;
 	// FIXME: Cannot have activatable submenu item.
-	GAction *referenced_action;
-	GHashTable *attributes;
+	GAction *ref_action;
+	GHashTable *attrs;
 	GHashTable *links;
 	DBusMenuActionType action_type;
 	bool enabled;

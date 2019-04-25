@@ -48,7 +48,7 @@ static void dbus_menu_section_model_get_item_attributes(GMenuModel *model, gint 
 	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(model);
 	DBusMenuItem *item =
 	    (DBusMenuItem *)g_sequence_get(g_sequence_get_iter_at_pos(menu->items, position));
-	*table = g_hash_table_ref(item->attributes);
+	*table = g_hash_table_ref(item->attrs);
 }
 
 static void dbus_menu_section_model_get_item_links(GMenuModel *model, gint position,
