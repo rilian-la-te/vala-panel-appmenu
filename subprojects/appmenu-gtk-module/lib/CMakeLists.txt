@@ -1,10 +1,10 @@
 set(LIB_SOURCES
-        appmenu-gtk-action-group.h
+	appmenu-gtk-action-group.h
 	unity-gtk-action-group-private.h
 	unity-gtk-action-group.c
 	unity-gtk-action-private.h
 	unity-gtk-action.c
-        appmenu-gtk-menu-shell.h
+	appmenu-gtk-menu-shell.h
 	unity-gtk-menu-shell-private.h
 	unity-gtk-menu-shell.c
 	unity-gtk-menu-section-private.h
