@@ -5,6 +5,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_subdirectory(dbusmenu-importer)
 
 set(CORE_VALA_FILES
+    dbus-menu-importer.vapi
+    launcher.vapi
     appmenu-abstractions.vala
     appmenu-bamf.vala
     registrar.vala
@@ -13,8 +15,6 @@ set(CORE_VALA_FILES
     helper-dbus.vala
     helper-dbusmenu.vala
     helper-menumodel.vala
-    dbus-menu-importer.vapi
-    launcher.vapi
     ${CMAKE_BINARY_DIR}/vapi/config.vala
 )
 vala_precompile(VALA_C_CORE appmenu-core
