@@ -30,7 +30,6 @@
 static void sync_gtk2_settings()
 {
 #if GTK_MAJOR_VERSION < 3
-	GtkSettings *settings;
 	GParamSpec *pspec;
 
 	pspec = g_object_class_find_property(g_type_class_ref(GTK_TYPE_SETTINGS),

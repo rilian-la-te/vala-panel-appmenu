@@ -131,7 +131,6 @@ static void hijacked_application_window_realize(GtkWidget *widget)
 static void hijacked_menu_bar_realize(GtkWidget *widget)
 {
 	GtkWidget *window;
-	GtkSettings *settings;
 
 	g_return_if_fail(GTK_IS_MENU_BAR(widget));
 
@@ -148,7 +147,6 @@ static void hijacked_menu_bar_realize(GtkWidget *widget)
 
 static void hijacked_menu_bar_unrealize(GtkWidget *widget)
 {
-	GtkSettings *settings;
 	MenuShellData *menu_shell_data;
 
 	g_return_if_fail(GTK_IS_MENU_BAR(widget));

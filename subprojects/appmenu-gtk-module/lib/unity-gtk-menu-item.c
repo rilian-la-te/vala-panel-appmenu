@@ -136,7 +136,7 @@ static GIcon *gtk_image_get_icon(GtkImage *image)
 		GdkPixbuf *pixbuf = gtk_image_get_pixbuf(image);
 
 		if (pixbuf != NULL)
-			icon = g_object_ref(pixbuf);
+			icon = G_ICON(g_object_ref(pixbuf));
 	}
 
 	break;
@@ -150,7 +150,7 @@ static GIcon *gtk_image_get_icon(GtkImage *image)
 			GdkPixbuf *pixbuf = gdk_pixbuf_animation_get_static_image(animation);
 
 			if (pixbuf != NULL)
-				icon = g_object_ref(pixbuf);
+				icon = G_ICON(g_object_ref(pixbuf));
 		}
 	}
 

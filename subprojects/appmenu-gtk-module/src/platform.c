@@ -182,7 +182,7 @@ G_GNUC_INTERNAL WindowData *gtk_x11_window_get_window_data(GtkWindow *window)
 
 		if (old_menu_model != NULL)
 		{
-			window_data->old_model = g_object_ref(old_menu_model);
+			window_data->old_model = G_MENU_MODEL(g_object_ref(old_menu_model));
 			g_menu_append_section(window_data->menu_model,
 			                      NULL,
 			                      G_MENU_MODEL(old_menu_model));
