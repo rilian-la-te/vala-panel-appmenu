@@ -30,7 +30,7 @@ static GParamSpec *properties[NUM_PROPS] = { NULL };
 
 G_DEFINE_TYPE(DBusMenuSectionModel, dbus_menu_section_model, G_TYPE_MENU_MODEL)
 
-static bool dbus_menu_section_model_is_mutable(GMenuModel *model)
+static int dbus_menu_section_model_is_mutable(GMenuModel *model)
 {
 	return true;
 }
