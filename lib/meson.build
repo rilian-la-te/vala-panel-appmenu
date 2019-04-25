@@ -34,9 +34,11 @@ addons_versions = {
     '<0.43.0': '<0.42.6',
     '<0.45.0': '<0.44.0'
 }
+addons_needed = false
 foreach series, ver : addons_versions
     if vver.version_compare(series) and vver.version_compare(ver)
         addons_needed = true
+        break
     endif
 endforeach
 if addons_needed
