@@ -13,16 +13,18 @@ ent = configure_file(
     configuration: ent_dict
 )
 
+install = false
+
 if build_gtk3
 gnome.gtkdoc(
     'appmenu-gtk-parser',
     content_files: ent,
-    src_dir: 'lib',
+    src_dir: parser_inc,
     gobject_typesfile: 'appmenu-gtk-parser.types',
     dependencies: gtk3_parser_dep,
     ignore_headers: lib_private_headers,
-    install: true,
-    main_sgml: 'appmenu-gtk-parser-docs.sgml'
+    install: install,
+    main_sgml: join_paths(meson.current_build_dir(),'appmenu-gtk-parser-docs.sgml')
 )
 
 endif
