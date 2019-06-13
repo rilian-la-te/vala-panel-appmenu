@@ -52,6 +52,8 @@ G_GNUC_INTERNAL bool gtk_module_should_run()
 	const char *proxy          = g_getenv("UBUNTU_MENUPROXY");
 	bool is_platform_supported = false;
 	bool is_program_supported  = false;
+	bool should_run            = false;
+	static bool run_once       = true;
 #if GTK_MAJOR_VERSION >= 3
 	if (GDK_IS_X11_DISPLAY(gdk_display_get_default()))
 		is_platform_supported = true;
@@ -64,7 +66,9 @@ G_GNUC_INTERNAL bool gtk_module_should_run()
 #endif
 	is_program_supported =
 	    (proxy == NULL || is_true(proxy)) && !is_blacklisted(g_get_prgname());
-	return is_program_supported && is_platform_supported;
+	should_run = is_program_supported && is_platform_supported && run_once;
+	run_once   = !(is_program_supported && is_platform_supported);
+	return should_run;
 }
 
 G_GNUC_INTERNAL void enable_debug()
