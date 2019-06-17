@@ -80,7 +80,7 @@ config = configure_file(input : join_paths('vapi','config.vala.in'),
 
 desktop_kwargs = {
       'type': 'desktop',
-      'args' : ['--keyword=Description'],
+      'args' : ['--keyword=Name','--keyword=Description','--keyword=Comment', '--keyword=Help'],
       'po_dir': join_paths(meson.current_source_dir(),'po'),
       'install': true,
 }
