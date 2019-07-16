@@ -58,10 +58,7 @@ static bool is_string_in_array(const char *string, GVariant *array)
 	while (g_variant_iter_loop(&iter, "&s", &element))
 	{
 		if (g_strcmp0(element, string) == 0)
-		{
-			g_clear_pointer(&element, g_free);
 			return true;
-		}
 	}
 
 	return false;
