@@ -296,7 +296,6 @@ static void _dbus_registrar_dbus_menu_get_menus(RegistrarDBusMenu *self, GVarian
 	                               NULL);
 	g_object_unref(invocation);
 	g_object_unref(_reply_message);
-	g_variant_unref(menus);
 }
 
 static void registrar_dbus_menu_dbus_interface_method_call(

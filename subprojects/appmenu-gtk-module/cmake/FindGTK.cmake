@@ -56,6 +56,12 @@ FIND_PATH(${_module_name}_GDK_CONFIG_INCLUDE_DIR
     HINTS ${PC_GDK_LIBDIR} ${PC_GDK_LIBRARY_DIRS} ${_GDK_LIBRARY_DIR} ${PC_GDK_INCLUDE_DIRS}
     PATH_SUFFIXES gdk-${_version_num}/include gtk-${_version_num}/gdk
 )
+PKG_CHECK_MODULES(PC_HB QUIET harfbuzz)
+find_path(${_module_name}_INCLUDE_HB
+    NAMES hb.h
+    HINTS ${PC_HB_INCLUDE_DIRS}
+    PATH_SUFFIXES harfbuzz
+)
 PKG_CHECK_MODULES(PC_PANGO QUIET pango)
 find_path(${_module_name}_INCLUDE_PANGO
     NAMES pango/pango.h
@@ -81,6 +87,7 @@ find_path(${_module_name}_INCLUDE_GDK
 )
 set(${_module_name}_GDK_INCLUDE_DIR ${${_module_name}_INCLUDE_GDK}
 									  ${${_module_name}_INCLUDE_PANGO}
+				    				  ${${_module_name}_INCLUDE_HB}
 									  ${${_module_name}_INCLUDE_CAIRO}
 									  ${${_module_name}_INCLUDE_GDK_PIXBUF}
 									  ${${_module_name}_GDK_CONFIG_INCLUDE_DIR})
