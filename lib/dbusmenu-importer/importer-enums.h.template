@@ -9,7 +9,7 @@ G_BEGIN_DECLS
 /*** END file-header ***/
 
 /*** BEGIN file-production ***/
-/* Enumerations from "@filename@" */
+/* Enumerations from "@basename@" */
 #include "@basename@"
 
 /*** END file-production ***/
