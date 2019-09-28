@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Vala Panel Application Menu 0.6.94\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-04-24 16:13+0300\n"
-"PO-Revision-Date: 2019-09-20 20:13+0900\n"
+"PO-Revision-Date: 2019-09-28 20:00+0900\n"
 "Last-Translator: Tarot Osuji <tarot@sdf.lonestar.org>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "Language: ja\n"
@@ -19,7 +19,7 @@ msgstr ""
 #: ../lib/appmenu-desktop.vala:39 ../lib/appmenu-desktop.vala:65
 #: ../lib/helper-desktop.vala:58
 msgid "_Desktop"
-msgstr "デスクトップ(_D)"
+msgstr "デスクトップ"
 
 #: ../lib/appmenu-desktop.vala:153 ../lib/appmenu-desktop.vala:205
 #: ../lib/helper-desktop.vala:192
@@ -32,11 +32,11 @@ msgstr "新しいウィンドウ(_N)..."
 
 #: ../lib/appmenu-bamf.vala:38 ../lib/desktop-menus.ui:45
 msgid "Close _This"
-msgstr "閉じる (_T)"
+msgstr "閉じる(_T)"
 
 #: ../lib/appmenu-bamf.vala:39 ../lib/desktop-menus.ui:50
 msgid "Close _All"
-msgstr "全て閉じる (_A)"
+msgstr "すべて閉じる(_A)"
 
 #: ../lib/menu-widget-menumodel.vala:42 ../lib/menu-widget-menumodel.vala:63
 msgid "_Application"
@@ -52,7 +52,7 @@ msgstr "システム設定(_S)"
 
 #: ../lib/desktop-menus.ui:17
 msgid "_Files"
-msgstr "ファイル(_F)"
+msgstr "ファイル"
 
 #: ../data/xfce/appmenu.desktop.xfce.in:5 ../data/appmenu.desktop.plugin.in:4
 #: ../data/appmenu.desktop.xfce.in:5 ../data/appmenu.desktop.in:5
@@ -66,7 +66,7 @@ msgstr "AppMenu プラグイン"
 #: ../data/appmenu.plugin.desktop.in:5
 #: ../data/org.valapanel.appmenu.desktop.in:5
 msgid "Display AppMenu (Global Menu)"
-msgstr "AppMenu (グローバルメニュー) を表示する"
+msgstr "AppMenu (グローバルメニュー) を表示します"
 
 #: ../data/xfce/appmenu.desktop.xfce.in:7
 #: ../data/appmenu-mate.desktop.plugin.in:11 ../data/appmenu.desktop.xfce.in:7
@@ -77,19 +77,19 @@ msgstr "applications-system"
 
 #: ../lib/desktop-menus.ui:21
 msgid "_Documents"
-msgstr "ドキュメント(_D)"
+msgstr "ドキュメント"
 
 #: ../lib/desktop-menus.ui:25
 msgid "_Music"
-msgstr "ミュージック(_M)"
+msgstr "ミュージック"
 
 #: ../lib/desktop-menus.ui:29
 msgid "_Pictures"
-msgstr "ピクチャ(_P)"
+msgstr "ピクチャ"
 
 #: ../lib/desktop-menus.ui:33
 msgid "_Video"
-msgstr "ビデオ(_V)"
+msgstr "ビデオ"
 
 #: ../lib/budgie-plugin-appmenu.vala:51 ../lib/valapanel-plugin-appmenu.vala:73
 #: ../lib/valapanel-plugin-appmenu.vala:88 ../lib/mate-plugin-appmenu.vala:43
@@ -123,7 +123,7 @@ msgstr "コンパクトモードを使用する"
 
 #: ../lib/xfce4-plugin-appmenu.vala:62
 msgid "Expand plugin on panel"
-msgstr "プラグインをパネル上に展開する"
+msgstr "パネルにプラグインを展開する"
 
 #: ../lib/desktop-menus.ui:40
 msgid "_New"
@@ -141,7 +141,7 @@ msgstr "グローバルメニュー"
 #: ../data/appmenu-budgie.desktop.plugin.in:5
 #: ../data/appmenu-budgie.desktop.in:5
 msgid "Show menus from windows"
-msgstr "メニューをウィンドウから表示する"
+msgstr "ウィンドウのメニューを表示します"
 
 #: ../data/appmenu-budgie.desktop.plugin.in:9
 #: ../data/appmenu-budgie.desktop.in:9
@@ -161,7 +161,7 @@ msgstr "グローバル・アプリケーションメニュー"
 #: ../data/appmenu-mate.desktop.plugin.in:10 ../data/appmenu-mate.desktop.in:10
 #: ../data/appmenu-mate.plugin.desktop.in:10
 msgid "All menus will hosts here"
-msgstr "全てのメニューはここに提供されます"
+msgstr "すべてのメニューはここに表示されます"
 
 #: ../lib/menu-widget.vala:114
 msgid "Compact Menu"
