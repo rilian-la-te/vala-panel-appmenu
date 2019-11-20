@@ -17,7 +17,7 @@ Compilation Instructions (Non-Distribution-Specific)
   * Install all the required dependencies listed above. These packages may have different names depending on your distribution. Please see [below](#dependency-packages) for the package names on some specific distributions (i.e. Ubuntu).
   * Clone this repository to your `home` directory by typing:
   `git clone https://gitlab.com/vala-panel-project/vala-panel-appmenu.git` then `cd` into the directory.
-  * type `git submodule init && git submodule update` to download the submodules (this will download the cmake and dbus-menu submodules you see in the repository, above)
+  * type `git submodule init && git submodule update --remote --merge` to download the submodules (this will download the cmake and dbus-menu submodules you see in the repository, above)
   * type `mkdir build && cd build` (to keep things tidy)
   * You're **almost** ready to run `cmake`. First, review the following flags:
     * CMAKE FLAGS:
