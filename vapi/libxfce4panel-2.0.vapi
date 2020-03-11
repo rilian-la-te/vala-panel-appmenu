@@ -101,7 +101,7 @@ namespace Xfce {
         public virtual signal void mode_changed (Xfce.PanelPluginMode mode);
         public virtual signal void nrows_changed (uint rows);
         public virtual signal void orientation_changed (Gtk.Orientation orientation);
-        public virtual signal bool remote_event (string name, GLib.Value value);
+        public virtual signal bool remote_event (string name, GLib.Value value, uint handle);
         public virtual signal void removed ();
         public virtual signal void save ();
         public virtual signal void screen_position_changed (Xfce.ScreenPosition position);
