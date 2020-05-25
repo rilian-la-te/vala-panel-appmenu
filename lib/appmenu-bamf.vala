@@ -84,6 +84,8 @@ namespace Appmenu
         private Helper helper;
         private Bamf.Application active_application;
         private Bamf.Window active_window;
+        private int menu_update_delay = 500; // should be close enough to avoid flickering
+        private uint delayed_menu_update_id = 0;
         construct
         {
             desktop_menus = new HashTable<uint,unowned Bamf.Window>(direct_hash,direct_equal);
@@ -156,13 +158,30 @@ namespace Appmenu
                     desktop_menus.insert(window.get_xid(),window);
             }
         }
+        private void reset_menu_update_timeout() {
+            if (delayed_menu_update_id > 0) {
+                Source.remove(delayed_menu_update_id);
+            }
+            delayed_menu_update_id = 0;
+        }
         private void on_window_closed(Bamf.View view)
         {
-            if (view is Bamf.Window)
+            if (view is Bamf.Window) {
                 unregister_menu_window((view as Bamf.Window).get_xid());
+            }
+            delayed_menu_update_id = Timeout.add(menu_update_delay, menu_update_timeout);
+        }
+        private bool menu_update_timeout() {
+            unowned Bamf.Window win = matcher.get_active_window();
+            type = ModelType.NONE;
+            lookup_menu(win);
+            active_model_changed();
+            delayed_menu_update_id = 0;
+            return false;
         }
         private void on_active_window_changed(Bamf.Window? prev, Bamf.Window? next)
         {
+            reset_menu_update_timeout();
             unowned Bamf.Window win = next != null ? next : matcher.get_active_window();
             type = ModelType.NONE;
             lookup_menu(win);
