@@ -1,6 +1,7 @@
 include(UseJava)
 configure_file(core/basic/NativeLibraries.java.in ${CMAKE_CURRENT_BINARY_DIR}/core/basic/NativeLibraries.java)
 configure_file(agent/Agent.java.in ${CMAKE_CURRENT_BINARY_DIR}/agent/Agent.java)
+set(CMAKE_JAVA_COMPILE_FLAGS --add-exports java.desktop/com.sun.java.swing.plaf.gtk=ALL-UNNAMED)
 set(JAVA_SOURCES
     core/Feature.java
     core/FeatureManager.java

@@ -47,7 +47,7 @@ public class FeatureWrapper {
 	
 	private final List<FeatureWrapper> dependencies;
 	private final String className;
-	private Feature featrue = null;
+        private Feature feature = null;
 	private boolean deployed = false;
 	
 	/**
@@ -80,9 +80,9 @@ public class FeatureWrapper {
 	 */
 	private Feature getInstance() throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException {
-		if (featrue == null)
-			featrue = (Feature)Class.forName(className).newInstance();
-		return featrue;
+                if (feature == null)
+                        feature = (Feature)Class.forName(className).newInstance();
+                return feature;
 	}
 	
         /**
