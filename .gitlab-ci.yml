@@ -69,7 +69,7 @@ build-jayatana-main:
   image: archlinux/base
   stage: build
   script:
-   - pacman -Syy --noconfirm glib2 libdbusmenu-glib cmake base-devel ninja libxkbcommon jdk11-openjdk git
+   - pacman -Syy --noconfirm glib2 libdbusmenu-glib cmake base-devel ninja libxkbcommon jdk11-openjdk git libx11
    - git clone https://gitlab.com/vala-panel-project/cmake-vala.git
    - cd cmake-vala && cmake . -DCMAKE_INSTALL_PREFIX=/usr -GNinja && ninja install && cd .. && rm -rf cmake-vala
    - cd subprojects/jayatana
