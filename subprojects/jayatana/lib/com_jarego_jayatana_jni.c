@@ -28,6 +28,8 @@
  */
 #include "com_jarego_jayatana_jni.h"
 
+JavaVM *jayatana_jvm;
+
 /**
  * Obtener el putero JavaVM para permitr integracion con Ubuntu/Linux
  */

@@ -31,7 +31,7 @@
 #ifndef COM_JAREGO_JAYATANA_JNI_H_
 #define COM_JAREGO_JAYATANA_JNI_H_
 
-JavaVM *jayatana_jvm;
+extern JavaVM *jayatana_jvm;
 
 /**
  * Obtener el putero JavaVM para permitr integracion con Ubuntu/Linux
