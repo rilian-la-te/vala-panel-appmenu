@@ -9,6 +9,9 @@ pkg_check_modules(GLIB REQUIRED QUIET
     glib-2.0
     gio-2.0
     IMPORTED_TARGET)
+pkg_check_modules(X11 REQUIRED
+    x11
+IMPORTED_TARGET)
 include(UseJava)
 add_library(jayatana SHARED
     com_jarego_jayatana_basic_GlobalMenu.c
@@ -23,5 +26,5 @@ add_library(jayatana SHARED
     )
 add_dependencies(jayatana java-headers)
 target_include_directories(jayatana  PRIVATE ${JNI_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}/../java)
-target_link_libraries(jayatana  PRIVATE ${JNI_LIBRARIES} PkgConfig::GLIB PkgConfig::XKBCOMMON PkgConfig::DBUSMENU)
+target_link_libraries(jayatana  PRIVATE ${JNI_LIBRARIES} PkgConfig::GLIB PkgConfig::XKBCOMMON PkgConfig::DBUSMENU PkgConfig::X11)
 install(TARGETS jayatana jayatanaag DESTINATION ${CMAKE_INSTALL_LIBDIR}/jayatana)
