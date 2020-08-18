@@ -1,7 +1,7 @@
 project('vala-panel-appmenu', 'vala', 'c',
-	version : '0.7.1',
+	version : '0.7.3.2',
 	meson_version: '>=0.49.0',
-	license: ['LGPL-3.0'],
+	license: ['LGPL-3.0-or-later'],
     default_options: [
         'c_std=gnu11',
         'buildtype=debugoptimized',
