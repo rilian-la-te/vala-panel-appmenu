@@ -14,15 +14,13 @@ build-applet-main:
   image: archlinux/base
   stage: build
   script:
-   - pacman -Syy --noconfirm glibc libwnck3 gtk3 vala cmake git base-devel clang ninja xfce4-panel mate-panel budgie-desktop gobject-introspection bamf
-   - git clone https://gitlab.com/vala-panel-project/cmake-vala.git
-   - cd cmake-vala && cmake . -DCMAKE_INSTALL_PREFIX=/usr -GNinja && ninja install && cd .. && rm -rf cmake-vala
+   - pacman -Syy --noconfirm glibc libwnck3 gtk3 vala meson git base-devel clang ninja xfce4-panel mate-panel budgie-desktop gobject-introspection bamf
    - git clone https://gitlab.com/vala-panel-project/vala-panel.git
-   - cd vala-panel && cmake . -DCMAKE_INSTALL_PREFIX=/usr -GNinja && ninja install && cd .. && rm -rf vala-panel
-   - mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DENABLE_JAYATANA=OFF -DENABLE_APPMENU_GTK_MODULE=OFF -GNinja
-   - ninja
-   - ninja install
-   - ninja dist
+   - meson --prefix=/usr vp-build vala-panel && meson install -C vp-build && rm -rf vala-panel && rm -rf vp-build
+   - meson --prefix=/usr -Dregistrar=disabled -Djayatana=disabled -Dappmenu-gtk-module=disabled build 
+   - meson compile -C build
+   - meson install -C build --no-rebuild
+   - meson dist -C build --no-tests
   artifacts:
     paths:
     - "build/vala-panel-appmenu*.tar.xz"
@@ -34,13 +32,10 @@ build-gtk-module-main:
   stage: build
   script:
    - pacman -Syy --noconfirm gtk3 gtk2 cmake base-devel ninja git
-   - git clone https://gitlab.com/vala-panel-project/cmake-vala.git
-   - cd cmake-vala && cmake . -DCMAKE_INSTALL_PREFIX=/usr -GNinja && ninja install && cd .. && rm -rf cmake-vala
-   - cd subprojects/appmenu-gtk-module
-   - mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr -GNinja
-   - ninja
-   - ninja install
-   - ninja dist
+   - meson --prefix=/usr build subprojects/appmenu-gtk-module
+   - meson compile -C build
+   - meson install -C build --no-rebuild
+   - meson dist -C build --no-tests
   artifacts:
     paths:
     - "subprojects/appmenu-gtk-module/build/appmenu-gtk-module*.tar.xz"
@@ -51,14 +46,11 @@ build-registrar-main:
   image: archlinux/base
   stage: build
   script:
-   - pacman -Syy --noconfirm glib2 cmake base-devel ninja python git
-   - git clone https://gitlab.com/vala-panel-project/cmake-vala.git
-   - cd cmake-vala && cmake . -DCMAKE_INSTALL_PREFIX=/usr -GNinja && ninja install && cd .. && rm -rf cmake-vala
-   - cd subprojects/registrar
-   - mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/usr -GNinja
-   - ninja
-   - ninja install
-   - ninja dist
+   - pacman -Syy --noconfirm glib2 meson base-devel git
+   - meson --prefix=/usr build subprojects/registrar
+   - meson compile -C build
+   - meson install -C build --no-rebuild
+   - meson dist -C build --no-tests
   artifacts:
     paths:
     - "subprojects/registrar/build/appmenu-registrar*.tar.xz"
