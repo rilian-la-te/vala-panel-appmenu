@@ -5,7 +5,6 @@ before_script:
   - mkdir -p _ccache
   - export CCACHE_BASEDIR=${PWD}
   - export CCACHE_DIR=${PWD}/_ccache
-  - export VERSION=$(git describe --abbrev=0)
 
 cache:
   paths:
@@ -33,6 +32,7 @@ build-gtk-module-main:
   stage: build
   script:
    - pacman -Syy --noconfirm gtk3 gtk2 meson base-devel ninja git
+   - export VERSION=$(git describe --abbrev=0)
    - meson --prefix=/usr build subprojects/appmenu-gtk-module
    - meson compile -C build
    - meson install -C build --no-rebuild
@@ -48,6 +48,7 @@ build-registrar-main:
   stage: build
   script:
    - pacman -Syy --noconfirm glib2 meson base-devel git
+   - export VERSION=$(git describe --abbrev=0)
    - meson --prefix=/usr --libexecdir=lib build subprojects/registrar
    - meson compile -C build
    - meson install -C build --no-rebuild
