@@ -5,6 +5,7 @@ before_script:
   - mkdir -p _ccache
   - export CCACHE_BASEDIR=${PWD}
   - export CCACHE_DIR=${PWD}/_ccache
+  - export VERSION=$(git describe --abbrev=0)
 
 cache:
   paths:
@@ -23,7 +24,7 @@ build-applet-main:
    - meson dist -C build --no-tests
   artifacts:
     paths:
-    - "build/vala-panel-appmenu*.tar.xz"
+    - "build/meson-dist/vala-panel-appmenu*.tar.xz"
     expire_in: 1 week
 
 
@@ -31,14 +32,14 @@ build-gtk-module-main:
   image: archlinux/base
   stage: build
   script:
-   - pacman -Syy --noconfirm gtk3 gtk2 cmake base-devel ninja git
+   - pacman -Syy --noconfirm gtk3 gtk2 meson base-devel ninja git
    - meson --prefix=/usr build subprojects/appmenu-gtk-module
    - meson compile -C build
    - meson install -C build --no-rebuild
-   - meson dist -C build --no-tests
+   - cd subprojects && tar -cJf appmenu-gtk-module-$VERSION.tar.xz appmenu-gtk-module
   artifacts:
     paths:
-    - "subprojects/appmenu-gtk-module/build/appmenu-gtk-module*.tar.xz"
+    - "subprojects/appmenu-gtk-module*.tar.xz"
     expire_in: 1 week
 
 
@@ -47,13 +48,13 @@ build-registrar-main:
   stage: build
   script:
    - pacman -Syy --noconfirm glib2 meson base-devel git
-   - meson --prefix=/usr build subprojects/registrar
+   - meson --prefix=/usr --libexecdir=lib build subprojects/registrar
    - meson compile -C build
    - meson install -C build --no-rebuild
-   - meson dist -C build --no-tests
+   - cd subprojects && tar -cJf appmenu-registrar-$VERSION.tar.xz registrar
   artifacts:
     paths:
-    - "subprojects/registrar/build/appmenu-registrar*.tar.xz"
+    - "subprojects/appmenu-registrar*.tar.xz"
     expire_in: 1 week
 
 
