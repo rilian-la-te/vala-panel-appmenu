@@ -1,12 +1,12 @@
-project('vala-panel-appmenu', 'vala', 'c',
-	version : '0.7.3.2',
-        meson_version: '>=0.51.0',
-	license: ['LGPL-3.0-or-later'],
-    default_options: [
-        'c_std=gnu11',
-        'buildtype=debugoptimized',
-        'warning_level=1'
-        ])
+project(
+  'vala-panel-appmenu',
+  'vala',
+  'c',
+version : '0.7.5',
+meson_version : '>=0.51.0',
+license : 'LGPL-3.0-or-later',
+default_options : ['c_std=gnu11', 'buildtype=debugoptimized', 'warning_level=1']
+)
 
 am_cflags = [
     '-fstack-protector',

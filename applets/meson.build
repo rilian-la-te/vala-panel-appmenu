@@ -29,7 +29,7 @@ if xfce_found
 endif
 
 if budgie_found
-    budgie_applet_libdir = join_paths(bp.get_pkgconfig_variable('libdir'),'budgie-desktop','plugins','budgie-genmon-plugin')
+    budgie_applet_libdir = join_paths(bp.get_pkgconfig_variable('libdir'),'budgie-desktop','plugins','budgie-appmenu-plugin')
     bp_sources = files('budgie-plugin-appmenu.vala')
     bpp = shared_module('appmenu-budgie', bp_sources, libres,
                     dependencies: [appmenu_dep, bp],
