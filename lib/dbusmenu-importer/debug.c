@@ -52,9 +52,8 @@ G_GNUC_INTERNAL GString *g_menu_markup_print_string(GString *string, GMenuModel 
 	gboolean need_nl = false;
 	gint i, n;
 
-	if
-		G_UNLIKELY(string == NULL)
-	string = g_string_new(NULL);
+	if G_UNLIKELY (string == NULL)
+		string = g_string_new(NULL);
 
 	n = g_menu_model_get_n_items(model);
 

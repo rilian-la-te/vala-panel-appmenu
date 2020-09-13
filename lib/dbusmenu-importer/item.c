@@ -232,6 +232,8 @@ G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item)
 	bool need_update;
 	DBusMenuModel *submenu =
 	    DBUS_MENU_MODEL(g_hash_table_lookup(item->links, submenu_str(item->enabled)));
+	if (!submenu || !DBUS_MENU_IS_MODEL(submenu))
+		return;
 	g_object_get(submenu, "parent-id", &id, "xml", &xml, NULL);
 	if (!xml || !DBUS_MENU_IS_XML(xml))
 		return;
@@ -245,10 +247,7 @@ G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item)
 	dbus_menu_xml_call_about_to_show_sync(xml, id, (gboolean *)&need_update, NULL, NULL);
 	need_update = need_update || dbus_menu_model_is_layout_update_required(submenu);
 	if (need_update)
-	{
-		if (DBUS_MENU_IS_MODEL(submenu))
-			dbus_menu_model_update_layout(submenu);
-	}
+		dbus_menu_model_update_layout(submenu);
 }
 
 G_GNUC_INTERNAL bool dbus_menu_item_copy_attrs(DBusMenuItem *src, DBusMenuItem *dst)
@@ -277,10 +276,10 @@ G_GNUC_INTERNAL bool dbus_menu_item_update_enabled(DBusMenuItem *item, bool enab
 			if (submenu != NULL)
 			{
 				g_object_ref(submenu);
+				g_hash_table_remove(item->links, submenu_str(item->enabled));
 				g_hash_table_insert(item->links,
 				                    g_strdup(submenu_str(enabled)),
 				                    submenu);
-				g_hash_table_remove(item->links, submenu_str(item->enabled));
 			}
 			if (enabled)
 			{
