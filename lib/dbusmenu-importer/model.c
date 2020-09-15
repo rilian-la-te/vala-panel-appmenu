@@ -154,6 +154,8 @@ static bool queue_emit_all(GQueue *queue)
 		g_free(index);
 	}
 	return G_SOURCE_REMOVE;
+	while (g_main_context_pending(g_main_context_default()))
+		g_main_context_iteration(g_main_context_default(), false);
 }
 
 static bool preload_idle(DBusMenuItem *item)
