@@ -34,6 +34,8 @@ G_GNUC_INTERNAL bool dbus_menu_model_is_layout_update_required(DBusMenuModel *mo
 G_GNUC_INTERNAL void dbus_menu_model_set_layout_update_required(DBusMenuModel *model,
                                                                 bool required);
 
+G_GNUC_INTERNAL GSequence *dbus_menu_model_items(DBusMenuModel *model);
+
 G_END_DECLS
 
 #endif

@@ -48,8 +48,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id,
 	item->toggled      = false;
 	item->attrs =
 	    g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)g_variant_unref);
-	item->links =
-	    g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)g_object_unref);
+	item->links            = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 	item->ref_action_group = action_group;
 	item_set_magic(item);
 	return item;

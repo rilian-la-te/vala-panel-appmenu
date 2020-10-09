@@ -38,39 +38,63 @@ static int dbus_menu_section_model_is_mutable(GMenuModel *model)
 static gint dbus_menu_section_model_get_n_items(GMenuModel *model)
 {
 	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(model);
+	GSequence *items           = dbus_menu_model_items(menu->parent_model);
+	GSequenceIter *iter        = g_sequence_get_begin_iter(items);
+	int begin = 0, end = -1;
+	while ((iter = g_sequence_iter_next(iter)) != g_sequence_get_end_iter(items))
+	{
+		DBusMenuItem *item = (DBusMenuItem *)g_sequence_get(iter);
+		if (item->section_num == menu->section_index && item->place == -1)
+			begin = g_sequence_iter_get_position(iter);
+		if (item->section_num == menu->section_index + 1 && item->place == -1)
+			end = g_sequence_iter_get_position(iter);
+	}
 
-	return g_sequence_get_length(menu->items);
+	return end - begin - 1;
 }
 
 static void dbus_menu_section_model_get_item_attributes(GMenuModel *model, gint position,
                                                         GHashTable **table)
 {
 	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(model);
-	DBusMenuItem *item =
-	    (DBusMenuItem *)g_sequence_get(g_sequence_get_iter_at_pos(menu->items, position));
-	*table = g_hash_table_ref(item->attrs);
+	GSequence *items           = dbus_menu_model_items(menu->parent_model);
+	GSequenceIter *iter        = g_sequence_get_begin_iter(items);
+	while ((iter = g_sequence_iter_next(iter)) != g_sequence_get_end_iter(items))
+	{
+		DBusMenuItem *item = (DBusMenuItem *)g_sequence_get(iter);
+		if (item->section_num == menu->section_index && item->place == position)
+		{
+			*table = g_hash_table_ref(item->attrs);
+			return;
+		}
+	}
 }
 
 static void dbus_menu_section_model_get_item_links(GMenuModel *model, gint position,
                                                    GHashTable **table)
 {
 	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(model);
-	DBusMenuItem *item =
-	    (DBusMenuItem *)g_sequence_get(g_sequence_get_iter_at_pos(menu->items, position));
-	if (g_hash_table_contains(item->links, G_MENU_LINK_SECTION))
-		g_warning("Item has section, but should not\n");
-	*table = g_hash_table_ref(item->links);
+	GSequence *items           = dbus_menu_model_items(menu->parent_model);
+	GSequenceIter *iter        = g_sequence_get_begin_iter(items);
+	while ((iter = g_sequence_iter_next(iter)) != g_sequence_get_end_iter(items))
+	{
+		DBusMenuItem *item = (DBusMenuItem *)g_sequence_get(iter);
+		if (item->section_num == menu->section_index && item->place == position)
+		{
+			if (g_hash_table_contains(item->links, G_MENU_LINK_SECTION))
+				g_warning("Item has section, but should not\n");
+			*table = g_hash_table_ref(item->links);
+			return;
+		}
+	}
 }
 static void dbus_menu_section_model_init(DBusMenuSectionModel *menu)
 {
 	menu->parent_model = NULL;
-	menu->items        = g_sequence_new(dbus_menu_item_free);
 }
 
 static void dbus_menu_section_model_finalize(GObject *object)
 {
-	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(object);
-	g_clear_pointer(&menu->items, g_sequence_free);
 	G_OBJECT_CLASS(dbus_menu_section_model_parent_class)->finalize(object);
 }
 
