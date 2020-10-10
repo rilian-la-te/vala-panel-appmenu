@@ -39,18 +39,21 @@ static gint dbus_menu_section_model_get_n_items(GMenuModel *model)
 {
 	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(model);
 	GSequence *items           = dbus_menu_model_items(menu->parent_model);
-	GSequenceIter *iter        = g_sequence_get_begin_iter(items);
 	int begin = 0, end = -1;
-	while ((iter = g_sequence_iter_next(iter)) != g_sequence_get_end_iter(items))
+	for (GSequenceIter *iter = g_sequence_get_begin_iter(items); !g_sequence_iter_is_end(iter);
+	     iter                = g_sequence_iter_next(iter))
 	{
 		DBusMenuItem *item = (DBusMenuItem *)g_sequence_get(iter);
 		if (item->section_num == menu->section_index && item->place == -1)
 			begin = g_sequence_iter_get_position(iter);
+		end = g_sequence_iter_get_position(iter);
 		if (item->section_num == menu->section_index + 1 && item->place == -1)
-			end = g_sequence_iter_get_position(iter);
+		{
+			end--;
+			break;
+		}
 	}
-
-	return end - begin - 1;
+	return end - begin;
 }
 
 static void dbus_menu_section_model_get_item_attributes(GMenuModel *model, gint position,
@@ -58,8 +61,8 @@ static void dbus_menu_section_model_get_item_attributes(GMenuModel *model, gint 
 {
 	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(model);
 	GSequence *items           = dbus_menu_model_items(menu->parent_model);
-	GSequenceIter *iter        = g_sequence_get_begin_iter(items);
-	while ((iter = g_sequence_iter_next(iter)) != g_sequence_get_end_iter(items))
+	for (GSequenceIter *iter = g_sequence_get_begin_iter(items); !g_sequence_iter_is_end(iter);
+	     iter                = g_sequence_iter_next(iter))
 	{
 		DBusMenuItem *item = (DBusMenuItem *)g_sequence_get(iter);
 		if (item->section_num == menu->section_index && item->place == position)
@@ -75,8 +78,8 @@ static void dbus_menu_section_model_get_item_links(GMenuModel *model, gint posit
 {
 	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(model);
 	GSequence *items           = dbus_menu_model_items(menu->parent_model);
-	GSequenceIter *iter        = g_sequence_get_begin_iter(items);
-	while ((iter = g_sequence_iter_next(iter)) != g_sequence_get_end_iter(items))
+	for (GSequenceIter *iter = g_sequence_get_begin_iter(items); !g_sequence_iter_is_end(iter);
+	     iter                = g_sequence_iter_next(iter))
 	{
 		DBusMenuItem *item = (DBusMenuItem *)g_sequence_get(iter);
 		if (item->section_num == menu->section_index && item->place == position)
