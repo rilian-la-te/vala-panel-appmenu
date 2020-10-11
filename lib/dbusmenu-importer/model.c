@@ -64,6 +64,7 @@ static GParamSpec *properties[NUM_PROPS] = { NULL };
 
 static DBusMenuItem *dbus_menu_model_find(DBusMenuModel *menu, uint item_id);
 static DBusMenuItem *dbus_menu_model_find_section(DBusMenuModel *menu, uint section_num);
+static GSequenceIter *dbus_menu_model_find_place(DBusMenuModel *menu, uint section_num, int place);
 
 G_DEFINE_TYPE(DBusMenuModel, dbus_menu_model, G_TYPE_MENU_MODEL)
 
@@ -254,12 +255,13 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		// We receive a section (separator or x-kde-title)
 		if (new_item->action_type == DBUS_MENU_ACTION_SECTION)
 		{
-			bool is_valid_section = !new_item->toggled;
+			bool is_valid_section = !new_item->toggled && place > 0;
 			// Section is valid, so, parse it
 			if (is_valid_section)
 			{
 				// Do some common tasks: increment section_num and iter
 				++section_num;
+				place--;
 				new_item->section_num = section_num;
 				new_item->place       = -1;
 				GSequenceIter *old_iter =
@@ -267,24 +269,24 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 				                      new_item,
 				                      dbus_menu_model_sort_func,
 				                      NULL);
-				if (old_iter)
-					g_sequence_remove(old_iter);
-				dbus_menu_item_generate_action(new_item, menu);
-				g_hash_table_insert(new_item->links,
-				                    G_MENU_LINK_SECTION,
-				                    dbus_menu_section_model_new(menu, section_num));
-				old_iter = g_sequence_insert_sorted(menu->items,
-				                                    new_item,
-				                                    dbus_menu_model_sort_func,
-				                                    NULL);
+				if (!old_iter)
+				{
+					g_hash_table_insert(
+					    new_item->links,
+					    G_MENU_LINK_SECTION,
+					    dbus_menu_section_model_new(menu, section_num));
+					old_iter =
+					    g_sequence_insert_sorted(menu->items,
+					                             new_item,
+					                             dbus_menu_model_sort_func,
+					                             NULL);
+				}
+				else
+					dbus_menu_item_free(new_item);
 				old =
 				    (DBusMenuItem *)g_sequence_get(g_sequence_iter_prev(old_iter));
-				int delta = old->place - place;
-				GSequenceIter *place_iter =
-				    g_sequence_get_iter_at_pos(menu->items,
-				                               g_sequence_iter_get_position(
-				                                   old_iter) -
-				                                   delta);
+				int delta                 = old->place - place;
+				GSequenceIter *place_iter = g_sequence_iter_move(old_iter, -delta);
 				// Cleanup all items in prev section (if there is more items than
 				// current)
 				if (delta > 0)
@@ -302,11 +304,12 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 					                    MAX(0, delta),
 					                    MAX(0, added));
 				}
-				place = 0;
 				// Update current_section and reset current_iter and added to new
 				// section
 				current_iter = g_sequence_iter_next(old_iter);
 				added        = 0;
+				change_pos   = -1;
+				place        = 0;
 			}
 			// If section was invalid, just free received item.
 			else
@@ -337,8 +340,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 			{
 				old = (DBusMenuItem *)g_sequence_get(old_iter);
 				// We should compare properties of old and new item
-				bool diff = !dbus_menu_item_compare_immutable(old, new_item);
-				// Update properties of old item
+				bool diff    = !dbus_menu_item_compare_immutable(old, new_item);
 				bool updated = dbus_menu_item_update_props(old, cprops);
 				if (diff)
 				{
@@ -353,8 +355,6 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 				}
 				else
 				{
-					old->section_num = section_num;
-					old->place       = place;
 					// Just free unneeded item
 					dbus_menu_item_free(new_item);
 				}
@@ -381,42 +381,45 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		g_variant_unref(child);
 	}
 	int secdiff = old_sections - section_num - 1;
-	// We need to manage last section's changes. And check its validity
-	if (secdiff == 0)
+	if (secdiff > 0)
 	{
+		GSequenceIter *section_iter = dbus_menu_model_find_place(menu, section_num + 1, -1);
+		g_sequence_remove_range(section_iter, g_sequence_get_end_iter(menu->items));
+	}
+	// We need to manage last section's changes. And check its validity
+	if (secdiff >= 0)
+	{
+		place--;
 		DBusMenuItem *old = (DBusMenuItem *)g_sequence_get(
 		    g_sequence_iter_prev(g_sequence_get_end_iter(menu->items)));
-		int delta = old->place - place;
-		GSequenceIter *place_iter =
-		    g_sequence_get_iter_at_pos(menu->items,
-		                               g_sequence_iter_get_position(
-		                                   g_sequence_get_end_iter(menu->items)) +
-		                                   delta);
+		int delta                 = old->place - place;
+		GSequenceIter *last_iter  = g_sequence_get_end_iter(menu->items);
+		GSequenceIter *place_iter = g_sequence_iter_move(last_iter, -delta);
+
 		// Cleanup all items in prev section (if there is more items than
 		// current)
 		if (delta > 0)
-			g_sequence_remove_range(place_iter, g_sequence_get_end_iter(menu->items));
+			g_sequence_remove_range(place_iter, last_iter);
 		// If section number is not changed, emit a signal about last section.
 		// Because if we emit it and section will be a part of sections signal, this can
 		// duplicate menu items
-		if (delta > 0 || added > 0)
+		if ((delta > 0 || added > 0))
 		{
 			add_signal_to_queue(menu,
 			                    signal_queue,
 			                    section_num,
-			                    change_pos,
+			                    change_pos < 0 ? place : change_pos,
 			                    MAX(0, delta),
 			                    MAX(0, added));
 		}
 	}
 	// If sections was changed, add change signal to queue
-	if (secdiff < 0)
+	if (secdiff != 0)
 	{
-		g_print("%d: %d, %d, %d, %d\n", __LINE__, menu->parent_id, secdiff, old_sections, section_num + 1);
 		add_signal_to_queue(menu,
 		                    signal_queue,
 		                    -1,
-		                    MIN(old_sections, section_num + 1),
+		                    MIN(old_sections, section_num),
 		                    (secdiff) > 0 ? ABS(secdiff) : 0,
 		                    (secdiff) < 0 ? ABS(secdiff) : 0);
 	}
@@ -713,17 +716,22 @@ static DBusMenuItem *dbus_menu_model_find(DBusMenuModel *menu, uint item_id)
 	return NULL;
 }
 
-static DBusMenuItem *dbus_menu_model_find_section(DBusMenuModel *menu, uint section_num)
+static GSequenceIter *dbus_menu_model_find_place(DBusMenuModel *menu, uint section_num, int place)
 {
 	for (GSequenceIter *iter = g_sequence_get_begin_iter(menu->items);
 	     !g_sequence_iter_is_end(iter);
 	     iter = g_sequence_iter_next(iter))
 	{
 		DBusMenuItem *item = (DBusMenuItem *)g_sequence_get(iter);
-		if (item->section_num == section_num && item->place == -1)
-			return item;
+		if (item->section_num == section_num && item->place == place)
+			return iter;
 	}
 	return NULL;
+}
+
+static DBusMenuItem *dbus_menu_model_find_section(DBusMenuModel *menu, uint section_num)
+{
+	return (DBusMenuItem *)g_sequence_get(dbus_menu_model_find_place(menu, section_num, -1));
 }
 
 static void dbus_menu_model_init(DBusMenuModel *menu)
