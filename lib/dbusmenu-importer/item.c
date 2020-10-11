@@ -563,13 +563,22 @@ G_GNUC_INTERNAL bool dbus_menu_item_compare_immutable(DBusMenuItem *a, DBusMenuI
 	return true;
 }
 
+static bool dbus_menu_item_is_submenu(DBusMenuItem *item)
+{
+	if (!item)
+		return false;
+	if (item->action_type != DBUS_MENU_ACTION_SUBMENU)
+		return false;
+	return true;
+}
+
 G_GNUC_INTERNAL void dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem *dst,
                                                  DBusMenuModel *parent)
 {
 	DBusMenuXml *xml;
 	DBusMenuModel *submenu = NULL;
 	g_object_get(parent, "xml", &xml, NULL);
-	if (src == NULL)
+	if (!dbus_menu_item_is_submenu(src))
 	{
 		if (dst->action_type == DBUS_MENU_ACTION_SUBMENU)
 		{
