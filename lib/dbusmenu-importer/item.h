@@ -30,6 +30,8 @@ G_BEGIN_DECLS
 
 typedef struct
 {
+	int section_num;
+	int place;
 	u_int32_t id;
 	GActionGroup *ref_action_group;
 	// FIXME: Cannot have activatable submenu item.
