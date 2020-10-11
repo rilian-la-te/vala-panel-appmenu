@@ -32,7 +32,6 @@ struct _DBusMenuSectionModel
 	GMenuModel parent_instance;
 
 	DBusMenuModel *parent_model;
-	GSequence *items;
 	uint section_index;
 };
 

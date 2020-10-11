@@ -48,8 +48,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id,
 	item->toggled      = false;
 	item->attrs =
 	    g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)g_variant_unref);
-	item->links =
-	    g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)g_object_unref);
+	item->links = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, g_object_unref);
 	item->ref_action_group = action_group;
 	item_set_magic(item);
 	return item;
@@ -69,8 +68,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 	item->id      = id;
 	item->attrs =
 	    g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)g_variant_unref);
-	item->links =
-	    g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)g_object_unref);
+	item->links = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, g_object_unref);
 	g_object_get(parent_model, "action-group", &item->ref_action_group, "xml", &xml, NULL);
 	g_variant_iter_init(&iter, props);
 	// Iterate by immutable properties, it is construct_only
@@ -277,9 +275,7 @@ G_GNUC_INTERNAL bool dbus_menu_item_update_enabled(DBusMenuItem *item, bool enab
 			{
 				g_object_ref(submenu);
 				g_hash_table_remove(item->links, submenu_str(item->enabled));
-				g_hash_table_insert(item->links,
-				                    g_strdup(submenu_str(enabled)),
-				                    submenu);
+				g_hash_table_insert(item->links, submenu_str(enabled), submenu);
 			}
 			if (enabled)
 			{
@@ -567,22 +563,29 @@ G_GNUC_INTERNAL bool dbus_menu_item_compare_immutable(DBusMenuItem *a, DBusMenuI
 	return true;
 }
 
+static bool dbus_menu_item_is_submenu(DBusMenuItem *item)
+{
+	if (!item)
+		return false;
+	if (item->action_type != DBUS_MENU_ACTION_SUBMENU)
+		return false;
+	return true;
+}
+
 G_GNUC_INTERNAL void dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem *dst,
                                                  DBusMenuModel *parent)
 {
 	DBusMenuXml *xml;
 	DBusMenuModel *submenu = NULL;
 	g_object_get(parent, "xml", &xml, NULL);
-	if (src == NULL)
+	if (!dbus_menu_item_is_submenu(src))
 	{
 		if (dst->action_type == DBUS_MENU_ACTION_SUBMENU)
 		{
 			if (dst->toggled)
 				dst->enabled = true;
 			submenu = dbus_menu_model_new(dst->id, parent, xml, dst->ref_action_group);
-			g_hash_table_insert(dst->links,
-			                    g_strdup(submenu_str(dst->enabled)),
-			                    submenu);
+			g_hash_table_insert(dst->links, submenu_str(dst->enabled), submenu);
 		}
 		return;
 	}
@@ -593,9 +596,7 @@ G_GNUC_INTERNAL void dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem
 			dst->enabled = dst->toggled = true;
 		submenu =
 		    DBUS_MENU_MODEL(g_hash_table_lookup(src->links, submenu_str(src->enabled)));
-		g_hash_table_insert(dst->links,
-		                    g_strdup(submenu_str(dst->enabled)),
-		                    g_object_ref(submenu));
+		g_hash_table_insert(dst->links, submenu_str(dst->enabled), g_object_ref(submenu));
 		g_object_set(submenu, "parent-id", dst->id, NULL);
 	}
 }
