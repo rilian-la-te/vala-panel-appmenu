@@ -83,7 +83,7 @@ release-main:
   script:
     - apk add --no-cache python3 py3-pip
     - pip3 install gitlab_release
-    - python3 -m gitlab_release --link-in-desc --link-artifact *
+    - python3 -m gitlab_release --link-artifact *
   artifacts:
     paths:
       # Must include files passed to gitlab_release
