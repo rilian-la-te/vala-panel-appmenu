@@ -300,7 +300,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 					add_signal_to_queue(menu,
 					                    signal_queue,
 					                    section_num - 1,
-					                    change_pos < 0 ? place : change_pos,
+					                    change_pos < 0 ? place + 1 : change_pos,
 					                    MAX(0, delta),
 					                    MAX(0, added));
 				}
@@ -409,7 +409,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 			add_signal_to_queue(menu,
 			                    signal_queue,
 			                    section_num - 1,
-			                    change_pos < 0 ? place : change_pos,
+			                    change_pos < 0 ? place + 1 : change_pos,
 			                    MAX(0, delta),
 			                    MAX(0, added));
 		}
