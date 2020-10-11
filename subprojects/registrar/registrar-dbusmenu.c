@@ -151,7 +151,7 @@ static void registrar_dbus_menu_class_init(RegistrarDBusMenuClass *klass)
 {
 	G_OBJECT_CLASS(klass)->finalize = registrar_dbus_menu_finalize;
 	registrar_dbus_menu_signals[WINDOW_REGISTERED_SIGNAL] =
-	    g_signal_new("window-registered",
+	    g_signal_new(g_intern_static_string("window-registered"),
 	                 registrar_dbus_menu_get_type(),
 	                 G_SIGNAL_RUN_LAST,
 	                 0,
@@ -164,7 +164,7 @@ static void registrar_dbus_menu_class_init(RegistrarDBusMenuClass *klass)
 	                 G_TYPE_STRING,
 	                 G_TYPE_STRING);
 	registrar_dbus_menu_signals[WINDOW_UNREGISTERED_SIGNAL] =
-	    g_signal_new("window-unregistered",
+	    g_signal_new(g_intern_static_string("window-unregistered"),
 	                 registrar_dbus_menu_get_type(),
 	                 G_SIGNAL_RUN_LAST,
 	                 0,
@@ -366,8 +366,9 @@ static void _dbus_registrar_dbus_menu_window_unregistered(GObject *_sender, uint
 	                              _arguments,
 	                              NULL);
 }
-static const GDBusInterfaceVTable _interface_vtable =
-    { registrar_dbus_menu_dbus_interface_method_call, NULL, NULL };
+static const GDBusInterfaceVTable _interface_vtable = {
+	registrar_dbus_menu_dbus_interface_method_call, NULL, NULL
+};
 
 void registrar_dbus_menu_unregister(RegistrarDBusMenu *data, GDBusConnection *con)
 {

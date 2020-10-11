@@ -38,24 +38,25 @@ extern const char *private_xml;
 
 G_DEFINE_TYPE(RegistrarApplication, registrar_application, G_TYPE_APPLICATION)
 
-static const GOptionEntry options[4] =
-    { { "version", 'v', 0, G_OPTION_ARG_NONE, NULL, N_("Print version and exit"), NULL },
-      { "reference",
-	'r',
-	0,
-	G_OPTION_ARG_NONE,
-	NULL,
-	N_("Reference a registrar (need more unreferences to quit automatically)"),
-	NULL },
-      { "unreference",
-	'u',
-	0,
-	G_OPTION_ARG_NONE,
-	NULL,
-	N_("Unreference a registrar (need less unreferences to quit automatically, or quits if "
-	   "refcount reaches zero)"),
-	NULL },
-      { NULL } };
+static const GOptionEntry options[4] = {
+	{ "version", 'v', 0, G_OPTION_ARG_NONE, NULL, N_("Print version and exit"), NULL },
+	{ "reference",
+	  'r',
+	  0,
+	  G_OPTION_ARG_NONE,
+	  NULL,
+	  N_("Reference a registrar (need more unreferences to quit automatically)"),
+	  NULL },
+	{ "unreference",
+	  'u',
+	  0,
+	  G_OPTION_ARG_NONE,
+	  NULL,
+	  N_("Unreference a registrar (need less unreferences to quit automatically, or quits if "
+	     "refcount reaches zero)"),
+	  NULL },
+	{ NULL }
+};
 
 RegistrarApplication *registrar_application_new()
 {
