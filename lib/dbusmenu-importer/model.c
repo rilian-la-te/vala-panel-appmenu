@@ -380,10 +380,11 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		g_variant_unref(value);
 		g_variant_unref(child);
 	}
-	int secdiff = old_sections - section_num - 1;
+	section_num++;
+	int secdiff = old_sections - section_num;
 	if (secdiff > 0)
 	{
-		GSequenceIter *section_iter = dbus_menu_model_find_place(menu, section_num + 1, -1);
+		GSequenceIter *section_iter = dbus_menu_model_find_place(menu, section_num, -1);
 		g_sequence_remove_range(section_iter, g_sequence_get_end_iter(menu->items));
 	}
 	// We need to manage last section's changes. And check its validity
@@ -407,7 +408,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		{
 			add_signal_to_queue(menu,
 			                    signal_queue,
-			                    section_num,
+			                    section_num - 1,
 			                    change_pos < 0 ? place : change_pos,
 			                    MAX(0, delta),
 			                    MAX(0, added));
