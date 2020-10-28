@@ -205,11 +205,13 @@ namespace Appmenu
                     if (uniquename != null)
                     {
                         this.active_window = win;
-                        if (window.get_window_type() == Wnck.WindowType.DESKTOP)
-                            this.type = ModelType.DESKTOP;
-                        else
-                            this.type = ModelType.MENUMODEL;
+                        this.type = ModelType.MENUMODEL;
                     }
+                }
+                if (type == ModelType.NONE && window.get_window_type() == Wnck.WindowType.DESKTOP)
+                {
+                    this.active_window = win;
+                    this.type = ModelType.DESKTOP;
                 }
                 if (type == ModelType.NONE)
                 {
