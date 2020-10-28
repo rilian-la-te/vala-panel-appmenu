@@ -35,7 +35,7 @@ namespace Appmenu
         private Gtk.CssProvider provider;
         private GLib.MenuModel? appmenu = null;
         private GLib.MenuModel? menubar = null;
-        private Backend backend = new BackendBAMF();
+        private Backend backend = new BackendImpl();
         private Gtk.MenuBar mwidget = new Gtk.MenuBar();
         private ulong backend_connector = 0;
         private ulong compact_connector = 0;

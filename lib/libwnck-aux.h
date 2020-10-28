@@ -1,6 +1,6 @@
 /*
  * vala-panel
- * Copyright (C) 2018 Konstantin Pugin <ria.freelander@gmail.com>
+ * Copyright (C) 2020 Konstantin Pugin <ria.freelander@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -16,15 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-[CCode(cheader_filename="matcher.h")]
-public class ValaPanel.Matcher : GLib.Object
-{
-    [CCode (has_construct_function = false)]
-    private Matcher();
-    public static Matcher @get();
-    public unowned GLib.DesktopAppInfo match_arbitrary(string class, string group, string gtk_id, int pid);
-}
+#include "matcher.h"
+#include <libwnck/libwnck.h>
 
-[CCode(cheader_filename="libwnck-aux.h")]
-public unowned GLib.DesktopAppInfo libwnck_aux_match_wnck_window(ValaPanel.Matcher matcher, Wnck.Window win);
-public string libwnck_aux_get_utf8_prop(ulong xid, string prop);
+#ifndef WNCK_AUX_INCLUDED
+#define WNCK_AUX_INCLUDED
+
+G_BEGIN_DECLS
+
+char *libwnck_aux_get_utf8_prop(ulong window, const char *prop);
+GDesktopAppInfo *libwnck_aux_match_wnck_window(ValaPanelMatcher *self, WnckWindow *window);
+
+G_END_DECLS
+
+#endif

@@ -77,7 +77,7 @@ namespace Appmenu
             title = app.get_name();
         return new DBusAppMenu(w,title,null,info);
     }
-    internal class BackendBAMF : Backend
+    internal class BackendImpl : Backend
     {
         private HashTable<uint,unowned Bamf.Window> desktop_menus;
         private Bamf.Matcher matcher;
@@ -104,11 +104,11 @@ namespace Appmenu
                 on_window_opened(app);
             on_active_window_changed(null,matcher.get_active_window());
         }
-        public BackendBAMF()
+        public BackendImpl()
         {
             Object();
         }
-        ~BackendBAMF()
+        ~BackendImpl()
         {
             SignalHandler.disconnect_by_data(proxy,this);
             SignalHandler.disconnect_by_data(matcher,this);

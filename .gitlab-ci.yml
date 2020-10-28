@@ -10,7 +10,7 @@ cache:
   paths:
     - _ccache/
 
-build-applet-main:
+build-applet-archlinux:
   image: archlinux/base
   stage: build
   script:
@@ -26,6 +26,17 @@ build-applet-main:
     - "build/meson-dist/vala-panel-appmenu*.tar.xz"
     expire_in: 1 week
 
+build-applet-alpine:
+  image: alpine:edge
+  stage: build
+  script:
+   - apk add --no-cache python3 gtk+3.0-dev vala meson ninja libwnck3-dev build-base git
+   - git clone https://gitlab.com/vala-panel-project/vala-panel.git
+   - meson --prefix=/usr vp-build vala-panel && meson install -C vp-build && rm -rf vala-panel && rm -rf vp-build
+   - meson --prefix=/usr -Dregistrar=disabled -Djayatana=disabled -Dappmenu-gtk-module=disabled build
+   - meson compile -C build
+   - meson install -C build --no-rebuild
+   - meson dist -C build --no-tests
 
 build-gtk-module-main:
   image: archlinux/base

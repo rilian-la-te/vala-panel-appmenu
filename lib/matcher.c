@@ -36,6 +36,8 @@ static uint app_changed_singal;
 
 G_DEFINE_TYPE(ValaPanelMatcher, vala_panel_matcher, G_TYPE_OBJECT)
 
+static ValaPanelMatcher *default_matcher = NULL;
+
 static void vala_panel_matcher_finalize(GObject *obj)
 {
 	ValaPanelMatcher *self = VALA_PANEL_MATCHER(obj);
@@ -140,7 +142,7 @@ static void matcher_bus_signal_subscribe(GDBusConnection *connection, const gcha
 		return;
 
 	g_hash_table_insert(self->pid_cache, GINT_TO_POINTER(pid), g_strdup(desktop_file));
-	g_signal_emit(self, app_changed_singal, 0);
+	g_signal_emit(self, app_changed_singal, 0, desktop_file);
 }
 
 static void matcher_bus_get_finish(GObject *source_object, GAsyncResult *res, gpointer user_data)
@@ -204,78 +206,19 @@ static void matcher_check_invalidated(ValaPanelMatcher *self)
 	}
 }
 
-#include <gdk/gdkx.h>
-
-char *vala_panel_matcher_get_x11_atom_string(ulong xid, GdkAtom atom, bool utf8)
+ValaPanelMatcher *vala_panel_matcher_get()
 {
-	unsigned char *data = NULL;
-	int data_len;
-	GdkAtom a_type;
-	int a_f;
-	GdkDisplay *display = gdk_display_get_default();
-	if (!GDK_IS_X11_DISPLAY(display))
-		return NULL;
+	if (VALA_PANEL_IS_MATCHER(default_matcher))
+		return g_object_ref(default_matcher);
 
-	GdkAtom req_type;
-	if (utf8)
-	{
-		req_type = gdk_atom_intern("UTF8_STRING", false);
-	}
-	else
-	{
-		req_type = gdk_atom_intern("STRING", false);
-	}
-
-	/**
-	 * Attempt to gain foreign window connection
-	 */
-	GdkX11Window *foreign =
-	    gdk_x11_window_foreign_new_for_display(GDK_X11_DISPLAY(display), xid);
-	if (foreign == NULL)
-	{
-		/* No window, bail */
-		return NULL;
-	}
-	/* Grab the property in question */
-	gdk_property_get(foreign,
-	                 atom,
-	                 req_type,
-	                 0,
-	                 (ulong)LONG_MAX,
-	                 0,
-	                 &a_type,
-	                 &a_f,
-	                 &data_len,
-	                 &data);
-	return data != NULL ? (char *)data : NULL;
+	return (default_matcher = g_object_new(vala_panel_matcher_get_type(), NULL));
 }
 
-/**
- * Obtain the GtkApplication id for a given window
- */
-char *vala_panel_matcher_get_gtk_application_id(ulong window)
+GDesktopAppInfo *vala_panel_matcher_match_arbitrary(ValaPanelMatcher *self, const char *class,
+                                                    const char *group, const char *gtk, int64_t pid)
 {
-	return vala_panel_matcher_get_x11_atom_string(window,
-	                                              gdk_atom_intern("_GTK_APPLICATION_ID", false),
-	                                              true);
-}
-
-ValaPanelMatcher *vala_panel_matcher_new()
-{
-	return VALA_PANEL_MATCHER(g_object_new(vala_panel_matcher_get_type(), NULL));
-}
-
-GDesktopAppInfo *vala_panel_matcher_match_wnck_window(ValaPanelMatcher *self, WnckWindow *window)
-{
-	if (!window)
-		return NULL;
-	ulong xid            = wnck_window_get_xid(window);
-	int64_t pid          = wnck_window_get_pid(window);
-	const char *cls_name = wnck_window_get_class_instance_name(window);
-	const char *grp_name = wnck_window_get_class_group_name(window);
 	matcher_check_invalidated(self);
-
-	const char *checks[] = { cls_name, grp_name };
+	const char *checks[] = { class, group };
 	for (int i = 0; i < 2; i++)
 	{
 		if (!checks[i])
@@ -308,20 +251,18 @@ GDesktopAppInfo *vala_panel_matcher_match_wnck_window(ValaPanelMatcher *self, Wn
 	}
 
 	/* Next, check GtkApplication ID */
-	g_autofree char *gtk_id = vala_panel_matcher_get_gtk_application_id(xid);
-	if (gtk_id != NULL)
+	if (gtk != NULL)
 	{
-		g_autofree char *app_id = g_utf8_strdown(gtk_id, -1);
-		g_clear_pointer(&gtk_id, g_free);
-		gtk_id = g_strdup_printf("%s.desktop", app_id);
+		g_autofree char *app_id = g_utf8_strdown(gtk, -1);
+		g_autofree char *gtk_id = g_strdup_printf("%s.desktop", app_id);
 		if (g_hash_table_contains(self->desktops, gtk_id))
 			return G_DESKTOP_APP_INFO(g_hash_table_lookup(self->desktops, gtk_id));
 	}
 
 	/* Check hardcoded matches */
-	if (grp_name)
+	if (group)
 	{
-		g_autofree char *grp = g_utf8_strdown(grp_name, -1);
+		g_autofree char *grp = g_utf8_strdown(group, -1);
 		if (g_hash_table_contains(self->simpletons, grp))
 		{
 			g_autofree char *dname = g_strdup_printf("%s.desktop", grp);
@@ -330,9 +271,9 @@ GDesktopAppInfo *vala_panel_matcher_match_wnck_window(ValaPanelMatcher *self, Wn
 				    g_hash_table_lookup(self->desktops, dname));
 		}
 	}
-	if (cls_name)
+	if (class)
 	{
-		g_autofree char *grp = g_utf8_strdown(cls_name, -1);
+		g_autofree char *grp = g_utf8_strdown(class, -1);
 		if (g_hash_table_contains(self->simpletons, grp))
 		{
 			g_autofree char *dname = g_strdup_printf("%s.desktop", grp);

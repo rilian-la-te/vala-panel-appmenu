@@ -1,7 +1,6 @@
 subdir('dbusmenu-importer')
 sources = files(
     'appmenu-abstractions.vala',
-    'appmenu-bamf.vala',
     'registrar.vala',
     'menu-widget.vala',
     'helper-desktop.vala',
@@ -14,9 +13,16 @@ sources = files(
     'launcher.h'
 )
 
-matcher_src = files(
+bamf_src = files(
+    'appmenu-bamf.vala'
+)
+
+wnck_src = files(
+    'appmenu-wnck.vala',
     'matcher.c',
     'matcher.h',
+    'libwnck-aux.c',
+    'libwnck-aux.h',
     'matcher.vapi'
 )
 
@@ -41,10 +47,14 @@ foreach series, ver : addons_versions
     endif
 endforeach
 
-appmenu_deps = [giounix, gtk, bamf, importer_dep, posix_dep]
+appmenu_deps = [giounix, gtk, importer_dep, posix_dep]
 appmenu_cflags = []
-if wnck.found()
-    sources += matcher_src
+if backend_bamf
+    sources += bamf_src
+    appmenu_deps += bamf
+endif
+if backend_wnck
+    sources += wnck_src
     appmenu_deps += wnck
     appmenu_cflags += ['-DWNCK_I_KNOW_THIS_IS_UNSTABLE']
 endif

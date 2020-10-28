@@ -28,10 +28,10 @@ G_BEGIN_DECLS
 
 G_DECLARE_FINAL_TYPE(ValaPanelMatcher, vala_panel_matcher, VALA_PANEL, MATCHER, GObject)
 
-ValaPanelMatcher *vala_panel_matcher_new();
-GDesktopAppInfo *vala_panel_matcher_match_wnck_window(ValaPanelMatcher *self, WnckWindow *window);
-char *vala_panel_matcher_get_gtk_application_id(ulong window);
-char *vala_panel_matcher_get_x11_atom_string(ulong xid, GdkAtom atom, bool utf8);
+ValaPanelMatcher *vala_panel_matcher_get();
+GDesktopAppInfo *vala_panel_matcher_match_arbitrary(ValaPanelMatcher *self, const char *class,
+                                                    const char *group, const char *gtk,
+                                                    int64_t pid);
 
 G_END_DECLS
 
