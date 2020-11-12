@@ -17,19 +17,17 @@ Compilation Instructions (Non-Distribution-Specific)
   * Install all the required dependencies listed above. These packages may have different names depending on your distribution. Please see [below](#dependency-packages) for the package names on some specific distributions (i.e. Ubuntu).
   * Clone this repository to your `home` directory by typing:
   `git clone https://gitlab.com/vala-panel-project/vala-panel-appmenu.git` then `cd` into the directory.
-  * type `git submodule init && git submodule update --remote --merge` to download the submodules (this will download the cmake and dbus-menu submodules you see in the repository, above)
-  * type `mkdir build && cd build` (to keep things tidy)
-  * You're **almost** ready to run `cmake`. First, review the following flags:
-    * CMAKE FLAGS:
-      * `-DENABLE_XFCE=[ON/OFF]` Use `ON` to compile applet for XFCE Panel
-      * `-DENABLE_BUDGIE=[ON/OFF]` Use `ON` to compile for budgie (experimental)
-      * `-DENABLE_VALAPANEL=[ON/OFF]` Use `ON` to compile for Vala Panel
-      * `-DENABLE_MATE=[ON/OFF]` Use `ON` to compile for MATE Panel
-      * `-DENABLE_JAYATANA=[ON/OFF]` Use `ON` to include Jayatana library (enable global menu for java swing applications)
-      * `-DENABLE_APPMENU_GTK_MODULE=ON` Use this flag if you are compiling for a distro other than Arch (see instructions below for including unity-gtk-module with Arch) or Ubuntu (Ubuntu users can install unity-gtk-module from the ubuntu repositories--see 'Post-build Instructions', below).
-      * `-DCMAKE_INSTALL_PREFIX=[path]` By default, Vala-Panel-Appmenu will install in the `/usr/local` directory. You can use this flag to change that. For some DEs (XFCE, for example), it is required to match install prefix with panel prefix (`/usr` in most distros), so, do not forget it.
-  * once you've decided on any flags you want to include, type (from your build directory) `cmake [flags] ..`
-  * once the build is successful, you can compile and install Vala-Panel-Appmenu by typing `make && sudo make install`
+  * You're **almost** ready to run `meson`. First, review the following flags:
+    * Meson flags:
+      * `-Dxfce=[on/off]` Use `on` to compile applet for XFCE Panel
+      * `-Dbudgie=[on/off]` Use `on` to compile for budgie (experimental)
+      * `-Dvalapanel=[on/off]` Use `on` to compile for Vala Panel
+      * `-Dmate=[on/off]` Use `on` to compile for MATE Panel
+      * `-Djayatana=[on/off]` Use `on` to include Jayatana library (enable global menu for java swing applications), requires CMake
+      * `-Dappmenu-gtk-module=on` Use this flag if you are compiling for a distro other than Arch (see instructions below for including unity-gtk-module with Arch) or Ubuntu (Ubuntu users can install unity-gtk-module from the ubuntu repositories--see 'Post-build Instructions', below).
+      * `--prefix=[path]` By default, Vala-Panel-Appmenu will install in the `/usr/local` directory. You can use this flag to change that. For some DEs (XFCE, for example), it is required to match install prefix with panel prefix (`/usr` in most distros), so, do not forget it.
+  * once you've decided on any flags you want to include, type (from your build directory) `meson [flags] [dir]`
+  * once the build is successful, you can compile and install Vala-Panel-Appmenu by typing `ninja && sudo ninja install`
 ---
 Post-Build Instructions
 ---
