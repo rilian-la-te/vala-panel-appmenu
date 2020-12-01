@@ -105,6 +105,9 @@ namespace Appmenu
                         info = AppInfo.create_from_commandline("pcmanfm --desktop-pref",null,
                         AppInfoCreateFlags.SUPPORTS_STARTUP_NOTIFICATION) as DesktopAppInfo;
                         break;
+                    case "Budgie:GNOME":
+                        info = new DesktopAppInfo("budgie-desktop-settings.desktop");
+                        break;
                     default:
                         warning("Unknown desktop environment\n");
                         info = AppInfo.create_from_commandline("gnome-control-center backgrounds",null,
