@@ -27,7 +27,7 @@ Compilation Instructions (Non-Distribution-Specific)
       * `-Dappmenu-gtk-module=on` Use this flag if you are compiling for a distro other than Arch (see instructions below for including unity-gtk-module with Arch) or Ubuntu (Ubuntu users can install unity-gtk-module from the ubuntu repositories--see 'Post-build Instructions', below).
       * `--prefix=[path]` By default, Vala-Panel-Appmenu will install in the `/usr/local` directory. You can use this flag to change that. For some DEs (XFCE, for example), it is required to match install prefix with panel prefix (`/usr` in most distros), so, do not forget it.
   * once you've decided on any flags you want to include, type (from your build directory) `meson [flags] [dir]`
-  * once the build is successful, you can compile and install Vala-Panel-Appmenu by typing `ninja && sudo ninja install`
+  * once the build is successful, you can compile and install Vala-Panel-Appmenu by typing `cd [dir] && ninja && sudo ninja install`
 ---
 Post-Build Instructions
 ---
