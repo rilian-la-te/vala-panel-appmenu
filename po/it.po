@@ -1,5 +1,175 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Gianvito Cavasoli <gianvito@gmx.it>, 2020.
+#
 msgid ""
 msgstr ""
+"Project-Id-Version: vala-panel-appmenu\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-04-24 16:13+0300\n"
+"PO-Revision-Date: 2020-05-06 18:30+0200\n"
+"Last-Translator: Gianvito Cavasoli <gianvito@gmx.it>\n"
+"Language-Team: Italian <gnome-it-list@gnome.org>\n"
+"Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"X-Generator: Gtranslator 3.36.0\n"
+
+#: ../lib/appmenu-desktop.vala:39 ../lib/appmenu-desktop.vala:65
+#: ../lib/helper-desktop.vala:58
+msgid "_Desktop"
+msgstr "_Scrivania"
+
+#: ../lib/appmenu-desktop.vala:153 ../lib/appmenu-desktop.vala:205
+#: ../lib/helper-desktop.vala:192
+msgid "No files"
+msgstr "Nessun file"
+
+#: ../lib/appmenu-bamf.vala:37 ../lib/desktop-menus.ui:40
+msgid "_New Window..."
+msgstr "_Nuova finestra…"
+
+#: ../lib/appmenu-bamf.vala:38 ../lib/desktop-menus.ui:45
+msgid "Close _This"
+msgstr "Chiudi _questo"
+
+#: ../lib/appmenu-bamf.vala:39 ../lib/desktop-menus.ui:50
+msgid "Close _All"
+msgstr "Chiudi tutto"
+
+#: ../lib/menu-widget-menumodel.vala:42 ../lib/menu-widget-menumodel.vala:63
+msgid "_Application"
+msgstr "_Applicazione"
+
+#: ../lib/desktop-menus.ui:6
+msgid "_Desktop Settings"
+msgstr "Impostazioni della _scrivania"
+
+#: ../lib/desktop-menus.ui:10
+msgid "_System Settings"
+msgstr "Impostazioni del s_istema"
+
+#: ../lib/desktop-menus.ui:17
+msgid "_Files"
+msgstr "_File"
+
+#: ../data/xfce/appmenu.desktop.xfce.in:5 ../data/appmenu.desktop.plugin.in:4
+#: ../data/appmenu.desktop.xfce.in:5 ../data/appmenu.desktop.in:5
+#: ../data/appmenu.plugin.desktop.in:4
+#: ../data/org.valapanel.appmenu.desktop.in:4
+msgid "AppMenu Plugin"
+msgstr "Plugin AppMenu"
+
+#: ../data/xfce/appmenu.desktop.xfce.in:6 ../data/appmenu.desktop.plugin.in:5
+#: ../data/appmenu.desktop.xfce.in:6 ../data/appmenu.desktop.in:6
+#: ../data/appmenu.plugin.desktop.in:5
+#: ../data/org.valapanel.appmenu.desktop.in:5
+msgid "Display AppMenu (Global Menu)"
+msgstr "Mostra il AppMenu (menù globale)"
+
+#: ../data/xfce/appmenu.desktop.xfce.in:7
+#: ../data/appmenu-mate.desktop.plugin.in:11 ../data/appmenu.desktop.xfce.in:7
+#: ../data/appmenu-mate.desktop.in:11 ../data/appmenu-mate.plugin.desktop.in:11
+#: ../data/appmenu.desktop.in:7
+msgid "applications-system"
+msgstr "applications-system"
+
+#: ../lib/desktop-menus.ui:21
+msgid "_Documents"
+msgstr "_Documenti"
+
+#: ../lib/desktop-menus.ui:25
+msgid "_Music"
+msgstr "_Musica"
+
+#: ../lib/desktop-menus.ui:29
+msgid "_Pictures"
+msgstr "_Immagini"
+
+#: ../lib/desktop-menus.ui:33
+msgid "_Video"
+msgstr "_Video"
+
+#: ../lib/budgie-plugin-appmenu.vala:51 ../lib/valapanel-plugin-appmenu.vala:73
+#: ../lib/valapanel-plugin-appmenu.vala:88 ../lib/mate-plugin-appmenu.vala:43
+#: ../lib/xfce4-plugin-appmenu.vala:56 ../lib/valapanel-plugin-appmenu.vala:67
+msgid "Use Compact mode (all menus in application menu)"
+msgstr "Usa la modalità compatta (tutti i menù nel menù dell'applicazione)"
+
+#: ../lib/budgie-plugin-appmenu.vala:54 ../lib/mate-plugin-appmenu.vala:46
+#: ../lib/valapanel-plugin-appmenu.vala:76
+#: ../lib/valapanel-plugin-appmenu.vala:91 ../lib/xfce4-plugin-appmenu.vala:59
+#: ../lib/valapanel-plugin-appmenu.vala:70
+msgid "Use bold application name"
+msgstr "Usa il grassetto per il nome dell'applicazione"
+
+#: ../lib/helper-dbus.vala:101
+msgid "Application"
+msgstr "Applicazione"
+
+#: ../lib/mate-plugin-appmenu.vala:36
+msgid "_Preferences"
+msgstr "Preferen_ze"
+
+#: ../lib/mate-plugin-appmenu.vala:39 ../lib/valapanel-plugin-appmenu.vala:85
+#: ../lib/xfce4-plugin-appmenu.vala:52
+msgid "Configure AppMenu"
+msgstr "Configura AppMenu"
+
+#: ../lib/mate-plugin-appmenu.vala:43 ../lib/xfce4-plugin-appmenu.vala:56
+msgid "Use Compact mode (all menus in application menu"
+msgstr "Usa la modalità compatta (tutti i menù nel menù dell'applicazione)"
+
+#: ../lib/xfce4-plugin-appmenu.vala:62
+msgid "Expand plugin on panel"
+msgstr "Espandi il plugin sul pannello"
+
+#: ../lib/desktop-menus.ui:40
+msgid "_New"
+msgstr "_Nuova"
+
+#: ../lib/desktop-menus.ui:51
+msgid "_Quit"
+msgstr "_Esci"
+
+#: ../data/appmenu-budgie.desktop.plugin.in:4
+#: ../data/appmenu-budgie.desktop.in:4
+msgid "Global Menu"
+msgstr "Menù globale"
+
+#: ../data/appmenu-budgie.desktop.plugin.in:5
+#: ../data/appmenu-budgie.desktop.in:5
+msgid "Show menus from windows"
+msgstr "Mostra i menù dalle finestre"
+
+#: ../data/appmenu-budgie.desktop.plugin.in:9
+#: ../data/appmenu-budgie.desktop.in:9
+msgid "view-grid-symbolic"
+msgstr "view-grid-symbolic"
+
+#: ../data/appmenu-mate.desktop.plugin.in:5 ../data/appmenu-mate.desktop.in:5
+#: ../data/appmenu-mate.plugin.desktop.in:5
+msgid "Appmenu applet factory"
+msgstr "Fattoria applet appmenu"
+
+#: ../data/appmenu-mate.desktop.plugin.in:9 ../data/appmenu-mate.desktop.in:9
+#: ../data/appmenu-mate.plugin.desktop.in:9
+msgid "Global Application Menu"
+msgstr "Menù globale dell'applicazione"
+
+#: ../data/appmenu-mate.desktop.plugin.in:10 ../data/appmenu-mate.desktop.in:10
+#: ../data/appmenu-mate.plugin.desktop.in:10
+msgid "All menus will hosts here"
+msgstr "Tutti i menù saranno ospitati qui"
+
+#: ../lib/menu-widget.vala:114
+msgid "Compact Menu"
+msgstr "Menù compatto"
+
+#: ../data/appmenu.desktop.plugin.in:6 ../data/appmenu.plugin.desktop.in:6
+#: ../data/org.valapanel.appmenu.desktop.in:6
+msgid "preferences-system-symbolic"
+msgstr "preferences-system-symbolic"
