@@ -30,7 +30,7 @@ build-applet-alpine:
   image: alpine:edge
   stage: build
   script:
-   - apk add --no-cache python3 gtk+3.0-dev vala meson ninja libwnck3-dev build-base git
+   - apk add --no-cache python3 gtk+3.0-dev vala meson ninja xz libwnck3-dev build-base git
    - git clone https://gitlab.com/vala-panel-project/vala-panel.git
    - meson --prefix=/usr vp-build vala-panel && meson install -C vp-build && rm -rf vala-panel && rm -rf vp-build
    - meson --prefix=/usr -Dregistrar=disabled -Djayatana=disabled -Dappmenu-gtk-module=disabled build
@@ -42,7 +42,7 @@ build-gtk-module-main:
   image: alpine:edge
   stage: build
   script:
-   - apk add --no-cache python3 gtk+3.0-dev gtk+2.0-dev meson ninja libwnck3-dev build-base git
+   - apk add --no-cache python3 gtk+3.0-dev gtk+2.0-dev xz meson ninja libwnck3-dev build-base git
    - export VERSION=$(git describe --abbrev=0)
    - meson --prefix=/usr build subprojects/appmenu-gtk-module
    - meson compile -C build
@@ -58,7 +58,7 @@ build-registrar-main:
   image: alpine:edge
   stage: build
   script:
-   - apk add --no-cache python3 glib-dev meson build-base git
+   - apk add --no-cache python3 glib-dev meson xz build-base git
    - export VERSION=$(git describe --abbrev=0)
    - meson --prefix=/usr --libexecdir=lib build subprojects/registrar
    - meson compile -C build
