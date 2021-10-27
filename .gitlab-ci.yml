@@ -21,10 +21,6 @@ build-applet-archlinux:
    - meson compile -C build
    - meson install -C build --no-rebuild
    - meson dist -C build --no-tests
-  artifacts:
-    paths:
-    - "build/meson-dist/vala-panel-appmenu*.tar.xz"
-    expire_in: 1 week
 
 build-applet-alpine:
   image: alpine:edge
@@ -37,6 +33,10 @@ build-applet-alpine:
    - meson compile -C build
    - meson install -C build --no-rebuild
    - meson dist -C build --no-tests
+  artifacts:
+    paths:
+    - "build/meson-dist/vala-panel-appmenu*.tar.xz"
+    expire_in: 1 week
 
 build-gtk-module-main:
   image: alpine:edge
