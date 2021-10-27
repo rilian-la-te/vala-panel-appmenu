@@ -39,10 +39,10 @@ build-applet-alpine:
    - meson dist -C build --no-tests
 
 build-gtk-module-main:
-  image: archlinux/base
+  image: alpine:edge
   stage: build
   script:
-   - pacman -Syy --noconfirm gtk3 gtk2 meson base-devel ninja git
+   - apk add --no-cache python3 gtk+3.0-dev gtk+2.0-dev meson ninja libwnck3-dev build-base git
    - export VERSION=$(git describe --abbrev=0)
    - meson --prefix=/usr build subprojects/appmenu-gtk-module
    - meson compile -C build
@@ -55,10 +55,10 @@ build-gtk-module-main:
 
 
 build-registrar-main:
-  image: archlinux/base
+  image: alpine:edge
   stage: build
   script:
-   - pacman -Syy --noconfirm glib2 meson base-devel git
+   - apk add --no-cache python3 glib-dev meson build-base git
    - export VERSION=$(git describe --abbrev=0)
    - meson --prefix=/usr --libexecdir=lib build subprojects/registrar
    - meson compile -C build
