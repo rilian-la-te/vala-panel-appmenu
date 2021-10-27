@@ -59,7 +59,7 @@ build-registrar-main:
 
 
 build-jayatana-main:
-  image: archlinux/base
+  image: archlinux:base
   stage: build
   script:
    - pacman -Syy --noconfirm glib2 libdbusmenu-glib cmake base-devel ninja libxkbcommon jdk11-openjdk git libx11
