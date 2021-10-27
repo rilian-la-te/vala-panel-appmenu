@@ -10,18 +10,6 @@ cache:
   paths:
     - _ccache/
 
-build-applet-archlinux:
-  image: archlinux/base
-  stage: build
-  script:
-   - pacman -Syy --noconfirm glibc libwnck3 gtk3 vala meson git base-devel clang ninja xfce4-panel mate-panel budgie-desktop gobject-introspection bamf
-   - git clone https://gitlab.com/vala-panel-project/vala-panel.git
-   - meson --prefix=/usr vp-build vala-panel && meson install -C vp-build && rm -rf vala-panel && rm -rf vp-build
-   - meson --prefix=/usr -Dregistrar=disabled -Djayatana=disabled -Dappmenu-gtk-module=disabled build 
-   - meson compile -C build
-   - meson install -C build --no-rebuild
-   - meson dist -C build --no-tests
-
 build-applet-alpine:
   image: alpine:edge
   stage: build
