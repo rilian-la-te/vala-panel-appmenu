@@ -134,6 +134,14 @@ namespace Appmenu
                     case "LXDE":
                         info = new DesktopAppInfo("lxappearance.desktop");
                         break;
+                    case "Budgie:GNOME":
+                        string control_center = "gnome-control-center";
+                        if (Environment.find_program_in_path("budgie-control-center") != null) {
+                            control_center = "budgie-control-center";
+                        }
+                        info = AppInfo.create_from_commandline(control_center,null,
+                        AppInfoCreateFlags.SUPPORTS_STARTUP_NOTIFICATION) as DesktopAppInfo;
+                        break;
                     default:
                         warning("Unknown desktop environment\n");
                         info = AppInfo.create_from_commandline("gnome-control-center",null,
