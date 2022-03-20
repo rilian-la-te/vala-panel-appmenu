@@ -5,7 +5,7 @@ JAyatana helps to use DBusMenu for Java Swing programs (enables Global Menu for 
 *Dependencies:*
 
  * GLib (>= 2.40.0)
- * Java (>= 1.7.0)
+ * Java (>= 1.9.0)
  * xkbcommon (>= 0.5.0)
  * dbusmenu-glib (>= 16.04.0)
 
