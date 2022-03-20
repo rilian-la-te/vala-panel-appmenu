@@ -19,12 +19,12 @@ Compilation Instructions (Non-Distribution-Specific)
   `git clone https://gitlab.com/vala-panel-project/vala-panel-appmenu.git` then `cd` into the directory.
   * You're **almost** ready to run `meson`. First, review the following flags:
     * Meson flags:
-      * `-Dxfce=[on/off]` Use `on` to compile applet for XFCE Panel
-      * `-Dbudgie=[on/off]` Use `on` to compile for budgie (experimental)
-      * `-Dvalapanel=[on/off]` Use `on` to compile for Vala Panel
-      * `-Dmate=[on/off]` Use `on` to compile for MATE Panel
-      * `-Djayatana=[on/off]` Use `on` to include Jayatana library (enable global menu for java swing applications), requires CMake
-      * `-Dappmenu-gtk-module=on` Use this flag if you are compiling for a distro other than Arch (see instructions below for including unity-gtk-module with Arch) or Ubuntu (Ubuntu users can install unity-gtk-module from the ubuntu repositories--see 'Post-build Instructions', below).
+      * `-Dxfce=[enabled/disabled]` Use `enabled` to compile applet for XFCE Panel
+      * `-Dbudgie=[enabled/disabled]` Use `enabled` to compile for budgie (experimental)
+      * `-Dvalapanel=[enabled/disabled]` Use `enabled` to compile for Vala Panel
+      * `-Dmate=[enabled/disabled]` Use `enabled` to compile for MATE Panel
+      * `-Djayatana=[enabled/disabled]` Use `enabled` to include Jayatana library (enable global menu for java swing applications), requires CMake
+      * `-Dappmenu-gtk-module=enabled` Use this flag if you are compiling for a distro other than Arch (see instructions below for including unity-gtk-module with Arch) or Ubuntu (Ubuntu users can install unity-gtk-module from the ubuntu repositories--see 'Post-build Instructions', below).
       * `--prefix=[path]` By default, Vala-Panel-Appmenu will install in the `/usr/local` directory. You can use this flag to change that. For some DEs (XFCE, for example), it is required to match install prefix with panel prefix (`/usr` in most distros), so, do not forget it.
   * once you've decided on any flags you want to include, type (from your build directory) `meson [flags] [dir]`
   * once the build is successful, you can compile and install Vala-Panel-Appmenu by typing `cd [dir] && ninja && sudo ninja install`
@@ -49,7 +49,7 @@ To install and enable unity-gtk-module for your distro:
  - Follow instructions in the (appmenu-gtk-module) [README](subprojects/appmenu-gtk-module/README.md), if it is not enabled automatically.
 
  **DISTROS OTHER THAN ARCH OR UBUNTU**
- - When building vala-panel-appmenu with CMAKE, use the flag, `-DENABLE_APPMENU_GTK_MODULE=ON`
+ - When building vala-panel-appmenu with meson, use the flag, `-Dappmenu-gtk-module=enabled`
  - Follow instructions in the (appmenu-gtk-module) [README](subprojects/appmenu-gtk-module/README.md)
 
 
@@ -95,7 +95,7 @@ JAyatana allows for displaying global menus in Java Swing applications. Because 
 There are some problems with the implementation, notably that you need to include `env XDG_CURRENT_DESKTOP=Unity` to the beginning of your launch command.
 
 Basic Instructions for Enabling JAyatana:
-* Install OpenJDK >= 7 or JDK >= 1.7
+* Install OpenJDK >= 9 or JDK >= 1.9
 * Build vala-panel-appmenu with `-DENABLE_JAYATANA=ON`
 * Add following lines to your ~/.profile and ~/.bashrc, in any order:
 ```
