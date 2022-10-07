@@ -117,4 +117,4 @@ readmes = [
     'README.md',
     'LICENSE',
 ]
-install_data(readmes, install_dir : join_paths(get_option('datadir'), meson.project_name(), 'doc'))
+install_data(readmes, install_dir : join_paths(get_option('datadir'), 'doc', meson.project_name()))
