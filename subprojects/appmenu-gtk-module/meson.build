@@ -50,11 +50,11 @@ build_gtk3 = gtk3.found()
 
 readmes = [
     'README.md',
-    'LICENSE',
     'TODO',
     'AUTHORS'
 ]
 install_data(readmes, install_dir : join_paths(get_option('datadir'), 'doc', meson.project_name()))
+install_data('LICENSE', install_dir : join_paths(get_option('datadir'), 'licenses', meson.project_name()))
 
 
 subdir('lib')

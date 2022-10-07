@@ -113,8 +113,5 @@ subdir('applets')
 subdir('data')
 subdir('po')
 
-readmes = [
-    'README.md',
-    'LICENSE',
-]
-install_data(readmes, install_dir : join_paths(get_option('datadir'), 'doc', meson.project_name()))
+install_data('README.md', install_dir : join_paths(get_option('datadir'), 'doc', meson.project_name()))
+install_data('LICENSE', install_dir : join_paths(get_option('datadir'), 'licenses', meson.project_name()))
