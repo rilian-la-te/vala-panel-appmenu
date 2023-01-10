@@ -105,6 +105,9 @@ namespace Appmenu
                         info = AppInfo.create_from_commandline("pcmanfm --desktop-pref",null,
                         AppInfoCreateFlags.SUPPORTS_STARTUP_NOTIFICATION) as DesktopAppInfo;
                         break;
+                    case "UnityX":
+                        info = new DesktopAppInfo("unityx-appearance-panel.desktop");
+                        break;
                     case "Budgie:GNOME":
                         info = new DesktopAppInfo("budgie-desktop-settings.desktop");
                         break;
@@ -133,6 +136,9 @@ namespace Appmenu
                         break;
                     case "LXDE":
                         info = new DesktopAppInfo("lxappearance.desktop");
+                        break;
+                    case "UnityX":
+                        info = new DesktopAppInfo("unityx-control-center.desktop");
                         break;
                     case "Budgie:GNOME":
                         string control_center = "gnome-control-center";
