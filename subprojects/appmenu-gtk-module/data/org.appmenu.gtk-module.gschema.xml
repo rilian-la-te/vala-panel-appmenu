@@ -16,5 +16,10 @@
       <description>If this is enabled, menus will not removed from applications even if registrar found. Useful for HUD-only usage.</description>
       <default>false</default>
     </key>
+    <key name="run-on-wayland" type="b">
+      <summary>Run on wayland</summary>
+      <description>Is appmenu-gtk-module should run on Wayland.</description>
+      <default>true</default>
+    </key>
   </schema>
 </schemalist>

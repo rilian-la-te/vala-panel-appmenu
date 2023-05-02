@@ -58,7 +58,11 @@ G_GNUC_INTERNAL bool gtk_module_should_run()
 	if (GDK_IS_X11_DISPLAY(gdk_display_get_default()))
 		is_platform_supported = true;
 	else if (GDK_IS_WAYLAND_DISPLAY(gdk_display_get_default()))
-		is_platform_supported = true;
+	{
+		g_autoptr(GSettings) gsettings = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
+		bool use_wayland                  = g_settings_get_boolean(gsettings, RUN_ON_WAYLAND);
+		is_platform_supported = use_wayland;
+	}
 	else
 		is_platform_supported = false;
 #else
