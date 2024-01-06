@@ -1,4 +1,169 @@
 msgid ""
 msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-05 15:47+0300\n"
+"PO-Revision-Date: 2024-01-05 15:47+0300\n"
+"Last-Translator: Mohamed Benkouider <mbkasr@gmail.com>\n"
+"Language-Team: \n"
+"Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.0.4\n"
+
+#: ../lib/appmenu-desktop.vala:39 ../lib/appmenu-desktop.vala:65
+#: ../lib/helper-desktop.vala:58
+msgid "_Desktop"
+msgstr "_سطح المكتب"
+
+#: ../lib/appmenu-desktop.vala:153 ../lib/appmenu-desktop.vala:205
+#: ../lib/helper-desktop.vala:192
+msgid "No files"
+msgstr "لا ملفات"
+
+#: ../lib/appmenu-bamf.vala:37 ../lib/desktop-menus.ui:40
+msgid "_New Window..."
+msgstr "_نافذة جديدة"
+
+#: ../lib/appmenu-bamf.vala:38 ../lib/desktop-menus.ui:45
+msgid "Close _This"
+msgstr "_أغلق هذا"
+
+#: ../lib/appmenu-bamf.vala:39 ../lib/desktop-menus.ui:50
+msgid "Close _All"
+msgstr "أغلق ال_كل"
+
+#: ../lib/menu-widget-menumodel.vala:42 ../lib/menu-widget-menumodel.vala:63
+msgid "_Application"
+msgstr "_تطبيق"
+
+#: ../lib/desktop-menus.ui:6
+msgid "_Desktop Settings"
+msgstr "_إعدادات سطح المكتب"
+
+#: ../lib/desktop-menus.ui:10
+msgid "_System Settings"
+msgstr "إعدادات الن_ظام"
+
+#: ../lib/desktop-menus.ui:17
+msgid "_Files"
+msgstr "_الملفات"
+
+#: ../data/xfce/appmenu.desktop.xfce.in:5 ../data/appmenu.desktop.plugin.in:4
+#: ../data/appmenu.desktop.xfce.in:5 ../data/appmenu.desktop.in:5
+#: ../data/appmenu.plugin.desktop.in:4
+#: ../data/org.valapanel.appmenu.desktop.in:4
+msgid "AppMenu Plugin"
+msgstr "لاحقة AppMenu"
+
+#: ../data/xfce/appmenu.desktop.xfce.in:6 ../data/appmenu.desktop.plugin.in:5
+#: ../data/appmenu.desktop.xfce.in:6 ../data/appmenu.desktop.in:6
+#: ../data/appmenu.plugin.desktop.in:5
+#: ../data/org.valapanel.appmenu.desktop.in:5
+msgid "Display AppMenu (Global Menu)"
+msgstr "أظهر AppMenu (القائمة العامة)"
+
+#: ../data/xfce/appmenu.desktop.xfce.in:7
+#: ../data/appmenu-mate.desktop.plugin.in:11 ../data/appmenu.desktop.xfce.in:7
+#: ../data/appmenu-mate.desktop.in:11 ../data/appmenu-mate.plugin.desktop.in:11
+#: ../data/appmenu.desktop.in:7
+msgid "applications-system"
+msgstr "نظام-التطبيقات"
+
+#: ../lib/desktop-menus.ui:21
+msgid "_Documents"
+msgstr "ال_مستندات"
+
+#: ../lib/desktop-menus.ui:25
+msgid "_Music"
+msgstr "الم_وسيقى"
+
+#: ../lib/desktop-menus.ui:29
+msgid "_Pictures"
+msgstr "ال_صور"
+
+#: ../lib/desktop-menus.ui:33
+msgid "_Video"
+msgstr "م_قاطع الفيديو"
+
+#: ../lib/budgie-plugin-appmenu.vala:51 ../lib/valapanel-plugin-appmenu.vala:73
+#: ../lib/valapanel-plugin-appmenu.vala:88 ../lib/mate-plugin-appmenu.vala:43
+#: ../lib/xfce4-plugin-appmenu.vala:56 ../lib/valapanel-plugin-appmenu.vala:67
+msgid "Use Compact mode (all menus in application menu)"
+msgstr "استعمل الوضع المدمج (كل القوائم في قائمة التطبيقات)"
+
+#: ../lib/budgie-plugin-appmenu.vala:54 ../lib/mate-plugin-appmenu.vala:46
+#: ../lib/valapanel-plugin-appmenu.vala:76
+#: ../lib/valapanel-plugin-appmenu.vala:91 ../lib/xfce4-plugin-appmenu.vala:59
+#: ../lib/valapanel-plugin-appmenu.vala:70
+msgid "Use bold application name"
+msgstr "استعمل اسم تطبيق عريض"
+
+#: ../lib/helper-dbus.vala:101
+msgid "Application"
+msgstr "التطبيق"
+
+#: ../lib/mate-plugin-appmenu.vala:36
+msgid "_Preferences"
+msgstr "ال_تفضيلات"
+
+#: ../lib/mate-plugin-appmenu.vala:39 ../lib/valapanel-plugin-appmenu.vala:85
+#: ../lib/xfce4-plugin-appmenu.vala:52
+msgid "Configure AppMenu"
+msgstr "أعدّ AppMenu"
+
+#: ../lib/mate-plugin-appmenu.vala:43 ../lib/xfce4-plugin-appmenu.vala:56
+msgid "Use Compact mode (all menus in application menu"
+msgstr "استعمل الوضع المدمج (كل القوائم في قائمة التطبيقات"
+
+#: ../lib/xfce4-plugin-appmenu.vala:62
+msgid "Expand plugin on panel"
+msgstr "وسّع ملحق في اللوحة"
+
+#: ../lib/desktop-menus.ui:40
+msgid "_New"
+msgstr "_جديد"
+
+#: ../lib/desktop-menus.ui:51
+msgid "_Quit"
+msgstr "أ_غلق"
+
+#: ../data/appmenu-budgie.desktop.plugin.in:4
+#: ../data/appmenu-budgie.desktop.in:4
+msgid "Global Menu"
+msgstr "القائمة العامة"
+
+#: ../data/appmenu-budgie.desktop.plugin.in:5
+#: ../data/appmenu-budgie.desktop.in:5
+msgid "Show menus from windows"
+msgstr "اعرض قوائم من النوافذ"
+
+#: ../data/appmenu-budgie.desktop.plugin.in:9
+#: ../data/appmenu-budgie.desktop.in:9
+msgid "view-grid-symbolic"
+msgstr "عرض-شبكة-رمزي"
+
+#: ../data/appmenu-mate.desktop.plugin.in:5 ../data/appmenu-mate.desktop.in:5
+#: ../data/appmenu-mate.plugin.desktop.in:5
+msgid "Appmenu applet factory"
+msgstr "مصنع التطبيقات المصغرة لـ Appmenu"
+
+#: ../data/appmenu-mate.desktop.plugin.in:9 ../data/appmenu-mate.desktop.in:9
+#: ../data/appmenu-mate.plugin.desktop.in:9
+msgid "Global Application Menu"
+msgstr "قائمة التطبيقات العامة"
+
+#: ../data/appmenu-mate.desktop.plugin.in:10 ../data/appmenu-mate.desktop.in:10
+#: ../data/appmenu-mate.plugin.desktop.in:10
+msgid "All menus will hosts here"
+msgstr "كل القوائم ستستضاف هنا"
+
+#: ../lib/menu-widget.vala:114
+msgid "Compact Menu"
+msgstr "القائمة المدمجة"
+
+#: ../data/appmenu.desktop.plugin.in:6 ../data/appmenu.plugin.desktop.in:6
+#: ../data/org.valapanel.appmenu.desktop.in:6
+msgid "preferences-system-symbolic"
+msgstr "تفضيلات-نظام-رمزي"
