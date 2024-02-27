@@ -1,4 +1,3 @@
-subdir('dbusmenu-importer')
 sources = files(
     'appmenu-abstractions.vala',
     'registrar.vala',
@@ -41,6 +40,9 @@ foreach series, ver : addons_versions
         break
     endif
 endforeach
+
+importer_dep = translator.get_variable('importer_dep')
+importer_vapi = translator.get_variable('importer_vapi')
 
 appmenu_deps = [giounix, gtk, importer_dep, posix_dep, importer_vapi]
 appmenu_cflags = []

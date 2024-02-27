@@ -1,4 +1,19 @@
+project(
+  'appmenu-glib-translator',
+  'vala',
+  'c',
+version : '24.02',
+meson_version : '>=0.61.0',
+license : 'LGPL-3.0-or-later',
+default_options : ['c_std=gnu11', 'buildtype=debugoptimized', 'warning_level=1']
+)
+
+gnome = import('gnome')
 pkgconfig = import('pkgconfig')
+
+glib_ver = '>=2.52.0'
+giounix = dependency('gio-unix-2.0', version: glib_ver)
+gdkpixbuf = dependency('gdk-pixbuf-2.0', required: false)
 
 imp_sources = files(
     'definitions.h',
