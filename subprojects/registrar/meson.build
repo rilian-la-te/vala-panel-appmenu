@@ -1,5 +1,5 @@
 project('registrar', 'c',
-	meson_version: '>=0.49.0',
+	meson_version: '>=0.61.0',
     version: '0.7',
 	license: ['LGPL-3.0-or-later'],
     default_options: [
@@ -58,10 +58,10 @@ version = vcs_tag(
 
 marshal = gnome.genmarshal('registrar-marshal', sources: 'registrar-marshal.list')
 intro_c = run_command(
-        'cat', join_paths('data','com.canonical.AppMenu.Registrar.xml'),
+        'cat', join_paths('data','com.canonical.AppMenu.Registrar.xml'), check: true
     ).stdout().strip().split('"')
 priv_c = run_command(
-        'cat', join_paths('data','org.valapanel.AppMenu.Registrar.xml'),
+        'cat', join_paths('data','org.valapanel.AppMenu.Registrar.xml'), check: true
     ).stdout().strip().split('"')
 
 intro_xml = ''.join('\"'.join(intro_c).split('\n'))
