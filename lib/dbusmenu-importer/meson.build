@@ -35,6 +35,9 @@ importer_name = 'menutranslator'
 
 importer_lib = library(importer_name, imp_sources, importer_enums_gen, imp_dbus,
     dependencies: [giounix, gdkpixbuf],
+    version: meson.project_version(),
+    install: true,
+    soversion: 0,
     pic : true
 )
 importer_inc = include_directories('.')
