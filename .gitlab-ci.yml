@@ -95,8 +95,8 @@ release-main:
   stage: release
   script:
     - apk add --no-cache python3 py3-pip
-    - pip3 install --break-system-packages gitlab_release
-    - python3 -m gitlab_release --link-in-desc --link-artifact *
+    - pip3 install --break-system-packages gitlab-release
+    - gitlab-release --link-in-desc --link-artifact *.tar.xz
   artifacts:
     paths:
       # Must include files passed to gitlab_release
