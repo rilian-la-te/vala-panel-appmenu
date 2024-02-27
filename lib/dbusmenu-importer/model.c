@@ -295,7 +295,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 				// section was added and/or removed, we add a signal to signal_queue
 				// about this change. Else do nothing, section signal will do it for
 				// us
-				if ((delta > 0 || added > 0) && section_num <= old_sections)
+				if ((delta > 0 || added > 0) && section_num < old_sections)
 				{
 					add_signal_to_queue(menu,
 					                    signal_queue,
