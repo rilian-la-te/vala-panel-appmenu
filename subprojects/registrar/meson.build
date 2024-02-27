@@ -1,6 +1,6 @@
 project('registrar', 'c',
 	meson_version: '>=0.61.0',
-    version: '0.7',
+    version: '24.02',
 	license: ['LGPL-3.0-or-later'],
     default_options: [
         'c_std=gnu11',
