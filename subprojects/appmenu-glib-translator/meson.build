@@ -72,7 +72,7 @@ importer_gir = gnome.generate_gir(importer_lib,
                     namespace: 'AppmenuGLibTranslator',
                     identifier_prefix: 'DBusMenu',
                     symbol_prefix: 'dbus_menu',
-                    nsversion: '0.7',
+                    nsversion: meson.project_version(),
                     install: true
 )
 
