@@ -8,7 +8,6 @@ sources = files(
     'helper-dbusmenu.vala',
     'helper-menumodel.vala',
     'launcher.vapi',
-    'dbus-menu-importer.vapi',
     'launcher.c',
     'launcher.h'
 )
@@ -43,7 +42,7 @@ foreach series, ver : addons_versions
     endif
 endforeach
 
-appmenu_deps = [giounix, gtk, importer_dep, posix_dep]
+appmenu_deps = [giounix, gtk, importer_dep, posix_dep, importer_vapi]
 appmenu_cflags = []
 if backend_wnck
     sources += wnck_src
