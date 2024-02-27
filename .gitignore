@@ -9,6 +9,7 @@
 *.substvars
 .deps
 .libs
+.cache
 Makefile
 Makefile.in
 autom4te.cache

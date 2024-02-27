@@ -5,7 +5,7 @@ install_data([
 systemd = dependency('systemd', required: false)
 
 if systemd.found()
-    userunitdir = systemd.get_pkgconfig_variable('systemduserunitdir')
+    userunitdir = systemd.get_variable(pkgconfig:'systemduserunitdir')
     configure_file(
         input: 'appmenu-gtk-module.service.in',
         output: 'appmenu-gtk-module.service',

@@ -16,23 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using GLib;
+#ifndef SECTION_H
+#define SECTION_H
 
-namespace DBusMenu
+#include "model.h"
+#include <gio/gio.h>
+
+G_BEGIN_DECLS
+
+G_DECLARE_FINAL_TYPE(DBusMenuSectionModel, dbus_menu_section_model, DBUS_MENU, SECTION_MODEL,
+                     GMenuModel)
+
+struct _DBusMenuSectionModel
 {
-	[CCode(cheader_filename = "dbusmenu-importer/importer.h")]
-	public class Importer : Object
-	{
-		[NoAccessorMethod]
-		public string bus_name {construct;}
-		[NoAccessorMethod]
-		public string object_path {construct;}
-		[NoAccessorMethod]
-		public GLib.MenuModel model {owned get;}
-		[NoAccessorMethod]
-		public GLib.ActionGroup action_group {owned get;}
-		public Importer(string bus_name, string object_path);
-		public bool check();
-	}
-}
+	GMenuModel parent_instance;
 
+	DBusMenuModel *parent_model;
+	uint section_index;
+};
+
+G_GNUC_INTERNAL DBusMenuSectionModel *dbus_menu_section_model_new(DBusMenuModel *parent, int section_index);
+
+G_END_DECLS
+
+#endif // SECTION_H

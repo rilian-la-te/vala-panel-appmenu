@@ -1,4 +1,4 @@
-option('wm_backend', type: 'combo', choices: ['auto','wnck','bamf'], value: 'auto', description: 'Backend for appmenu')
+option('wm_backend', type: 'combo', choices: ['auto','wnck'], value: 'auto', description: 'Backend for appmenu')
 
 option('valapanel', type: 'feature', value: 'auto', description: 'Vala Panel Integration - 0.5.x')
 option('xfce', type: 'feature', value: 'auto', description: 'Xfce Panel Integration')

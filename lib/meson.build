@@ -1,4 +1,3 @@
-subdir('dbusmenu-importer')
 sources = files(
     'appmenu-abstractions.vala',
     'registrar.vala',
@@ -8,13 +7,8 @@ sources = files(
     'helper-dbusmenu.vala',
     'helper-menumodel.vala',
     'launcher.vapi',
-    'dbus-menu-importer.vapi',
     'launcher.c',
     'launcher.h'
-)
-
-bamf_src = files(
-    'appmenu-bamf.vala'
 )
 
 wnck_src = files(
@@ -47,12 +41,11 @@ foreach series, ver : addons_versions
     endif
 endforeach
 
-appmenu_deps = [giounix, gtk, importer_dep, posix_dep]
+importer_dep = translator.get_variable('importer_dep')
+importer_vapi = translator.get_variable('importer_vapi')
+
+appmenu_deps = [giounix, gtk, importer_dep, posix_dep, importer_vapi]
 appmenu_cflags = []
-if backend_bamf
-    sources += bamf_src
-    appmenu_deps += bamf
-endif
 if backend_wnck
     sources += wnck_src
     appmenu_deps += wnck
