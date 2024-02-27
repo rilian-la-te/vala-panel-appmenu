@@ -1,6 +1,5 @@
 project(
   'appmenu-glib-translator',
-  'vala',
   'c',
 version : '24.02',
 meson_version : '>=0.61.0',
