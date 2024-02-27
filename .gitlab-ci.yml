@@ -100,11 +100,11 @@ release-main:
   artifacts:
     paths:
       # Must include files passed to gitlab_release
-    - "build/meson-dist//appmenu-glib-translator*.tar.xz"
-    - "build/meson-dist//appmenu-gtk-module*.tar.xz"
-    - "build/meson-dist//appmenu-registrar*.tar.xz"
-    - "subprojects/jayatana/build/jayatana*.tar.xz"
+    - "build/meson-dist/appmenu-glib-translator*.tar.xz"
+    - "build/meson-dist/appmenu-gtk-module*.tar.xz"
+    - "build/meson-dist/appmenu-registrar*.tar.xz"
     - "build/meson-dist/vala-panel-appmenu*.tar.xz"
+    - "subprojects/jayatana/build/jayatana*.tar.xz"
   only:
     - tags
 
