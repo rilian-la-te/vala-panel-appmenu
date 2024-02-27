@@ -100,7 +100,6 @@ desktop_kwargs = {
 subproject('registrar', required: get_option('registrar'))
 cmake.subproject('jayatana', required: get_option('jayatana'))
 subproject('appmenu-gtk-module', required: get_option('appmenu-gtk-module'))
-translator = subproject('appmenu-glib-translator', required: true)
 
 subdir('lib')
 subdir('applets')

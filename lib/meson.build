@@ -41,10 +41,9 @@ foreach series, ver : addons_versions
     endif
 endforeach
 
-importer_dep = translator.get_variable('importer_dep')
-importer_vapi = translator.get_variable('importer_vapi')
+importer_dep = dependency('appmenu-glib-translator', fallback : ['appmenu-glib-translator', 'importer_dep'])
 
-appmenu_deps = [giounix, gtk, importer_dep, posix_dep, importer_vapi]
+appmenu_deps = [giounix, gtk, importer_dep, posix_dep]
 appmenu_cflags = []
 if backend_wnck
     sources += wnck_src

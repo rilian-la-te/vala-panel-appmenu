@@ -55,10 +55,6 @@ importer_lib = library(importer_name, imp_sources, importer_enums_gen, imp_dbus,
     pic : true
 )
 importer_inc = include_directories('.')
-importer_dep = declare_dependency(
-        include_directories: importer_inc,
-        link_with: importer_lib
-)
 imp_public = ['importer.h']
 install_headers(imp_public, subdir : importer_name)
 
@@ -84,4 +80,10 @@ importer_vapi = gnome.generate_vapi(importer_name,
     sources: importer_gir[0],
     packages: 'gio-2.0',
     install: true,
+)
+
+importer_dep = declare_dependency(
+        include_directories: importer_inc,
+        dependencies: [importer_vapi, giounix, gdkpixbuf],
+        link_with: importer_lib
 )
