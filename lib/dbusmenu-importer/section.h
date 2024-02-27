@@ -35,7 +35,7 @@ struct _DBusMenuSectionModel
 	uint section_index;
 };
 
-DBusMenuSectionModel *dbus_menu_section_model_new(DBusMenuModel *parent, int section_index);
+G_GNUC_INTERNAL DBusMenuSectionModel *dbus_menu_section_model_new(DBusMenuModel *parent, int section_index);
 
 G_END_DECLS
 

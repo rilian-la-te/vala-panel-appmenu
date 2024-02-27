@@ -184,7 +184,7 @@ static void dbus_menu_section_model_class_init(DBusMenuSectionModelClass *klass)
 	install_properties(object_class);
 }
 
-DBusMenuSectionModel *dbus_menu_section_model_new(DBusMenuModel *parent, int section_index)
+G_GNUC_INTERNAL DBusMenuSectionModel *dbus_menu_section_model_new(DBusMenuModel *parent, int section_index)
 {
 	return DBUS_MENU_SECTION_MODEL(g_object_new(dbus_menu_section_model_get_type(),
 	                                            "parent-model",

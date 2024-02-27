@@ -1,3 +1,5 @@
+pkgconfig = import('pkgconfig')
+
 imp_sources = files(
     'definitions.h',
     'debug.c',
@@ -13,7 +15,7 @@ imp_sources = files(
     'utils.c',
     'utils.h'
     )
-imp_headers = files('definitions.h')
+imp_headers = files('definitions.h', 'importer.h')
 enum = 'importer-enums'
 importer_enums_gen = gnome.mkenums(
   enum,
@@ -29,12 +31,21 @@ imp_dbus = gnome.gdbus_codegen(
     namespace: 'DBusMenu'
 )
 
-importer_lib = static_library('importer',imp_sources, importer_enums_gen, imp_dbus,
+importer_name = 'menutranslator'
+
+importer_lib = library(importer_name, imp_sources, importer_enums_gen, imp_dbus,
     dependencies: [giounix, gdkpixbuf],
     pic : true
 )
 importer_inc = include_directories('.')
 importer_dep = declare_dependency(
         include_directories: importer_inc,
-        link_whole: importer_lib
+        link_with: importer_lib
 )
+install_headers(imp_headers, subdir : importer_name)
+pkgconfig.generate(importer_lib,
+             name: importer_name,
+             description: 'A translator from DBusMenu to GMenuModel',
+             requires: [giounix, gdkpixbuf],
+             extra_cflags: ['-I${includedir}/menutranslator']
+            )
