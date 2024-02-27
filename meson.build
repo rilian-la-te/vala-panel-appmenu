@@ -46,24 +46,17 @@ gtk_ver = '>=3.22.0'
 gtk = dependency('gtk+-3.0', version: gtk_ver)
 
 backend_opt = get_option('wm_backend')
-backend_bamf = false
 backend_wnck = false
-
-bamf_ver = '>=0.5.0'
-bamf = dependency('libbamf3', version: bamf_ver, required: backend_opt == 'bamf')
 
 wnck_ver = '>=3.4.8'
 wnck = dependency('libwnck-3.0', version: wnck_ver, required: backend_opt == 'wnck')
 
-if(bamf.found() and (backend_opt == 'bamf' or backend_opt == 'auto'))
-    backend_bamf = true
-endif
-if(wnck.found() and (backend_opt == 'wnck' or backend_opt == 'auto') and not backend_bamf)
+if(wnck.found() and (backend_opt == 'wnck' or backend_opt == 'auto'))
     backend_wnck = true
 endif
 
-if(not (backend_bamf or backend_wnck))
-    error('No backend available (either libbamf3 or libwnck3 required)')
+if(not (backend_wnck))
+    error('No backend available (libwnck3 required)')
 endif
 
 vp_ver = '>=0.4.89'

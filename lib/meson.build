@@ -13,10 +13,6 @@ sources = files(
     'launcher.h'
 )
 
-bamf_src = files(
-    'appmenu-bamf.vala'
-)
-
 wnck_src = files(
     'appmenu-wnck.vala',
     'matcher.c',
@@ -49,10 +45,6 @@ endforeach
 
 appmenu_deps = [giounix, gtk, importer_dep, posix_dep]
 appmenu_cflags = []
-if backend_bamf
-    sources += bamf_src
-    appmenu_deps += bamf
-endif
 if backend_wnck
     sources += wnck_src
     appmenu_deps += wnck

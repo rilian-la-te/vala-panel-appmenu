@@ -9,7 +9,7 @@ Vala Panel Application Menu is a Global Menu applet for use with Vala Panel, xfc
  * GLib (>= 2.50.0)
  * GTK+ (>= 3.22.0)
  * valac (>= 0.24.0)
- * libbamf (>=0.5.0)
+ * libwnck (>=3.4.8)
 
 ---
 Compilation Instructions (Non-Distribution-Specific)
@@ -31,8 +31,6 @@ Compilation Instructions (Non-Distribution-Specific)
 ---
 Post-Build Instructions
 ---
-- Install bamfdaemon (if it is not bundled with libbamf)
-  - It is strongly recommend to add bamfdaemon to autostart
 - Install GTK module using instructions below
 - To get QT menus to work, install your distribution's qt4 and qt5 appmenu packages. In Ubuntu 17.04, for example, this involves typing `sudo apt-get install appmenu-qt`
   
