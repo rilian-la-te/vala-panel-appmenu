@@ -374,7 +374,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 			place++;
 		}
 		else
-			// Just free unnedede item
+			// Just free unnedeed item
 			dbus_menu_item_free(new_item);
 		g_variant_unref(cprops);
 		g_variant_unref(value);
@@ -668,11 +668,6 @@ static void dbus_menu_model_get_property(GObject *object, guint property_id, GVa
 G_GNUC_INTERNAL bool dbus_menu_model_is_layout_update_required(DBusMenuModel *model)
 {
 	return model->layout_update_required;
-}
-
-G_GNUC_INTERNAL void dbus_menu_model_set_layout_update_required(DBusMenuModel *model, bool required)
-{
-	model->layout_update_required = required;
 }
 
 static DBusMenuItem *dbus_menu_model_find(DBusMenuModel *menu, uint item_id)
