@@ -425,7 +425,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		                    (secdiff) < 0 ? ABS(secdiff) : 0);
 	}
 	g_variant_unref(items);
-	// Emit all signals from queus by LIFO order
+	// Emit all signals from queue by LIFO order
 	queue_emit_all(signal_queue);
 }
 
@@ -484,35 +484,6 @@ static void dbus_menu_update_item_properties_from_layout_sync(DBusMenuModel *men
 	if (is_item_updated)
 		add_signal_to_queue(menu, signal_queue, sect_n, pos, 1, 1);
 	queue_emit_all(signal_queue);
-}
-
-G_GNUC_INTERNAL void dbus_menu_model_update_layout_sync(DBusMenuModel *menu)
-{
-	g_return_if_fail(DBUS_MENU_IS_MODEL(menu));
-	g_autoptr(GVariant) layout = NULL;
-	g_autoptr(GError) error    = NULL;
-	guint revision;
-	if (menu->layout_update_in_progress)
-		menu->layout_update_required = true;
-	else
-		dbus_menu_xml_call_get_layout_sync(menu->xml,
-		                                   menu->parent_id,
-		                                   1,
-		                                   property_names,
-		                                   &revision,
-		                                   &layout,
-		                                   menu->cancellable,
-		                                   &error);
-	if (error != NULL)
-	{
-		if (!g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-			g_warning("%s", error->message);
-		return;
-	}
-	layout_parse(menu, layout);
-	menu->layout_update_in_progress = false;
-	if (menu->layout_update_required)
-		dbus_menu_model_update_layout_sync(menu);
 }
 
 G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
