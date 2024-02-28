@@ -24,19 +24,8 @@
 
 G_BEGIN_DECLS
 
-typedef struct _UnityGtkMenuShell UnityGtkMenuShell;
-typedef GMenuModelClass UnityGtkMenuShellClass;
-
 #define UNITY_GTK_TYPE_MENU_SHELL (unity_gtk_menu_shell_get_type())
-#define UNITY_GTK_MENU_SHELL(obj)                                                                  \
-	(G_TYPE_CHECK_INSTANCE_CAST((obj), UNITY_GTK_TYPE_MENU_SHELL, UnityGtkMenuShell))
-#define UNITY_GTK_IS_MENU_SHELL(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), UNITY_GTK_TYPE_MENU_SHELL))
-#define UNITY_GTK_MENU_SHELL_CLASS(klass)                                                          \
-	(G_TYPE_CHECK_CLASS_CAST((klass), UNITY_GTK_TYPE_MENU_SHELL, UnityGtkMenuShellClass))
-#define UNITY_GTK_IS_MENU_SHELL_CLASS(klass)                                                       \
-	(G_TYPE_CHECK_CLASS_TYPE((klass), UNITY_GTK_TYPE_MENU_SHELL))
-#define UNITY_GTK_MENU_SHELL_GET_CLASS(obj)                                                        \
-	(G_TYPE_INSTANCE_GET_CLASS((obj), UNITY_GTK_TYPE_MENU_SHELL, UnityGtkMenuShellClass))
+G_DECLARE_FINAL_TYPE(UnityGtkMenuShell, unity_gtk_menu_shell, UNITY_GTK, MENU_SHELL, GMenuModel)
 
 G_END_DECLS
 

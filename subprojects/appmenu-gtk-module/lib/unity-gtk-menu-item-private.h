@@ -24,19 +24,8 @@
 
 G_BEGIN_DECLS
 
-typedef struct _UnityGtkMenuItem UnityGtkMenuItem;
-typedef GObjectClass UnityGtkMenuItemClass;
-
 #define UNITY_GTK_TYPE_MENU_ITEM (unity_gtk_menu_item_get_type())
-#define UNITY_GTK_MENU_ITEM(obj)                                                                   \
-	(G_TYPE_CHECK_INSTANCE_CAST((obj), UNITY_GTK_TYPE_MENU_ITEM, UnityGtkMenuItem))
-#define UNITY_GTK_IS_MENU_ITEM(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), UNITY_GTK_TYPE_MENU_ITEM))
-#define UNITY_GTK_MENU_ITEM_CLASS(klass)                                                           \
-	(G_TYPE_CHECK_CLASS_CAST((klass), UNITY_GTK_TYPE_MENU_ITEM, UnityGtkMenuItemClass))
-#define UNITY_GTK_IS_MENU_ITEM_CLASS(klass)                                                        \
-	(G_TYPE_CHECK_CLASS_TYPE((klass), UNITY_GTK_TYPE_MENU_ITEM))
-#define UNITY_GTK_MENU_ITEM_GET_CLASS(obj)                                                         \
-	(G_TYPE_INSTANCE_GET_CLASS((obj), UNITY_GTK_TYPE_MENU_ITEM, UnityGtkMenuItemClass))
+G_DECLARE_FINAL_TYPE(UnityGtkMenuItem, unity_gtk_menu_item, UNITY_GTK, MENU_ITEM, GObject)
 
 G_END_DECLS
 

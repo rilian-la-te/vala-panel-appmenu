@@ -35,6 +35,7 @@ if build_gtk2
     gtk2_parser_lib = shared_library(
         'appmenu-gtk2-parser',
         dependencies: gtk2,
+        c_args: '-Wno-deprecated-declarations',
         kwargs: parser_kwargs
     )
     pkgconfig.generate(gtk2_parser_lib,
