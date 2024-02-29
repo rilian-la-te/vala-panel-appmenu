@@ -34,8 +34,9 @@ struct _DBusMenuModel
 	DBusMenuXml *xml;
 	GActionGroup *received_action_group;
 	GSequence *items;
+	GVariant *current_layout;
 	bool layout_update_required;
-	bool layout_update_in_progress;
+	uint parse_pending;
 };
 
 static const char *property_names[] = { "accessible-desc",
@@ -208,7 +209,7 @@ static void menu_item_copy_and_load(DBusMenuModel *menu, DBusMenuItem *old, DBus
 }
 
 // We deal only with layouts with depth 1 (not all)
-static void layout_parse(DBusMenuModel *menu, GVariant *layout)
+static void layout_parse(DBusMenuModel *menu, GVariant *layout, GQueue *signal_queue)
 {
 	guint id;
 	GVariant *props;
@@ -222,13 +223,8 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 
 		return;
 	}
-	if (menu->layout_update_in_progress)
-		return;
-	menu->layout_update_required    = false;
-	menu->layout_update_in_progress = true;
 	g_variant_get(layout, "(i@a{sv}@av)", &id, &props, &items);
 	g_variant_unref(props);
-	g_autoptr(GQueue) signal_queue = g_queue_new();
 	GVariantIter iter;
 	GVariant *child;
 	// Start parsing. We need to track section number, and also GSequenceIter to
@@ -425,21 +421,30 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		                    (secdiff) < 0 ? ABS(secdiff) : 0);
 	}
 	g_variant_unref(items);
+}
+
+static bool get_layout_idle(DBusMenuModel *self)
+{
+	g_return_val_if_fail(DBUS_MENU_IS_MODEL(self), G_SOURCE_REMOVE);
+	g_autoptr(GQueue) signal_queue = g_queue_new();
+	layout_parse(self, self->current_layout, signal_queue);
+	self->parse_pending = 0;
 	// Emit all signals from queue by LIFO order
 	queue_emit_all(signal_queue);
+	return G_SOURCE_REMOVE;
 }
 
 static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer user_data)
 {
-	g_autoptr(GVariant) layout = NULL;
 	guint revision;
 	if (!DBUS_MENU_IS_MODEL(user_data))
 		return;
 	DBusMenuModel *menu     = DBUS_MENU_MODEL(user_data);
 	g_autoptr(GError) error = NULL;
+	g_clear_pointer(&menu->current_layout, g_variant_unref);
 	dbus_menu_xml_call_get_layout_finish((DBusMenuXml *)(source_object),
 	                                     &revision,
-	                                     &layout,
+	                                     &menu->current_layout,
 	                                     res,
 	                                     &error);
 	if (error != NULL)
@@ -448,10 +453,13 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 			g_warning("%s", error->message);
 		return;
 	}
-	layout_parse(menu, layout);
-	menu->layout_update_in_progress = false;
-	if (menu->layout_update_required)
-		dbus_menu_model_update_layout(menu);
+	menu->layout_update_required = false;
+	if (!menu->parse_pending)
+		menu->parse_pending = g_timeout_add_full(G_PRIORITY_HIGH,
+		                                         100,
+		                                         (GSourceFunc)get_layout_idle,
+		                                         menu,
+		                                         NULL);
 }
 
 static void dbus_menu_update_item_properties_from_layout_sync(DBusMenuModel *menu,
@@ -459,6 +467,12 @@ static void dbus_menu_update_item_properties_from_layout_sync(DBusMenuModel *men
                                                               int pos)
 {
 	g_return_if_fail(DBUS_MENU_IS_MODEL(menu));
+
+	if (menu->parse_pending)
+	{
+		dbus_menu_model_update_layout(menu);
+		return;
+	}
 	g_autoptr(GVariant) props      = NULL;
 	g_autoptr(GVariant) items      = NULL;
 	g_autoptr(GVariant) layout     = NULL;
@@ -489,16 +503,13 @@ static void dbus_menu_update_item_properties_from_layout_sync(DBusMenuModel *men
 G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
 {
 	g_return_if_fail(DBUS_MENU_IS_MODEL(menu));
-	if (menu->layout_update_in_progress)
-		menu->layout_update_required = true;
-	else
-		dbus_menu_xml_call_get_layout(menu->xml,
-		                              menu->parent_id,
-		                              1,
-		                              property_names,
-		                              menu->cancellable,
-		                              get_layout_cb,
-		                              menu);
+	dbus_menu_xml_call_get_layout(menu->xml,
+	                              menu->parent_id,
+	                              1,
+	                              property_names,
+	                              menu->cancellable,
+	                              get_layout_cb,
+	                              menu);
 }
 
 static void layout_updated_cb(DBusMenuXml *proxy, guint revision, gint parent, DBusMenuModel *menu)
@@ -570,7 +581,7 @@ static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_pr
 {
 	if (!DBUS_MENU_IS_XML(proxy))
 		return;
-	if (menu->layout_update_in_progress == true)
+	if (menu->parse_pending)
 		return;
 	g_autoptr(GQueue) signal_queue = g_queue_new();
 	items_properties_loop(menu, updated_props, signal_queue, false);
@@ -703,12 +714,12 @@ static DBusMenuItem *dbus_menu_model_find_section(DBusMenuModel *menu, uint sect
 
 static void dbus_menu_model_init(DBusMenuModel *menu)
 {
-	menu->cancellable               = g_cancellable_new();
-	menu->parent_id                 = UINT_MAX;
-	menu->items                     = g_sequence_new(dbus_menu_item_free);
-	menu->layout_update_required    = true;
-	menu->layout_update_in_progress = false;
-	menu->current_revision          = 0;
+	menu->cancellable            = g_cancellable_new();
+	menu->parent_id              = UINT_MAX;
+	menu->items                  = g_sequence_new(dbus_menu_item_free);
+	menu->layout_update_required = true;
+	menu->parse_pending          = 0;
+	menu->current_revision       = 0;
 }
 
 static void dbus_menu_model_constructed(GObject *object)
@@ -731,9 +742,11 @@ static void dbus_menu_model_finalize(GObject *object)
 	DBusMenuModel *menu = DBUS_MENU_MODEL(object);
 	if (G_IS_OBJECT(menu->xml))
 		g_signal_handlers_disconnect_by_data(menu->xml, menu);
+	g_source_remove_by_user_data(menu);
 	g_cancellable_cancel(menu->cancellable);
 	g_clear_object(&menu->cancellable);
 	g_clear_pointer(&menu->items, g_sequence_free);
+	g_clear_pointer(&menu->current_layout, g_variant_unref);
 
 	G_OBJECT_CLASS(dbus_menu_model_parent_class)->finalize(object);
 }
