@@ -34,6 +34,8 @@ struct _DBusMenuModel
 	DBusMenuXml *xml;
 	GActionGroup *received_action_group;
 	GSequence *items;
+	uint full_update_signal;
+	GQueue *full_update_queue;
 	bool layout_update_required;
 	bool layout_update_in_progress;
 };
@@ -175,7 +177,7 @@ static void add_signal_to_queue(DBusMenuModel *model, GQueue *queue, int sect_nu
 		g_queue_push_head(queue, data);
 }
 
-static bool queue_emit_all(GQueue *queue)
+static void queue_emit_idle(GQueue *queue)
 {
 	struct layout_data *index = NULL;
 	while ((index = (struct layout_data *)g_queue_pop_head(queue)))
@@ -186,7 +188,33 @@ static bool queue_emit_all(GQueue *queue)
 		                           index->new_num);
 		g_free(index);
 	}
+}
+
+static bool queue_emit_full(DBusMenuModel *self)
+{
+	if (DBUS_MENU_IS_MODEL(self))
+	{
+		queue_emit_idle(self->full_update_queue);
+		g_clear_pointer(&self->full_update_queue, g_queue_free);
+	}
 	return G_SOURCE_REMOVE;
+}
+
+static void queue_emit_all(DBusMenuModel *self, GQueue *queue, bool full_update)
+{
+	if (full_update)
+		self->full_update_queue = queue;
+	if (!self->full_update_signal)
+	{
+		if (full_update)
+			self->full_update_signal = g_timeout_add_full(G_PRIORITY_HIGH,
+			                                              350,
+			                                              (GSourceFunc)queue_emit_full,
+			                                              self,
+			                                              NULL);
+		else
+			queue_emit_idle(queue);
+	}
 }
 
 static bool preload_idle(DBusMenuItem *item)
@@ -228,7 +256,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 	menu->layout_update_in_progress = true;
 	g_variant_get(layout, "(i@a{sv}@av)", &id, &props, &items);
 	g_variant_unref(props);
-	g_autoptr(GQueue) signal_queue = g_queue_new();
+	GQueue *signal_queue = g_queue_new();
 	GVariantIter iter;
 	GVariant *child;
 	// Start parsing. We need to track section number, and also GSequenceIter to
@@ -291,19 +319,6 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 				// current)
 				if (delta > 0)
 					g_sequence_remove_range(place_iter, old_iter);
-				// If we already have this section in old layout, and items to this
-				// section was added and/or removed, we add a signal to signal_queue
-				// about this change. Else do nothing, section signal will do it for
-				// us
-				if ((delta > 0 || added > 0) && section_num < old_sections)
-				{
-					add_signal_to_queue(menu,
-					                    signal_queue,
-					                    section_num - 1,
-					                    change_pos < 0 ? place + 1 : change_pos,
-					                    MAX(0, delta),
-					                    MAX(0, added));
-				}
 				// Update current_section and reset current_iter and added to new
 				// section
 				current_iter = g_sequence_iter_next(old_iter);
@@ -340,8 +355,8 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 			{
 				old = (DBusMenuItem *)g_sequence_get(old_iter);
 				// We should compare properties of old and new item
-				bool diff    = !dbus_menu_item_compare_immutable(old, new_item);
-				bool updated = dbus_menu_item_update_props(old, cprops);
+				bool diff = !dbus_menu_item_compare_immutable(old, new_item);
+				dbus_menu_item_update_props(old, cprops);
 				if (diff)
 				{
 					// Immutable properties was different, replace menu item
@@ -357,17 +372,6 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 				{
 					// Just free unneeded item
 					dbus_menu_item_free(new_item);
-				}
-				// If item was updated - add a signal to queue about it, but only if
-				// section was in old layout
-				if ((diff || updated) && section_num < old_sections)
-				{
-					add_signal_to_queue(menu,
-					                    signal_queue,
-					                    section_num,
-					                    place,
-					                    1,
-					                    1);
 				}
 			}
 			current_iter = g_sequence_iter_next(current_iter);
@@ -401,32 +405,11 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		// current)
 		if (delta > 0)
 			g_sequence_remove_range(place_iter, last_iter);
-		// If section number is not changed, emit a signal about last section.
-		// Because if we emit it and section will be a part of sections signal, this can
-		// duplicate menu items
-		if ((delta > 0 || added > 0))
-		{
-			add_signal_to_queue(menu,
-			                    signal_queue,
-			                    section_num - 1,
-			                    change_pos < 0 ? place + 1 : change_pos,
-			                    MAX(0, delta),
-			                    MAX(0, added));
-		}
 	}
-	// If sections was changed, add change signal to queue
-	if (secdiff != 0)
-	{
-		add_signal_to_queue(menu,
-		                    signal_queue,
-		                    -1,
-		                    MIN(old_sections, section_num),
-		                    (secdiff) > 0 ? ABS(secdiff) : 0,
-		                    (secdiff) < 0 ? ABS(secdiff) : 0);
-	}
+	add_signal_to_queue(menu, signal_queue, -1, 0, old_sections, section_num);
 	g_variant_unref(items);
 	// Emit all signals from queue by LIFO order
-	queue_emit_all(signal_queue);
+	queue_emit_all(menu, signal_queue, true);
 }
 
 static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer user_data)
@@ -483,7 +466,7 @@ static void dbus_menu_update_item_properties_from_layout_sync(DBusMenuModel *men
 	bool is_item_updated = dbus_menu_item_update_props(item, props);
 	if (is_item_updated)
 		add_signal_to_queue(menu, signal_queue, sect_n, pos, 1, 1);
-	queue_emit_all(signal_queue);
+	queue_emit_all(menu, signal_queue, false);
 }
 
 G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
@@ -575,7 +558,7 @@ static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_pr
 	g_autoptr(GQueue) signal_queue = g_queue_new();
 	items_properties_loop(menu, updated_props, signal_queue, false);
 	items_properties_loop(menu, removed_props, signal_queue, true);
-	queue_emit_all(signal_queue);
+	queue_emit_all(menu, signal_queue, false);
 }
 
 static void on_xml_property_changed(DBusMenuModel *model)
