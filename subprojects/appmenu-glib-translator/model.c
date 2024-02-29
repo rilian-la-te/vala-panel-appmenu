@@ -62,6 +62,13 @@ enum
 	NUM_PROPS
 };
 
+enum
+{
+	UPDATE_MODE_IMMEDIATE = 0,
+	UPDATE_MODE_DEFERRED  = 1,
+	UPDATE_MODE_FULL      = 2
+};
+
 static GParamSpec *properties[NUM_PROPS] = { NULL };
 
 static DBusMenuItem *dbus_menu_model_find(DBusMenuModel *menu, uint item_id);
@@ -201,19 +208,19 @@ static bool queue_emit_full(DBusMenuModel *self)
 	return G_SOURCE_REMOVE;
 }
 
-static void queue_emit_all(DBusMenuModel *self, GQueue *queue, bool full_update)
+static void queue_emit_all(DBusMenuModel *self, GQueue *queue, int update_mode)
 {
-	if (full_update)
+	if (update_mode == UPDATE_MODE_FULL)
 		self->full_update_queue = queue;
 	if (!self->full_update_signal)
 	{
-		if (full_update)
+		if (update_mode == UPDATE_MODE_FULL)
 			self->full_update_signal = g_timeout_add_full(G_PRIORITY_HIGH,
 			                                              350,
 			                                              (GSourceFunc)queue_emit_full,
 			                                              self,
 			                                              NULL);
-		else
+		else if (update_mode == UPDATE_MODE_IMMEDIATE)
 			queue_emit_idle(queue);
 	}
 }
@@ -410,7 +417,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 	add_signal_to_queue(menu, signal_queue, -1, 0, old_sections, section_num);
 	g_variant_unref(items);
 	// Emit all signals from queue by LIFO order
-	queue_emit_all(menu, signal_queue, true);
+	queue_emit_all(menu, signal_queue, UPDATE_MODE_FULL);
 }
 
 static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer user_data)
@@ -443,11 +450,11 @@ static void dbus_menu_update_item_properties_from_layout_sync(DBusMenuModel *men
                                                               int pos)
 {
 	g_return_if_fail(DBUS_MENU_IS_MODEL(menu));
-	g_autoptr(GVariant) props      = NULL;
-	g_autoptr(GVariant) items      = NULL;
-	g_autoptr(GVariant) layout     = NULL;
-	g_autoptr(GError) error        = NULL;
-	GQueue* signal_queue = g_queue_new();
+	g_autoptr(GVariant) props  = NULL;
+	g_autoptr(GVariant) items  = NULL;
+	g_autoptr(GVariant) layout = NULL;
+	g_autoptr(GError) error    = NULL;
+	GQueue *signal_queue       = g_queue_new();
 	guint id, revision;
 	dbus_menu_xml_call_get_layout_sync(menu->xml,
 	                                   item->id,
@@ -467,7 +474,7 @@ static void dbus_menu_update_item_properties_from_layout_sync(DBusMenuModel *men
 	bool is_item_updated = dbus_menu_item_update_props(item, props);
 	if (is_item_updated)
 		add_signal_to_queue(menu, signal_queue, sect_n, pos, 1, 1);
-	queue_emit_all(menu, signal_queue, true);
+	queue_emit_all(menu, signal_queue, UPDATE_MODE_DEFERRED);
 }
 
 G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
@@ -560,7 +567,7 @@ static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_pr
 	g_autoptr(GQueue) signal_queue = g_queue_new();
 	items_properties_loop(menu, updated_props, signal_queue, false);
 	items_properties_loop(menu, removed_props, signal_queue, true);
-	queue_emit_all(menu, signal_queue, false);
+	queue_emit_all(menu, signal_queue, UPDATE_MODE_DEFERRED);
 }
 
 static void on_xml_property_changed(DBusMenuModel *model)
