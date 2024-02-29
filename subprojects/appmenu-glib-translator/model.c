@@ -192,11 +192,10 @@ static void queue_emit_idle(GQueue *queue)
 
 static bool queue_emit_full(DBusMenuModel *self)
 {
-	if (DBUS_MENU_IS_MODEL(self))
-	{
-		queue_emit_idle(self->full_update_queue);
-		g_clear_pointer(&self->full_update_queue, g_queue_free);
-	}
+	g_return_val_if_fail(DBUS_MENU_IS_MODEL(self), G_SOURCE_REMOVE);
+
+	queue_emit_idle(self->full_update_queue);
+	g_clear_pointer(&self->full_update_queue, g_queue_free);
 	return G_SOURCE_REMOVE;
 }
 
@@ -466,7 +465,7 @@ static void dbus_menu_update_item_properties_from_layout_sync(DBusMenuModel *men
 	bool is_item_updated = dbus_menu_item_update_props(item, props);
 	if (is_item_updated)
 		add_signal_to_queue(menu, signal_queue, sect_n, pos, 1, 1);
-	queue_emit_all(menu, signal_queue, false);
+	queue_emit_all(menu, signal_queue, true);
 }
 
 G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
@@ -486,8 +485,9 @@ G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
 
 static void layout_updated_cb(DBusMenuXml *proxy, guint revision, gint parent, DBusMenuModel *menu)
 {
-	if (!DBUS_MENU_IS_XML(proxy))
-		return;
+	g_return_if_fail(DBUS_MENU_IS_XML(proxy));
+	g_return_if_fail(DBUS_MENU_IS_MODEL(menu));
+
 	if (((uint)parent == menu->parent_id) && menu->current_revision < revision)
 	{
 		g_debug("Remote attempt to update %u with rev %u\n", parent, revision);
