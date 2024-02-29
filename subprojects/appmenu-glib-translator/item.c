@@ -231,7 +231,7 @@ G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item)
 	bool need_update;
 	DBusMenuModel *submenu =
 	    DBUS_MENU_MODEL(g_hash_table_lookup(item->links, submenu_str(item->enabled)));
-	if (!submenu || !DBUS_MENU_IS_MODEL(submenu))
+	if (!DBUS_MENU_IS_MODEL(submenu))
 		return;
 	g_object_get(submenu, "parent-id", &id, "xml", &xml, NULL);
 	if (!xml || !DBUS_MENU_IS_XML(xml))

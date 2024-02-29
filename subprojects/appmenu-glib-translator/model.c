@@ -725,8 +725,7 @@ static void dbus_menu_model_finalize(GObject *object)
 	DBusMenuModel *menu = (DBusMenuModel *)(object);
 	if (menu->xml)
 		g_signal_handlers_disconnect_by_data(menu->xml, menu);
-	if (menu->full_update_signal)
-		g_source_remove(menu->full_update_signal);
+	g_source_remove_by_user_data(menu);
 	if (menu->full_update_queue)
 		g_queue_free_full(menu->full_update_queue, g_free);
 	g_cancellable_cancel(menu->cancellable);
