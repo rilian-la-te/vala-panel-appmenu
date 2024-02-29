@@ -193,9 +193,11 @@ static void queue_emit_idle(GQueue *queue)
 static bool queue_emit_full(DBusMenuModel *self)
 {
 	g_return_val_if_fail(DBUS_MENU_IS_MODEL(self), G_SOURCE_REMOVE);
+	g_return_val_if_fail(self->full_update_queue, G_SOURCE_REMOVE);
 
 	queue_emit_idle(self->full_update_queue);
 	g_clear_pointer(&self->full_update_queue, g_queue_free);
+	self->full_update_signal = 0;
 	return G_SOURCE_REMOVE;
 }
 
@@ -445,7 +447,7 @@ static void dbus_menu_update_item_properties_from_layout_sync(DBusMenuModel *men
 	g_autoptr(GVariant) items      = NULL;
 	g_autoptr(GVariant) layout     = NULL;
 	g_autoptr(GError) error        = NULL;
-	g_autoptr(GQueue) signal_queue = g_queue_new();
+	GQueue* signal_queue = g_queue_new();
 	guint id, revision;
 	dbus_menu_xml_call_get_layout_sync(menu->xml,
 	                                   item->id,
@@ -691,6 +693,8 @@ static void dbus_menu_model_init(DBusMenuModel *menu)
 	menu->items                     = g_sequence_new(dbus_menu_item_free);
 	menu->layout_update_required    = true;
 	menu->layout_update_in_progress = false;
+	menu->full_update_queue         = NULL;
+	menu->full_update_signal        = 0;
 	menu->current_revision          = 0;
 }
 
@@ -714,6 +718,10 @@ static void dbus_menu_model_finalize(GObject *object)
 	DBusMenuModel *menu = (DBusMenuModel *)(object);
 	if (menu->xml)
 		g_signal_handlers_disconnect_by_data(menu->xml, menu);
+	if (menu->full_update_signal)
+		g_source_remove(menu->full_update_signal);
+	if (menu->full_update_queue)
+		g_queue_free_full(menu->full_update_queue, g_free);
 	g_cancellable_cancel(menu->cancellable);
 	g_clear_object(&menu->cancellable);
 	g_clear_pointer(&menu->items, g_sequence_free);
