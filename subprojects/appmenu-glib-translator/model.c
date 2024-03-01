@@ -176,18 +176,20 @@ static void add_signal_to_queue(DBusMenuModel *model, GQueue *queue, int sect_nu
 		g_queue_push_head(queue, data);
 }
 
-static bool queue_emit_all(GQueue *queue)
+static bool queue_emit_now(struct layout_data *index)
+{
+	if (!G_IS_MENU_MODEL(index->model))
+		return G_SOURCE_REMOVE;
+
+	g_menu_model_items_changed(index->model, index->pos, index->old_num, index->new_num);
+	return G_SOURCE_REMOVE;
+}
+
+static void queue_emit_all(GQueue *queue)
 {
 	struct layout_data *index = NULL;
 	while ((index = (struct layout_data *)g_queue_pop_head(queue)))
-	{
-		g_menu_model_items_changed(index->model,
-		                           index->pos,
-		                           index->old_num,
-		                           index->new_num);
-		g_free(index);
-	}
-	return G_SOURCE_REMOVE;
+		g_idle_add_full(G_PRIORITY_DEFAULT_IDLE, G_SOURCE_FUNC(queue_emit_now), index, g_free);
 }
 
 static bool preload_idle(DBusMenuItem *item)
@@ -209,7 +211,7 @@ static void menu_item_copy_and_load(DBusMenuModel *menu, DBusMenuItem *old, DBus
 }
 
 // We deal only with layouts with depth 1 (not all)
-static void layout_parse(DBusMenuModel *menu, GVariant *layout, GQueue *signal_queue)
+static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 {
 	guint id;
 	GVariant *props;
@@ -287,19 +289,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout, GQueue *signal_q
 				// current)
 				if (delta > 0)
 					g_sequence_remove_range(place_iter, old_iter);
-				// If we already have this section in old layout, and items to this
-				// section was added and/or removed, we add a signal to signal_queue
-				// about this change. Else do nothing, section signal will do it for
-				// us
-				if ((delta > 0 || added > 0) && section_num < old_sections)
-				{
-					add_signal_to_queue(menu,
-					                    signal_queue,
-					                    section_num - 1,
-					                    change_pos < 0 ? place + 1 : change_pos,
-					                    MAX(0, delta),
-					                    MAX(0, added));
-				}
+				// Section signal will do it for us, do not send additional one
 				// Update current_section and reset current_iter and added to new
 				// section
 				current_iter = g_sequence_iter_next(old_iter);
@@ -337,7 +327,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout, GQueue *signal_q
 				old = (DBusMenuItem *)g_sequence_get(old_iter);
 				// We should compare properties of old and new item
 				bool diff    = !dbus_menu_item_compare_immutable(old, new_item);
-				bool updated = dbus_menu_item_update_props(old, cprops);
+				dbus_menu_item_update_props(old, cprops);
 				if (diff)
 				{
 					// Immutable properties was different, replace menu item
@@ -353,17 +343,6 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout, GQueue *signal_q
 				{
 					// Just free unneeded item
 					dbus_menu_item_free(new_item);
-				}
-				// If item was updated - add a signal to queue about it, but only if
-				// section was in old layout
-				if ((diff || updated) && section_num < old_sections)
-				{
-					add_signal_to_queue(menu,
-					                    signal_queue,
-					                    section_num,
-					                    place,
-					                    1,
-					                    1);
 				}
 			}
 			current_iter = g_sequence_iter_next(current_iter);
@@ -397,40 +376,17 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout, GQueue *signal_q
 		// current)
 		if (delta > 0)
 			g_sequence_remove_range(place_iter, last_iter);
-		// If section number is not changed, emit a signal about last section.
-		// Because if we emit it and section will be a part of sections signal, this can
-		// duplicate menu items
-		if ((delta > 0 || added > 0))
-		{
-			add_signal_to_queue(menu,
-			                    signal_queue,
-			                    section_num - 1,
-			                    change_pos < 0 ? place + 1 : change_pos,
-			                    MAX(0, delta),
-			                    MAX(0, added));
-		}
-	}
-	// If sections was changed, add change signal to queue
-	if (secdiff != 0)
-	{
-		add_signal_to_queue(menu,
-		                    signal_queue,
-		                    -1,
-		                    MIN(old_sections, section_num),
-		                    (secdiff) > 0 ? ABS(secdiff) : 0,
-		                    (secdiff) < 0 ? ABS(secdiff) : 0);
 	}
 	g_variant_unref(items);
+	// Update all layout
+	g_menu_model_items_changed(G_MENU_MODEL(menu), 0, old_sections, section_num);
 }
 
 static bool get_layout_idle(DBusMenuModel *self)
 {
 	g_return_val_if_fail(DBUS_MENU_IS_MODEL(self), G_SOURCE_REMOVE);
-	g_autoptr(GQueue) signal_queue = g_queue_new();
-	layout_parse(self, self->current_layout, signal_queue);
+	layout_parse(self, self->current_layout);
 	self->parse_pending = 0;
-	// Emit all signals from queue by LIFO order
-	queue_emit_all(signal_queue);
 	return G_SOURCE_REMOVE;
 }
 
