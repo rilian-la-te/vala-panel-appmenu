@@ -728,8 +728,8 @@ static void dbus_menu_model_constructed(GObject *object)
 
 static void dbus_menu_model_finalize(GObject *object)
 {
-	DBusMenuModel *menu = (DBusMenuModel *)(object);
-	if (menu->xml)
+	DBusMenuModel *menu = DBUS_MENU_MODEL(object);
+	if (G_IS_OBJECT(menu->xml))
 		g_signal_handlers_disconnect_by_data(menu->xml, menu);
 	g_cancellable_cancel(menu->cancellable);
 	g_clear_object(&menu->cancellable);
