@@ -410,12 +410,13 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 		return;
 	}
 	menu->layout_update_required = false;
+	g_object_unref(menu);
 	if (!menu->parse_pending)
 		menu->parse_pending = g_timeout_add_full(G_PRIORITY_HIGH,
 		                                         100,
 		                                         (GSourceFunc)get_layout_idle,
-		                                         menu,
-		                                         NULL);
+		                                         g_object_ref(menu),
+		                                         g_object_unref);
 }
 
 static void dbus_menu_update_item_properties_from_layout_sync(DBusMenuModel *menu,
@@ -465,7 +466,7 @@ G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
 	                              property_names,
 	                              menu->cancellable,
 	                              get_layout_cb,
-	                              menu);
+	                              g_object_ref(menu));
 }
 
 static void layout_updated_cb(DBusMenuXml *proxy, guint revision, gint parent, DBusMenuModel *menu)
@@ -549,6 +550,7 @@ static void on_xml_property_changed(DBusMenuModel *model)
 {
 	if (!DBUS_MENU_IS_XML(model->xml))
 		return;
+	g_object_ref(model->xml);
 	g_signal_connect(model->xml,
 	                 "items-properties-updated",
 	                 G_CALLBACK(items_properties_updated_cb),
@@ -593,6 +595,7 @@ static void dbus_menu_model_set_property(GObject *object, guint property_id, con
 			if (old_xml != NULL)
 				g_signal_handlers_disconnect_by_data(old_xml, menu);
 			on_xml_property_changed(menu);
+			g_clear_object(&old_xml);
 		}
 		break;
 	case PROP_ACTION_GROUP:
@@ -696,8 +699,10 @@ static void dbus_menu_model_constructed(GObject *object)
 static void dbus_menu_model_finalize(GObject *object)
 {
 	DBusMenuModel *menu = DBUS_MENU_MODEL(object);
-	if (G_IS_OBJECT(menu->xml))
+	if (G_IS_OBJECT(menu->xml)) {
 		g_signal_handlers_disconnect_by_data(menu->xml, menu);
+		g_clear_object(&menu->xml);
+	}
 	g_source_remove_by_user_data(menu);
 	g_cancellable_cancel(menu->cancellable);
 	g_clear_object(&menu->cancellable);
