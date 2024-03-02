@@ -23,7 +23,6 @@ add_project_arguments(['--vapidir', vapi_dir], language: 'vala')
 
 gnome = import('gnome')
 i18n = import('i18n')
-cmake = import('cmake')
 
 ###############
 # Directories #
