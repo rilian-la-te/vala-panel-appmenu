@@ -225,6 +225,9 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 
 		return;
 	}
+	//We really should not run if we are not a menu
+	if(!DBUS_MENU_IS_MODEL(menu))
+		return;
 	g_variant_get(layout, "(i@a{sv}@av)", &id, &props, &items);
 	g_variant_unref(props);
 	GVariantIter iter;
@@ -410,13 +413,13 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 		return;
 	}
 	menu->layout_update_required = false;
-	g_object_unref(menu);
 	if (!menu->parse_pending)
 		menu->parse_pending = g_timeout_add_full(G_PRIORITY_HIGH,
 		                                         100,
 		                                         (GSourceFunc)get_layout_idle,
 		                                         g_object_ref(menu),
 		                                         g_object_unref);
+	g_object_unref(menu);
 }
 
 static void dbus_menu_update_item_properties_from_layout_sync(DBusMenuModel *menu,
@@ -599,7 +602,8 @@ static void dbus_menu_model_set_property(GObject *object, guint property_id, con
 		}
 		break;
 	case PROP_ACTION_GROUP:
-		menu->received_action_group = G_ACTION_GROUP(g_value_get_object(value));
+		g_clear_object(&menu->received_action_group);
+		menu->received_action_group = g_object_ref(G_ACTION_GROUP(g_value_get_object(value)));
 		break;
 	case PROP_PARENT_ID:
 		menu->layout_update_required = true;
@@ -706,6 +710,7 @@ static void dbus_menu_model_finalize(GObject *object)
 	g_source_remove_by_user_data(menu);
 	g_cancellable_cancel(menu->cancellable);
 	g_clear_object(&menu->cancellable);
+	g_clear_object(&menu->received_action_group);
 	g_clear_pointer(&menu->items, g_sequence_free);
 	g_clear_pointer(&menu->current_layout, g_variant_unref);
 
