@@ -22,7 +22,6 @@
 #include <gio/gio.h>
 #include <stdbool.h>
 
-#include "dbusmenu-interface.h"
 #include "definitions.h"
 #include "model.h"
 

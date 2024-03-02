@@ -606,6 +606,8 @@ G_GNUC_INTERNAL void dbus_menu_item_generate_action(DBusMenuItem *item, DBusMenu
 {
 	if (item->action_type == DBUS_MENU_ACTION_SECTION)
 		return;
+	if(!item->ref_action_group)
+		return;
 	DBusMenuXml *xml;
 	DBusMenuModel *submenu = g_hash_table_lookup(item->links, submenu_str(item->enabled));
 	g_object_get(parent, "xml", &xml, NULL);
