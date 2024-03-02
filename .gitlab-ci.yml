@@ -68,25 +68,22 @@ build-registrar-main:
    - meson dist -C build --no-tests
   artifacts:
     paths:
-    - "build/meson-dist/appmenu-registrar*.tar.xz"
+    - "build/meson-dist/registrar*.tar.xz"
     expire_in: 1 week
 
 
 build-jayatana-main:
-  image: archlinux:base
+  image: alpine:edge
   stage: build
   script:
-   - pacman -Syy --noconfirm glib2 libdbusmenu-glib cmake base-devel ninja libxkbcommon jdk11-openjdk git libx11
-   - git clone https://gitlab.com/vala-panel-project/cmake-vala.git
-   - cd cmake-vala && cmake . -DCMAKE_INSTALL_PREFIX=/usr -GNinja && ninja install && cd .. && rm -rf cmake-vala
-   - cd subprojects/jayatana
-   - cmake -B build -DCMAKE_INSTALL_PREFIX=/usr -GNinja
-   - cmake --build build
-   - cmake --install build
-   - ninja dist -C build
+   - apk add --no-cache libdbusmenu-glib-dev python3 build-base ninja libxkbcommon-dev git libx11-dev meson glib-dev java-common openjdk21-jdk
+   - meson --prefix=/usr --libexecdir=lib build subprojects/jayatana
+   - meson compile -C build
+   - meson install -C build --no-rebuild
+   - meson dist -C build --no-tests
   artifacts:
     paths:
-    - "subprojects/jayatana/build/jayatana*.tar.xz"
+    - "build/meson-dist/jayatana*.tar.xz"
     expire_in: 1 week
 
 
@@ -102,9 +99,9 @@ release-main:
       # Must include files passed to gitlab_release
     - "build/meson-dist/appmenu-glib-translator*.tar.xz"
     - "build/meson-dist/appmenu-gtk-module*.tar.xz"
-    - "build/meson-dist/appmenu-registrar*.tar.xz"
+    - "build/meson-dist/registrar*.tar.xz"
     - "build/meson-dist/vala-panel-appmenu*.tar.xz"
-    - "subprojects/jayatana/build/jayatana*.tar.xz"
+    - "build/meson-dist/jayatana*.tar.xz"
   only:
     - tags
 
