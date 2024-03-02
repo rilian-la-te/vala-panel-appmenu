@@ -1,34 +1,34 @@
 include(UseJava)
-configure_file(core/basic/NativeLibraries.java.in ${CMAKE_CURRENT_BINARY_DIR}/core/basic/NativeLibraries.java)
-configure_file(agent/Agent.java.in ${CMAKE_CURRENT_BINARY_DIR}/agent/Agent.java)
-set(CMAKE_JAVA_COMPILE_FLAGS --add-exports java.desktop/com.sun.java.swing.plaf.gtk=ALL-UNNAMED)
+configure_file(com/jarego/jayatana/basic/NativeLibraries.java.in ${CMAKE_CURRENT_BINARY_DIR}/com/jarego/jayatana/basic/NativeLibraries.java)
+configure_file(com/jarego/jayatana/Agent.java.in ${CMAKE_CURRENT_BINARY_DIR}/agent/Agent.java)
+set(CMAKE_JAVA_COMPILE_FLAGS --add-exports java.desktop/com.sun.java.swing.plaf.gtk=ALL-UNNAMED -Xlint:deprecation)
 set(JAVA_SOURCES
-    core/Feature.java
-    core/FeatureManager.java
-    core/FeatureWrapper.java
-    core/basic/GMainLoop.java
-    core/basic/GlobalMenuAdapter.java
-    core/basic/GlobalMenu.java
-    ${CMAKE_CURRENT_BINARY_DIR}/core/basic/NativeLibraries.java
-    core/swing/SwingGlobalMenu.java
-    core/swing/SwingGTKFixed.java
-    core/swing/SwingWMClass.java
-    core/swing/SwingGlobalMenuWindow.java
+    com/jarego/jayatana/Feature.java
+    com/jarego/jayatana/FeatureManager.java
+    com/jarego/jayatana/FeatureWrapper.java
+    com/jarego/jayatana/basic/GMainLoop.java
+    com/jarego/jayatana/basic/GlobalMenuAdapter.java
+    com/jarego/jayatana/basic/GlobalMenu.java
+    ${CMAKE_CURRENT_BINARY_DIR}/com/jarego/jayatana/basic/NativeLibraries.java
+    com/jarego/jayatana/swing/SwingGlobalMenu.java
+    com/jarego/jayatana/swing/SwingGTKFixed.java
+    com/jarego/jayatana/swing/SwingWMClass.java
+    com/jarego/jayatana/swing/SwingGlobalMenuWindow.java
     ${CMAKE_CURRENT_BINARY_DIR}/agent/Agent.java
     )
 add_jar(jayatana-java
     SOURCES
-        core/Feature.java
-        core/FeatureManager.java
-        core/FeatureWrapper.java
-        core/basic/GMainLoop.java
-        core/basic/GlobalMenuAdapter.java
-        core/basic/GlobalMenu.java
-        ${CMAKE_CURRENT_BINARY_DIR}/core/basic/NativeLibraries.java
-        core/swing/SwingGlobalMenu.java
-        core/swing/SwingGTKFixed.java
-        core/swing/SwingWMClass.java
-        core/swing/SwingGlobalMenuWindow.java
+        com/jarego/jayatana/Feature.java
+        com/jarego/jayatana/FeatureManager.java
+        com/jarego/jayatana/FeatureWrapper.java
+        com/jarego/jayatana/basic/GMainLoop.java
+        com/jarego/jayatana/basic/GlobalMenuAdapter.java
+        com/jarego/jayatana/basic/GlobalMenu.java
+        ${CMAKE_CURRENT_BINARY_DIR}/com/jarego/jayatana/basic/NativeLibraries.java
+        com/jarego/jayatana/swing/SwingGlobalMenu.java
+        com/jarego/jayatana/swing/SwingGTKFixed.java
+        com/jarego/jayatana/swing/SwingWMClass.java
+        com/jarego/jayatana/swing/SwingGlobalMenuWindow.java
     OUTPUT_NAME
         jayatana
     GENERATE_NATIVE_HEADERS
@@ -56,4 +56,4 @@ add_jar(agent-java
         ${CMAKE_CURRENT_BINARY_DIR}/agent/MANIFEST.MF
     )
 install_jar(agent-java DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/java)
-add_custom_target(java-files-ide SOURCES ${JAVA_SOURCES} agent/Agent.java.in core/basic/NativeLibraries.java.in)
+add_custom_target(java-files-ide SOURCES ${JAVA_SOURCES} agent/Agent.java.in com/jarego/jayatana/basic/NativeLibraries.java.in)

@@ -617,7 +617,7 @@ JNIEXPORT void JNICALL Java_com_jarego_jayatana_basic_GlobalMenu_addMenu(
 
 				dbusmenu_menuitem_child_append(parent, item);
 				// liberar etiqueta
-				(*env)->ReleaseStringUTFChars(env, label, cclabel);
+				(*env)->ReleaseStringUTFChars(env, NULL, cclabel);
 			}
 		}
 	}

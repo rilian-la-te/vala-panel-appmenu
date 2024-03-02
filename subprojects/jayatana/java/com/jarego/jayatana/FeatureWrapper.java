@@ -47,7 +47,7 @@ public class FeatureWrapper {
 	
 	private final List<FeatureWrapper> dependencies;
 	private final String className;
-        private Feature feature = null;
+    private Feature feature = null;
 	private boolean deployed = false;
 	
 	/**
