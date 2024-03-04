@@ -7,6 +7,8 @@ license : 'LGPL-3.0-or-later',
 default_options : ['c_std=gnu11', 'buildtype=debugoptimized', 'warning_level=1']
 )
 
+add_project_arguments('-fsanitize=leak', language : 'c')
+
 gnome = import('gnome')
 pkgconfig = import('pkgconfig')
 
