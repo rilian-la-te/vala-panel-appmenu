@@ -172,10 +172,10 @@ G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data)
 	if (item == NULL)
 		return;
 	item->magic = NULL;
+	g_source_remove_by_user_data(item);
 	g_clear_pointer(&item->attrs, g_hash_table_destroy);
 	g_clear_pointer(&item->links, g_hash_table_destroy);
 	g_clear_object(&item->ref_action);
-	g_source_remove_by_user_data(item);
 	g_slice_free(DBusMenuItem, data);
 }
 
