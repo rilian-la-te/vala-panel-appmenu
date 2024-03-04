@@ -418,8 +418,8 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 		menu->parse_pending = g_timeout_add_full(G_PRIORITY_HIGH,
 		                                         100,
 		                                         (GSourceFunc)get_layout_idle,
-		                                         g_object_ref(menu),
-		                                         g_object_unref);
+		                                         menu,
+		                                         NULL);
 	g_object_unref(menu);
 }
 
