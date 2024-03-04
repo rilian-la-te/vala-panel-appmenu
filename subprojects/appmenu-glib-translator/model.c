@@ -495,7 +495,7 @@ static void layout_updated_cb(DBusMenuXml *proxy, guint revision, gint parent, D
 static void item_activation_requested_cb(DBusMenuXml *proxy, gint id, guint timestamp,
                                          DBusMenuModel *menu)
 {
-	if (!DBUS_MENU_IS_XML(proxy))
+	if (!DBUS_MENU_IS_XML(proxy) || !DBUS_MENU_IS_MODEL(menu))
 		return;
 	g_autofree char *ordinary_name = g_strdup_printf(ACTION_PREFIX "%u", id);
 	g_action_group_activate_action(menu->received_action_group, ordinary_name, NULL);
