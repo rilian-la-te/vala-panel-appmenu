@@ -64,14 +64,17 @@ static void proxy_ready_cb(GObject *source_object, GAsyncResult *res, gpointer u
 	g_autoptr(GError) error = NULL;
 	DBusMenuXml *proxy      = dbus_menu_xml_proxy_new_finish(res, &error);
 
-	if (g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+	if (g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
+		g_object_unref(proxy);
 		return;
+	}
 
 	DBusMenuImporter *menu = DBUS_MENU_IMPORTER(user_data);
 	menu->proxy            = proxy;
 
 	if (error)
 	{
+		g_clear_object(&menu->proxy);
 		g_warning("%s", error->message);
 		return;
 	}
