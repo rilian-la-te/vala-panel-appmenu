@@ -410,6 +410,7 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 	{
 		if (!g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
 			g_warning("%s", error->message);
+		g_object_unref(menu);
 		return;
 	}
 	menu->layout_update_required = false;
