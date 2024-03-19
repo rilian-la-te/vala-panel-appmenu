@@ -25,13 +25,9 @@ using Appmenu;
 public class GlobalMenuApplet: Applet
 {
     unowned MenuWidget layout;
-    public GlobalMenuApplet (Toplevel top, GLib.Settings? settings, string number)
-    {
-        base(top,settings,number);
-    }
     public override void constructed()
     {
-        (this.action_group.lookup_action(AppletAction.CONFIGURE) as SimpleAction).set_enabled(true);
+        (this.action_group.lookup_action(APPLET_ACTION_CONFIGURE) as SimpleAction).set_enabled(true);
         var layout = new Appmenu.MenuWidget();
         this.layout = layout;
         this.background_widget = layout;
@@ -66,7 +62,7 @@ public class GlobalMenuApplet: Applet
 public void g_io_appmenu_load(GLib.TypeModule module)
 {
     // boilerplate - all modules need this
-    GLib.IOExtensionPoint.implement(ValaPanel.Applet.EXTENSION_POINT,typeof(GlobalMenuApplet),"org.valapanel.appmenu",10);
+    GLib.IOExtensionPoint.implement(ValaPanel.APPLET_EXTENSION_POINT,typeof(GlobalMenuApplet),"org.valapanel.appmenu",10);
 }
 
 public void g_io_appmenu_unload(GLib.IOModule module)

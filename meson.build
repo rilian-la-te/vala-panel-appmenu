@@ -58,7 +58,7 @@ if(not (backend_wnck))
     error('No backend available (libwnck3 required)')
 endif
 
-vp_ver = '>=0.4.89'
+vp_ver = '>=24.03'
 vp = dependency('vala-panel', version:  vp_ver, required: get_option('valapanel'))
 vala_panel_found = vp.found()
 
