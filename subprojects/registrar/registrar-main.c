@@ -24,8 +24,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define MAIN_OBJECT_PATH "/Registrar"
-
 struct _RegistrarApplication
 {
 	GApplication parent;
@@ -155,7 +153,7 @@ static int registrar_application_dbus_register(GApplication *base, GDBusConnecti
 	GDBusNodeInfo *info = g_dbus_node_info_new_for_xml(private_xml, NULL);
 	self->private_binding =
 	    g_dbus_connection_register_object(connection,
-	                                      MAIN_OBJECT_PATH,
+	                                      object_path,
 	                                      (GDBusInterfaceInfo *)info->interfaces[0],
 	                                      &_interface_vtable,
 	                                      self,
