@@ -128,7 +128,7 @@ namespace Appmenu
         private void activate_quit(GLib.SimpleAction action, Variant? param)
         {
             try {
-                Posix.kill((Posix.pid_t)dbus.get_connection_unix_process_id(this.connection), Posix.SIGQUIT);
+                Posix.kill((Posix.pid_t)dbus.get_connection_unix_process_id(this.connection), Posix.Signal.QUIT);
             } catch (Error e) {
                 stderr.printf("%s\n",e.message);
             }
