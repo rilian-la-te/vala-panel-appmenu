@@ -48,7 +48,7 @@ namespace Appmenu
                 var con = Bus.get_sync(BusType.SESSION);
                 con.call.begin(
                     "org.valapanel.AppMenu.Registrar",
-                    "/Registrar",
+                    "/org/valapanel/AppMenu/Registrar",
                     "org.valapanel.AppMenu.Registrar",
                     "Reference",
                     null,null,
@@ -66,7 +66,7 @@ namespace Appmenu
                 var con = Bus.get_sync(BusType.SESSION,null);
                 con.call.begin(
                     "org.valapanel.AppMenu.Registrar",
-                    "/Registrar",
+                    "/org/valapanel/AppMenu/Registrar",
                     "org.valapanel.AppMenu.Registrar",
                     "UnReference",
                     null,null,
