@@ -63,7 +63,7 @@ RegistrarApplication *registrar_application_new()
 	                 "application-id",
 	                 "org.valapanel.AppMenu.Registrar",
 	                 "flags",
-	                 G_APPLICATION_HANDLES_COMMAND_LINE | G_APPLICATION_IS_SERVICE,
+	                 G_APPLICATION_HANDLES_COMMAND_LINE,
 	                 "resource-base-path",
 	                 "/org/valapanel/registrar",
 	                 NULL));
