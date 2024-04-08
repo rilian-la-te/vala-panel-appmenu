@@ -78,11 +78,6 @@ namespace Appmenu
         }
         private void restock()
         {
-            unowned Gtk.StyleContext mcontext = mwidget.get_style_context();
-            if(bold_application_name)
-                mcontext.add_class("-vala-panel-appmenu-bold");
-            else
-                mcontext.remove_class("-vala-panel-appmenu-bold");
             var menu = new GLib.Menu();
             if (this.appmenu != null)
                 menu.append_section(null,this.appmenu);
@@ -117,6 +112,11 @@ namespace Appmenu
             }
             else
                 mwidget.bind_model(menu,null,true);
+            unowned Gtk.StyleContext mcontext = mwidget.get_style_context();
+            if(bold_application_name)
+                mcontext.add_class("-vala-panel-appmenu-bold");
+            else
+                mcontext.remove_class("-vala-panel-appmenu-bold");
         }
         public void set_appmenu(GLib.MenuModel? appmenu_model)
         {
