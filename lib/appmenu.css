@@ -7,14 +7,14 @@
 
 .-vala-panel-appmenu-core scrolledwindow,
 .-vala-panel-appmenu-private > menuitem,
-.-vala-panel-appmenu-private > menuitem:first-child > label {
+.-vala-panel-appmenu-private > menuitem:last-child > label {
     margin-top: 0;
     margin-bottom: 0;
     padding-top: 0;
     padding-bottom: 0;
 }
 
-menubar.-vala-panel-appmenu-bold > menuitem:first-child > label {
+menubar.-vala-panel-appmenu-bold > menuitem:last-child > label {
    font-weight: bolder;
 }
 
