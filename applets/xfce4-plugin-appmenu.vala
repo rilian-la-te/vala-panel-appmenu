@@ -32,7 +32,6 @@ public class AppmenuPlugin : Xfce.PanelPlugin {
         widget = layout;
         add(widget);
         add_action_widget(widget);
-        this.width_request = -1;
         try{
             Xfconf.init();
             channel = this.get_channel();
