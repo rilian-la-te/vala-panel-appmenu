@@ -27,19 +27,6 @@ libres = gnome.compile_resources(
 )
 valac = meson.get_compiler('vala')
 posix_dep = valac.find_library('posix')
-vver = valac.version()
-addons_versions = {
-    '>0.35.0': '<0.36.18',
-    '>0.39.0': '<0.40.14',
-    '>0.41.0': '<0.42.6',
-    '>0.43.0': '<0.44.0'
-}
-foreach series, ver : addons_versions
-    if vver.version_compare(series) and vver.version_compare(ver)
-            sources += files('../vapi/gio-addons-2.0.vapi')
-        break
-    endif
-endforeach
 
 importer_dep = dependency('appmenu-glib-translator', fallback : ['appmenu-glib-translator', 'importer_dep'])
 
