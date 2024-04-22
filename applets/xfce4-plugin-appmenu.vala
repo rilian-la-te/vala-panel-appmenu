@@ -74,6 +74,7 @@ public class AppmenuPlugin : Xfce.PanelPlugin {
     private unowned MenuWidget widget;
 
     ~AppmenuPlugin() {
+        Xfconf.Property.unbind_all(this);
         Xfconf.shutdown();
     }
 }
