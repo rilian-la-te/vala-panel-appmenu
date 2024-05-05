@@ -53,15 +53,15 @@ public class AppmenuPlugin : Xfce.PanelPlugin {
                                               null );
         Gtk.Box dlg_vbox = dlg.get_content_area() as Gtk.Box;
         var entry = new CheckButton.with_label(_("Use Compact mode (all menus in application menu)"));
-        widget.bind_property(Key.COMPACT_MODE, entry, "active", BindingFlags.SYNC_CREATE);
+        widget.bind_property(Key.COMPACT_MODE, entry, "active", BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE);
         dlg_vbox.pack_start(entry,false,false,2);
         entry.show();
         entry = new CheckButton.with_label(_("Use bold application name"));
-        widget.bind_property(Key.BOLD_APPLICATION_NAME, entry, "active", BindingFlags.SYNC_CREATE);
+        widget.bind_property(Key.BOLD_APPLICATION_NAME, entry, "active", BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE);
         dlg_vbox.pack_start(entry,false,false,2);
         entry.show();
         entry = new CheckButton.with_label(_("Expand plugin on panel"));
-        widget.bind_property("hexpand", entry, "active", BindingFlags.SYNC_CREATE);
+        widget.bind_property("hexpand", entry, "active", BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE);
         dlg_vbox.pack_start(entry,false,false,2);
         entry.show();
         dlg.show();
