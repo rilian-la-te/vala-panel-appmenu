@@ -109,7 +109,8 @@ namespace Appmenu
                         info = new DesktopAppInfo("unityx-appearance-panel.desktop");
                         break;
                     case "Budgie:GNOME":
-                        info = new DesktopAppInfo("budgie-desktop-settings.desktop");
+                        info = AppInfo.create_from_commandline("budgie-desktop-settings",null,
+                        AppInfoCreateFlags.SUPPORTS_STARTUP_NOTIFICATION) as DesktopAppInfo;
                         break;
                     default:
                         warning("Unknown desktop environment\n");
