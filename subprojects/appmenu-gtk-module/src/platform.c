@@ -158,6 +158,14 @@ G_GNUC_INTERNAL WindowData *gtk_x11_window_get_window_data(GtkWindow *window)
 		char *old_menubar_object_path =
 		    gtk_widget_get_x11_property_string(GTK_WIDGET(window),
 		                                       _GTK_MENUBAR_OBJECT_PATH);
+		char *appmenu_object_path =
+		    gtk_widget_get_x11_property_string(GTK_WIDGET(window),
+		                                       _GTK_APPMENU_OBJECT_PATH);
+		char *application_object_path =
+		    gtk_widget_get_x11_property_string(GTK_WIDGET(window),
+		                                       _GTK_APPLICATION_OBJECT_PATH);
+		char *window_object_path =
+		    gtk_widget_get_x11_property_string(GTK_WIDGET(window), _GTK_WINDOW_OBJECT_PATH);
 		GDBusActionGroup *old_action_group = NULL;
 		GDBusMenuModel *old_menu_model     = NULL;
 
@@ -214,7 +222,8 @@ G_GNUC_INTERNAL WindowData *gtk_x11_window_get_window_data(GtkWindow *window)
 			                                   _UNITY_OBJECT_PATH,
 			                                   object_path);
 
-		if (old_menubar_object_path == NULL)
+		if (old_menubar_object_path == NULL &&
+		    (!application_object_path || !window_object_path) && !appmenu_object_path)
 			gtk_widget_set_x11_property_string(GTK_WIDGET(window),
 			                                   _GTK_MENUBAR_OBJECT_PATH,
 			                                   object_path);
@@ -224,6 +233,9 @@ G_GNUC_INTERNAL WindowData *gtk_x11_window_get_window_data(GtkWindow *window)
 		                        window_data,
 		                        window_data_free);
 
+		g_free(application_object_path);
+		g_free(window_object_path);
+		g_free(appmenu_object_path);
 		g_free(old_menubar_object_path);
 		g_free(old_unity_object_path);
 		g_free(old_unique_bus_name);
