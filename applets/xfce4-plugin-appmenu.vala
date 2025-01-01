@@ -70,6 +70,16 @@ public class AppmenuPlugin : Xfce.PanelPlugin {
             dlg.destroy();
         });
     }
+    protected override void get_preferred_height(out int minimum_height, out int natural_height)
+    {
+        widget.get_preferred_height(null, out minimum_height);
+        natural_height = minimum_height;
+    }
+    protected override void get_preferred_width(out int minimum_height, out int natural_height)
+    {
+        widget.get_preferred_width(null, out minimum_height);
+        natural_height = minimum_height;
+    }
     private Xfconf.Channel channel;
     private unowned MenuWidget widget;
 

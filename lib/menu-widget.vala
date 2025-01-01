@@ -166,5 +166,21 @@ namespace Appmenu
             gtksettings.gtk_shell_shows_app_menu = false;
             gtksettings.gtk_shell_shows_menubar = false;
         }
+        protected override void get_preferred_height(out int minimum_height, out int natural_height)
+        {
+            int min, nat;
+            scroller.get_preferred_height(out min, null);
+            mwidget.get_preferred_height(null, out nat);
+            minimum_height = int.min(min, nat);
+            natural_height = int.max(min, nat);
+        }
+        protected override void get_preferred_width(out int minimum_height, out int natural_height)
+        {
+            int min, nat;
+            scroller.get_preferred_width(out min, null);
+            mwidget.get_preferred_width(null, out nat);
+            minimum_height = int.min(min, nat);
+            natural_height = int.max(min, nat);
+        }
     }
 }
