@@ -37,7 +37,7 @@ public class AppmenuPlugin : Xfce.PanelPlugin {
             channel = this.get_channel();
             Xfconf.Property.bind(channel,this.get_property_base()+"/"+Key.COMPACT_MODE,typeof(bool),widget,Key.COMPACT_MODE);
             Xfconf.Property.bind(channel,this.get_property_base()+"/"+Key.BOLD_APPLICATION_NAME,typeof(bool),widget,Key.BOLD_APPLICATION_NAME);
-            Xfconf.Property.bind(channel,this.get_property_base()+"/"+"expand",typeof(bool),widget,"hexpand");
+            Xfconf.Property.bind(channel,this.get_property_base()+"/"+"expand",typeof(bool),this,"expand");
             this.menu_show_configure();
         } catch (Xfconf.Error e) {
             stderr.printf("Xfconf init failed. Configuration will not be saved.\n");
@@ -61,7 +61,7 @@ public class AppmenuPlugin : Xfce.PanelPlugin {
         dlg_vbox.pack_start(entry,false,false,2);
         entry.show();
         entry = new CheckButton.with_label(_("Expand plugin on panel"));
-        widget.bind_property("hexpand", entry, "active", BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE);
+        this.bind_property("expand", entry, "active", BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE);
         dlg_vbox.pack_start(entry,false,false,2);
         entry.show();
         dlg.show();
