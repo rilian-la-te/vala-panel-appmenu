@@ -47,9 +47,7 @@ G_DEFINE_TYPE(DBusMenuImporter, dbus_menu_importer, G_TYPE_OBJECT)
 
 static bool dbus_menu_importer_check(DBusMenuImporter *menu)
 {
-	if (DBUS_MENU_IS_XML(menu->proxy))
-		return dbus_menu_xml_get_version(menu->proxy) >= 2;
-	return false;
+	return DBUS_MENU_IS_XML(menu->proxy);
 }
 
 static void dbus_menu_importer_on_root_model_changed(GMenuModel *model, gint position, gint removed,
