@@ -62,7 +62,7 @@ G_GNUC_INTERNAL bool dbus_menu_item_copy_attributes(DBusMenuItem *src, DBusMenuI
 
 G_GNUC_INTERNAL bool dbus_menu_item_is_firefox_stub(DBusMenuItem *item);
 
-G_GNUC_INTERNAL void dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem *dst,
+G_GNUC_INTERNAL bool dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem *dst,
                                                  DBusMenuModel *parent);
 
 G_GNUC_INTERNAL void dbus_menu_item_generate_action(DBusMenuItem *item, DBusMenuModel *parent);

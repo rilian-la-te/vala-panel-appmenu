@@ -200,12 +200,13 @@ static bool preload_idle(DBusMenuItem *item)
 
 static void menu_item_copy_and_load(DBusMenuModel *menu, DBusMenuItem *old, DBusMenuItem *new_item)
 {
-	dbus_menu_item_copy_submenu(old, new_item, menu);
+	bool new_submenu = dbus_menu_item_copy_submenu(old, new_item, menu);
 	dbus_menu_item_generate_action(new_item, menu);
-	// It is a preload hack. If this is a toplevel menu, we need to fetch menu under toplevel to
-	// avoid menu jumping bug. Now we need to use it for all menus - no menus are preloaded,
-	// AFAIK
-	dbus_menu_item_update_enabled(new_item, true);
+	/* It is a preload hack. If this is a toplevel menu, we need to fetch menu under toplevel to
+	 * avoid menu jumping bug. Now we need to use it for all menus - no menus are preloaded,
+	 * AFAIK. But always enabled make sense only for submenus.
+	 */
+	dbus_menu_item_update_enabled(new_item, new_submenu || new_item->enabled);
 	new_item->toggled = true;
 	g_timeout_add_full(100, 300, (GSourceFunc)preload_idle, new_item, NULL);
 }
