@@ -1,7 +1,7 @@
 # cmake_policy(['VERSION', '3.6'])
 project('jayatana', 'java', 'c',
         meson_version: '>=1.0.0',
-        version: '24.02',
+        version: '25.04',
         license: ['MIT'],
          default_options : ['c_std=gnu11', 'buildtype=debugoptimized'])
 

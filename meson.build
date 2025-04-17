@@ -2,7 +2,7 @@ project(
   'vala-panel-appmenu',
   'vala',
   'c',
-version : '24.02',
+version : '25.04',
 meson_version : '>=0.51.0',
 license : 'LGPL-3.0-or-later',
 default_options : ['c_std=gnu11', 'buildtype=debugoptimized', 'warning_level=1']
