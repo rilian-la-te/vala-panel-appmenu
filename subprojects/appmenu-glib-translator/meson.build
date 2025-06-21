@@ -61,7 +61,8 @@ install_headers(imp_public, subdir : importer_name)
 pkgconfig.generate(importer_lib,
              name: importer_name,
              description: 'A translator from DBusMenu to GMenuModel',
-             requires: [giounix, gdkpixbuf],
+             requires: [giounix],
+             requires_private: [gdkpixbuf],
              extra_cflags: ['-I${includedir}/'+importer_name]
             )
 
