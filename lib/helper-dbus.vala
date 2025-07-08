@@ -101,7 +101,45 @@ namespace Appmenu
             string res_name = name ?? _("Application");
             if (name.length >= 28)
                 res_name = name[0:25]+"...";
-            all_menu.append_submenu(res_name,menu);
+
+            // Determine if app is GNUstep
+            bool is_gnustep_app = false;
+            if (info != null) {
+                try {
+                    // Inspect .desktop Exec for openapp or .app bundle
+                    var keyfile = new KeyFile();
+                    if (keyfile.load_from_file(info.get_filename(), KeyFileFlags.NONE)) {
+                        string? exec_cmd = keyfile.get_string(KeyFileDesktop.GROUP, KeyFileDesktop.KEY_EXEC);
+                        if (exec_cmd != null && (exec_cmd.has_prefix("openapp") || exec_cmd.contains(".app"))) {
+                            is_gnustep_app = true;
+                            debug("Detected GNUstep application via desktop file: %s", res_name);
+                        }
+                    }
+                } catch (Error e) {
+                    debug("Desktop file check failed: %s", e.message);
+                }
+            } else if (connection != null) {
+                try {
+                    // Fallback: check process command line for .app
+                    uint pid = dbus.get_connection_unix_process_id(this.connection);
+                    string? cmdline = Launcher.posix_get_cmdline_string("/proc/%u/cmdline".printf(pid));
+                    if (cmdline != null && cmdline.contains(".app")) {
+                        is_gnustep_app = true;
+                        debug("Detected GNUstep application via process cmdline: %s", res_name);
+                    }
+                } catch (Error e) {
+                    debug("Process check failed: %s", e.message);
+                }
+            }
+
+            // Conditionally append submenu - skip for GNUstep applications
+            if (!is_gnustep_app) {
+                all_menu.append_submenu(res_name,menu);
+                debug("Created stub menu for application: %s", res_name);
+            } else {
+                debug("Skipped stub menu creation for GNUstep application: %s", res_name);
+            }
+
             all_menu.freeze();
             widget.insert_action_group("conf",configurator);
             widget.set_appmenu(all_menu);
