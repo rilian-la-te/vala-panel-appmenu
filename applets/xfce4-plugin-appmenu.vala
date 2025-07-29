@@ -43,7 +43,6 @@ public class AppmenuPlugin : Xfce.PanelPlugin {
             stderr.printf("Xfconf init failed. Configuration will not be saved.\n");
         }
         this.shrink = true;
-        this.set_expand(true);
         widget.show();
     }
     public override void configure_plugin()
