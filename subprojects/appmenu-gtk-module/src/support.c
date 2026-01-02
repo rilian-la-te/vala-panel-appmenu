@@ -35,6 +35,7 @@
 
 #include <appmenu-gtk-action-group.h>
 #include <appmenu-gtk-menu-shell.h>
+#include <stdbool.h>
 
 #include "blacklist.h"
 #include "consts.h"
@@ -129,16 +130,12 @@ static uint watcher_id = 0;
 
 static gboolean is_dbus_present()
 {
-	GDBusConnection *connection;
-	GVariant *ret, *names;
 	GVariantIter *iter;
 	char *name;
-	gboolean is_present;
-	GError *error = NULL;
+	GError *error   = NULL;
+	bool is_present = false;
 
-	is_present = false;
-
-	connection = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &error);
+	GDBusConnection *connection = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &error);
 	if (connection == NULL)
 	{
 		g_warning("Unable to connect to dbus: %s", error->message);
@@ -146,24 +143,24 @@ static gboolean is_dbus_present()
 		return false;
 	}
 
-	ret = g_dbus_connection_call_sync(connection,
-	                                  "org.freedesktop.DBus",
-	                                  "/org/freedesktop/DBus",
-	                                  "org.freedesktop.DBus",
-	                                  "ListNames",
-	                                  NULL,
-	                                  G_VARIANT_TYPE("(as)"),
-	                                  G_DBUS_CALL_FLAGS_NONE,
-	                                  -1,
-	                                  NULL,
-	                                  &error);
+	GVariant *ret = g_dbus_connection_call_sync(connection,
+	                                            "org.freedesktop.DBus",
+	                                            "/org/freedesktop/DBus",
+	                                            "org.freedesktop.DBus",
+	                                            "ListNames",
+	                                            NULL,
+	                                            G_VARIANT_TYPE("(as)"),
+	                                            G_DBUS_CALL_FLAGS_NONE,
+	                                            -1,
+	                                            NULL,
+	                                            &error);
 	if (ret == NULL)
 	{
 		g_warning("Unable to query dbus: %s", error->message);
 		g_error_free(error);
 		return false;
 	}
-	names = g_variant_get_child_value(ret, 0);
+	GVariant *names = g_variant_get_child_value(ret, 0);
 	g_variant_get(names, "as", &iter);
 	while (g_variant_iter_loop(iter, "s", &name))
 	{
