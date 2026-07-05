@@ -25,9 +25,11 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
-#include <gdk/gdkx.h>
 #include <gtk/gtk.h>
 
+#if (GTK_MAJOR_VERSION < 3) || defined(GDK_WINDOWING_X11)
+#include <gdk/gdkx.h>
+#endif
 #if GTK_MAJOR_VERSION >= 3
 #ifdef GDK_WINDOWING_WAYLAND
 #include <gdk/gdkwayland.h>
