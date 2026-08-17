@@ -14,7 +14,7 @@
     padding-bottom: 0;
 }
 
-menubar.-vala-panel-appmenu-bold > menuitem:first-child > label {
+menubar.-vala-panel-appmenu-bold > menuitem.-vala-panel-appmenu-application-name > label {
    font-weight: bolder;
 }
 
