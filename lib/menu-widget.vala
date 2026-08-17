@@ -113,6 +113,12 @@ namespace Appmenu
             else
                 mwidget.bind_model(menu,null,true);
             unowned Gtk.StyleContext mcontext = mwidget.get_style_context();
+            if(this.appmenu != null && this.appmenu.get_n_items() > 0)
+            {
+                var children = mwidget.get_children();
+                if(children.length() > 0)
+                    children.nth_data(0).get_style_context().add_class("-vala-panel-appmenu-application-name");
+            }
             if(bold_application_name)
                 mcontext.add_class("-vala-panel-appmenu-bold");
             else
