@@ -22,6 +22,7 @@
  *          Lester Carballo Perez <lestcape@gmail.com>
  */
 
+#include <gmodule.h>
 #include <gtk/gtk.h>
 
 #include "hijack.h"
@@ -46,6 +47,12 @@ static void sync_gtk2_settings()
 		                         G_PARAM_READWRITE));
 	}
 #endif
+}
+
+const gchar *g_module_check_init(GModule *module)
+{
+	g_module_make_resident(module);
+	return NULL;
 }
 
 void gtk_module_init(void)
