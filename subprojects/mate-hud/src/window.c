@@ -572,6 +572,18 @@ void hud_window_present(HudWindow *w, guint32 timestamp, gulong target_xid)
     /* Set X11 user time so the WM grants focus authority */
     GdkWindow *gdk_win = gtk_widget_get_window(w->window);
     if (GDK_IS_X11_WINDOW(gdk_win)) {
+        /* The parent belongs to another process, so GtkWindow's transient
+         * setter cannot be used. Publish WM_TRANSIENT_FOR through GDK before
+         * mapping, allowing the WM to restore the application's focus when
+         * the HUD closes without stealing focus on click-away dismissal. */
+        GdkWindow *parent = target_xid
+            ? gdk_x11_window_foreign_new_for_display(
+                gdk_window_get_display(gdk_win), (Window)target_xid)
+            : NULL;
+        if (parent) {
+            gdk_window_set_transient_for(gdk_win, parent);
+            g_object_unref(parent);
+        }
         guint32 ts = timestamp ? timestamp : gdk_x11_get_server_time(gdk_win);
         gdk_x11_window_set_user_time(gdk_win, ts);
     }
