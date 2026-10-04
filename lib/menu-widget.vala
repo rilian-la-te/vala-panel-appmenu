@@ -1,6 +1,7 @@
 /*
  * vala-panel-appmenu
  * Copyright (C) 2015 Konstantin Pugin <ria.freelander@gmail.com>
+ * Copyright (C) 2025 Kerem Soke
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,6 +23,8 @@ namespace Key
 {
     public const string COMPACT_MODE = "compact-mode";
     public const string BOLD_APPLICATION_NAME = "bold-application-name";
+    public const string SHOW_ICON = "show-icon";
+    public const string ICON_PADDING = "icon-padding";
 }
 
 namespace Appmenu
@@ -30,6 +33,8 @@ namespace Appmenu
     {
         public bool compact_mode {get; set; default = false;}
         public bool bold_application_name {get; set; default = false;}
+        public bool show_icon {get; set; default = false;}
+        public int icon_padding {get; set; default = 4;}
         private Gtk.Adjustment? scroll_adj = null;
         private Gtk.ScrolledWindow? scroller = null;
         private Gtk.CssProvider provider;
@@ -37,6 +42,11 @@ namespace Appmenu
         private GLib.MenuModel? menubar = null;
         private Backend backend = new BackendImpl();
         private Gtk.MenuBar mwidget = new Gtk.MenuBar();
+        private Gtk.Image icon_widget;
+        private Gtk.Box container;
+        private Gdk.Pixbuf? last_window_pixbuf = null;
+        private GLib.Icon? last_window_icon = null;
+        private int current_icon_size = -1;
         private ulong backend_connector = 0;
         private ulong compact_connector = 0;
         construct
@@ -55,6 +65,9 @@ namespace Appmenu
             });
             mcontext.add_class("-vala-panel-appmenu-private");
             Gtk.StyleContext.add_provider_for_screen(this.get_screen(), provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+            //Setup icon
+            icon_widget = new Gtk.Image.from_icon_name("view-app-grid-symbolic", Gtk.IconSize.MENU);
+            icon_widget.set_no_show_all(true);
             //Setup menubar
             scroll_adj = new Gtk.Adjustment(0, 0, 0, 20, 20, 0);
             scroller = new Gtk.ScrolledWindow(scroll_adj, null);
@@ -66,15 +79,101 @@ namespace Appmenu
             scroller.set_min_content_height(16);
             scroller.set_propagate_natural_height(true);
             scroller.set_propagate_natural_width(true);
-            this.add(scroller);
             scroller.add(mwidget);
+            //Setup container
+            container = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+            container.pack_start(icon_widget, false, false, 0);
+            container.pack_start(scroller, true, true, 0);
+            this.add(container);
+            this.notify["show-icon"].connect(update_icon_visibility);
+            this.notify["icon-padding"].connect(update_icon_size);
+            this.size_allocate.connect((allocation)=>{
+                update_icon_size();
+            });
             mwidget.show();
             scroller.show();
+            container.show();
             this.show();
         }
         public MenuWidget()
         {
             Object();
+        }
+        private void update_icon_visibility()
+        {
+            if (show_icon)
+                icon_widget.show();
+            else
+                icon_widget.hide();
+        }
+        private int calculate_icon_size()
+        {
+            int width = this.get_allocated_width();
+            int height = this.get_allocated_height();
+            int size = int.min(width, height);
+            if (size <= 1)
+                Gtk.icon_size_lookup(Gtk.IconSize.MENU, out size, null);
+            size = int.max(1, size - int.max(0, icon_padding));
+            return size;
+        }
+        private void update_icon_size()
+        {
+            int size = calculate_icon_size();
+            if (size == current_icon_size)
+                return;
+            current_icon_size = size;
+            update_icon_image();
+        }
+        private void update_icon_image()
+        {
+            int size = current_icon_size;
+            if (size <= 0)
+                Gtk.icon_size_lookup(Gtk.IconSize.MENU, out size, null);
+            if (last_window_pixbuf != null)
+            {
+                int width = last_window_pixbuf.get_width();
+                int height = last_window_pixbuf.get_height();
+                if (width > size || height > size)
+                {
+                    var scaled = last_window_pixbuf.scale_simple(size, size, Gdk.InterpType.BILINEAR);
+                    icon_widget.set_from_pixbuf(scaled);
+                }
+                else
+                {
+                    icon_widget.set_from_pixbuf(last_window_pixbuf);
+                }
+                return;
+            }
+            if (last_window_icon != null)
+            {
+                var theme = Gtk.IconTheme.get_default();
+                var info = theme.lookup_by_gicon(last_window_icon, size, Gtk.IconLookupFlags.GENERIC_FALLBACK);
+                if (info != null)
+                {
+                    try
+                    {
+                        var pixbuf = info.load_icon();
+                        int width = pixbuf.get_width();
+                        int height = pixbuf.get_height();
+                        if (width > size || height > size)
+                        {
+                            var scaled = pixbuf.scale_simple(size, size, Gdk.InterpType.BILINEAR);
+                            icon_widget.set_from_pixbuf(scaled);
+                        }
+                        else
+                        {
+                            icon_widget.set_from_pixbuf(pixbuf);
+                        }
+                        return;
+                    }
+                    catch (Error e)
+                    {
+                    }
+                }
+                icon_widget.set_from_gicon(last_window_icon, Gtk.IconSize.MENU);
+                return;
+            }
+            icon_widget.set_from_icon_name("application-x-executable", Gtk.IconSize.MENU);
         }
         private void restock()
         {
@@ -113,16 +212,22 @@ namespace Appmenu
             else
                 mwidget.bind_model(menu,null,true);
             unowned Gtk.StyleContext mcontext = mwidget.get_style_context();
-            if(this.appmenu != null && this.appmenu.get_n_items() > 0)
-            {
-                var children = mwidget.get_children();
-                if(children.length() > 0)
-                    children.nth_data(0).get_style_context().add_class("-vala-panel-appmenu-application-name");
-            }
             if(bold_application_name)
                 mcontext.add_class("-vala-panel-appmenu-bold");
             else
                 mcontext.remove_class("-vala-panel-appmenu-bold");
+        }
+        public void set_window_icon(GLib.Icon? icon)
+        {
+            last_window_pixbuf = null;
+            last_window_icon = icon;
+            update_icon_image();
+        }
+        public void set_window_icon_pixbuf(Gdk.Pixbuf? pixbuf)
+        {
+            last_window_icon = null;
+            last_window_pixbuf = pixbuf;
+            update_icon_image();
         }
         public void set_appmenu(GLib.MenuModel? appmenu_model)
         {
@@ -175,7 +280,7 @@ namespace Appmenu
         protected override void get_preferred_height(out int minimum_height, out int natural_height)
         {
             int min, nat;
-            scroller.get_preferred_height(out min, null);
+            container.get_preferred_height(out min, null);
             mwidget.get_preferred_height(null, out nat);
             minimum_height = int.min(min, nat);
             natural_height = int.max(min, nat);
@@ -183,7 +288,7 @@ namespace Appmenu
         protected override void get_preferred_width(out int minimum_height, out int natural_height)
         {
             int min, nat;
-            scroller.get_preferred_width(out min, null);
+            container.get_preferred_width(out min, null);
             mwidget.get_preferred_width(null, out nat);
             minimum_height = int.min(min, nat);
             natural_height = int.max(min, nat);

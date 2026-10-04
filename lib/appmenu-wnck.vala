@@ -1,6 +1,7 @@
 /*
  * vala-panel-appmenu
  * Copyright (C) 2015 Konstantin Pugin <ria.freelander@gmail.com>
+ * Copyright (C) 2025 Kerem Soke
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -58,6 +59,8 @@ namespace Appmenu
         public override void set_active_window_menu(MenuWidget widget)
         {
             helper = null;
+            // Update the window icon
+            update_window_icon(widget, active_window);
             if(type == ModelType.MENUMODEL)
                 helper = get_menu_model_helper_with_wnck(widget, active_window);
             else if(type == ModelType.DBUSMENU)
@@ -69,6 +72,39 @@ namespace Appmenu
                 helper = get_stub_helper_with_wnck(widget,active_window);
                 widget.set_menubar(null);
             }
+        }
+        void update_window_icon(MenuWidget widget, Wnck.Window? win)
+        {
+            if (win != null)
+            {
+                // Try to get icon from DesktopAppInfo first
+                DesktopAppInfo? info = libwnck_aux_match_wnck_window(matcher, win);
+                if (info != null)
+                {
+                    GLib.Icon? icon = info.get_icon();
+                    widget.set_window_icon(icon);
+                    return;
+                }
+
+                // Fallback to window icon from libwnck
+                Gdk.Pixbuf? pixbuf = win.get_icon();
+                if (pixbuf == null)
+                {
+                    // Try application icon as last resort
+                    Wnck.Application? app = win.get_application();
+                    if (app != null)
+                        pixbuf = app.get_icon();
+                }
+
+                if (pixbuf != null)
+                {
+                    widget.set_window_icon_pixbuf(pixbuf);
+                    return;
+                }
+            }
+
+            // No icon found, set null to show fallback
+            widget.set_window_icon(null);
         }
         DBusMenuHelper get_dbus_menu_helper_with_wnck(MenuWidget w, string name, ObjectPath path, Wnck.Window win)
         {
