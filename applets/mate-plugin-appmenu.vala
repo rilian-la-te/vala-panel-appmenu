@@ -136,10 +136,11 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
     Gtk.Action a = new Gtk.Action("AppMenuAppletPreferences",N_("_Preferences"),null,Gtk.Stock.PREFERENCES);
     a.activate.connect(()=>
     {
-        var dlg = new Gtk.Dialog.with_buttons( dgettext(Config.GETTEXT_PACKAGE,"Configure AppMenu"), layout.get_toplevel() as Window,
-                                              DialogFlags.DESTROY_WITH_PARENT,
-                                              null );
-        dlg.set_property("use-header-bar", false);
+        var dlg = (Gtk.Dialog) GLib.Object.new(typeof(Gtk.Dialog),
+            "title", dgettext(Config.GETTEXT_PACKAGE, "Configure AppMenu"),
+            "transient-for", layout.get_toplevel() as Window,
+            "destroy-with-parent", true,
+            "use-header-bar", 0);
         dlg.set_default_size(480, 360);
         Gtk.Box dlg_vbox = dlg.get_content_area() as Gtk.Box;
 
