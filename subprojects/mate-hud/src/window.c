@@ -22,6 +22,7 @@ struct HudWindow {
     char               *location;
     int                 history_max;
     gulong              target_xid;
+    guint32             dismiss_time;
     int                 placed_width;
     int                 placed_height;
 };
@@ -397,8 +398,14 @@ static gboolean on_key_press(GtkWidget *widget G_GNUC_UNUSED,
 
 static gboolean on_window_focus_out(GtkWidget *widget,
                                      GdkEventFocus *event G_GNUC_UNUSED,
-                                     gpointer user_data G_GNUC_UNUSED)
+                                     gpointer user_data)
 {
+    HudWindow *w = user_data;
+    /* Focus events carry no timestamp; record server time so a shortcut
+     * tap that caused this dismissal can be told apart from a new one. */
+    GdkWindow *gdk_win = gtk_widget_get_window(widget);
+    if (GDK_IS_X11_WINDOW(gdk_win))
+        w->dismiss_time = gdk_x11_get_server_time(gdk_win);
     /* Watch the toplevel, not the search entry or result list. */
     gtk_widget_destroy(widget);
     return FALSE;
@@ -626,4 +633,9 @@ gulong hud_window_xid(HudWindow *w)
         return 0;
 
     return (gulong)gdk_x11_window_get_xid(gdk_win);
+}
+
+guint32 hud_window_dismiss_time(HudWindow *w)
+{
+    return w ? w->dismiss_time : 0;
 }

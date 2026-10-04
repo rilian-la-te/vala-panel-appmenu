@@ -8,6 +8,12 @@ static gboolean hud_activation_in_progress = FALSE;
 static HudWindow *current_window = NULL;
 static GPtrArray *current_entries = NULL;
 static gulong current_target_xid = 0;
+static gulong dismissed_target_xid = 0;
+static guint32 dismissed_time = 0;
+
+/* Upper bound on how long a shortcut tap can be held, matching the helper's
+ * TAP_TIMEOUT_MS. */
+#define DISMISS_TOGGLE_WINDOW_MS 250
 
 void hud_update_placement(const char *attach_to, const char *location)
 {
@@ -41,6 +47,21 @@ void hud_activate(gulong xid,
         if (hud_xid != 0 && xid == hud_xid)
             xid = current_target_xid;
     }
+
+    /* Pressing a bare-modifier shortcut while the HUD is open takes a
+     * keyboard grab, which dismisses the HUD on focus-out. The helper only
+     * sends Activate on release, by which time the WM has handed focus back
+     * to the transient parent. Treat that activation as the closing half of
+     * a toggle instead of reopening the HUD. */
+    if (!current_window && timestamp && dismissed_time &&
+        xid == dismissed_target_xid &&
+        (guint32)(timestamp - dismissed_time) <= DISMISS_TOGGLE_WINDOW_MS) {
+        g_message("mate-hud: activation ignored because it dismissed the HUD for xid=%lu",
+                  xid);
+        dismissed_time = 0;
+        return;
+    }
+    dismissed_time = 0;
 
     if (hud_activation_in_progress) {
         g_message("mate-hud: activation ignored because another HUD session is in progress");
@@ -99,6 +120,9 @@ void hud_activate(gulong xid,
 
     /* Nested main loop: blocks until on_window_destroy calls gtk_main_quit() */
     gtk_main();
+
+    dismissed_time = hud_window_dismiss_time(current_window);
+    dismissed_target_xid = current_target_xid;
 
     /* Window was already destroyed by GTK; free our wrapper */
     hud_window_destroy(current_window);

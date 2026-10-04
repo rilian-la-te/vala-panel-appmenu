@@ -44,3 +44,6 @@ GtkWidget *hud_window_widget(HudWindow *w);
 
 /* Returns the X11 window id for the HUD window, or 0 before realization. */
 gulong hud_window_xid(HudWindow *w);
+
+/* X server time at which focus loss dismissed the window, or 0. */
+guint32 hud_window_dismiss_time(HudWindow *w);
