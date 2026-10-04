@@ -14,5 +14,41 @@
     <key name="bold-application-name" type="b">
       <default>false</default>
     </key>
+    <key name="show-icon" type="b">
+      <default>false</default>
+    </key>
+    <key name="icon-padding" type="i">
+      <default>4</default>
+    </key>
+    <key name="hud-enabled" type="b">
+      <default>true</default>
+      <summary>Enable the HUD</summary>
+      <description>When true, the mate-hud-daemon is expected to be running and will show a searchable menu on shortcut activation.</description>
+    </key>
+    <key name="hud-shortcut" type="s">
+      <default>"&lt;Alt&gt;space"</default>
+      <summary>HUD activation shortcut</summary>
+      <description>HUD shortcut string. In internal shortcut mode this is intended for modifier-only shortcuts such as "Alt_L" or "&lt;Alt&gt;Super_L". For full accelerators such as "&lt;Alt&gt;space", use MATE Control Center shortcut handling.</description>
+    </key>
+    <key name="hud-use-system-shortcut" type="b">
+      <default>true</default>
+      <summary>Use system shortcut instead of internal key grab</summary>
+      <description>When true, MATE Control Center handles the shortcut and the daemon does not grab keys internally. This is the safe default for full accelerators such as "&lt;Alt&gt;space".</description>
+    </key>
+    <key name="hud-history-max" type="i">
+      <default>20</default>
+      <summary>Maximum history entries per application</summary>
+      <description>Number of most-recently-used menu items remembered per application WM class.</description>
+    </key>
+    <key name="hud-attach-to" type="s">
+      <default>"window"</default>
+      <summary>Attach HUD to monitor or window</summary>
+      <description>Controls the rectangle used for HUD placement. Use "window" to anchor the HUD to the active application window, or "monitor" to anchor it to the monitor workarea containing that window.</description>
+    </key>
+    <key name="hud-location" type="s">
+      <default>"northwest"</default>
+      <summary>HUD location</summary>
+      <description>Anchor position for the HUD within the selected rectangle. Valid values are northwest, north, northeast, west, center, east, southwest, south, and southeast.</description>
+    </key>
   </schema>
 </schemalist>
