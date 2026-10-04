@@ -316,10 +316,12 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
             syncing_attach = false;
         });
 
+        var location_row = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
         var location_label = new Gtk.Label(
             dgettext(Config.GETTEXT_PACKAGE, "HUD location:"));
         location_label.set_halign(Gtk.Align.START);
-        placement_group.pack_start(location_label, false, false, 2);
+        location_row.pack_start(location_label, true, true, 0);
+        placement_group.pack_start(location_row, false, false, 2);
 
         var location_grid = new Gtk.Grid();
         location_grid.set_row_spacing(4);
@@ -328,7 +330,7 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
         location_grid.set_row_homogeneous(true);
         location_grid.set_column_homogeneous(true);
         location_grid.set_size_request(120, 120);
-        placement_group.pack_start(location_grid, false, false, 0);
+        location_row.pack_start(location_grid, false, false, 0);
 
         string[] location_values = {
             "northwest", "north", "northeast",
@@ -397,6 +399,7 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
         attach_row.show();
         location_label.show();
         location_grid.show_all();
+        location_row.show();
         placement_group.show();
 
         var hud_tab = new Gtk.Label(dgettext(Config.GETTEXT_PACKAGE, "HUD"));
