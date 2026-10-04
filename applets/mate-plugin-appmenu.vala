@@ -325,7 +325,9 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
         location_grid.set_row_spacing(4);
         location_grid.set_column_spacing(4);
         location_grid.set_halign(Gtk.Align.START);
-        location_grid.get_style_context().add_class("linked");
+        location_grid.set_row_homogeneous(true);
+        location_grid.set_column_homogeneous(true);
+        location_grid.set_size_request(120, 120);
 
         string[] location_values = {
             "northwest", "north", "northeast",
@@ -337,34 +339,39 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
             "W", dgettext(Config.GETTEXT_PACKAGE, "Center"), "E",
             "SW", "S", "SE"
         };
-        var location_buttons = new Gtk.ToggleButton[9];
-        bool syncing_location = false;
+        var location_buttons = new Gtk.RadioButton[9];
+        bool syncing_location = true;
         string hud_location = settings.get_string("hud-location");
 
         for (int i = 0; i < 9; i++) {
-            var loc_button = new Gtk.ToggleButton.with_label(location_labels[i]);
-            loc_button.set_size_request(78, -1);
+            var loc_button = new Gtk.RadioButton(null);
+            if (i > 0)
+                loc_button.join_group(location_buttons[0]);
+            loc_button.set_halign(Gtk.Align.CENTER);
+            loc_button.set_valign(Gtk.Align.CENTER);
+            loc_button.set_tooltip_text(location_labels[i]);
+            loc_button.get_accessible().set_name(location_labels[i]);
             loc_button.set_data<string>("hud-location-value", location_values[i]);
             location_buttons[i] = loc_button;
             location_grid.attach(loc_button, i % 3, i / 3, 1, 1);
-            loc_button.clicked.connect(() => {
-                if (syncing_location)
+            loc_button.toggled.connect(() => {
+                if (syncing_location || !loc_button.active)
                     return;
 
                 string value = loc_button.get_data<string>("hud-location-value");
                 syncing_location = true;
-                for (int j = 0; j < 9; j++)
-                    location_buttons[j].active = location_buttons[j] == loc_button;
                 settings.set_string("hud-location", value);
                 syncing_location = false;
             });
         }
 
         syncing_location = true;
-        for (int i = 0; i < 9; i++)
-            location_buttons[i].active = hud_location == location_values[i];
-        if (hud_location == null || hud_location == "")
-            location_buttons[0].active = true;
+        int selected_location = 0;
+        for (int i = 0; i < 9; i++) {
+            if (hud_location == location_values[i])
+                selected_location = i;
+        }
+        location_buttons[selected_location].active = true;
         syncing_location = false;
 
         settings.changed["hud-location"].connect(() => {
@@ -372,14 +379,12 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
                 return;
             string value = settings.get_string("hud-location");
             syncing_location = true;
-            bool matched = false;
+            int selected = 0;
             for (int i = 0; i < 9; i++) {
-                bool active = value == location_values[i];
-                location_buttons[i].active = active;
-                matched = matched || active;
+                if (value == location_values[i])
+                    selected = i;
             }
-            if (!matched)
-                location_buttons[0].active = true;
+            location_buttons[selected].active = true;
             syncing_location = false;
         });
 

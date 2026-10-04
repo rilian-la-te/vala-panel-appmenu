@@ -21,6 +21,9 @@ struct HudWindow {
     char               *attach_to;
     char               *location;
     int                 history_max;
+    gulong              target_xid;
+    int                 placed_width;
+    int                 placed_height;
 };
 
 /* ── Placement ───────────────────────────────────────────────────────────── */
@@ -167,6 +170,19 @@ static void place_window(HudWindow *w, gulong target_xid)
     int x = anchored_coord(area.x, area.width, win_w, x_anchor);
     int y = anchored_coord(area.y, area.height, win_h, y_anchor);
     gtk_window_move(GTK_WINDOW(w->window), x, y);
+}
+
+static void on_size_allocate(GtkWidget *widget G_GNUC_UNUSED,
+                             GtkAllocation *allocation, gpointer user_data)
+{
+    HudWindow *w = user_data;
+    if (!w->target_xid ||
+        (allocation->width == w->placed_width &&
+         allocation->height == w->placed_height))
+        return;
+    w->placed_width = allocation->width;
+    w->placed_height = allocation->height;
+    place_window(w, w->target_xid);
 }
 
 /* ── Activation ──────────────────────────────────────────────────────────── */
@@ -496,6 +512,8 @@ HudWindow *hud_window_new(GPtrArray *entries,
                      G_CALLBACK(on_key_press), w);
     g_signal_connect(w->window, "destroy",
                      G_CALLBACK(on_window_destroy), w);
+    g_signal_connect(w->window, "size-allocate",
+                     G_CALLBACK(on_size_allocate), w);
 
     gtk_widget_show_all(vbox);
     return w;
@@ -529,10 +547,13 @@ void hud_window_set_placement(HudWindow *w,
 {
     if (!w) return;
     set_placement(w, attach_to, location);
+    if (w->window && w->target_xid)
+        place_window(w, w->target_xid);
 }
 
 void hud_window_present(HudWindow *w, guint32 timestamp, gulong target_xid)
 {
+    w->target_xid = target_xid;
     /* Grab focus before realize so GTK knows which widget to focus */
     gtk_widget_grab_focus(w->search_entry);
     gtk_widget_realize(w->window);
@@ -544,6 +565,8 @@ void hud_window_present(HudWindow *w, guint32 timestamp, gulong target_xid)
         gdk_x11_window_set_user_time(gdk_win, ts);
     }
 
+    /* Give the WM the requested position before the first map. */
+    place_window(w, target_xid);
     gtk_widget_show(w->window);
     place_window(w, target_xid);
     gtk_window_present_with_time(GTK_WINDOW(w->window),

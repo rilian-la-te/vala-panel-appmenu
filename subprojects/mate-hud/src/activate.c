@@ -9,6 +9,12 @@ static HudWindow *current_window = NULL;
 static GPtrArray *current_entries = NULL;
 static gulong current_target_xid = 0;
 
+void hud_update_placement(const char *attach_to, const char *location)
+{
+    if (current_window)
+        hud_window_set_placement(current_window, attach_to, location);
+}
+
 void hud_activate_data_free(HudActivateData *data)
 {
     if (!data) return;

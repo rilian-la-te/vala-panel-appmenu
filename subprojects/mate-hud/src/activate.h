@@ -1,6 +1,9 @@
 #pragma once
 #include <glib.h>
 
+/* Apply placement changes to an already open HUD without stealing focus. */
+void hud_update_placement(const char *attach_to, const char *location);
+
 /*
  * Attempt to show the HUD for the given window.
  *

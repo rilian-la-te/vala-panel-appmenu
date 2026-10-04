@@ -160,6 +160,7 @@ static void apply_hud_prefs(Daemon *d)
     g_free(d->location);
     d->attach_to = g_settings_get_string(d->settings, "hud-attach-to");
     d->location  = g_settings_get_string(d->settings, "hud-location");
+    hud_update_placement(d->attach_to, d->location);
 }
 
 static void apply_shortcut_prefs(Daemon *d)
