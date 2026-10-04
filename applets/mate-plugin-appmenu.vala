@@ -23,20 +23,66 @@ using Appmenu;
 
 private static int shortcut_preset_index(string shortcut)
 {
-    switch (shortcut) {
-    case "Alt_L":
-    case "Alt_R":
-    case "Meta_L":
-    case "Meta_R":
+    uint keyval;
+    Gdk.ModifierType mods;
+    Gtk.accelerator_parse(shortcut, out keyval, out mods);
+    if (mods == Gdk.ModifierType.CONTROL_MASK &&
+        (keyval == Gdk.Key.Alt_L || keyval == Gdk.Key.Alt_R))
+        return 4;
+    if (mods != 0)
+        return -1;
+    switch (keyval) {
+    case Gdk.Key.Alt_L:
+    case Gdk.Key.Alt_R:
+    case Gdk.Key.Meta_L:
+    case Gdk.Key.Meta_R:
         return 0;
-    case "Super_L":
-    case "Super_R":
+    case Gdk.Key.Super_L:
+    case Gdk.Key.Super_R:
         return 1;
-    case "Hyper_L":
-    case "Hyper_R":
+    case Gdk.Key.Hyper_L:
+    case Gdk.Key.Hyper_R:
         return 2;
+    case Gdk.Key.ISO_Level3_Shift:
+        return 3;
     default:
         return -1;
+    }
+}
+
+private static string shortcut_preset_value(int preset, bool right,
+                                             Gdk.Keymap keymap, string previous)
+{
+    string suffix = right ? "_R" : "_L";
+    if (preset == 3)
+        return "ISO_Level3_Shift";
+    if (preset == 4)
+        return "<Control>Alt" + suffix;
+    if (preset == 1)
+        return "Super" + suffix;
+    if (preset == 2)
+        return "Hyper" + suffix;
+    string preferred = previous.has_prefix("Meta_") ? "Meta" : "Alt";
+    string fallback = preferred == "Alt" ? "Meta" : "Alt";
+    Gdk.KeymapKey[] keys;
+    if (!keymap.get_entries_for_keyval(Gdk.keyval_from_name(preferred + suffix), out keys) &&
+        keymap.get_entries_for_keyval(Gdk.keyval_from_name(fallback + suffix), out keys))
+        preferred = fallback;
+    return preferred + suffix;
+}
+
+private static void populate_shortcut_side(Gtk.ComboBoxText side, int preset, bool right)
+{
+    side.remove_all();
+    if (preset == 3) {
+        side.append_text(dgettext(Config.GETTEXT_PACKAGE, "Keyboard layout"));
+        side.active = 0;
+        side.sensitive = false;
+    } else {
+        side.append_text(dgettext(Config.GETTEXT_PACKAGE, "Left"));
+        side.append_text(dgettext(Config.GETTEXT_PACKAGE, "Right"));
+        side.active = right ? 1 : 0;
+        side.sensitive = true;
     }
 }
 
@@ -151,20 +197,21 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
         shortcut_label.set_halign(Gtk.Align.START);
         var shortcut_switch = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
         shortcut_switch.get_style_context().add_class("linked");
-        string[] shortcut_labels = { "Alt/Meta", "Super", "Hyper" };
-        string[] shortcut_values = { "Alt_L", "Super_L", "Hyper_L" };
+        string[] shortcut_labels = { "Alt/Meta", "Super", "Hyper", "AltGr", "Ctrl+Alt" };
         var keymap = Gdk.Keymap.get_for_display(applet.get_display());
-        Gdk.KeymapKey[] mapped_keys;
-        if (!keymap.get_entries_for_keyval(Gdk.Key.Alt_L, out mapped_keys) &&
-            keymap.get_entries_for_keyval(Gdk.Key.Meta_L, out mapped_keys))
-            shortcut_values[0] = "Meta_L";
-        var shortcut_buttons = new Gtk.ToggleButton[3];
+        var shortcut_side = new Gtk.ComboBoxText();
+        shortcut_side.get_accessible().set_name(dgettext(Config.GETTEXT_PACKAGE, "Modifier side"));
+        shortcut_side.set_tooltip_text(dgettext(Config.GETTEXT_PACKAGE,
+            "Choose the modifier key's side. For Ctrl+Alt, this selects Alt; either Ctrl key works. AltGr follows your keyboard layout."));
+        var shortcut_buttons = new Gtk.ToggleButton[5];
         bool syncing_shortcut = true;
-        int selected_shortcut = shortcut_preset_index(settings.get_string("hud-shortcut"));
-        for (int i = 0; i < 3; i++) {
+        string saved_shortcut = settings.get_string("hud-shortcut");
+        bool shortcut_right = saved_shortcut.has_suffix("_R");
+        int selected_shortcut = shortcut_preset_index(saved_shortcut);
+        populate_shortcut_side(shortcut_side, selected_shortcut, shortcut_right);
+        for (int i = 0; i < shortcut_buttons.length; i++) {
             var button = new Gtk.ToggleButton.with_label(shortcut_labels[i]);
-            button.set_data<string>("shortcut-value", shortcut_values[i]);
-            button.set_tooltip_text(shortcut_values[i]);
+            button.set_data<int>("shortcut-preset", i);
             button.active = selected_shortcut == i;
             shortcut_buttons[i] = button;
             shortcut_switch.pack_start(button, false, false, 0);
@@ -172,15 +219,30 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
                 if (syncing_shortcut)
                     return;
                 syncing_shortcut = true;
+                int preset = button.get_data<int>("shortcut-preset");
                 foreach (var other in shortcut_buttons)
                     other.active = other == button;
-                settings.set_string("hud-shortcut", button.get_data<string>("shortcut-value"));
+                populate_shortcut_side(shortcut_side, preset, shortcut_right);
+                settings.set_string("hud-shortcut", shortcut_preset_value(preset,
+                    shortcut_right, keymap, settings.get_string("hud-shortcut")));
                 syncing_shortcut = false;
             });
         }
+        shortcut_side.changed.connect(() => {
+            if (syncing_shortcut || shortcut_side.active < 0)
+                return;
+            int preset = shortcut_preset_index(settings.get_string("hud-shortcut"));
+            if (preset == 3)
+                return;
+            shortcut_right = shortcut_side.active == 1;
+            if (preset >= 0)
+                settings.set_string("hud-shortcut", shortcut_preset_value(preset,
+                    shortcut_right, keymap, settings.get_string("hud-shortcut")));
+        });
         syncing_shortcut = false;
         shortcut_row.pack_start(shortcut_label, true, true, 0);
         shortcut_row.pack_start(shortcut_switch, false, false, 0);
+        shortcut_row.pack_start(shortcut_side, false, false, 0);
         hud_page.pack_start(shortcut_row, false, false, 2);
         shortcut_row.show_all();
 
@@ -209,9 +271,10 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
 
         var internal_note = new Gtk.Label(
             dgettext(Config.GETTEXT_PACKAGE,
-                "Tap and release the selected left modifier key to open the HUD.\n"
-                + "Alt/Meta uses left Alt, or left Meta if Alt is not mapped.\n"
-                + "Hyper requires a key mapped to Hyper_L. For full key combinations, use MATE Control Center."));
+                "Tap and release the selected modifier to open the HUD.\n"
+                + "For Ctrl+Alt, hold either Ctrl key, then press Alt on the selected side.\n"
+                + "AltGr follows your keyboard layout and is not the same as Ctrl+Alt.\n"
+                + "Hyper and AltGr require matching keys in your keyboard layout."));
         internal_note.set_halign(Gtk.Align.START);
         internal_note.set_line_wrap(true);
         internal_note.set_xalign(0.0f);
@@ -378,7 +441,11 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
         ulong shortcut_changed_id = settings.changed["hud-shortcut"].connect(() => {
             if (!syncing_shortcut) {
                 syncing_shortcut = true;
-                int selected = shortcut_preset_index(settings.get_string("hud-shortcut"));
+                string value = settings.get_string("hud-shortcut");
+                int selected = shortcut_preset_index(value);
+                if (selected != 3)
+                    shortcut_right = value.has_suffix("_R");
+                populate_shortcut_side(shortcut_side, selected, shortcut_right);
                 for (int i = 0; i < shortcut_buttons.length; i++)
                     shortcut_buttons[i].active = selected == i;
                 syncing_shortcut = false;
