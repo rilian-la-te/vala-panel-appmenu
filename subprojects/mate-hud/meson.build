@@ -18,6 +18,7 @@ bindir    = get_option('bindir')
 localedir = get_option('localedir')
 schema_dir = join_paths(datadir, 'glib-2.0', 'schemas')
 autostart_dir = join_paths(get_option('sysconfdir'), 'xdg', 'autostart')
+service_dir = join_paths(prefix, datadir, 'dbus-1', 'services')
 
 gnome = import('gnome')
 
