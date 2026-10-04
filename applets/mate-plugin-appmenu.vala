@@ -328,6 +328,7 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
         location_grid.set_row_homogeneous(true);
         location_grid.set_column_homogeneous(true);
         location_grid.set_size_request(120, 120);
+        placement_group.pack_start(location_grid, false, false, 0);
 
         string[] location_values = {
             "northwest", "north", "northeast",
