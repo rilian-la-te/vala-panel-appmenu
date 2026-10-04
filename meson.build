@@ -99,6 +99,7 @@ desktop_kwargs = {
 subproject('registrar', required: get_option('registrar'))
 subproject('jayatana', required: get_option('jayatana'))
 subproject('appmenu-gtk-module', required: get_option('appmenu-gtk-module'))
+subproject('mate-hud', required: get_option('mate-hud'))
 
 subdir('lib')
 subdir('applets')

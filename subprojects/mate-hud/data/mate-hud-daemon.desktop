@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=MATE HUD Daemon
+Comment=Global menu HUD for MATE
+Exec=mate-hud-daemon
+Hidden=false
+NoDisplay=true
+X-GNOME-Autostart-enabled=true
+X-MATE-Autostart-enabled=true

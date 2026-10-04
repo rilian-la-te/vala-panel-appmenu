@@ -3,6 +3,7 @@ option('wm_backend', type: 'combo', choices: ['auto','wnck'], value: 'auto', des
 option('valapanel', type: 'feature', value: 'auto', description: 'Vala Panel Integration - 0.5.x')
 option('xfce', type: 'feature', value: 'auto', description: 'Xfce Panel Integration')
 option('mate', type: 'feature', value: 'auto', description: 'MATE Panel Integration')
+option('mate-hud', type: 'feature', value: 'auto', description: 'MATE HUD daemon')
 option('budgie', type: 'feature', value: 'auto', description: 'Budgie Desktop Integration')
 
 option('registrar', type: 'feature', value: 'auto', description: 'DBusMenu registrar')
