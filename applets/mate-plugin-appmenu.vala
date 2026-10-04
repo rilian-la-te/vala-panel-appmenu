@@ -21,57 +21,23 @@ using Gtk;
 using GLib;
 using Appmenu;
 
-private static bool shortcut_key_is_modifier(uint keyval)
+private static int shortcut_preset_index(string shortcut)
 {
-    switch (keyval) {
-    case Gdk.Key.Alt_L:
-    case Gdk.Key.Alt_R:
-    case Gdk.Key.Super_L:
-    case Gdk.Key.Super_R:
-    case Gdk.Key.Control_L:
-    case Gdk.Key.Control_R:
-    case Gdk.Key.Shift_L:
-    case Gdk.Key.Shift_R:
-    case Gdk.Key.Meta_L:
-    case Gdk.Key.Meta_R:
-    case Gdk.Key.Hyper_L:
-    case Gdk.Key.Hyper_R:
-    case Gdk.Key.ISO_Level3_Shift:
-        return true;
+    switch (shortcut) {
+    case "Alt_L":
+    case "Alt_R":
+    case "Meta_L":
+    case "Meta_R":
+        return 0;
+    case "Super_L":
+    case "Super_R":
+        return 1;
+    case "Hyper_L":
+    case "Hyper_R":
+        return 2;
     default:
-        return false;
+        return -1;
     }
-}
-
-private static bool shortcut_is_modifier_only(string shortcut)
-{
-    if (shortcut == null || shortcut.strip().length == 0)
-        return false;
-
-    uint keyval = 0;
-    Gdk.ModifierType mods = 0;
-    Gtk.accelerator_parse(shortcut, out keyval, out mods);
-
-    if (keyval == 0) {
-        keyval = Gdk.keyval_from_name(shortcut);
-        mods = 0;
-    }
-
-    return keyval != 0 && shortcut_key_is_modifier(keyval);
-}
-
-private static bool shortcut_is_single_modifier(string shortcut)
-{
-    if (!shortcut_is_modifier_only(shortcut))
-        return false;
-
-    uint keyval = 0;
-    Gdk.ModifierType mods = 0;
-    Gtk.accelerator_parse(shortcut, out keyval, out mods);
-    if (keyval == 0)
-        mods = 0;
-
-    return mods == 0;
 }
 
 private static void update_hud_shortcut_ui(CheckButton hud_enable,
@@ -80,40 +46,17 @@ private static void update_hud_shortcut_ui(CheckButton hud_enable,
                                            Label sys_note,
                                            Label internal_note,
                                            Label shortcut_warning,
-                                           Entry shortcut_entry)
+                                           Gtk.ToggleButton[] shortcut_buttons)
 {
-    bool hud_enabled = hud_enable.active;
-    bool use_system = sys_shortcut_check.active;
-    string shortcut = shortcut_entry.text != null ? shortcut_entry.text.strip() : "";
-    bool modifier_only = shortcut_is_modifier_only(shortcut);
-    bool single_modifier = shortcut_is_single_modifier(shortcut);
-
-    shortcut_row.sensitive = hud_enabled && !use_system;
-    sys_shortcut_check.sensitive = hud_enabled;
-
-    sys_note.visible = hud_enabled && use_system;
-    internal_note.visible = hud_enabled && !use_system;
-
-    if (!(hud_enabled && !use_system)) {
-        shortcut_warning.visible = false;
-        shortcut_warning.label = "";
-        return;
-    }
-
-    if (shortcut.length == 0) {
-        shortcut_warning.visible = false;
-        shortcut_warning.label = "";
-    } else if (!modifier_only) {
-        shortcut_warning.visible = true;
-        shortcut_warning.label = dgettext(Config.GETTEXT_PACKAGE,
-            "Only modifier-only shortcuts are allowed here. For shortcuts such as <Alt>space, <Alt>F3, or <Ctrl><Alt>H, use MATE Control Center.");
-    } else if (single_modifier || modifier_only) {
-        shortcut_warning.visible = false;
-        shortcut_warning.label = "";
-    } else {
-        shortcut_warning.visible = false;
-        shortcut_warning.label = "";
-    }
+    bool internal = hud_enable.active && !sys_shortcut_check.active;
+    shortcut_row.sensitive = internal;
+    sys_shortcut_check.sensitive = hud_enable.active;
+    sys_note.visible = hud_enable.active && sys_shortcut_check.active;
+    internal_note.visible = internal;
+    bool selected = false;
+    foreach (var button in shortcut_buttons)
+        selected = selected || button.active;
+    shortcut_warning.visible = internal && !selected;
 }
 
 private bool factory_callback(MatePanel.Applet applet, string iid)
@@ -140,7 +83,8 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
             "title", dgettext(Config.GETTEXT_PACKAGE, "Configure AppMenu"),
             "transient-for", layout.get_toplevel() as Window,
             "destroy-with-parent", true,
-            "use-header-bar", 0);
+            "use-header-bar", 0,
+            "resizable", false);
         dlg.set_default_size(480, 360);
         Gtk.Box dlg_vbox = dlg.get_content_area() as Gtk.Box;
 
@@ -200,26 +144,45 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
         hud_page.pack_start(hud_enable, false, false, 2);
         hud_enable.show();
 
-        /* Shortcut row (label + entry) */
+        /* Modifier-only shortcut selector. Opening preferences never changes it. */
         var shortcut_row = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
         var shortcut_label = new Gtk.Label(
-            dgettext(Config.GETTEXT_PACKAGE,"Shortcut:"));
+            dgettext(Config.GETTEXT_PACKAGE, "Shortcut:"));
         shortcut_label.set_halign(Gtk.Align.START);
-        var shortcut_entry = new Gtk.Entry();
-        shortcut_entry.set_placeholder_text("Alt_L or <Alt>Super_L");
-        shortcut_entry.set_width_chars(16);
-        shortcut_entry.set_tooltip_text(
-            dgettext(Config.GETTEXT_PACKAGE,
-                "Internal HUD mode is for modifier-only shortcuts, such as \"Alt_L\" or \"<Alt>Super_L\"."));
-        bool syncing_shortcut = false;
-        string last_valid_shortcut = settings.get_string("hud-shortcut");
-        shortcut_entry.text = last_valid_shortcut;
-        shortcut_row.pack_start(shortcut_label, false, false, 0);
-        shortcut_row.pack_start(shortcut_entry, true, true, 0);
+        var shortcut_switch = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+        shortcut_switch.get_style_context().add_class("linked");
+        string[] shortcut_labels = { "Alt/Meta", "Super", "Hyper" };
+        string[] shortcut_values = { "Alt_L", "Super_L", "Hyper_L" };
+        var keymap = Gdk.Keymap.get_for_display(applet.get_display());
+        Gdk.KeymapKey[] mapped_keys;
+        if (!keymap.get_entries_for_keyval(Gdk.Key.Alt_L, out mapped_keys) &&
+            keymap.get_entries_for_keyval(Gdk.Key.Meta_L, out mapped_keys))
+            shortcut_values[0] = "Meta_L";
+        var shortcut_buttons = new Gtk.ToggleButton[3];
+        bool syncing_shortcut = true;
+        int selected_shortcut = shortcut_preset_index(settings.get_string("hud-shortcut"));
+        for (int i = 0; i < 3; i++) {
+            var button = new Gtk.ToggleButton.with_label(shortcut_labels[i]);
+            button.set_data<string>("shortcut-value", shortcut_values[i]);
+            button.set_tooltip_text(shortcut_values[i]);
+            button.active = selected_shortcut == i;
+            shortcut_buttons[i] = button;
+            shortcut_switch.pack_start(button, false, false, 0);
+            button.clicked.connect(() => {
+                if (syncing_shortcut)
+                    return;
+                syncing_shortcut = true;
+                foreach (var other in shortcut_buttons)
+                    other.active = other == button;
+                settings.set_string("hud-shortcut", button.get_data<string>("shortcut-value"));
+                syncing_shortcut = false;
+            });
+        }
+        syncing_shortcut = false;
+        shortcut_row.pack_start(shortcut_label, true, true, 0);
+        shortcut_row.pack_start(shortcut_switch, false, false, 0);
         hud_page.pack_start(shortcut_row, false, false, 2);
-        shortcut_label.show();
-        shortcut_entry.show();
-        shortcut_row.show();
+        shortcut_row.show_all();
 
         /* Use system shortcut checkbox */
         var sys_shortcut_check = new CheckButton.with_label(
@@ -246,15 +209,17 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
 
         var internal_note = new Gtk.Label(
             dgettext(Config.GETTEXT_PACKAGE,
-                "Internal HUD shortcut mode is reserved for modifier-only shortcuts such as Alt or Alt+Super.\n"
-                + "For full accelerators such as <Alt>space, <Alt>F3, or <Ctrl><Alt>H, use MATE Control Center."));
+                "Tap and release the selected left modifier key to open the HUD.\n"
+                + "Alt/Meta uses left Alt, or left Meta if Alt is not mapped.\n"
+                + "Hyper requires a key mapped to Hyper_L. For full key combinations, use MATE Control Center."));
         internal_note.set_halign(Gtk.Align.START);
         internal_note.set_line_wrap(true);
         internal_note.set_xalign(0.0f);
         internal_note.set_margin_start(20);
         hud_page.pack_start(internal_note, false, false, 2);
 
-        var shortcut_warning = new Gtk.Label("");
+        var shortcut_warning = new Gtk.Label(dgettext(Config.GETTEXT_PACKAGE,
+            "The saved shortcut is not one of these modifiers. Choose a modifier or use MATE Control Center."));
         shortcut_warning.set_halign(Gtk.Align.START);
         shortcut_warning.set_line_wrap(true);
         shortcut_warning.set_xalign(0.0f);
@@ -410,62 +375,33 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
         hud_page.show();
         hud_tab.show();
 
-        settings.changed["hud-shortcut"].connect(() => {
-            if (syncing_shortcut)
-                return;
-
-            syncing_shortcut = true;
-            last_valid_shortcut = settings.get_string("hud-shortcut");
-            if (shortcut_entry.text != last_valid_shortcut)
-                shortcut_entry.text = last_valid_shortcut;
-            syncing_shortcut = false;
-
-            update_hud_shortcut_ui(hud_enable, sys_shortcut_check, shortcut_row,
-                                   sys_note, internal_note, shortcut_warning,
-                                   shortcut_entry);
-        });
-        shortcut_entry.changed.connect(() => {
-            if (syncing_shortcut)
-                return;
-
-            string candidate = shortcut_entry.text != null ? shortcut_entry.text.strip() : "";
-            if (candidate == "" || shortcut_is_modifier_only(candidate)) {
+        ulong shortcut_changed_id = settings.changed["hud-shortcut"].connect(() => {
+            if (!syncing_shortcut) {
                 syncing_shortcut = true;
-                last_valid_shortcut = candidate;
-                settings.set_string("hud-shortcut", candidate);
+                int selected = shortcut_preset_index(settings.get_string("hud-shortcut"));
+                for (int i = 0; i < shortcut_buttons.length; i++)
+                    shortcut_buttons[i].active = selected == i;
                 syncing_shortcut = false;
             }
-
             update_hud_shortcut_ui(hud_enable, sys_shortcut_check, shortcut_row,
                                    sys_note, internal_note, shortcut_warning,
-                                   shortcut_entry);
+                                   shortcut_buttons);
         });
-        shortcut_entry.focus_out_event.connect((event) => {
-            string candidate = shortcut_entry.text != null ? shortcut_entry.text.strip() : "";
-            if (!(candidate == "" || shortcut_is_modifier_only(candidate))) {
-                syncing_shortcut = true;
-                shortcut_entry.text = last_valid_shortcut;
-                syncing_shortcut = false;
-                update_hud_shortcut_ui(hud_enable, sys_shortcut_check, shortcut_row,
-                                       sys_note, internal_note, shortcut_warning,
-                                       shortcut_entry);
-            }
-            return false;
-        });
+        dlg.destroy.connect(() => settings.disconnect(shortcut_changed_id));
         hud_enable.toggled.connect(() => {
             update_hud_shortcut_ui(hud_enable, sys_shortcut_check, shortcut_row,
                                    sys_note, internal_note, shortcut_warning,
-                                   shortcut_entry);
+                                   shortcut_buttons);
             placement_group.sensitive = hud_enable.active;
         });
         sys_shortcut_check.toggled.connect(() => {
             update_hud_shortcut_ui(hud_enable, sys_shortcut_check, shortcut_row,
                                    sys_note, internal_note, shortcut_warning,
-                                   shortcut_entry);
+                                   shortcut_buttons);
         });
         update_hud_shortcut_ui(hud_enable, sys_shortcut_check, shortcut_row,
                                sys_note, internal_note, shortcut_warning,
-                               shortcut_entry);
+                               shortcut_buttons);
 
         notebook.show();
         dlg.show();
