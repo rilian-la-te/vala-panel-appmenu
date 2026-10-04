@@ -154,19 +154,26 @@ static int dbus_menu_model_sort_func(gconstpointer a, gconstpointer b,
 	return aitem->place - bitem->place;
 }
 
+static void layout_data_free(struct layout_data *data)
+{
+	g_clear_object(&data->model);
+	g_free(data);
+}
+
 static void add_signal_to_queue(DBusMenuModel *model, GQueue *queue, int sect_num, int pos,
                                 int removed, int added)
 {
-	struct layout_data *data = g_new0(struct layout_data, 1);
+	GMenuModel *target = G_MENU_MODEL(model);
 	if (sect_num >= 0)
 	{
 		DBusMenuItem *item = dbus_menu_model_find_section(model, sect_num);
-		data->model = G_MENU_MODEL(g_hash_table_lookup(item->links, G_MENU_LINK_SECTION));
+		target = item ? G_MENU_MODEL(g_hash_table_lookup(item->links, G_MENU_LINK_SECTION))
+		              : NULL;
+		if (!target)
+			return;
 	}
-	else
-	{
-		data->model = G_MENU_MODEL(model);
-	}
+	struct layout_data *data = g_new0(struct layout_data, 1);
+	data->model       = g_object_ref(target);
 	data->section_num = sect_num;
 	data->pos         = pos;
 	data->old_num     = removed;
@@ -174,11 +181,22 @@ static void add_signal_to_queue(DBusMenuModel *model, GQueue *queue, int sect_nu
 	gpointer l        = g_queue_find_custom(queue, data, (GCompareFunc)queue_compare_func);
 	if (!l)
 		g_queue_push_head(queue, data);
+	else
+		layout_data_free(data);
 }
 
 static bool queue_emit_now(struct layout_data *index)
 {
 	if (!G_IS_MENU_MODEL(index->model))
+		return G_SOURCE_REMOVE;
+
+	/* The signal is emitted from an idle, so a layout update may have shrunk
+	 * the model since it was queued. The full layout signal already covered
+	 * that; emitting a stale range would make GtkMenuTracker walk past the
+	 * end of its item list. */
+	uint n_items = (uint)g_menu_model_get_n_items(index->model);
+	if (index->pos + index->old_num > n_items ||
+	    index->pos + index->new_num > n_items)
 		return G_SOURCE_REMOVE;
 
 	g_menu_model_items_changed(index->model, index->pos, index->old_num, index->new_num);
@@ -189,7 +207,10 @@ static void queue_emit_all(GQueue *queue)
 {
 	struct layout_data *index = NULL;
 	while ((index = (struct layout_data *)g_queue_pop_head(queue)))
-		g_idle_add_full(G_PRIORITY_DEFAULT_IDLE, G_SOURCE_FUNC(queue_emit_now), index, g_free);
+		g_idle_add_full(G_PRIORITY_DEFAULT_IDLE,
+		                G_SOURCE_FUNC(queue_emit_now),
+		                index,
+		                (GDestroyNotify)layout_data_free);
 }
 
 static bool preload_idle(DBusMenuItem *item)
@@ -674,7 +695,8 @@ static GSequenceIter *dbus_menu_model_find_place(DBusMenuModel *menu, uint secti
 
 static DBusMenuItem *dbus_menu_model_find_section(DBusMenuModel *menu, uint section_num)
 {
-	return (DBusMenuItem *)g_sequence_get(dbus_menu_model_find_place(menu, section_num, -1));
+	GSequenceIter *iter = dbus_menu_model_find_place(menu, section_num, -1);
+	return iter ? (DBusMenuItem *)g_sequence_get(iter) : NULL;
 }
 
 static void dbus_menu_model_init(DBusMenuModel *menu)
