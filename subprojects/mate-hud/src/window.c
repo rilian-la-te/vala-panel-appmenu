@@ -395,6 +395,15 @@ static gboolean on_key_press(GtkWidget *widget G_GNUC_UNUSED,
     return FALSE;
 }
 
+static gboolean on_window_focus_out(GtkWidget *widget,
+                                     GdkEventFocus *event G_GNUC_UNUSED,
+                                     gpointer user_data G_GNUC_UNUSED)
+{
+    /* Watch the toplevel, not the search entry or result list. */
+    gtk_widget_destroy(widget);
+    return FALSE;
+}
+
 static void on_window_destroy(GtkWidget *widget G_GNUC_UNUSED, gpointer user_data)
 {
     HudWindow *w = user_data;
@@ -504,6 +513,8 @@ HudWindow *hud_window_new(GPtrArray *entries,
     select_first_row(w);
 
     /* Signals */
+    g_signal_connect(w->window, "focus-out-event",
+                     G_CALLBACK(on_window_focus_out), w);
     g_signal_connect(w->search_entry, "search-changed",
                      G_CALLBACK(on_search_changed), w);
     g_signal_connect(w->tree_view, "row-activated",
