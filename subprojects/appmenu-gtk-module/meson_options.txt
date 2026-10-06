@@ -1,3 +1,4 @@
 option('gtk', type: 'array', choices : ['2','3'],  value: ['2','3'], description: 'Supported GTK versions')
 option('tests', type : 'boolean', value : false, description: 'Parser tests')
 option('gtk_doc', type: 'boolean', value: false, description: 'Build API reference')
+option('wayland', type: 'boolean', value: false, description: 'Build Wayland KDE API')
