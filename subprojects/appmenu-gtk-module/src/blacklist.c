@@ -27,65 +27,46 @@
 #include "blacklist.h"
 #include "consts.h"
 
-static const char *const BLACKLIST[] = { "acroread",
-	                                 "emacs",
-	                                 "emacs23",
-	                                 "emacs23-lucid",
-	                                 "emacs24",
-	                                 "emacs24-lucid",
-	                                 "budgie-panel",
-	                                 "mate-panel",
-	                                 "mate-menu",
-	                                 "vala-panel",
-	                                 "wrapper-1.0",
-	                                 "wrapper-2.0",
-	                                 "indicator-applet",
-	                                 "mate-indicator-applet",
-	                                 "mate-indicator-applet-appmenu",
-	                                 "mate-indicator-applet-complete",
-	                                 "appmenu-mate",
-	                                 NULL };
+#include <stdlib.h>
+#include <string.h>
 
-static bool is_string_in_array(const char *string, GVariant *array)
+/* BLACKLIST is sorted alphabetically to allow O(log N) binary search */
+static const char *const BLACKLIST[] = {
+	"acroread",
+	"appmenu-mate",
+	"budgie-panel",
+	"emacs",
+	"emacs23",
+	"emacs23-lucid",
+	"emacs24",
+	"emacs24-lucid",
+	"indicator-applet",
+	"mate-indicator-applet",
+	"mate-indicator-applet-appmenu",
+	"mate-indicator-applet-complete",
+	"mate-menu",
+	"mate-panel",
+	"vala-panel",
+	"wrapper-1.0",
+	"wrapper-2.0"
+};
+
+static int compare_strings(const void *key, const void *element)
 {
-	GVariantIter iter;
-	char *element;
-
-	g_return_val_if_fail(array != NULL, false);
-	g_return_val_if_fail(g_variant_is_of_type(array, G_VARIANT_TYPE("as")), false);
-
-	g_variant_iter_init(&iter, array);
-	while (g_variant_iter_loop(&iter, "&s", &element))
-	{
-		if (g_strcmp0(element, string) == 0)
-			return true;
-	}
-
-	return false;
-}
-
-static bool is_listed(const char *name, const char *key)
-{
-	GSettings *settings       = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
-	g_autoptr(GVariant) array = g_settings_get_value(settings, key);
-	bool listed               = is_string_in_array(name, array);
-	g_clear_object(&settings);
-	return listed;
+	return strcmp(*(const char * const *)key, *(const char * const *)element);
 }
 
 G_GNUC_INTERNAL
 bool is_blacklisted(const char *name)
 {
-	guint n;
-	guint i;
+	if (name == NULL)
+		return false;
 
-	n = sizeof(BLACKLIST) / sizeof(const char *);
-
-	for (i = 0; i < n; i++)
-	{
-		if (g_strcmp0(name, BLACKLIST[i]) == 0)
-			return !is_listed(name, WHITELIST_KEY);
-	}
-
-	return is_listed(name, BLACKLIST_KEY);
+	const char *key = name;
+	const char *const *res = bsearch(&key,
+	                                 BLACKLIST,
+	                                 G_N_ELEMENTS(BLACKLIST),
+	                                 sizeof(char *),
+	                                 compare_strings);
+	return res != NULL;
 }
