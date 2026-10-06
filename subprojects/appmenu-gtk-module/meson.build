@@ -1,5 +1,5 @@
 project('appmenu-gtk-module', 'c',
-	meson_version: '>=0.61.0',
+	meson_version: '>=1.8.0',
 	version: '25.04',
 	license: ['LGPL-3.0-or-later'],
     default_options: [
