@@ -57,6 +57,7 @@ install_data(readmes, install_dir : join_paths(get_option('datadir'), 'doc', mes
 install_data('LICENSE', install_dir : join_paths(get_option('datadir'), 'licenses', meson.project_name()))
 
 
+subdir('wayland')
 subdir('lib')
 subdir('src')
 subdir('data')
