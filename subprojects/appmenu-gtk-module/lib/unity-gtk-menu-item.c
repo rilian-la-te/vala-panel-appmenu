@@ -147,7 +147,9 @@ static GIcon *gtk_image_get_icon(GtkImage *image)
 
 		if (animation != NULL)
 		{
+		G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 			GdkPixbuf *pixbuf = gdk_pixbuf_animation_get_static_image(animation);
+		G_GNUC_END_IGNORE_DEPRECATIONS
 
 			if (pixbuf != NULL)
 				icon = G_ICON(g_object_ref(pixbuf));
@@ -256,6 +258,29 @@ static GIcon *gtk_image_get_icon(GtkImage *image)
 			}
 		}
 		G_GNUC_END_IGNORE_DEPRECATIONS
+		case GTK_IMAGE_SURFACE:
+		{
+			cairo_surface_t *surface = NULL;
+
+			g_object_get(G_OBJECT(image), "surface", &surface, NULL);
+
+			if (surface != NULL && cairo_surface_get_type(surface) == CAIRO_SURFACE_TYPE_IMAGE)
+			{
+				GdkPixbuf *pixbuf = gdk_pixbuf_get_from_surface(surface,
+					0,
+					0,
+					cairo_image_surface_get_width(surface),
+					cairo_image_surface_get_height(surface));
+
+				if (pixbuf != NULL)
+					icon = G_ICON(pixbuf);
+			}
+
+			if (surface != NULL)
+				cairo_surface_destroy(surface);
+		}
+
+		break;
 #endif
 
 	break;
