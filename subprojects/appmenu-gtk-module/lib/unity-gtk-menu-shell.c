@@ -1168,31 +1168,35 @@ void unity_gtk_menu_shell_print(UnityGtkMenuShell *shell, guint indent)
 		if (shell->visible_indices != NULL)
 		{
 			GSequenceIter *iter = g_sequence_get_begin_iter(shell->visible_indices);
-
-			g_print("%s ", space);
+			GString *str = g_string_new(space);
+			g_string_append(str, " ");
 
 			while (!g_sequence_iter_is_end(iter))
 			{
-				g_print(" %u", g_sequence_get_uint(iter));
+				g_string_append_printf(str, " %u", g_sequence_get_uint(iter));
 				iter = g_sequence_iter_next(iter);
 			}
 
-			g_print("\n");
+			if (str->len > strlen(space) + 1)
+				g_print("%s", str->str);
+			g_string_free(str, TRUE);
 		}
 
 		if (shell->separator_indices != NULL)
 		{
 			GSequenceIter *iter = g_sequence_get_begin_iter(shell->separator_indices);
-
-			g_print("%s ", space);
+			GString *str = g_string_new(space);
+			g_string_append(str, " ");
 
 			while (!g_sequence_iter_is_end(iter))
 			{
-				g_print(" %u", g_sequence_get_uint(iter));
+				g_string_append_printf(str, " %u", g_sequence_get_uint(iter));
 				iter = g_sequence_iter_next(iter);
 			}
 
-			g_print("\n");
+			if (str->len > strlen(space) + 1)
+				g_print("%s", str->str);
+			g_string_free(str, TRUE);
 		}
 
 		if (shell->action_group != NULL)
