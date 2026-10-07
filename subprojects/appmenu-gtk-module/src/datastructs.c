@@ -147,14 +147,18 @@ G_GNUC_INTERNAL WindowData *gtk_window_get_window_data(GtkWindow *window)
 	WindowData *window_data = NULL;
 
 	g_return_val_if_fail(GTK_IS_WINDOW(window), NULL);
+	GdkWindow* gdk_win = gtk_widget_get_window((GtkWidget*)window);
+
+	if(!gdk_win)
+		g_message("There is no GdkWindow for requested GtkWindow. It is likely caused by Wayland first attempt.");
 
 #if (defined(GDK_WINDOWING_WAYLAND))
-	if (GDK_IS_WAYLAND_DISPLAY(gdk_display_get_default()))
+	if (GDK_IS_WAYLAND_WINDOW(gdk_win))
 		window_data = gtk_wayland_window_get_window_data(window);
 #endif
 #if (defined(GDK_WINDOWING_X11))
 #if GTK_MAJOR_VERSION == 3
-	if (GDK_IS_X11_DISPLAY(gdk_display_get_default()))
+	if (GDK_IS_X11_WINDOW(gdk_win))
 #endif
 		window_data = gtk_x11_window_get_window_data(window);
 #endif
