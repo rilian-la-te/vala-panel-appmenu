@@ -21,7 +21,6 @@
 
 #include <gio/gdesktopappinfo.h>
 #include <gio/gio.h>
-#include <libwnck/libwnck.h>
 #include <stdbool.h>
 
 G_BEGIN_DECLS
