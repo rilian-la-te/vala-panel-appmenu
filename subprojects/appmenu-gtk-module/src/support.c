@@ -190,18 +190,17 @@ static bool set_gtk_shell_shows_menubar(bool shows)
 {
 	GtkSettings *settings = gtk_settings_get_default();
 
-	g_return_val_if_fail(GTK_IS_SETTINGS(settings), false);
+	if(!settings)
+		return false;
 
 	GParamSpec *pspec =
 	    g_object_class_find_property(G_OBJECT_GET_CLASS(settings), "gtk-shell-shows-menubar");
 
-	g_return_val_if_fail(G_IS_PARAM_SPEC(pspec), false);
-	g_return_val_if_fail(pspec->value_type == G_TYPE_BOOLEAN, false);
-
 	g_autoptr(GSettings) gsettings = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
 	bool need_set                  = !g_settings_get_boolean(gsettings, INNER_MENU_KEY);
 
-	g_object_set(settings, "gtk-shell-shows-menubar", need_set ? shows : false, NULL);
+	if (pspec && pspec->value_type == G_TYPE_BOOLEAN)
+		g_object_set(settings, "gtk-shell-shows-menubar", need_set ? shows : false, NULL);
 
 	return true;
 }
