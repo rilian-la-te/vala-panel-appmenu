@@ -81,6 +81,7 @@ namespace Appmenu
 
             size_t len;
             string s = gen.to_data(out len);
+            message("WF OUT: %s", s);
 
             uint8[] pkt = new uint8[4 + (int) len];
             uint32 L = (uint32) len;
@@ -124,6 +125,7 @@ namespace Appmenu
                 for (size_t i = 0; i < n; i++)
                     chunk[i] = (uint8) tmp[i];
                 read_buf.append(chunk);
+                message("WF RAW (%zu bytes): %.*s", n, (int) n, tmp);
             }
 
             while (read_buf.len >= 4) {
@@ -140,6 +142,7 @@ namespace Appmenu
                 Memory.copy(body, data + 4, L);
                 body[L] = 0;
                 read_buf.remove_range(0, 4 + (uint) L);
+                message("WF MSG (L=%u): %s", L, (string) body);
 
                 try {
                     var parser = new Json.Parser();
