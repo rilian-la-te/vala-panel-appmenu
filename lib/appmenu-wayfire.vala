@@ -377,7 +377,7 @@ namespace Appmenu
                 props.gtk_menubar_path,
                 props.gtk_application_path,
                 props.gtk_window_path,
-                null,
+                props.gtk_menubar_path,
                 props.title,
                 null);
         }
