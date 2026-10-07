@@ -23,8 +23,8 @@
  */
 
 #include <gtk/gtk.h>
-
-#include <appmenu-gtk-action-group.h>
+#include <glib-object.h>
+#include <glib.h>
 
 #include "consts.h"
 #include "datastructs.h"
@@ -70,9 +70,10 @@ static void hijacked_window_realize(GtkWidget *widget)
 {
 	g_return_if_fail(GTK_IS_WINDOW(widget));
 
+	GdkDisplay *display    = gdk_display_get_default();
 	GdkScreen *screen      = gtk_widget_get_screen(widget);
 	GdkVisual *visual      = gdk_screen_get_rgba_visual(screen);
-	GdkWindowTypeHint hint = gtk_window_get_type_hint(GTK_WINDOW(widget));
+	GdkWindowTypeHint hint = gtk_window_get_type_hint((GtkWindow *)widget);
 	bool is_hint_viable =
 	    ((hint == GDK_WINDOW_TYPE_HINT_NORMAL) || (hint == GDK_WINDOW_TYPE_HINT_DIALOG));
 	if (visual && (hint == GDK_WINDOW_TYPE_HINT_DND))
@@ -80,7 +81,7 @@ static void hijacked_window_realize(GtkWidget *widget)
 
 // In Wayland the DBUS Menu need to be register before realize the window.
 #ifdef GDK_WINDOWING_WAYLAND
-	if (GDK_IS_WAYLAND_DISPLAY(gdk_display_get_default()) && is_hint_viable &&
+	if (display != NULL && GDK_IS_WAYLAND_DISPLAY(display) && is_hint_viable &&
 	    (!GTK_IS_APPLICATION_WINDOW(GTK_WINDOW(widget))))
 		gtk_window_get_window_data(GTK_WINDOW(widget));
 #endif
@@ -91,16 +92,18 @@ static void hijacked_window_realize(GtkWidget *widget)
 #ifdef GDK_WINDOWING_X11
 	if (is_hint_viable
 #if GTK_MAJOR_VERSION == 3
-	    && GDK_IS_X11_DISPLAY(gdk_display_get_default()) && (!GTK_IS_APPLICATION_WINDOW(widget))
+		 && !GTK_IS_APPLICATION_WINDOW((GtkWindow *)widget) &&
+		display != NULL && (GDK_IS_X11_DISPLAY(display))
 #endif
 	)
-		gtk_window_get_window_data(GTK_WINDOW(widget));
+		gtk_window_get_window_data((GtkWindow *)widget);
 #endif
 }
 
 static void hijacked_window_unrealize(GtkWidget *widget)
 {
-	g_return_if_fail(GTK_IS_WINDOW(widget));
+	if (widget == NULL || !GTK_IS_WINDOW(widget))
+		return;
 
 	if (pre_hijacked_window_unrealize != NULL)
 		pre_hijacked_window_unrealize(widget);
@@ -112,9 +115,10 @@ static void hijacked_window_unrealize(GtkWidget *widget)
 static void hijacked_application_window_realize(GtkWidget *widget)
 {
 	g_return_if_fail(GTK_IS_APPLICATION_WINDOW(widget));
+	GdkDisplay *display = gdk_display_get_default();
 
 #ifdef GDK_WINDOWING_WAYLAND
-	if (GDK_IS_WAYLAND_DISPLAY(gdk_display_get_default()))
+	if (display != NULL && GDK_IS_WAYLAND_DISPLAY(gdk_display_get_default()))
 		gtk_window_get_window_data(GTK_WINDOW(widget));
 #endif
 
@@ -122,8 +126,8 @@ static void hijacked_application_window_realize(GtkWidget *widget)
 		pre_hijacked_application_window_realize(widget);
 
 #ifdef GDK_WINDOWING_X11
-	if (GDK_IS_X11_DISPLAY(gdk_display_get_default()))
-		gtk_window_get_window_data(GTK_WINDOW(widget));
+	if (display != NULL && (GDK_IS_X11_DISPLAY(display) || GDK_IS_WAYLAND_DISPLAY(display)))
+		gtk_window_get_window_data((GtkWindow *)widget);
 #endif
 }
 #endif
@@ -140,7 +144,7 @@ static void hijacked_menu_bar_realize(GtkWidget *widget)
 	window = gtk_widget_get_toplevel(widget);
 
 	if (GTK_IS_WINDOW(window))
-		gtk_window_connect_menu_shell(GTK_WINDOW(window), GTK_MENU_SHELL(widget));
+		gtk_window_connect_menu_shell((GtkWindow *)window, (GtkMenuShell *)widget);
 
 	gtk_widget_connect_settings(widget);
 }
@@ -149,15 +153,16 @@ static void hijacked_menu_bar_unrealize(GtkWidget *widget)
 {
 	MenuShellData *menu_shell_data;
 
-	g_return_if_fail(GTK_IS_MENU_BAR(widget));
+	if (widget == NULL || !GTK_IS_MENU_BAR(widget))
+		return;
 
-	menu_shell_data = gtk_menu_shell_get_menu_shell_data(GTK_MENU_SHELL(widget));
+	menu_shell_data = gtk_menu_shell_get_menu_shell_data((GtkMenuShell *)widget);
 
 	gtk_widget_disconnect_settings(widget);
 
-	if (menu_shell_data_has_window(menu_shell_data))
+	if (menu_shell_data != NULL && menu_shell_data_has_window(menu_shell_data))
 		gtk_window_disconnect_menu_shell(menu_shell_data_get_window(menu_shell_data),
-		                                 GTK_MENU_SHELL(widget));
+		                                 (GtkMenuShell *)widget);
 
 	if (pre_hijacked_menu_bar_unrealize != NULL)
 		pre_hijacked_menu_bar_unrealize(widget);
