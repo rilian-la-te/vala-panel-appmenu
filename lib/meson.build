@@ -21,6 +21,13 @@ wnck_src = files(
     'matcher.vapi'
 )
 
+wayfire_src = files(
+    'matcher.c',
+    'matcher.h',
+    'matcher.vapi',
+    'appmenu-wayfire.vala'
+) 
+
 libres = gnome.compile_resources(
     'lib', 'libappmenu.gresource.xml',
     source_dir: '.',
@@ -37,6 +44,11 @@ if backend_wnck
     sources += wnck_src
     appmenu_deps += wnck
     appmenu_cflags += ['-DWNCK_I_KNOW_THIS_IS_UNSTABLE']
+endif
+
+if backend_wayfire
+    sources += wayfire_src
+    appmenu_deps += json_glib
 endif
 
 appmenu_lib = static_library('libappmenu',

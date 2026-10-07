@@ -46,6 +46,7 @@ gtk = dependency('gtk+-3.0', version: gtk_ver)
 
 backend_opt = get_option('wm_backend')
 backend_wnck = false
+backend_wayfire = false
 
 wnck_ver = '>=3.4.8'
 wnck = dependency('libwnck-3.0', version: wnck_ver, required: backend_opt == 'wnck')
@@ -54,7 +55,13 @@ if(wnck.found() and (backend_opt == 'wnck' or backend_opt == 'auto'))
     backend_wnck = true
 endif
 
-if(not (backend_wnck))
+json_glib = dependency('json-glib-1.0', required: backend_opt == 'wayfire')
+
+if(json_glib.found() and not(backend_wnck))
+    backend_wayfire = true
+endif
+
+if(not (backend_wnck) and not(backend_wayfire))
     error('No backend available (libwnck3 required)')
 endif
 
