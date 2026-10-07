@@ -16,11 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-[CCode(cheader_filename="matcher.h")]
-public class ValaPanel.Matcher : GLib.Object
-{
-    [CCode (has_construct_function = false)]
-    private Matcher();
-    public static Matcher @get();
-    public unowned GLib.DesktopAppInfo match_arbitrary(string class, string group, string gtk_id, int pid);
-}
+[CCode(cheader_filename="libwnck-aux.h")]
+public unowned GLib.DesktopAppInfo libwnck_aux_match_wnck_window(ValaPanel.Matcher matcher, Wnck.Window win);
+public string libwnck_aux_get_utf8_prop(ulong xid, string prop);

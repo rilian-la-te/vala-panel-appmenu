@@ -16,6 +16,7 @@ wnck_src = files(
     'matcher.c',
     'matcher.h',
     'libwnck-aux.c',
+    'libwnck-aux.vapi',
     'libwnck-aux.h',
     'matcher.vapi'
 )
