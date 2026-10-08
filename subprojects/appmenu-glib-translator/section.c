@@ -38,7 +38,7 @@ static int dbus_menu_section_model_is_mutable(GMenuModel *model)
 static gint dbus_menu_section_model_get_n_items(GMenuModel *model)
 {
 	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(model);
-	GSequence *items           = dbus_menu_model_items(menu->parent_model);
+	GSequence *items           = dbus_menu_model_items(g_weak_ref_get(&menu->parent_model));
 	int begin = 0, end = -1;
 	for (GSequenceIter *iter = g_sequence_get_begin_iter(items); !g_sequence_iter_is_end(iter);
 	     iter                = g_sequence_iter_next(iter))
@@ -60,7 +60,7 @@ static void dbus_menu_section_model_get_item_attributes(GMenuModel *model, gint 
                                                         GHashTable **table)
 {
 	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(model);
-	GSequence *items           = dbus_menu_model_items(menu->parent_model);
+	GSequence *items           = dbus_menu_model_items(g_weak_ref_get(&menu->parent_model));
 	for (GSequenceIter *iter = g_sequence_get_begin_iter(items); !g_sequence_iter_is_end(iter);
 	     iter                = g_sequence_iter_next(iter))
 	{
@@ -77,7 +77,7 @@ static void dbus_menu_section_model_get_item_links(GMenuModel *model, gint posit
                                                    GHashTable **table)
 {
 	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(model);
-	GSequence *items           = dbus_menu_model_items(menu->parent_model);
+	GSequence *items           = dbus_menu_model_items(g_weak_ref_get(&menu->parent_model));
 	for (GSequenceIter *iter = g_sequence_get_begin_iter(items); !g_sequence_iter_is_end(iter);
 	     iter                = g_sequence_iter_next(iter))
 	{
@@ -93,11 +93,14 @@ static void dbus_menu_section_model_get_item_links(GMenuModel *model, gint posit
 }
 static void dbus_menu_section_model_init(DBusMenuSectionModel *menu)
 {
-	menu->parent_model = NULL;
+	g_weak_ref_init(&menu->parent_model, NULL);
+	menu->section_index = 0;
 }
 
 static void dbus_menu_section_model_finalize(GObject *object)
 {
+	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(object);
+    g_weak_ref_clear(&menu->parent_model);
 	G_OBJECT_CLASS(dbus_menu_section_model_parent_class)->finalize(object);
 }
 
@@ -132,7 +135,7 @@ static void dbus_menu_section_model_set_property(GObject *object, guint property
 	switch (property_id)
 	{
 	case PROP_PARENT_MODEL:
-		menu->parent_model = DBUS_MENU_MODEL(g_value_get_object(value));
+		g_weak_ref_set(&menu->parent_model, g_value_get_object(value));
 		break;
 	case PROP_SECTION_INDEX:
 		menu->section_index = g_value_get_uint(value);
@@ -151,7 +154,7 @@ static void dbus_menu_section_model_get_property(GObject *object, guint property
 	switch (property_id)
 	{
 	case PROP_PARENT_MODEL:
-		g_value_set_object(value, menu->parent_model);
+		g_value_take_object(value, g_weak_ref_get(&menu->parent_model));
 		break;
 	case PROP_SECTION_INDEX:
 		g_value_set_uint(value, menu->section_index);

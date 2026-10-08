@@ -31,7 +31,7 @@ struct _DBusMenuSectionModel
 {
 	GMenuModel parent_instance;
 
-	DBusMenuModel *parent_model;
+	GWeakRef parent_model;
 	uint section_index;
 };
 
