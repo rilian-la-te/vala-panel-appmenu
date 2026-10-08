@@ -80,7 +80,7 @@ static GAction *dbus_menu_action_new(DBusMenuXml *xml, u_int32_t id, DBusMenuAct
 	if (action_type == DBUS_MENU_ACTION_CHECKMARK)
 	{
 		ret = g_simple_action_new_stateful(name, NULL, g_variant_new_boolean(false));
-		g_signal_connect(ret, "activate", G_CALLBACK(activate_checkbox_cb), xml);
+		g_signal_connect_object(ret, "activate", G_CALLBACK(activate_checkbox_cb), xml, G_CONNECT_DEFAULT);
 		return G_ACTION(ret);
 	}
 	else if (action_type == DBUS_MENU_ACTION_RADIO)
@@ -89,13 +89,13 @@ static GAction *dbus_menu_action_new(DBusMenuXml *xml, u_int32_t id, DBusMenuAct
 		                                   G_VARIANT_TYPE_STRING,
 		                                   g_variant_new_string(
 		                                       DBUS_MENU_ACTION_RADIO_UNSELECTED));
-		g_signal_connect(ret, "activate", G_CALLBACK(state_radio_cb), xml);
+		g_signal_connect_object(ret, "activate", G_CALLBACK(state_radio_cb), xml, G_CONNECT_DEFAULT);
 		return G_ACTION(ret);
 	}
 	else if (action_type == DBUS_MENU_ACTION_NORMAL)
 	{
 		ret = g_simple_action_new(name, NULL);
-		g_signal_connect(ret, "activate", G_CALLBACK(activate_ordinary_cb), xml);
+		g_signal_connect_object(ret, "activate", G_CALLBACK(activate_ordinary_cb), xml, G_CONNECT_DEFAULT);
 		return G_ACTION(ret);
 	}
 	g_assert_not_reached();
@@ -181,7 +181,7 @@ static GAction *dbus_menu_submenu_action_new(DBusMenuModel *model)
 	GSimpleAction *ret    = g_simple_action_new_stateful(name,
                                                           G_VARIANT_TYPE_BOOLEAN,
                                                           g_variant_new_boolean(false));
-	g_signal_connect(ret, "change-state", G_CALLBACK(state_submenu_cb), model);
+	g_signal_connect_object(ret, "change-state", G_CALLBACK(state_submenu_cb), model, G_CONNECT_DEFAULT);
 	return G_ACTION(ret);
 }
 
@@ -202,22 +202,22 @@ G_GNUC_INTERNAL void dbus_menu_action_replace_signals(GAction *action, DBusMenuX
 	if (action_type == DBUS_MENU_ACTION_SUBMENU)
 	{
 		g_signal_handlers_disconnect_by_func_only(action, state_submenu_cb);
-		g_signal_connect(action, "change-state", G_CALLBACK(state_submenu_cb), submenu);
+		g_signal_connect_object(action, "change-state", G_CALLBACK(state_submenu_cb), submenu, G_CONNECT_DEFAULT);
 	}
 	else if (action_type == DBUS_MENU_ACTION_RADIO)
 	{
 		g_signal_handlers_disconnect_by_func_only(action, state_radio_cb);
-		g_signal_connect(action, "activate", G_CALLBACK(state_radio_cb), xml);
+		g_signal_connect_object(action, "activate", G_CALLBACK(state_radio_cb), xml, G_CONNECT_DEFAULT);
 	}
 	else if (action_type == DBUS_MENU_ACTION_CHECKMARK)
 	{
 		g_signal_handlers_disconnect_by_func_only(action, activate_checkbox_cb);
-		g_signal_connect(action, "activate", G_CALLBACK(activate_checkbox_cb), xml);
+		g_signal_connect_object(action, "activate", G_CALLBACK(activate_checkbox_cb), xml, G_CONNECT_DEFAULT);
 	}
 	else
 	{
 		g_signal_handlers_disconnect_by_func_only(action, activate_ordinary_cb);
-		g_signal_connect(action, "activate", G_CALLBACK(activate_ordinary_cb), xml);
+		g_signal_connect_object(action, "activate", G_CALLBACK(activate_ordinary_cb), xml, G_CONNECT_DEFAULT);
 	}
 }
 
