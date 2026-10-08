@@ -184,14 +184,15 @@ G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data)
 G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_copy(DBusMenuItem *src)
 {
 	DBusMenuItem *dst     = g_slice_new0(DBusMenuItem);
+	item_set_magic(dst);
 	dst->id               = src->id;
 	dst->action_type      = src->action_type;
 	dst->enabled          = src->enabled;
 	dst->toggled          = src->toggled;
-	dst->ref_action       = G_ACTION(g_object_ref(src->ref_action));
-	dst->ref_action_group = g_object_ref(src->ref_action_group);
-	dst->attrs            = g_hash_table_ref(src->attrs);
-	dst->links            = g_hash_table_ref(src->links);
+	dst->ref_action       = src->ref_action ? G_ACTION(g_object_ref(src->ref_action)) : NULL;
+	dst->ref_action_group = src->ref_action_group ? g_object_ref(src->ref_action_group) : NULL;
+	dst->attrs            = src->attrs ? g_hash_table_ref(src->attrs) : NULL;
+	dst->links            = src->links ? g_hash_table_ref(src->links) : NULL;
 	return dst;
 }
 
