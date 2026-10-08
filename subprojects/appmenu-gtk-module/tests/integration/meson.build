@@ -1,5 +1,5 @@
 
-importer_dep = dependency('appmenu-glib-translator', fallback : ['appmenu-glib-translator', 'importer_dep'])
+importer_dep = dependency('appmenu-glib-translator', fallback : ['appmenu-glib-translator', 'translator_dep'])
 test_deps = [gtk3, importer_dep, gtk3_parser_dep]
 
 
