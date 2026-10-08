@@ -254,8 +254,10 @@ G_GNUC_INTERNAL GAction *dbus_menu_action_reference(u_int32_t id, DBusMenuXml *x
 		}
 		if (check_parameter)
 			dbus_menu_action_replace_signals(ret, xml, submenu, action_type);
-		else
+		else {
 			g_action_map_remove_action(action_group, name);
+			g_clear_object(&ret);
+		}
 	}
 	if (ret == NULL || !check_parameter)
 	{
