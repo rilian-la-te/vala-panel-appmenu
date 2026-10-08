@@ -676,7 +676,10 @@ static GSequenceIter *dbus_menu_model_find_place(DBusMenuModel *menu, uint secti
 
 static DBusMenuItem *dbus_menu_model_find_section(DBusMenuModel *menu, uint section_num)
 {
-	return (DBusMenuItem *)g_sequence_get(dbus_menu_model_find_place(menu, section_num, -1));
+    GSequenceIter *iter = dbus_menu_model_find_place(menu, section_num, -1);
+    if (iter == NULL)
+        return NULL;
+    return (DBusMenuItem *)g_sequence_get(iter);
 }
 
 static void dbus_menu_model_init(DBusMenuModel *menu)
