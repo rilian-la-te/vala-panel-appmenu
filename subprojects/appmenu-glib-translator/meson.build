@@ -34,13 +34,14 @@ translator_dbus = gnome.gdbus_codegen(
 )
 
 subdir('importer')
+subdir('exporter')
 
 translator_name = 'appmenu-glib-translator'
 translator_public = [imp_public]
 translator_inc = [include_directories('.'), imp_inc]
 
 translator_lib = library(translator_name,
-common_sources, translator_enums_gen, translator_dbus, imp_sources,
+common_sources, translator_enums_gen, translator_dbus, imp_sources, exp_sources,
     dependencies: [giounix, gdkpixbuf],
     include_directories: translator_inc,
     version: meson.project_version(),
