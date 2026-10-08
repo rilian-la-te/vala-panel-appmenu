@@ -174,6 +174,8 @@ static void add_signal_to_queue(DBusMenuModel *model, GQueue *queue, int sect_nu
 	gpointer l        = g_queue_find_custom(queue, data, (GCompareFunc)queue_compare_func);
 	if (!l)
 		g_queue_push_head(queue, data);
+	else
+    	g_free(data);
 }
 
 static bool queue_emit_now(struct layout_data *index)
