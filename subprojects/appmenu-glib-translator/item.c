@@ -579,7 +579,7 @@ static bool dbus_menu_item_is_submenu(DBusMenuItem *item)
 G_GNUC_INTERNAL bool dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem *dst,
                                                  DBusMenuModel *parent)
 {
-	g_autoptr(DBusMenuXml) xml;
+	g_autoptr(DBusMenuXml) xml = NULL;
 	DBusMenuModel *submenu = NULL;
 	g_object_get(parent, "xml", &xml, NULL);
 	if (!dbus_menu_item_is_submenu(src))
@@ -615,8 +615,10 @@ G_GNUC_INTERNAL void dbus_menu_item_generate_action(DBusMenuItem *item, DBusMenu
 	if(!item->ref_action_group)
 		return;
 	DBusMenuXml *xml;
-	DBusMenuModel *submenu = g_hash_table_lookup(item->links, submenu_str(item->enabled));
 	g_object_get(parent, "xml", &xml, NULL);
+	if(!xml)
+		return;
+	DBusMenuModel *submenu = g_hash_table_lookup(item->links, submenu_str(item->enabled));
 	item->ref_action = dbus_menu_action_reference(item->id,
 	                                              xml,
 	                                              submenu,

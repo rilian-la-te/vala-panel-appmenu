@@ -120,6 +120,8 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 	bool opened       = g_variant_get_boolean(statev);
 	g_variant_unref(statev);
 	bool need_update = true;
+	if(!xml)
+		return;
 	if (request_open && !opened)
 	{
 		// Use opened before actual open. For Firefox.
