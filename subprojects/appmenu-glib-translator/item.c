@@ -326,6 +326,8 @@ static void act_props_try_update(DBusMenuItem *item)
 
 static bool dbus_menu_item_update_shortcut(DBusMenuItem *item, GVariant *value)
 {
+	if (g_variant_n_children(value) == 0)
+        return false;
 	GString *new_accel_string = g_string_new(NULL);
 	if (g_variant_n_children(value) != 1)
 		g_debug("Unable to parse shortcut correctly, too many keys. Taking first.");
