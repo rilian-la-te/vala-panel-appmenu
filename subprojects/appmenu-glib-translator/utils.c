@@ -178,6 +178,8 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 static GAction *dbus_menu_submenu_action_new(DBusMenuModel *model)
 {
 	uint id;
+	if (model == NULL)
+        return NULL;
 	g_object_get(model, "parent-id", &id, NULL);
 	g_autofree char *name = g_strdup_printf(SUBMENU_PREFIX "%u", id);
 	GSimpleAction *ret    = g_simple_action_new_stateful(name,
@@ -263,8 +265,10 @@ G_GNUC_INTERNAL GAction *dbus_menu_action_reference(u_int32_t id, DBusMenuXml *x
 	}
 	if (ret == NULL || !check_parameter)
 	{
-		if (is_submenu)
+		if (is_submenu && submenu)
 			ret = dbus_menu_submenu_action_new(submenu);
+		else if (is_submenu)
+			return ret;
 		else
 			ret = dbus_menu_action_new(xml, id, action_type);
 		g_action_map_add_action(G_ACTION_MAP(action_group), ret);
