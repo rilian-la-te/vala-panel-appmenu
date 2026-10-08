@@ -170,6 +170,7 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 		                              NULL);
 		g_simple_action_set_state(action, g_variant_new_boolean(false));
 	}
+	g_object_unref(xml);
 }
 
 static GAction *dbus_menu_submenu_action_new(DBusMenuModel *model)

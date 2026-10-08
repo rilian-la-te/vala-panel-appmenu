@@ -49,7 +49,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id,
 	item->attrs =
 	    g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)g_variant_unref);
 	item->links = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, g_object_unref);
-	item->ref_action_group = action_group;
+	item->ref_action_group = g_object_ref(action_group);
 	item_set_magic(item);
 	return item;
 }
@@ -58,7 +58,6 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
                                                  GVariant *props)
 {
 	DBusMenuItem *item = g_slice_new0(DBusMenuItem);
-	DBusMenuXml *xml;
 	GVariantIter iter;
 	const char *prop;
 	GVariant *value;
@@ -69,7 +68,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 	item->attrs =
 	    g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)g_variant_unref);
 	item->links = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, g_object_unref);
-	g_object_get(parent_model, "action-group", &item->ref_action_group, "xml", &xml, NULL);
+	g_object_get(parent_model, "action-group", &item->ref_action_group, NULL);
 	g_variant_iter_init(&iter, props);
 	// Iterate by immutable properties, it is construct_only
 	bool action_creator_found = false;
@@ -177,6 +176,7 @@ G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data)
 	g_clear_pointer(&item->attrs, g_hash_table_destroy);
 	g_clear_pointer(&item->links, g_hash_table_destroy);
 	g_clear_object(&item->ref_action);
+	g_clear_object(&item->ref_action_group);
 	g_source_remove_by_user_data(item);
 	g_slice_free(DBusMenuItem, data);
 }
@@ -189,7 +189,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_copy(DBusMenuItem *src)
 	dst->enabled          = src->enabled;
 	dst->toggled          = src->toggled;
 	dst->ref_action       = G_ACTION(g_object_ref(src->ref_action));
-	dst->ref_action_group = src->ref_action_group;
+	dst->ref_action_group = g_object_ref(src->ref_action_group);
 	dst->attrs            = g_hash_table_ref(src->attrs);
 	dst->links            = g_hash_table_ref(src->links);
 	return dst;
@@ -249,6 +249,7 @@ G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item)
 	need_update = need_update || dbus_menu_model_is_layout_update_required(submenu);
 	if (need_update)
 		dbus_menu_model_update_layout(submenu);
+	g_object_unref(xml);
 }
 
 G_GNUC_INTERNAL bool dbus_menu_item_copy_attrs(DBusMenuItem *src, DBusMenuItem *dst)
@@ -578,7 +579,7 @@ static bool dbus_menu_item_is_submenu(DBusMenuItem *item)
 G_GNUC_INTERNAL bool dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem *dst,
                                                  DBusMenuModel *parent)
 {
-	DBusMenuXml *xml;
+	g_autoptr(DBusMenuXml) xml;
 	DBusMenuModel *submenu = NULL;
 	g_object_get(parent, "xml", &xml, NULL);
 	if (!dbus_menu_item_is_submenu(src))
@@ -622,4 +623,5 @@ G_GNUC_INTERNAL void dbus_menu_item_generate_action(DBusMenuItem *item, DBusMenu
 	                                              G_ACTION_MAP(item->ref_action_group),
 	                                              item->action_type);
 	act_props_try_update(item);
+	g_object_unref(xml);
 }

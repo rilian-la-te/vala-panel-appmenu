@@ -601,6 +601,7 @@ static void dbus_menu_model_set_property(GObject *object, guint property_id, con
 				g_signal_handlers_disconnect_by_data(old_xml, menu);
 			on_xml_property_changed(menu);
 			g_clear_object(&old_xml);
+			g_object_ref(menu->xml);
 		}
 		break;
 	case PROP_ACTION_GROUP:
