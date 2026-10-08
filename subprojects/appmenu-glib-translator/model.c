@@ -555,7 +555,6 @@ static void on_xml_property_changed(DBusMenuModel *model)
 {
 	if (!DBUS_MENU_IS_XML(model->xml))
 		return;
-	g_object_ref(model->xml);
 	g_signal_connect(model->xml,
 	                 "items-properties-updated",
 	                 G_CALLBACK(items_properties_updated_cb),
@@ -589,19 +588,21 @@ static void dbus_menu_model_set_property(GObject *object, guint property_id, con
                                          GParamSpec *pspec)
 {
 	DBusMenuModel *menu = (DBusMenuModel *)(object);
-	void *old_xml       = menu->xml;
+	void *new_xml       = NULL;
 
 	switch (property_id)
 	{
 	case PROP_XML:
-		menu->xml = DBUS_MENU_XML(g_value_get_object(value));
-		if (menu->xml != NULL && old_xml != menu->xml)
+		new_xml = DBUS_MENU_XML(g_value_get_object(value));
+		if (menu->xml != NULL)
 		{
-			if (old_xml != NULL)
-				g_signal_handlers_disconnect_by_data(old_xml, menu);
+			g_signal_handlers_disconnect_by_data(menu->xml, menu);
+			g_clear_object(&menu->xml);
+		}
+		if(new_xml != NULL)
+		{
+			menu->xml= g_object_ref(new_xml);
 			on_xml_property_changed(menu);
-			g_clear_object(&old_xml);
-			g_object_ref(menu->xml);
 		}
 		break;
 	case PROP_ACTION_GROUP:
