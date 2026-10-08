@@ -348,10 +348,9 @@ static bool dbus_menu_item_update_shortcut(DBusMenuItem *item, GVariant *value)
 	}
 	g_variant_unref(child);
 	g_autofree char *str = g_string_free(new_accel_string, false);
-	GVariant *new_accel  = g_variant_new_string(str);
+	GVariant *new_accel  = g_variant_ref_sink(g_variant_new_string(str));
 	bool updated         = attr_update_checked(item, G_MENU_ATTRIBUTE_ACCEL, new_accel);
-	if (!updated)
-		g_variant_unref(new_accel);
+	g_variant_unref(new_accel);
 	return updated;
 }
 
