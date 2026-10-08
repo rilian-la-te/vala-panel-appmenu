@@ -604,6 +604,8 @@ G_GNUC_INTERNAL bool dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem
 			dst->enabled = dst->toggled = true;
 		submenu =
 		    DBUS_MENU_MODEL(g_hash_table_lookup(src->links, submenu_str(src->enabled)));
+		if (!submenu)
+				return false;
 		g_hash_table_insert(dst->links, submenu_str(dst->enabled), g_object_ref(submenu));
 		g_object_set(submenu, "parent-id", dst->id, NULL);
 		return true;
@@ -622,6 +624,7 @@ G_GNUC_INTERNAL void dbus_menu_item_generate_action(DBusMenuItem *item, DBusMenu
 	if(!xml)
 		return;
 	DBusMenuModel *submenu = g_hash_table_lookup(item->links, submenu_str(item->enabled));
+	g_clear_object(&item->ref_action);
 	item->ref_action = dbus_menu_action_reference(item->id,
 	                                              xml,
 	                                              submenu,
