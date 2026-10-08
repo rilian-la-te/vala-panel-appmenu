@@ -36,7 +36,7 @@ libres = gnome.compile_resources(
 valac = meson.get_compiler('vala')
 posix_dep = valac.find_library('posix')
 
-importer_dep = dependency('appmenu-glib-translator', fallback : ['appmenu-glib-translator', 'importer_dep'])
+importer_dep = dependency('appmenu-glib-translator', fallback : ['appmenu-glib-translator', 'translator_dep'])
 
 appmenu_deps = [giounix, gtk, importer_dep, posix_dep]
 appmenu_cflags = []
