@@ -183,7 +183,7 @@ namespace Appmenu
             Wnck.Window? win = window;
             while (win != null && type == ModelType.NONE)
             {
-                xid = window.get_xid();
+                xid = win.get_xid();
                 unowned Wnck.Application app = window.get_application();
                 if (type == ModelType.NONE)
                 {
@@ -201,7 +201,7 @@ namespace Appmenu
                    GMenuModel access */
                 if (type == ModelType.NONE)
                 {
-                    var uniquename = libwnck_aux_get_utf8_prop (win.get_xid(), "_GTK_UNIQUE_BUS_NAME");
+                    var uniquename = libwnck_aux_get_utf8_prop (xid, "_GTK_UNIQUE_BUS_NAME");
                     if (uniquename != null)
                     {
                         this.active_window = win;
