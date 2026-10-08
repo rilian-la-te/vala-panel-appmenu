@@ -38,7 +38,10 @@ static int dbus_menu_section_model_is_mutable(GMenuModel *model)
 static gint dbus_menu_section_model_get_n_items(GMenuModel *model)
 {
 	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(model);
-	GSequence *items           = dbus_menu_model_items(g_weak_ref_get(&menu->parent_model));
+    DBusMenuModel *parent = g_weak_ref_get(&menu->parent_model);
+    if (!parent)
+        return 0;
+    GSequence *items = dbus_menu_model_items(parent);
 	int begin = 0, end = -1;
 	for (GSequenceIter *iter = g_sequence_get_begin_iter(items); !g_sequence_iter_is_end(iter);
 	     iter                = g_sequence_iter_next(iter))
@@ -53,6 +56,7 @@ static gint dbus_menu_section_model_get_n_items(GMenuModel *model)
 			break;
 		}
 	}
+	g_object_unref(parent);
 	return end - begin;
 }
 
@@ -60,7 +64,10 @@ static void dbus_menu_section_model_get_item_attributes(GMenuModel *model, gint 
                                                         GHashTable **table)
 {
 	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(model);
-	GSequence *items           = dbus_menu_model_items(g_weak_ref_get(&menu->parent_model));
+    g_autoptr(DBusMenuModel) parent = g_weak_ref_get(&menu->parent_model);
+    if (!parent)
+        return;
+    GSequence *items = dbus_menu_model_items(parent);
 	for (GSequenceIter *iter = g_sequence_get_begin_iter(items); !g_sequence_iter_is_end(iter);
 	     iter                = g_sequence_iter_next(iter))
 	{
@@ -77,7 +84,10 @@ static void dbus_menu_section_model_get_item_links(GMenuModel *model, gint posit
                                                    GHashTable **table)
 {
 	DBusMenuSectionModel *menu = DBUS_MENU_SECTION_MODEL(model);
-	GSequence *items           = dbus_menu_model_items(g_weak_ref_get(&menu->parent_model));
+    g_autoptr(DBusMenuModel) parent = g_weak_ref_get(&menu->parent_model);
+    if (!parent)
+        return;
+    GSequence *items = dbus_menu_model_items(parent);
 	for (GSequenceIter *iter = g_sequence_get_begin_iter(items); !g_sequence_iter_is_end(iter);
 	     iter                = g_sequence_iter_next(iter))
 	{
