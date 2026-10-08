@@ -66,13 +66,15 @@ static void proxy_ready_cb(GObject *source_object, GAsyncResult *res, gpointer u
 		return;
 
 	DBusMenuImporter *menu = DBUS_MENU_IMPORTER(user_data);
-	menu->proxy            = proxy;
 
+	g_clear_object(&menu->proxy);
 	if (error)
 	{
 		g_warning("%s", error->message);
 		return;
 	}
+
+	menu->proxy = proxy;
 	if (dbus_menu_importer_check(menu))
 		g_object_set(menu->top_model, "xml", proxy, NULL);
 	g_object_notify_by_pspec(G_OBJECT(menu), properties[PROP_MODEL]);
