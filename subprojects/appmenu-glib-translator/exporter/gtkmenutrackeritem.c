@@ -17,12 +17,7 @@
  * Author: Ryan Lortie <desrt@desrt.ca>
  */
 
-#include "config.h"
-
 #include "gtkmenutrackeritem.h"
-#include "gtkactionmuxer.h"
-#include "gtkdebug.h"
-
 #include "gtkactionmuxer.h"
 
 #include <string.h>
@@ -298,7 +293,7 @@ gtk_menu_tracker_item_action_added (GtkActionObserver   *observer,
   GtkMenuTrackerItem *self = GTK_MENU_TRACKER_ITEM (observer);
   GVariant *action_target;
 
-  GTK_NOTE(ACTIONS, g_message ("menutracker: action %s added", action_name));
+   g_message ("menutracker: action %s added", action_name);
 
   action_target = g_menu_item_get_attribute_value (self->item, G_MENU_ATTRIBUTE_TARGET, NULL);
 
@@ -308,22 +303,22 @@ gtk_menu_tracker_item_action_added (GtkActionObserver   *observer,
 
   if (!self->can_activate)
     {
-      GTK_NOTE(ACTIONS, g_message ("menutracker: action %s can't be activated due to parameter type mismatch "
+       g_message ("menutracker: action %s can't be activated due to parameter type mismatch "
                                    "(parameter type %s, target type %s)",
                                    action_name,
                                    parameter_type ? g_variant_type_peek_string (parameter_type) : "NULL",
-                                   action_target ? g_variant_get_type_string (action_target) : "NULL"));
+                                   action_target ? g_variant_get_type_string (action_target) : "NULL");
 
       if (action_target)
         g_variant_unref (action_target);
       return;
     }
 
-  GTK_NOTE(ACTIONS, g_message ("menutracker: action %s can be activated", action_name));
+   g_message ("menutracker: action %s can be activated", action_name);
 
   self->sensitive = enabled;
 
-  GTK_NOTE(ACTIONS, g_message ("menutracker: action %s is %s", action_name, enabled ? "enabled" : "disabled"));
+   g_message ("menutracker: action %s is %s", action_name, enabled ? "enabled" : "disabled");
 
   if (action_target != NULL && state != NULL)
     {
@@ -368,7 +363,7 @@ gtk_menu_tracker_item_action_enabled_changed (GtkActionObserver   *observer,
 {
   GtkMenuTrackerItem *self = GTK_MENU_TRACKER_ITEM (observer);
 
-  GTK_NOTE(ACTIONS, g_message ("menutracker: action %s: enabled changed to %d", action_name, enabled));
+   g_message ("menutracker: action %s: enabled changed to %d", action_name, enabled);
 
   if (!self->can_activate)
     return;
@@ -393,7 +388,7 @@ gtk_menu_tracker_item_action_state_changed (GtkActionObserver   *observer,
   GVariant *action_target;
   gboolean was_toggled;
 
-  GTK_NOTE(ACTIONS, g_message ("menutracker: action %s: state changed", action_name));
+   g_message ("menutracker: action %s: state changed", action_name);
 
   if (!self->can_activate)
     return;
@@ -426,7 +421,7 @@ gtk_menu_tracker_item_action_removed (GtkActionObserver   *observer,
   gboolean was_sensitive, was_toggled;
   GtkMenuTrackerItemRole old_role;
 
-  GTK_NOTE(ACTIONS, g_message ("menutracker: action %s was removed", action_name));
+   g_message ("menutracker: action %s was removed", action_name);
 
   if (!self->can_activate)
     return;
@@ -539,10 +534,9 @@ _gtk_menu_tracker_item_new (GtkActionObservable *observable,
 
       action_name = strrchr (self->action_and_target, '|') + 1;
 
-      GTK_NOTE(ACTIONS,
-               if (!strchr (action_name, '.'))
-                 g_message ("menutracker: action name %s doesn't look like 'app.' or 'win.'; "
-                            "it is unlikely to work", action_name));
+      if (!strchr (action_name, '.'))
+        g_message ("menutracker: action name %s doesn't look like 'app.' or 'win.'; "
+                  "it is unlikely to work", action_name);
 
       state = NULL;
 
@@ -551,12 +545,12 @@ _gtk_menu_tracker_item_new (GtkActionObservable *observable,
 
       if (found)
         {
-          GTK_NOTE(ACTIONS, g_message ("menutracker: action %s existed from the start", action_name));
+           g_message ("menutracker: action %s existed from the start", action_name);
           gtk_menu_tracker_item_action_added (GTK_ACTION_OBSERVER (self), observable, NULL, parameter_type, enabled, state);
         }
       else
         {
-          GTK_NOTE(ACTIONS, g_message ("menutracker: action %s missing from the start", action_name));
+           g_message ("menutracker: action %s missing from the start", action_name);
           gtk_menu_tracker_item_update_visibility (self);
         }
 

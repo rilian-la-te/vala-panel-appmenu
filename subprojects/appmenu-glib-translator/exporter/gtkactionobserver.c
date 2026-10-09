@@ -17,8 +17,6 @@
  * Authors: Ryan Lortie <desrt@desrt.ca>
  */
 
-#include "config.h"
-
 #include "gtkactionobserver.h"
 
 G_DEFINE_INTERFACE (GtkActionObserver, gtk_action_observer, G_TYPE_OBJECT)

@@ -17,8 +17,6 @@
  * Author: Ryan Lortie <desrt@desrt.ca>
  */
 
-#include "config.h"
-
 #include "gtkmenutracker.h"
 
 /*< private >
