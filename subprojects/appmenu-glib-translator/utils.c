@@ -119,7 +119,7 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 	GVariant *statev  = g_action_get_state(G_ACTION(action));
 	bool opened       = g_variant_get_boolean(statev);
 	g_variant_unref(statev);
-	bool need_update = true;
+	int need_update = true;
 	if(!xml)
 		return;
 	if (request_open && !opened)

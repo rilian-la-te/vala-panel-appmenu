@@ -145,7 +145,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 			item->action_type = DBUS_MENU_ACTION_SECTION;
 			g_hash_table_insert(item->attrs,
 			                    g_strdup(G_MENU_ATTRIBUTE_LABEL),
-			                    g_variant_ref(value));
+			                    g_variant_ref_sink(value));
 			action_creator_found = true;
 		}
 		else if (!action_creator_found)
@@ -232,7 +232,7 @@ G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item)
 		return;
 	int id;
 	DBusMenuXml *xml = NULL;
-	bool need_update;
+	int need_update = 0;
 	DBusMenuModel *submenu =
 	    DBUS_MENU_MODEL(g_hash_table_lookup(item->links, submenu_str(item->enabled)));
 	if (!submenu || !DBUS_MENU_IS_MODEL(submenu))
@@ -619,7 +619,7 @@ G_GNUC_INTERNAL void dbus_menu_item_generate_action(DBusMenuItem *item, DBusMenu
 		return;
 	if(!item->ref_action_group)
 		return;
-	DBusMenuXml *xml;
+	DBusMenuXml *xml = NULL;
 	g_object_get(parent, "xml", &xml, NULL);
 	if(!xml)
 		return;
