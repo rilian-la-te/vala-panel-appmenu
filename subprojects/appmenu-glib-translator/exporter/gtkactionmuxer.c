@@ -17,14 +17,11 @@
  * Author: Ryan Lortie <desrt@desrt.ca>
  */
 
-#include "config.h"
 
 #include "gtkactionmuxer.h"
-
 #include "gtkactionobservable.h"
 #include "gtkactionobserver.h"
-#include "gtkintl.h"
-#include "gtkmarshalers.h"
+#include "exporter-marshall.h"
 
 #include <string.h>
 
@@ -634,16 +631,16 @@ gtk_action_muxer_class_init (GObjectClass *class)
   class->finalize = gtk_action_muxer_finalize;
   class->dispose = gtk_action_muxer_dispose;
 
-  accel_signal = g_signal_new (I_("primary-accel-changed"),
+  accel_signal = g_signal_new ("primary-accel-changed",
                                GTK_TYPE_ACTION_MUXER,
                                G_SIGNAL_RUN_LAST,
                                0,
                                NULL, NULL,
-                               _gtk_marshal_VOID__STRING_STRING,
+                               g_cclosure_user_marshal_VOID__STRING_STRING,
                                G_TYPE_NONE, 2, G_TYPE_STRING, G_TYPE_STRING);
   g_signal_set_va_marshaller (accel_signal,
                               G_TYPE_FROM_CLASS (class),
-                              _gtk_marshal_VOID__STRING_STRINGv);
+                              g_cclosure_user_marshal_VOID__STRING_STRINGv);
 
   properties[PROP_PARENT] = g_param_spec_object ("parent", "Parent",
                                                  "The parent muxer",
@@ -937,52 +934,4 @@ gtk_action_muxer_get_primary_accel (GtkActionMuxer *muxer,
     return NULL;
 
   return gtk_action_muxer_get_primary_accel (muxer->parent, action_and_target);
-}
-
-gchar *
-gtk_print_action_and_target (const gchar *action_namespace,
-                             const gchar *action_name,
-                             GVariant    *target)
-{
-  GString *result;
-
-  g_return_val_if_fail (strchr (action_name, '|') == NULL, NULL);
-  g_return_val_if_fail (action_namespace == NULL || strchr (action_namespace, '|') == NULL, NULL);
-
-  result = g_string_new (NULL);
-
-  if (target)
-    g_variant_print_string (target, result, TRUE);
-  g_string_append_c (result, '|');
-
-  if (action_namespace)
-    {
-      g_string_append (result, action_namespace);
-      g_string_append_c (result, '.');
-    }
-
-  g_string_append (result, action_name);
-
-  return g_string_free (result, FALSE);
-}
-
-gchar *
-gtk_normalise_detailed_action_name (const gchar *detailed_action_name)
-{
-  GError *error = NULL;
-  gchar *action_and_target;
-  gchar *action_name;
-  GVariant *target;
-
-  g_action_parse_detailed_name (detailed_action_name, &action_name, &target, &error);
-  g_assert_no_error (error);
-
-  action_and_target = gtk_print_action_and_target (NULL, action_name, target);
-
-  if (target)
-    g_variant_unref (target);
-
-  g_free (action_name);
-
-  return action_and_target;
 }

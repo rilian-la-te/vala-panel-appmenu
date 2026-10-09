@@ -22,4 +22,9 @@
 #include <gio/gio.h>
 void g_menu_markup_print_to_console(GMenuModel *menu);
 void dbus_menu_print_variant(GVariant *var);
+
+gchar *gtk_print_action_and_target(const gchar *action_namespace, const gchar *action_name,
+                                   GVariant *target);
+gchar *gtk_normalise_detailed_action_name(const gchar *detailed_action_name);
+
 #endif // DEBUG_H
