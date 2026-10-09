@@ -31,6 +31,18 @@ imp_sources = files(
     'importer/utils.c',
     'importer/utils.h'
     )
+exp_sources = files(
+    'exporter/gtkactionmuxer.c',
+    'exporter/gtkactionmuxer.h',
+    'exporter/gtkactionobservable.c',
+    'exporter/gtkactionobservable.h',
+    'exporter/gtkactionobserver.c',
+    'exporter/gtkactionobserver.h',
+    'exporter/gtkmenutracker.c',
+    'exporter/gtkmenutracker.h',
+    'exporter/gtkmenutrackeritem.c',
+    'exporter/gtkmenutrackeritem.h',
+)
 common_headers = files('definitions.h')
 enum = 'translator-enums'
 translator_enums_gen = gnome.mkenums(
@@ -46,13 +58,18 @@ translator_dbus = gnome.gdbus_codegen(
     autocleanup: 'all',
     namespace: 'DBusMenu'
 )
+translator_marshall = gnome.genmarshal('exporter-marshall',
+    sources: 'exporter/marshall.list',
+    valist_marshallers: true,
+    internal: true
+)
 
 translator_name = 'appmenu-glib-translator'
 
 translator_inc = include_directories('.', 'importer')
 
 translator_lib = library(translator_name, 
-common_sources, translator_enums_gen, translator_dbus, imp_sources,
+common_sources, translator_enums_gen, translator_dbus, imp_sources, exp_sources, translator_marshall,
     dependencies: [giounix, gdkpixbuf],
     include_directories: translator_inc,
     version: meson.project_version(),
