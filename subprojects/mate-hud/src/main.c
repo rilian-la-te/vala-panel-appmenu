@@ -41,6 +41,22 @@ typedef struct {
     char         *location;
 } Daemon;
 
+static void apply_shortcut_prefs(Daemon *d);
+
+static void suspend_internal_shortcut(gpointer user_data)
+{
+    Daemon *d = user_data;
+    shortcut_ungrab(d->grab);
+}
+
+static void restore_internal_shortcut(gpointer user_data)
+{
+    Daemon *d = user_data;
+
+    if (!d->use_system_shortcut)
+        apply_shortcut_prefs(d);
+}
+
 /* ── Helpers ────────────────────────────────────────────────────────────── */
 
 static gboolean is_appmenu_applet_iid(const char *iid)
@@ -131,13 +147,19 @@ static void handle_dbus_method(GDBusConnection  *conn G_GNUC_UNUSED,
             }
         }
 
-        HudActivateData *data = g_new(HudActivateData, 1);
+        HudActivateData *data = g_new0(HudActivateData, 1);
         data->xid         = (gulong)xid;
         data->timestamp   = timestamp;
         data->wm_class    = wm_class;
         data->history_max = d->history_max;
         data->attach_to   = g_strdup(d->attach_to);
         data->location    = g_strdup(d->location);
+        if (!d->use_system_shortcut) {
+            data->started       = suspend_internal_shortcut;
+            data->started_data  = d;
+            data->finished      = restore_internal_shortcut;
+            data->finished_data = d;
+        }
         g_idle_add_full(G_PRIORITY_HIGH, hud_activate_idle, data,
                         (GDestroyNotify)hud_activate_data_free);
     }

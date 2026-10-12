@@ -25,6 +25,7 @@ struct HudWindow {
     guint32             dismiss_time;
     int                 placed_width;
     int                 placed_height;
+    gboolean            alt_tap;
 };
 
 /* ── Placement ───────────────────────────────────────────────────────────── */
@@ -359,6 +360,12 @@ static gboolean on_key_press(GtkWidget *widget G_GNUC_UNUSED,
     guint kv = event->keyval;
     GdkModifierType state = event->state & gtk_accelerator_get_default_mod_mask();
 
+    if (kv == GDK_KEY_Alt_L || kv == GDK_KEY_Alt_R) {
+        w->alt_tap = TRUE;
+        return TRUE;
+    }
+    w->alt_tap = FALSE;
+
     if (kv == GDK_KEY_Escape) {
         gtk_widget_destroy(w->window);
         return TRUE;
@@ -393,6 +400,22 @@ static gboolean on_key_press(GtkWidget *widget G_GNUC_UNUSED,
         gtk_widget_grab_focus(w->search_entry);
         /* Let the event propagate so the character lands in the entry */
     }
+    return FALSE;
+}
+
+static gboolean on_key_release(GtkWidget *widget G_GNUC_UNUSED,
+                                GdkEventKey *event,
+                                gpointer user_data)
+{
+    HudWindow *w = user_data;
+
+    if ((event->keyval == GDK_KEY_Alt_L || event->keyval == GDK_KEY_Alt_R) &&
+        w->alt_tap) {
+        w->alt_tap = FALSE;
+        gtk_widget_destroy(w->window);
+        return TRUE;
+    }
+
     return FALSE;
 }
 
@@ -528,6 +551,8 @@ HudWindow *hud_window_new(GPtrArray *entries,
                      G_CALLBACK(on_row_activated), w);
     g_signal_connect(w->window, "key-press-event",
                      G_CALLBACK(on_key_press), w);
+    g_signal_connect(w->window, "key-release-event",
+                     G_CALLBACK(on_key_release), w);
     g_signal_connect(w->window, "destroy",
                      G_CALLBACK(on_window_destroy), w);
     g_signal_connect(w->window, "size-allocate",

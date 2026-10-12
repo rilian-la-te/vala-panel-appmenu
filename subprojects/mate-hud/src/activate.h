@@ -36,6 +36,10 @@ typedef struct {
     int      history_max;
     char    *attach_to;
     char    *location;
+    GDestroyNotify started;
+    gpointer       started_data;
+    GDestroyNotify finished;
+    gpointer       finished_data;
 } HudActivateData;
 
 /* Free a HudActivateData and its owned fields. */

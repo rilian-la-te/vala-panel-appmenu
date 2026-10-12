@@ -137,7 +137,11 @@ void hud_activate(gulong xid,
 gboolean hud_activate_idle(gpointer data)
 {
     HudActivateData *d = data;
+    if (d->started)
+        d->started(d->started_data);
     hud_activate(d->xid, d->timestamp, d->wm_class, d->history_max,
                  d->attach_to, d->location);
+    if (d->finished)
+        d->finished(d->finished_data);
     return G_SOURCE_REMOVE;
 }
