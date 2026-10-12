@@ -122,23 +122,25 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 	int need_update = true;
 	if(!xml)
 		return;
-	if (request_open && !opened)
+	if (request_open)
 	{
+		if(!opened) {
 		// Use opened before actual open. For Firefox.
-		dbus_menu_xml_call_event_sync(xml,
-		                              id,
-		                              "opened",
-		                              g_variant_new("v", g_variant_new_int32(0)),
-		                              CURRENT_TIME,
-		                              NULL,
-		                              NULL);
-		dbus_menu_xml_call_about_to_show_sync(xml,
-		                                      id,
-		                                      (gboolean *)&need_update,
-		                                      NULL,
-		                                      NULL);
-		if (g_menu_model_get_n_items(G_MENU_MODEL(model)) == 0)
-			need_update = true;
+			dbus_menu_xml_call_event_sync(xml,
+										id,
+										"opened",
+										g_variant_new("v", g_variant_new_int32(0)),
+										CURRENT_TIME,
+										NULL,
+										NULL);
+			dbus_menu_xml_call_about_to_show_sync(xml,
+												id,
+												(gboolean *)&need_update,
+												NULL,
+												NULL);
+			if (g_menu_model_get_n_items(G_MENU_MODEL(model)) == 0)
+				need_update = true;
+		}
 		need_update = need_update || dbus_menu_model_is_layout_update_required(model);
 		if (need_update)
 		{
@@ -147,19 +149,6 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 				dbus_menu_model_update_layout(model);
 		}
 		g_simple_action_set_state(action, g_variant_new_boolean(true));
-		// TODO: change state to false after menu closing, not by time
-		//                g_timeout_add(500, (GSourceFunc)source_state_false, action);
-	}
-	else if (request_open)
-	{
-		g_simple_action_set_state(action, g_variant_new_boolean(true));
-		need_update = dbus_menu_model_is_layout_update_required(model);
-		if (need_update)
-		{
-			// TODD: Populate layout after request;
-			if (DBUS_MENU_IS_MODEL(model))
-				dbus_menu_model_update_layout(model);
-		}
 	}
 	else
 	{
