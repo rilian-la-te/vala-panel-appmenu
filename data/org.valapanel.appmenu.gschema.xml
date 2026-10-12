@@ -42,13 +42,29 @@
     </key>
     <key name="hud-attach-to" type="s">
       <default>"window"</default>
-      <summary>Attach HUD to monitor or window</summary>
-      <description>Controls the rectangle used for HUD placement. Use "window" to anchor the HUD to the active application window, or "monitor" to anchor it to the monitor workarea containing that window.</description>
+      <summary>Attach HUD to monitor, window, or applet</summary>
+      <description>Controls HUD placement. Use "window" for the active application window, "monitor" for its monitor workarea, or "applet" to open beside the global menu applet like a dropdown.</description>
     </key>
     <key name="hud-location" type="s">
       <default>"northwest"</default>
       <summary>HUD location</summary>
       <description>Anchor position for the HUD within the selected rectangle. Valid values are northwest, north, northeast, west, center, east, southwest, south, and southeast.</description>
+    </key>
+    <key name="hud-applet-x" type="i">
+      <default>0</default>
+      <summary>Global menu applet screen X coordinate</summary>
+    </key>
+    <key name="hud-applet-y" type="i">
+      <default>0</default>
+      <summary>Global menu applet screen Y coordinate</summary>
+    </key>
+    <key name="hud-applet-width" type="i">
+      <default>0</default>
+      <summary>Global menu applet width</summary>
+    </key>
+    <key name="hud-applet-height" type="i">
+      <default>0</default>
+      <summary>Global menu applet height</summary>
     </key>
   </schema>
 </schemalist>

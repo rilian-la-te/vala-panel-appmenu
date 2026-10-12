@@ -105,6 +105,38 @@ private static void update_hud_shortcut_ui(CheckButton hud_enable,
     shortcut_warning.visible = internal && !selected;
 }
 
+private static void update_hud_applet_geometry(MatePanel.Applet applet,
+                                                GLib.Settings settings)
+{
+    var toplevel = applet.get_toplevel();
+    var window = toplevel.get_window();
+    int offset_x = 0;
+    int offset_y = 0;
+    int origin_x = 0;
+    int origin_y = 0;
+
+    if (window == null ||
+        !applet.translate_coordinates(toplevel, 0, 0, out offset_x, out offset_y))
+        return;
+
+    window.get_origin(out origin_x, out origin_y);
+    int x = origin_x + offset_x;
+    int y = origin_y + offset_y;
+    int width = applet.get_allocated_width();
+    int height = applet.get_allocated_height();
+    if (width <= 0 || height <= 0)
+        return;
+
+    if (settings.get_int("hud-applet-x") != x)
+        settings.set_int("hud-applet-x", x);
+    if (settings.get_int("hud-applet-y") != y)
+        settings.set_int("hud-applet-y", y);
+    if (settings.get_int("hud-applet-width") != width)
+        settings.set_int("hud-applet-width", width);
+    if (settings.get_int("hud-applet-height") != height)
+        settings.set_int("hud-applet-height", height);
+}
+
 private bool factory_callback(MatePanel.Applet applet, string iid)
 {
     if (iid != "AppmenuApplet") {
@@ -120,6 +152,16 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
     applet.add(layout);
     layout.show();
     applet.show();
+    applet.size_allocate.connect(() => update_hud_applet_geometry(applet, settings));
+    applet.map_event.connect(() => {
+        update_hud_applet_geometry(applet, settings);
+        return false;
+    });
+    applet.get_toplevel().configure_event.connect(() => {
+        update_hud_applet_geometry(applet, settings);
+        return false;
+    });
+    update_hud_applet_geometry(applet, settings);
     var action_group = new Gtk.ActionGroup ("AppmenuApplet Menu Actions");
     action_group.set_translation_domain (Config.GETTEXT_PACKAGE);
     Gtk.Action a = new Gtk.Action("AppMenuAppletPreferences",N_("_Preferences"),null,Gtk.Stock.PREFERENCES);
@@ -304,8 +346,11 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
             dgettext(Config.GETTEXT_PACKAGE, "monitor"));
         var attach_window = new Gtk.ToggleButton.with_label(
             dgettext(Config.GETTEXT_PACKAGE, "window"));
+        var attach_applet = new Gtk.ToggleButton.with_label(
+            dgettext(Config.GETTEXT_PACKAGE, "global menu applet"));
         attach_switch.pack_start(attach_monitor, false, false, 0);
         attach_switch.pack_start(attach_window, false, false, 0);
+        attach_switch.pack_start(attach_applet, false, false, 0);
         attach_row.pack_start(attach_label, true, true, 0);
         attach_row.pack_start(attach_switch, false, false, 0);
         placement_group.pack_start(attach_row, false, false, 2);
@@ -314,8 +359,12 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
         string attach_to = settings.get_string("hud-attach-to");
         syncing_attach = true;
         attach_monitor.active = attach_to == "monitor";
-        attach_window.active = attach_to != "monitor";
+        attach_window.active = attach_to != "monitor" && attach_to != "applet";
+        attach_applet.active = attach_to == "applet";
         syncing_attach = false;
+
+        var location_row = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
+        location_row.sensitive = attach_to != "applet";
 
         attach_monitor.clicked.connect(() => {
             if (syncing_attach)
@@ -323,7 +372,9 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
             syncing_attach = true;
             attach_monitor.active = true;
             attach_window.active = false;
+            attach_applet.active = false;
             settings.set_string("hud-attach-to", "monitor");
+            location_row.sensitive = true;
             syncing_attach = false;
         });
         attach_window.clicked.connect(() => {
@@ -332,20 +383,34 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
             syncing_attach = true;
             attach_monitor.active = false;
             attach_window.active = true;
+            attach_applet.active = false;
             settings.set_string("hud-attach-to", "window");
+            location_row.sensitive = true;
             syncing_attach = false;
         });
-        settings.changed["hud-attach-to"].connect(() => {
+        attach_applet.clicked.connect(() => {
+            if (syncing_attach)
+                return;
+            syncing_attach = true;
+            attach_monitor.active = false;
+            attach_window.active = false;
+            attach_applet.active = true;
+            settings.set_string("hud-attach-to", "applet");
+            location_row.sensitive = false;
+            syncing_attach = false;
+        });
+        ulong attach_changed_id = settings.changed["hud-attach-to"].connect(() => {
             if (syncing_attach)
                 return;
             string value = settings.get_string("hud-attach-to");
             syncing_attach = true;
             attach_monitor.active = value == "monitor";
-            attach_window.active = value != "monitor";
+            attach_window.active = value != "monitor" && value != "applet";
+            attach_applet.active = value == "applet";
+            location_row.sensitive = value != "applet";
             syncing_attach = false;
         });
 
-        var location_row = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
         var location_label = new Gtk.Label(
             dgettext(Config.GETTEXT_PACKAGE, "HUD location:"));
         location_label.set_halign(Gtk.Align.START);
@@ -406,7 +471,7 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
         location_buttons[selected_location].active = true;
         syncing_location = false;
 
-        settings.changed["hud-location"].connect(() => {
+        ulong location_changed_id = settings.changed["hud-location"].connect(() => {
             if (syncing_location)
                 return;
             string value = settings.get_string("hud-location");
@@ -424,6 +489,7 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
         attach_label.show();
         attach_monitor.show();
         attach_window.show();
+        attach_applet.show();
         attach_switch.show();
         attach_row.show();
         location_label.show();
@@ -454,7 +520,11 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
                                    sys_note, internal_note, shortcut_warning,
                                    shortcut_buttons);
         });
-        dlg.destroy.connect(() => settings.disconnect(shortcut_changed_id));
+        dlg.destroy.connect(() => {
+            settings.disconnect(shortcut_changed_id);
+            settings.disconnect(attach_changed_id);
+            settings.disconnect(location_changed_id);
+        });
         hud_enable.toggled.connect(() => {
             update_hud_shortcut_ui(hud_enable, sys_shortcut_check, shortcut_row,
                                    sys_note, internal_note, shortcut_warning,

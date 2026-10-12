@@ -182,7 +182,11 @@ static void apply_hud_prefs(Daemon *d)
     g_free(d->location);
     d->attach_to = g_settings_get_string(d->settings, "hud-attach-to");
     d->location  = g_settings_get_string(d->settings, "hud-location");
-    hud_update_placement(d->attach_to, d->location);
+    hud_update_placement(d->attach_to, d->location,
+                         g_settings_get_int(d->settings, "hud-applet-x"),
+                         g_settings_get_int(d->settings, "hud-applet-y"),
+                         g_settings_get_int(d->settings, "hud-applet-width"),
+                         g_settings_get_int(d->settings, "hud-applet-height"));
 }
 
 static void apply_shortcut_prefs(Daemon *d)
@@ -230,6 +234,7 @@ static void on_settings_changed(GSettings   *settings G_GNUC_UNUSED,
 
     if (g_strcmp0(key, "hud-attach-to") == 0 ||
         g_strcmp0(key, "hud-location") == 0 ||
+        g_str_has_prefix(key, "hud-applet-") ||
         g_strcmp0(key, "hud-history-max") == 0) {
         apply_hud_prefs(d);
     }

@@ -2,7 +2,9 @@
 #include <glib.h>
 
 /* Apply placement changes to an already open HUD without stealing focus. */
-void hud_update_placement(const char *attach_to, const char *location);
+void hud_update_placement(const char *attach_to, const char *location,
+                          int applet_x, int applet_y,
+                          int applet_width, int applet_height);
 
 /*
  * Attempt to show the HUD for the given window.

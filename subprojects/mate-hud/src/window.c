@@ -10,6 +10,8 @@ typedef enum {
     HUD_ANCHOR_END
 } HudAnchor;
 
+static GdkRectangle applet_geometry = {0};
+
 struct HudWindow {
     GtkWidget          *window;
     GtkWidget          *search_entry;
@@ -50,6 +52,8 @@ static const char *normalized_attach_to(const char *attach_to)
 {
     if (g_strcmp0(attach_to, "monitor") == 0)
         return "monitor";
+    if (g_strcmp0(attach_to, "applet") == 0)
+        return "applet";
     return "window";
 }
 
@@ -147,6 +151,53 @@ static int anchored_coord(int origin, int span, int window_span, HudAnchor ancho
     }
 }
 
+static int clamp_dropdown_coord(int value, int origin, int span, int window_span)
+{
+    if (window_span >= span)
+        return origin;
+    return CLAMP(value, origin, origin + span - window_span);
+}
+
+static gboolean place_at_applet(HudWindow *w, int win_w, int win_h)
+{
+    if (applet_geometry.width <= 0 || applet_geometry.height <= 0)
+        return FALSE;
+
+    GdkRectangle workarea = {0};
+    if (!get_monitor_workarea_for_rect(&applet_geometry, &workarea))
+        return FALSE;
+
+    int top_distance = ABS(applet_geometry.y + applet_geometry.height - workarea.y);
+    int bottom_distance = ABS(applet_geometry.y - (workarea.y + workarea.height));
+    int left_distance = ABS(applet_geometry.x + applet_geometry.width - workarea.x);
+    int right_distance = ABS(applet_geometry.x - (workarea.x + workarea.width));
+    int edge_distance = MIN(MIN(top_distance, bottom_distance),
+                            MIN(left_distance, right_distance));
+    int x;
+    int y;
+
+    if (edge_distance == top_distance) {
+        x = clamp_dropdown_coord(applet_geometry.x, workarea.x,
+                                 workarea.width, win_w);
+        y = applet_geometry.y + applet_geometry.height;
+    } else if (edge_distance == bottom_distance) {
+        x = clamp_dropdown_coord(applet_geometry.x, workarea.x,
+                                 workarea.width, win_w);
+        y = applet_geometry.y - win_h;
+    } else if (edge_distance == left_distance) {
+        x = applet_geometry.x + applet_geometry.width;
+        y = clamp_dropdown_coord(applet_geometry.y, workarea.y,
+                                 workarea.height, win_h);
+    } else {
+        x = applet_geometry.x - win_w;
+        y = clamp_dropdown_coord(applet_geometry.y, workarea.y,
+                                 workarea.height, win_h);
+    }
+
+    gtk_window_move(GTK_WINDOW(w->window), x, y);
+    return TRUE;
+}
+
 static void place_window(HudWindow *w, gulong target_xid)
 {
     GdkRectangle target = {0};
@@ -165,6 +216,10 @@ static void place_window(HudWindow *w, gulong target_xid)
     if (win_w <= 0 || win_h <= 0)
         return;
 
+    if (g_strcmp0(normalized_attach_to(w->attach_to), "applet") == 0 &&
+        place_at_applet(w, win_w, win_h))
+        return;
+
     HudAnchor x_anchor;
     HudAnchor y_anchor;
     parse_location(w->location, &x_anchor, &y_anchor);
@@ -172,6 +227,14 @@ static void place_window(HudWindow *w, gulong target_xid)
     int x = anchored_coord(area.x, area.width, win_w, x_anchor);
     int y = anchored_coord(area.y, area.height, win_h, y_anchor);
     gtk_window_move(GTK_WINDOW(w->window), x, y);
+}
+
+void hud_window_set_applet_geometry(int x, int y, int width, int height)
+{
+    applet_geometry.x = x;
+    applet_geometry.y = y;
+    applet_geometry.width = width;
+    applet_geometry.height = height;
 }
 
 static void on_size_allocate(GtkWidget *widget G_GNUC_UNUSED,

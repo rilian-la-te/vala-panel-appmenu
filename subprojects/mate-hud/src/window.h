@@ -30,6 +30,9 @@ void hud_window_set_placement(HudWindow *w,
                               const char *attach_to,
                               const char *location);
 
+/* Update the global-menu applet rectangle used by "applet" placement. */
+void hud_window_set_applet_geometry(int x, int y, int width, int height);
+
 /*
  * Present the window: realize → set X11 user time → show → present_with_time
  * → grab focus to search entry.

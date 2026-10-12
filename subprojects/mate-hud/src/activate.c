@@ -15,8 +15,12 @@ static guint32 dismissed_time = 0;
  * TAP_TIMEOUT_MS. */
 #define DISMISS_TOGGLE_WINDOW_MS 250
 
-void hud_update_placement(const char *attach_to, const char *location)
+void hud_update_placement(const char *attach_to, const char *location,
+                          int applet_x, int applet_y,
+                          int applet_width, int applet_height)
 {
+    hud_window_set_applet_geometry(applet_x, applet_y,
+                                   applet_width, applet_height);
     if (current_window)
         hud_window_set_placement(current_window, attach_to, location);
 }
