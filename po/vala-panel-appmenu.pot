@@ -1,174 +1,240 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the vala-panel-appmenu package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: vala-panel-appmenu\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-24 16:13+0300\n"
+"POT-Creation-Date: 2026-10-12 16:43-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../lib/appmenu-desktop.vala:39 ../lib/appmenu-desktop.vala:65
-#: ../lib/helper-desktop.vala:58
-msgid "_Desktop"
-msgstr ""
-
-#: ../lib/appmenu-desktop.vala:153 ../lib/appmenu-desktop.vala:205
-#: ../lib/helper-desktop.vala:192
-msgid "No files"
-msgstr ""
-
-#: ../lib/appmenu-bamf.vala:37 ../lib/desktop-menus.ui:40
-msgid "_New Window..."
-msgstr ""
-
-#: ../lib/appmenu-bamf.vala:38 ../lib/desktop-menus.ui:45
-msgid "Close _This"
-msgstr ""
-
-#: ../lib/appmenu-bamf.vala:39 ../lib/desktop-menus.ui:50
-msgid "Close _All"
-msgstr ""
-
-#: ../lib/menu-widget-menumodel.vala:42 ../lib/menu-widget-menumodel.vala:63
-msgid "_Application"
-msgstr ""
-
-#: ../lib/desktop-menus.ui:6
-msgid "_Desktop Settings"
-msgstr ""
-
-#: ../lib/desktop-menus.ui:10
-msgid "_System Settings"
-msgstr ""
-
-#: ../lib/desktop-menus.ui:17
-msgid "_Files"
-msgstr ""
-
-#: ../data/xfce/appmenu.desktop.xfce.in:5 ../data/appmenu.desktop.plugin.in:4
-#: ../data/appmenu.desktop.xfce.in:5 ../data/appmenu.desktop.in:5
-#: ../data/appmenu.plugin.desktop.in:4
-#: ../data/org.valapanel.appmenu.desktop.in:4
-msgid "AppMenu Plugin"
-msgstr ""
-
-#: ../data/xfce/appmenu.desktop.xfce.in:6 ../data/appmenu.desktop.plugin.in:5
-#: ../data/appmenu.desktop.xfce.in:6 ../data/appmenu.desktop.in:6
-#: ../data/appmenu.plugin.desktop.in:5
-#: ../data/org.valapanel.appmenu.desktop.in:5
-msgid "Display AppMenu (Global Menu)"
-msgstr ""
-
-#: ../data/xfce/appmenu.desktop.xfce.in:7
-#: ../data/appmenu-mate.desktop.plugin.in:11 ../data/appmenu.desktop.xfce.in:7
-#: ../data/appmenu-mate.desktop.in:11 ../data/appmenu-mate.plugin.desktop.in:11
-#: ../data/appmenu.desktop.in:7
-msgid "applications-system"
-msgstr ""
-
-#: ../lib/desktop-menus.ui:21
-msgid "_Documents"
-msgstr ""
-
-#: ../lib/desktop-menus.ui:25
-msgid "_Music"
-msgstr ""
-
-#: ../lib/desktop-menus.ui:29
-msgid "_Pictures"
-msgstr ""
-
-#: ../lib/desktop-menus.ui:33
-msgid "_Video"
-msgstr ""
-
-#: ../lib/budgie-plugin-appmenu.vala:51 ../lib/valapanel-plugin-appmenu.vala:73
-#: ../lib/valapanel-plugin-appmenu.vala:88 ../lib/mate-plugin-appmenu.vala:43
-#: ../lib/xfce4-plugin-appmenu.vala:56 ../lib/valapanel-plugin-appmenu.vala:67
+#: applets/budgie-plugin-appmenu.vala:51 applets/mate-plugin-appmenu.vala:224
+#: applets/valapanel-plugin-appmenu.vala:48
+#: applets/xfce4-plugin-appmenu.vala:54
 msgid "Use Compact mode (all menus in application menu)"
 msgstr ""
 
-#: ../lib/budgie-plugin-appmenu.vala:54 ../lib/mate-plugin-appmenu.vala:46
-#: ../lib/valapanel-plugin-appmenu.vala:76
-#: ../lib/valapanel-plugin-appmenu.vala:91 ../lib/xfce4-plugin-appmenu.vala:59
-#: ../lib/valapanel-plugin-appmenu.vala:70
+#: applets/budgie-plugin-appmenu.vala:54 applets/mate-plugin-appmenu.vala:229
+#: applets/valapanel-plugin-appmenu.vala:52
+#: applets/xfce4-plugin-appmenu.vala:58
 msgid "Use bold application name"
 msgstr ""
 
-#: ../lib/helper-dbus.vala:101
-msgid "Application"
+#: applets/mate-plugin-appmenu.vala:115
+msgid "Keyboard layout"
 msgstr ""
 
-#: ../lib/mate-plugin-appmenu.vala:36
+#: applets/mate-plugin-appmenu.vala:119
+msgid "Left"
+msgstr ""
+
+#: applets/mate-plugin-appmenu.vala:120
+msgid "Right"
+msgstr ""
+
+#: applets/mate-plugin-appmenu.vala:204
 msgid "_Preferences"
 msgstr ""
 
-#: ../lib/mate-plugin-appmenu.vala:39 ../lib/valapanel-plugin-appmenu.vala:85
-#: ../lib/xfce4-plugin-appmenu.vala:52
+#: applets/mate-plugin-appmenu.vala:208 applets/xfce4-plugin-appmenu.vala:50
 msgid "Configure AppMenu"
 msgstr ""
 
-#: ../lib/mate-plugin-appmenu.vala:43 ../lib/xfce4-plugin-appmenu.vala:56
-msgid "Use Compact mode (all menus in application menu"
+#: applets/mate-plugin-appmenu.vala:234
+msgid "Show application icon"
 msgstr ""
 
-#: ../lib/xfce4-plugin-appmenu.vala:62
+#: applets/mate-plugin-appmenu.vala:240
+msgid "Icon padding"
+msgstr ""
+
+#: applets/mate-plugin-appmenu.vala:254
+msgid "AppMenu"
+msgstr ""
+
+#: applets/mate-plugin-appmenu.vala:267
+msgid "Enable HUD"
+msgstr ""
+
+#: applets/mate-plugin-appmenu.vala:275
+msgid "Shortcut:"
+msgstr ""
+
+#: applets/mate-plugin-appmenu.vala:282
+msgid "Modifier side"
+msgstr ""
+
+#: applets/mate-plugin-appmenu.vala:284
+msgid ""
+"Choose the modifier key's side. For Ctrl+Alt, this selects Alt; either Ctrl "
+"key works. AltGr follows your keyboard layout."
+msgstr ""
+
+#: applets/mate-plugin-appmenu.vala:330
+msgid "Let MATE Control Center handle shortcut"
+msgstr ""
+
+#: applets/mate-plugin-appmenu.vala:339
+msgid ""
+"When enabled, the daemon will not register shortcuts by itself.\n"
+"Configure the shortcut in MATE Control Center → Keyboard Shortcuts.\n"
+"Set the command to:\n"
+"  gdbus call --session --dest org.mate.HUD \\\n"
+"    --object-path /org/mate/HUD --method org.mate.HUD.Activate 0"
+msgstr ""
+
+#: applets/mate-plugin-appmenu.vala:353
+msgid ""
+"Tap and release the selected modifier to open the HUD.\n"
+"For Ctrl+Alt, hold either Ctrl key, then press Alt on the selected side.\n"
+"AltGr follows your keyboard layout and is not the same as Ctrl+Alt.\n"
+"Hyper and AltGr require matching keys in your keyboard layout."
+msgstr ""
+
+#: applets/mate-plugin-appmenu.vala:364
+msgid ""
+"The saved shortcut is not one of these modifiers. Choose a modifier or use "
+"MATE Control Center."
+msgstr ""
+
+#: applets/mate-plugin-appmenu.vala:378
+msgid "Attach HUD to:"
+msgstr ""
+
+#: applets/mate-plugin-appmenu.vala:383
+msgid "monitor"
+msgstr ""
+
+#: applets/mate-plugin-appmenu.vala:385
+msgid "window"
+msgstr ""
+
+#: applets/mate-plugin-appmenu.vala:387
+msgid "global menu applet"
+msgstr ""
+
+#: applets/mate-plugin-appmenu.vala:452
+msgid "HUD location:"
+msgstr ""
+
+#: applets/mate-plugin-appmenu.vala:473
+msgid "Center"
+msgstr ""
+
+#: applets/mate-plugin-appmenu.vala:537
+msgid "HUD"
+msgstr ""
+
+#: applets/xfce4-plugin-appmenu.vala:62
 msgid "Expand plugin on panel"
 msgstr ""
 
-#: ../lib/desktop-menus.ui:40
-msgid "_New"
+#: lib/helper-dbus.vala:101
+msgid "Application"
 msgstr ""
 
-#: ../lib/desktop-menus.ui:51
-msgid "_Quit"
+#: lib/helper-desktop.vala:58
+msgid "_Desktop"
 msgstr ""
 
-#: ../data/appmenu-budgie.desktop.plugin.in:4
-#: ../data/appmenu-budgie.desktop.in:4
-msgid "Global Menu"
+#: lib/helper-desktop.vala:210
+msgid "No files"
 msgstr ""
 
-#: ../data/appmenu-budgie.desktop.plugin.in:5
-#: ../data/appmenu-budgie.desktop.in:5
-msgid "Show menus from windows"
-msgstr ""
-
-#: ../data/appmenu-budgie.desktop.plugin.in:9
-#: ../data/appmenu-budgie.desktop.in:9
-msgid "view-grid-symbolic"
-msgstr ""
-
-#: ../data/appmenu-mate.desktop.plugin.in:5 ../data/appmenu-mate.desktop.in:5
-#: ../data/appmenu-mate.plugin.desktop.in:5
-msgid "Appmenu applet factory"
-msgstr ""
-
-#: ../data/appmenu-mate.desktop.plugin.in:9 ../data/appmenu-mate.desktop.in:9
-#: ../data/appmenu-mate.plugin.desktop.in:9
-msgid "Global Application Menu"
-msgstr ""
-
-#: ../data/appmenu-mate.desktop.plugin.in:10 ../data/appmenu-mate.desktop.in:10
-#: ../data/appmenu-mate.plugin.desktop.in:10
-msgid "All menus will hosts here"
-msgstr ""
-
-#: ../lib/menu-widget.vala:114
+#: lib/menu-widget.vala:208
 msgid "Compact Menu"
 msgstr ""
 
-#: ../data/appmenu.desktop.plugin.in:6 ../data/appmenu.plugin.desktop.in:6
-#: ../data/org.valapanel.appmenu.desktop.in:6
-msgid "preferences-system-symbolic"
+#: lib/desktop-menus.ui:6
+msgid "_Desktop Settings"
+msgstr ""
+
+#: lib/desktop-menus.ui:10
+msgid "_System Settings"
+msgstr ""
+
+#: lib/desktop-menus.ui:17
+msgid "_Files"
+msgstr ""
+
+#: lib/desktop-menus.ui:21
+msgid "_Documents"
+msgstr ""
+
+#: lib/desktop-menus.ui:25
+msgid "_Music"
+msgstr ""
+
+#: lib/desktop-menus.ui:29
+msgid "_Pictures"
+msgstr ""
+
+#: lib/desktop-menus.ui:33
+msgid "_Video"
+msgstr ""
+
+#: lib/desktop-menus.ui:40
+msgid "_New"
+msgstr ""
+
+#: lib/desktop-menus.ui:51
+msgid "_Quit"
+msgstr ""
+
+#: data/appmenu-budgie.desktop.in:3 data/global-menu-preferences.desktop.in:3
+msgid "Global Menu"
+msgstr ""
+
+#: data/appmenu.desktop.in:4 data/appmenu.plugin.desktop.in:3
+msgid "AppMenu Plugin"
+msgstr ""
+
+#: data/appmenu.desktop.in:5
+msgid "Display AppMenu (Global Menu)"
+msgstr ""
+
+#: data/appmenu-mate.plugin.desktop.in:4
+msgid "Appmenu applet factory"
+msgstr ""
+
+#: data/appmenu-mate.plugin.desktop.in:8
+msgid "Global Application Menu"
+msgstr ""
+
+#: data/global-menu-preferences.desktop.in:4
+msgid "Configure the global menu and menu search"
+msgstr ""
+
+#: subprojects/mate-hud/data/mate-hud-daemon.desktop.in:3
+#: subprojects/mate-hud/src/window.c:534
+msgid "Search for menus"
+msgstr ""
+
+#: subprojects/mate-hud/data/mate-hud-daemon.desktop.in:4
+msgid "Global menu HUD for MATE"
+msgstr ""
+
+#: subprojects/mate-hud/src/window.c:549
+msgid "Search application menus"
+msgstr ""
+
+#: subprojects/mate-hud/src/window.c:581
+msgid "Path"
+msgstr ""
+
+#: subprojects/mate-hud/src/window.c:592
+msgid "Index"
+msgstr ""
+
+#: subprojects/mate-hud/src/window.c:604
+msgid "Shortcut"
 msgstr ""

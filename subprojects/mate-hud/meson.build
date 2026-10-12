@@ -9,6 +9,8 @@ project(
 
 am_cflags = [
     '-fstack-protector',
+    '-DGETTEXT_PACKAGE="vala-panel-appmenu"',
+    '-DLOCALEDIR="@0@"'.format(join_paths(get_option('prefix'), get_option('localedir'))),
 ]
 add_project_arguments(am_cflags, language: 'c')
 
@@ -21,6 +23,7 @@ autostart_dir = join_paths(get_option('sysconfdir'), 'xdg', 'autostart')
 service_dir = join_paths(prefix, datadir, 'dbus-1', 'services')
 
 gnome = import('gnome')
+i18n = import('i18n')
 
 gtk         = dependency('gtk+-3.0',    version: '>=3.22.0')
 glib        = dependency('glib-2.0',   version: '>=2.52.0')

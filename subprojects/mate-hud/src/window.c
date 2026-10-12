@@ -2,6 +2,7 @@
 #include "model.h"
 #include "history.h"
 #include <gdk/gdkx.h>
+#include <glib/gi18n.h>
 #include <string.h>
 
 typedef enum {
@@ -530,9 +531,10 @@ HudWindow *hud_window_new(GPtrArray *entries,
     w->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_type_hint(GTK_WINDOW(w->window), GDK_WINDOW_TYPE_HINT_DIALOG);
     gtk_window_set_position(GTK_WINDOW(w->window), GTK_WIN_POS_NONE);
-    gtk_window_set_title(GTK_WINDOW(w->window), "HUD");
+    gtk_window_set_title(GTK_WINDOW(w->window), _("Search for menus"));
+    gtk_window_set_icon_name(GTK_WINDOW(w->window), "system-search");
     gtk_window_set_decorated(GTK_WINDOW(w->window), FALSE);
-    gtk_window_set_skip_taskbar_hint(GTK_WINDOW(w->window), TRUE);
+    gtk_window_set_skip_taskbar_hint(GTK_WINDOW(w->window), FALSE);
     gtk_window_set_skip_pager_hint(GTK_WINDOW(w->window), TRUE);
     gtk_container_set_border_width(GTK_CONTAINER(w->window), 6);
     gtk_widget_set_size_request(w->window, 600, -1);
@@ -543,6 +545,8 @@ HudWindow *hud_window_new(GPtrArray *entries,
 
     /* Search entry */
     w->search_entry = gtk_search_entry_new();
+    gtk_entry_set_placeholder_text(GTK_ENTRY(w->search_entry),
+                                   _("Search application menus"));
     gtk_box_pack_start(GTK_BOX(vbox), w->search_entry, FALSE, FALSE, 0);
 
     /* Separator */
@@ -574,7 +578,7 @@ HudWindow *hud_window_new(GPtrArray *entries,
     GtkCellRenderer *r0 = gtk_cell_renderer_text_new();
     g_object_set(r0, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
     GtkTreeViewColumn *c0 = gtk_tree_view_column_new_with_attributes(
-        "Path", r0, "markup", COL_PATH_MARKUP, NULL);
+        _("Path"), r0, "markup", COL_PATH_MARKUP, NULL);
     gtk_tree_view_column_set_expand(c0, TRUE);
     gtk_tree_view_append_column(GTK_TREE_VIEW(w->tree_view), c0);
 
@@ -585,7 +589,7 @@ HudWindow *hud_window_new(GPtrArray *entries,
                  "scale", 0.85,
                  NULL);
     GtkTreeViewColumn *c1 = gtk_tree_view_column_new_with_attributes(
-        "Index", r1, "text", COL_ALT_INDEX, NULL);
+        _("Index"), r1, "text", COL_ALT_INDEX, NULL);
     gtk_tree_view_column_set_sizing(c1, GTK_TREE_VIEW_COLUMN_FIXED);
     gtk_tree_view_column_set_fixed_width(c1, 60);
     gtk_tree_view_append_column(GTK_TREE_VIEW(w->tree_view), c1);
@@ -597,7 +601,7 @@ HudWindow *hud_window_new(GPtrArray *entries,
                  "scale", 0.85,
                  NULL);
     GtkTreeViewColumn *c2 = gtk_tree_view_column_new_with_attributes(
-        "Shortcut", r2, "text", COL_SHORTCUT, NULL);
+        _("Shortcut"), r2, "text", COL_SHORTCUT, NULL);
     gtk_tree_view_column_set_sizing(c2, GTK_TREE_VIEW_COLUMN_FIXED);
     gtk_tree_view_column_set_fixed_width(c2, 100);
     gtk_tree_view_append_column(GTK_TREE_VIEW(w->tree_view), c2);

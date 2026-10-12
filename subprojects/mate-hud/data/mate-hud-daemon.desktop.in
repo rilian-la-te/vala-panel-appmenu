@@ -1,8 +1,9 @@
 [Desktop Entry]
 Type=Application
-Name=MATE HUD Daemon
+Name=Search for menus
 Comment=Global menu HUD for MATE
 Exec=mate-hud-daemon
+Icon=system-search
 Hidden=false
 NoDisplay=true
 X-GNOME-Autostart-enabled=true

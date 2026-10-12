@@ -29,6 +29,12 @@ if mate_found
       kwargs: desktop_kwargs,
       install_dir: mate_applet_datadir
     )
+    i18n.merge_file(
+      input: 'global-menu-preferences.desktop.in',
+      output: 'global-menu-preferences.desktop',
+      kwargs: desktop_kwargs,
+      install_dir: join_paths(prefix, datadir, 'applications')
+    )
 endif
 
 if xfce_found

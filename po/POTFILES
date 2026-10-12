@@ -1,0 +1,15 @@
+applets/budgie-plugin-appmenu.vala
+applets/mate-plugin-appmenu.vala
+applets/valapanel-plugin-appmenu.vala
+applets/xfce4-plugin-appmenu.vala
+lib/helper-dbus.vala
+lib/helper-desktop.vala
+lib/menu-widget.vala
+lib/desktop-menus.ui
+data/appmenu-budgie.desktop.in
+data/appmenu.desktop.in
+data/appmenu-mate.plugin.desktop.in
+data/appmenu.plugin.desktop.in
+data/global-menu-preferences.desktop.in
+subprojects/mate-hud/data/mate-hud-daemon.desktop.in
+subprojects/mate-hud/src/window.c

@@ -1,10 +1,12 @@
 #include "activate.h"
 #include "shortcut.h"
 #include <gio/gio.h>
+#include <glib/gi18n.h>
 #include <gtk/gtk.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <locale.h>
 #include <string.h>
 
 #define SCHEMA_ID   "org.valapanel.appmenu"
@@ -288,6 +290,12 @@ static void on_name_lost(GDBusConnection *conn G_GNUC_UNUSED,
 
 int main(int argc, char **argv)
 {
+    setlocale(LC_ALL, "");
+    bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
+    bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+    textdomain(GETTEXT_PACKAGE);
+    g_set_application_name(_("Search for menus"));
+
     /* Open X display as early as possible */
     Display *xdpy = XOpenDisplay(NULL);
     if (!xdpy) {
@@ -296,6 +304,7 @@ int main(int argc, char **argv)
     }
 
     gtk_init(&argc, &argv);
+    gtk_window_set_default_icon_name("system-search");
 
     /* Check if HUD is enabled in the applet's relocatable GSettings path */
     g_autofree char *settings_path = find_appmenu_settings_path();

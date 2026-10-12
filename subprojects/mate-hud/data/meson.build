@@ -1,4 +1,9 @@
-install_data('mate-hud-daemon.desktop',
+i18n.merge_file(
+    input : 'mate-hud-daemon.desktop.in',
+    output : 'mate-hud-daemon.desktop',
+    type : 'desktop',
+    po_dir : join_paths(meson.current_source_dir(), '..', '..', '..', 'po'),
+    install : true,
     install_dir : autostart_dir,
 )
 

@@ -21,6 +21,43 @@ using Gtk;
 using GLib;
 using Appmenu;
 
+private static Gtk.Action? preferences_action;
+private static uint preferences_bus_id;
+
+[DBus (name = "org.mate.GlobalMenu.Preferences")]
+private class PreferencesService : Object
+{
+    public void show() throws GLib.Error
+    {
+        if (preferences_action != null)
+            preferences_action.activate();
+    }
+}
+
+private static void export_preferences_action(Gtk.Action action)
+{
+    preferences_action = action;
+    if (preferences_bus_id != 0)
+        return;
+
+    preferences_bus_id = Bus.own_name(
+        BusType.SESSION,
+        "org.mate.GlobalMenu",
+        BusNameOwnerFlags.NONE,
+        (connection) => {
+            try {
+                connection.register_object(
+                    "/org/mate/GlobalMenu/Preferences",
+                    new PreferencesService());
+            } catch (Error error) {
+                warning("Could not export Global Menu preferences: %s",
+                        error.message);
+            }
+        },
+        null,
+        null);
+}
+
 private static int shortcut_preset_index(string shortcut)
 {
     uint keyval;
@@ -194,7 +231,7 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
         appmenu_page.pack_start(entry,false,false,2);
         entry.show();
 
-        entry = new CheckButton.with_label(dgettext(Config.GETTEXT_PACKAGE,"Show activities icon"));
+        entry = new CheckButton.with_label(dgettext(Config.GETTEXT_PACKAGE,"Show application icon"));
         settings.bind(Key.SHOW_ICON,entry,"active",SettingsBindFlags.DEFAULT);
         appmenu_page.pack_start(entry,false,false,2);
         entry.show();
@@ -547,6 +584,7 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
             dlg.destroy();
         });
     });
+    export_preferences_action(a);
     action_group.add_action (a);
     applet.setup_menu("""<menuitem name="Appmenu Preferences Item" action="AppMenuAppletPreferences" />""",action_group);
     return true;
@@ -555,8 +593,8 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
 
 public int _mate_panel_applet_shlib_factory()
 {
-//    GLib.Intl.bindtextdomain(Config.GETTEXT_PACKAGE,Config.LOCALE_DIR);
-//    GLib.Intl.bind_textdomain_codeset(Config.GETTEXT_PACKAGE,"UTF-8");
+    GLib.Intl.bindtextdomain(Config.GETTEXT_PACKAGE, Config.LOCALE_DIR);
+    GLib.Intl.bind_textdomain_codeset(Config.GETTEXT_PACKAGE, "UTF-8");
     return MatePanel.Applet.factory_setup_in_process("AppmenuAppletFactory", typeof (MatePanel.Applet), factory_callback);
 }
 

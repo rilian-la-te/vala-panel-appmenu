@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Global Menu
+Comment=Configure the global menu and menu search
+Exec=gdbus call --session --dest org.mate.GlobalMenu --object-path /org/mate/GlobalMenu/Preferences --method org.mate.GlobalMenu.Preferences.Show
+Icon=system-search
+Terminal=false
+StartupNotify=true
+OnlyShowIn=MATE;
+Categories=GTK;Settings;DesktopSettings;
