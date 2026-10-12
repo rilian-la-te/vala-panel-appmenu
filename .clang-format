@@ -23,7 +23,6 @@ BinPackParameters: true
 # BraceWrapping: (not set since BreakBeforeBraces is not Custom)
 BreakBeforeBinaryOperators: None
 # BreakAfterJavaFieldAnnotations: (not java)
-BreakBeforeBinaryOperators: None
 BreakBeforeBraces: Allman
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializersBeforeComma: false
