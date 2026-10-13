@@ -1,7 +1,7 @@
 project(
   'appmenu-glib-translator',
   'c',
-version : '25.04',
+version : '26.10-rc1',
 meson_version : '>=0.61.0',
 license : 'LGPL-3.0-or-later',
 default_options : ['c_std=gnu11', 'buildtype=debugoptimized', 'warning_level=1']
@@ -9,6 +9,8 @@ default_options : ['c_std=gnu11', 'buildtype=debugoptimized', 'warning_level=1']
 
 gnome = import('gnome')
 pkgconfig = import('pkgconfig')
+
+library_version = '26.10'
 
 glib_ver = '>=2.52.0'
 giounix = dependency('gio-unix-2.0', version: glib_ver)
@@ -49,7 +51,7 @@ importer_name = 'appmenu-glib-translator'
 
 importer_lib = library(importer_name, imp_sources, importer_enums_gen, imp_dbus,
     dependencies: [giounix, gdkpixbuf],
-    version: meson.project_version(),
+    version: library_version,
     install: true,
     soversion: 0,
     pic : true
@@ -73,7 +75,7 @@ importer_gir = gnome.generate_gir(importer_lib,
                     namespace: 'AppmenuGLibTranslator',
                     identifier_prefix: 'DBusMenu',
                     symbol_prefix: 'dbus_menu',
-                    nsversion: meson.project_version(),
+                    nsversion: library_version,
                     install: true
 )
 

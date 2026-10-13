@@ -22,7 +22,7 @@ parser_inc = include_directories('.')
 parser_kwargs = {
     'sources': lib_sources+lib_headers+lib_private_headers,
     'install': true,
-    'version': meson.project_version(),
+    'version': library_version,
     'soversion': '0'
 }
 pc_kwargs = {
