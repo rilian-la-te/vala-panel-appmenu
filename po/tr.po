@@ -1,5 +1,199 @@
+# Turkish translations for vala-panel-appmenu.
+# Copyright (C) 2026 vala-panel-appmenu contributors
+# This file is distributed under the same license as the vala-panel-appmenu package.
+#
 msgid ""
 msgstr ""
+"Project-Id-Version: vala-panel-appmenu 25.04\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-12 16:43-0700\n"
+"PO-Revision-Date: 2026-10-12 00:00-0700\n"
+"Last-Translator: Kerem Söke\n"
+"Language-Team: Turkish\n"
+"Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+msgid "Use Compact mode (all menus in application menu)"
+msgstr "Sade görünümü kullan (Tüm menülere uygulama menüsünden erişilir)"
+
+msgid "Use bold application name"
+msgstr "Uygulama adını kalın yaz"
+
+msgid "Keyboard layout"
+msgstr "Tuş takımı düzeni"
+
+msgid "Left"
+msgstr "Sol"
+
+msgid "Right"
+msgstr "Sağ"
+
+msgid "_Preferences"
+msgstr "_Tercihler"
+
+msgid "Configure AppMenu"
+msgstr "Genel Menüyü yapılandır"
+
+msgid "Show application icon"
+msgstr "Uygulama simgesini göster"
+
+msgid "Icon padding"
+msgstr "Simge dolgusu"
+
+msgid "AppMenu"
+msgstr "Genel Menü"
+
+msgid "Enable HUD"
+msgstr "HUD'yi etkinleştir"
+
+msgid "Shortcut:"
+msgstr "Kısayol:"
+
+msgid "Modifier side"
+msgstr "Değiştirici tarafı"
+
+msgid ""
+"Choose the modifier key's side. For Ctrl+Alt, this selects Alt; either Ctrl "
+"key works. AltGr follows your keyboard layout."
+msgstr ""
+"Değiştirici tuşun sağda mı solda mı olacağını seçin. Ctrl+Alt tuş birleşimini "
+"kullanıyorsanız yalnızca sağ veya sol Alt tuşunu seçebilirsiniz ve "
+"Ctrl tuşlarından herhangi birini kullanabilirsiniz. "
+"AltGr tuşu ise klavye düzeninize göre çalışır."
+
+msgid "Let MATE Control Center handle shortcut"
+msgstr "Kısayolu MATE Denetim Merkezi yönetsin"
+
+msgid ""
+"When enabled, the daemon will not register shortcuts by itself.\n"
+"Configure the shortcut in MATE Control Center → Keyboard Shortcuts.\n"
+"Set the command to:\n"
+"  gdbus call --session --dest org.mate.HUD \\\n"
+"    --object-path /org/mate/HUD --method org.mate.HUD.Activate 0"
+msgstr ""
+"Bu seçenek etkinleştirildiğinde klavye kısayolları özdevimli olarak atanmaz.\n"
+"Kısayolu MATE Denetim Merkezi → Klavye Kısayolları bölümünden kendiniz tanımlayın.\n"
+"Komut alanına şunu girin:\n"
+"  gdbus call --session --dest org.mate.HUD \\\n"
+"    --object-path /org/mate/HUD --method org.mate.HUD.Activate 0"
+
+msgid ""
+"Tap and release the selected modifier to open the HUD.\n"
+"For Ctrl+Alt, hold either Ctrl key, then press Alt on the selected side.\n"
+"AltGr follows your keyboard layout and is not the same as Ctrl+Alt.\n"
+"Hyper and AltGr require matching keys in your keyboard layout."
+msgstr ""
+"HUD'yi açmak için seçilen değiştiriciye hızlıca basıp bırakın.\n"
+"Ctrl+Alt için Ctrl tuşlarından birini basılı tutup seçilen taraftaki Alt "
+"tuşuna basın.\n"
+"AltGr klavye düzeninizi izler ve Ctrl+Alt ile aynı değildir.\n"
+"Hyper ve AltGr, klavye düzeninizde eşleşen tuşlar gerektirir."
+
+msgid ""
+"The saved shortcut is not one of these modifiers. Choose a modifier or use "
+"MATE Control Center."
+msgstr ""
+"Kaydedilen kısayol, bu değiştiricilerden biri değil. Bir değiştirici seçin ya "
+"da MATE Denetim Merkezi'ni kullanın."
+
+msgid "Attach HUD to:"
+msgstr "HUD'yi şuna iliştir:"
+
+msgid "monitor"
+msgstr "Monitör"
+
+msgid "window"
+msgstr "Pencere"
+
+msgid "global menu applet"
+msgstr "Genel menü uygulamacığı"
+
+msgid "HUD location:"
+msgstr "HUD konumu:"
+
+msgid "Center"
+msgstr "Merkez"
+
+msgid "HUD"
+msgstr "HUD"
+
+msgid "Expand plugin on panel"
+msgstr "Eklentiyi panelde genişlet"
+
+msgid "Application"
+msgstr "Uygulama"
+
+msgid "_Desktop"
+msgstr "_Masaüstü"
+
+msgid "No files"
+msgstr "Dosya yok"
+
+msgid "Compact Menu"
+msgstr "Sade Menü"
+
+msgid "_Desktop Settings"
+msgstr "_Masaüstü Ayarları"
+
+msgid "_System Settings"
+msgstr "_Sistem Ayarları"
+
+msgid "_Files"
+msgstr "_Dosyalar"
+
+msgid "_Documents"
+msgstr "_Belgeler"
+
+msgid "_Music"
+msgstr "_Müzik"
+
+msgid "_Pictures"
+msgstr "_Resimler"
+
+msgid "_Video"
+msgstr "_Video"
+
+msgid "_New"
+msgstr "_Yeni"
+
+msgid "_Quit"
+msgstr "_Çık"
+
+msgid "Global Menu"
+msgstr "Genel Menü"
+
+msgid "AppMenu Plugin"
+msgstr "Uygulama Menüsü Eklentisi"
+
+msgid "Display AppMenu (Global Menu)"
+msgstr "Uygulama Menüsünü göster (Genel Menü)"
+
+msgid "Appmenu applet factory"
+msgstr "Uygulama Menüsü uygulamacık oluşturucusu"
+
+msgid "Global Application Menu"
+msgstr "Genel Uygulama Menüsü"
+
+msgid "Configure the global menu and menu search"
+msgstr "Genel menüyü ve menü aramasını yapılandır"
+
+msgid "Search for menus"
+msgstr "Menülerde ara"
+
+msgid "Global menu HUD for MATE"
+msgstr "MATE için genel menü HUD'ı"
+
+msgid "Search application menus"
+msgstr "Uygulama menülerinde ara"
+
+msgid "Path"
+msgstr "Yol"
+
+msgid "Index"
+msgstr "Dizin"
+
+msgid "Shortcut"
+msgstr "Kısayol"
