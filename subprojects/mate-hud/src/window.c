@@ -2,6 +2,7 @@
 #include "model.h"
 #include "history.h"
 #include <gdk/gdkx.h>
+#include <X11/Xatom.h>
 #include <glib/gi18n.h>
 #include <string.h>
 
@@ -29,7 +30,13 @@ struct HudWindow {
     int                 placed_width;
     int                 placed_height;
     gboolean            alt_tap;
+    gboolean            has_focus;
+    guint               focus_watchdog_id;
 };
+
+/* Every way of closing the HUD needs keyboard focus, so a HUD the window
+ * manager never focuses (e.g. focus-stealing prevention) would stay forever. */
+#define FOCUS_WATCHDOG_MS 1000
 
 /* ── Placement ───────────────────────────────────────────────────────────── */
 
@@ -499,9 +506,39 @@ static gboolean on_window_focus_out(GtkWidget *widget,
     return FALSE;
 }
 
+static void stop_focus_watchdog(HudWindow *w)
+{
+    if (w->focus_watchdog_id != 0) {
+        g_source_remove(w->focus_watchdog_id);
+        w->focus_watchdog_id = 0;
+    }
+}
+
+static gboolean on_focus_watchdog(gpointer user_data)
+{
+    HudWindow *w = user_data;
+    w->focus_watchdog_id = 0;
+    if (w->window && !w->has_focus) {
+        g_message("mate-hud: closing HUD that never received keyboard focus");
+        gtk_widget_destroy(w->window);
+    }
+    return G_SOURCE_REMOVE;
+}
+
+static gboolean on_window_focus_in(GtkWidget *widget G_GNUC_UNUSED,
+                                    GdkEventFocus *event G_GNUC_UNUSED,
+                                    gpointer user_data)
+{
+    HudWindow *w = user_data;
+    w->has_focus = TRUE;
+    stop_focus_watchdog(w);
+    return FALSE;
+}
+
 static void on_window_destroy(GtkWidget *widget G_GNUC_UNUSED, gpointer user_data)
 {
     HudWindow *w = user_data;
+    stop_focus_watchdog(w);
     /* Already being destroyed, children included. The HudWindow outlives them
      * until the nested gtk_main() returns, so drop every widget pointer. */
     w->window = NULL;
@@ -615,6 +652,8 @@ HudWindow *hud_window_new(GPtrArray *entries,
     select_first_row(w);
 
     /* Signals */
+    g_signal_connect(w->window, "focus-in-event",
+                     G_CALLBACK(on_window_focus_in), w);
     g_signal_connect(w->window, "focus-out-event",
                      G_CALLBACK(on_window_focus_out), w);
     g_signal_connect(w->search_entry, "search-changed",
@@ -678,6 +717,7 @@ void hud_window_present(HudWindow *w, guint32 timestamp, gulong target_xid)
     gtk_widget_realize(w->window);
 
     /* Set X11 user time so the WM grants focus authority */
+    guint32 present_ts = timestamp;
     GdkWindow *gdk_win = gtk_widget_get_window(w->window);
     if (GDK_IS_X11_WINDOW(gdk_win)) {
         /* The parent belongs to another process, so GtkWindow's transient
@@ -692,8 +732,8 @@ void hud_window_present(HudWindow *w, guint32 timestamp, gulong target_xid)
             gdk_window_set_transient_for(gdk_win, parent);
             g_object_unref(parent);
         }
-        guint32 ts = timestamp ? timestamp : gdk_x11_get_server_time(gdk_win);
-        gdk_x11_window_set_user_time(gdk_win, ts);
+        present_ts = timestamp ? timestamp : gdk_x11_get_server_time(gdk_win);
+        gdk_x11_window_set_user_time(gdk_win, present_ts);
     }
 
     /* Give the WM the requested position before the first map. */
@@ -701,14 +741,21 @@ void hud_window_present(HudWindow *w, guint32 timestamp, gulong target_xid)
     gtk_widget_show(w->window);
     place_window(w, target_xid);
     gtk_window_present_with_time(GTK_WINDOW(w->window),
-                                 timestamp ? timestamp : GDK_CURRENT_TIME);
+                                 present_ts ? present_ts : GDK_CURRENT_TIME);
     place_window(w, target_xid);
     gtk_widget_grab_focus(w->search_entry);
+
+    /* Each (re-)present gives the WM a fresh chance to focus the HUD. */
+    if (!w->has_focus) {
+        stop_focus_watchdog(w);
+        w->focus_watchdog_id = g_timeout_add(FOCUS_WATCHDOG_MS, on_focus_watchdog, w);
+    }
 }
 
 void hud_window_destroy(HudWindow *w)
 {
     if (!w) return;
+    stop_focus_watchdog(w);
     if (w->window && GTK_IS_WIDGET(w->window))
         gtk_widget_destroy(w->window);
     g_object_unref(w->store);
@@ -739,4 +786,30 @@ gulong hud_window_xid(HudWindow *w)
 guint32 hud_window_dismiss_time(HudWindow *w)
 {
     return w ? w->dismiss_time : 0;
+}
+
+gulong hud_active_window_xid(void)
+{
+    GdkDisplay *display = gdk_display_get_default();
+    if (!GDK_IS_X11_DISPLAY(display))
+        return 0;
+
+    Display *dpy = GDK_DISPLAY_XDISPLAY(display);
+    Atom prop = gdk_x11_get_xatom_by_name_for_display(display, "_NET_ACTIVE_WINDOW");
+    Atom type;
+    int fmt;
+    unsigned long n, after;
+    unsigned char *data = NULL;
+    gulong xid = 0;
+
+    gdk_x11_display_error_trap_push(display);
+    if (XGetWindowProperty(dpy, DefaultRootWindow(dpy), prop, 0, 1, False, XA_WINDOW,
+                           &type, &fmt, &n, &after, &data) == Success && data) {
+        /* A zero-length property still returns a (1-byte) buffer. */
+        if (n >= 1 && fmt == 32)
+            xid = *(Window *)data;
+        XFree(data);
+    }
+    gdk_x11_display_error_trap_pop_ignored(display);
+    return xid;
 }

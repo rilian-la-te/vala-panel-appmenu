@@ -105,6 +105,24 @@ void hud_activate(gulong xid,
         return;
     }
 
+    /* Menu collection is synchronous and can take seconds. If the user switched
+     * to another application meanwhile, the HUD would appear over a window they
+     * left, without focus. Staying in the target keeps the activation however
+     * long collection took, and the HUD is then presented as a current action
+     * so focus-stealing prevention does not refuse it for its old timestamp. */
+    gulong active_xid = hud_active_window_xid();
+    if (active_xid) {
+        gulong hud_xid = current_window ? hud_window_xid(current_window) : 0;
+        if (active_xid != xid && active_xid != hud_xid) {
+            g_message("mate-hud: activation for xid=%lu cancelled; active window "
+                      "changed to %lu during menu collection", xid, active_xid);
+            g_ptr_array_unref(entries);
+            hud_activation_in_progress = FALSE;
+            return;
+        }
+        timestamp = 0;
+    }
+
     history_load(entries, wm_class);
     if (current_window) {
         g_message("mate-hud: refreshing HUD with %u entries for xid=%lu",

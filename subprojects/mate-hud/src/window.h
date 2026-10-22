@@ -50,3 +50,6 @@ gulong hud_window_xid(HudWindow *w);
 
 /* X server time at which focus loss dismissed the window, or 0. */
 guint32 hud_window_dismiss_time(HudWindow *w);
+
+/* The window manager's active window (_NET_ACTIVE_WINDOW), or 0 if unknown. */
+gulong hud_active_window_xid(void);
