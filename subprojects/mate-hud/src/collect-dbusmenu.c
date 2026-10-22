@@ -224,7 +224,7 @@ static void traverse(GDBusProxy *proxy, int item_id,
 GPtrArray *collect_dbusmenu(const char *service, const char *object_path)
 {
     g_autoptr(GError) err = NULL;
-    GDBusConnection *conn = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &err);
+    g_autoptr(GDBusConnection) conn = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &err);
     if (!conn) return NULL;
 
     /* Detect Chromium-like services that need shorter timeouts */

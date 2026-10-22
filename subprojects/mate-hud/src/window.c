@@ -260,7 +260,7 @@ static void activate_entry(HudWindow *w, MenuEntry *e)
     history_record(w->wm_class, e->path_plain, w->history_max);
 
     g_autoptr(GError) err = NULL;
-    GDBusConnection *conn = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &err);
+    g_autoptr(GDBusConnection) conn = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, &err);
     if (!conn) return;
 
     if (e->backend == BACKEND_DBUSMENU) {
@@ -311,8 +311,6 @@ static void activate_entry(HudWindow *w, MenuEntry *e)
             g_object_unref(proxy);
         }
     }
-
-    g_object_unref(conn);
 }
 
 static void do_activate_selected(HudWindow *w)
