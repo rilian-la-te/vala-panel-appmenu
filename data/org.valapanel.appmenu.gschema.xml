@@ -36,6 +36,7 @@
       <description>When true, MATE Control Center handles the shortcut and the daemon does not grab keys internally. This is the safe default for full accelerators such as "&lt;Alt&gt;space".</description>
     </key>
     <key name="hud-history-max" type="i">
+      <range min="1" max="500"/>
       <default>20</default>
       <summary>Maximum history entries per application</summary>
       <description>Number of most-recently-used menu items remembered per application WM class.</description>
