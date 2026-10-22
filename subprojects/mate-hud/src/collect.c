@@ -82,8 +82,9 @@ static gboolean has_menumodel(gulong xid)
         if (XGetWindowProperty(dpy, (Window)xid, prop,
                                0, 1, False, AnyPropertyType,
                                &type, &fmt, &n, &after, &data) == Success
-            && data && n > 0) {
-            found = TRUE;
+            && data) {
+            /* A zero-length property still returns a (1-byte) buffer. */
+            found = n > 0;
             XFree(data);
         }
     }
