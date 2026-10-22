@@ -194,7 +194,8 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
         update_hud_applet_geometry(applet, settings);
         return false;
     });
-    applet.get_toplevel().configure_event.connect(() => {
+    var toplevel = applet.get_toplevel();
+    ulong configure_id = toplevel.configure_event.connect(() => {
         update_hud_applet_geometry(applet, settings);
         return false;
     });
@@ -202,7 +203,7 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
     var action_group = new Gtk.ActionGroup ("AppmenuApplet Menu Actions");
     action_group.set_translation_domain (Config.GETTEXT_PACKAGE);
     Gtk.Action a = new Gtk.Action("AppMenuAppletPreferences",N_("_Preferences"),null,Gtk.Stock.PREFERENCES);
-    a.activate.connect(()=>
+    ulong activate_id = a.activate.connect(()=>
     {
         var dlg = (Gtk.Dialog) GLib.Object.new(typeof(Gtk.Dialog),
             "title", dgettext(Config.GETTEXT_PACKAGE, "Configure AppMenu"),
@@ -585,6 +586,16 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
         });
     });
     export_preferences_action(a);
+    /* The panel toplevel and the static preferences action outlive the applet,
+     * and their handlers hold the applet, its settings and the menu widget. */
+    applet.destroy.connect(() => {
+        if (SignalHandler.is_connected(toplevel, configure_id))
+            SignalHandler.disconnect(toplevel, configure_id);
+        if (SignalHandler.is_connected(a, activate_id))
+            SignalHandler.disconnect(a, activate_id);
+        if (preferences_action == a)
+            preferences_action = null;
+    });
     action_group.add_action (a);
     applet.setup_menu("""<menuitem name="Appmenu Preferences Item" action="AppMenuAppletPreferences" />""",action_group);
     return true;
