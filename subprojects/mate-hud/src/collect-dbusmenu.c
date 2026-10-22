@@ -7,12 +7,17 @@
 #define DBUSMENU_IFACE   "com.canonical.dbusmenu"
 #define CALL_TIMEOUT_MS  3000
 #define CALL_TIMEOUT_CHROMIUM_MS 1000
+/* Limits on what an application can make us walk: a layout may loop back on
+ * itself or keep inventing new submenu ids. */
+#define MAX_MENU_DEPTH   16
+#define MAX_SUBMENUS     1024
 
 /* Forward */
 static void traverse(GDBusProxy *proxy, int item_id,
                      GPtrArray *path_segs, GPtrArray *entries,
                      const char *service, const char *object_path,
-                     int call_timeout_ms, GList **level1_ids);
+                     int call_timeout_ms, GList **level1_ids,
+                     GHashTable *visited);
 
 /* Format a DBusMenu shortcut array-of-arrays into "Ctrl+Shift+S" style. */
 static char *format_shortcut(GVariant *shortcut_var)
@@ -70,11 +75,13 @@ static void expand_node(GDBusProxy *proxy, int item_id, int timeout_ms)
     g_clear_error(&err);
 }
 
-/* Recursive traversal of one node. path_segs holds label strings for ancestors. */
+/* Recursive traversal of one node. path_segs holds label strings for ancestors.
+ * visited holds the ids of every submenu already expanded. */
 static void traverse(GDBusProxy *proxy, int item_id,
                      GPtrArray *path_segs, GPtrArray *entries,
                      const char *service, const char *object_path,
-                     int timeout_ms, GList **level1_ids)
+                     int timeout_ms, GList **level1_ids,
+                     GHashTable *visited)
 {
     g_autoptr(GError) err = NULL;
 
@@ -166,10 +173,14 @@ static void traverse(GDBusProxy *proxy, int item_id,
         g_ptr_array_add(path_segs, (char *)label);
 
         if (has_children) {
-            /* Expand and recurse */
-            expand_node(proxy, child_id, timeout_ms);
-            traverse(proxy, child_id, path_segs, entries,
-                     service, object_path, timeout_ms, NULL);
+            /* Expand and recurse, once per submenu and within the limits */
+            if (path_segs->len <= MAX_MENU_DEPTH &&
+                g_hash_table_size(visited) < MAX_SUBMENUS &&
+                g_hash_table_add(visited, GINT_TO_POINTER(child_id))) {
+                expand_node(proxy, child_id, timeout_ms);
+                traverse(proxy, child_id, path_segs, entries,
+                         service, object_path, timeout_ms, NULL, visited);
+            }
         } else if (enabled) {
             /* Leaf item: build MenuEntry */
             GVariant *shortcut_v = g_variant_lookup_value(child_props, "shortcut",
@@ -237,9 +248,12 @@ GPtrArray *collect_dbusmenu(const char *service, const char *object_path)
     GPtrArray *entries   = g_ptr_array_new_with_free_func((GDestroyNotify)menu_entry_free);
     GPtrArray *path_segs = g_ptr_array_new();
     GList     *level1_ids = NULL;
+    GHashTable *visited  = g_hash_table_new(g_direct_hash, g_direct_equal);
+    g_hash_table_add(visited, GINT_TO_POINTER(0));
 
     traverse(proxy, 0, path_segs, entries, service, object_path,
-             timeout_ms, &level1_ids);
+             timeout_ms, &level1_ids, visited);
+    g_hash_table_destroy(visited);
 
     /* Firefox/VimFx workaround: send "closed" to all level-1 items */
     guint32 ts = (guint32)(g_get_monotonic_time() / 1000);
