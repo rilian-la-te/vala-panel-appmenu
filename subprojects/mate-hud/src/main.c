@@ -104,14 +104,16 @@ static Window read_active_xid(Display *dpy)
     if (prop == None) return 0;
     Atom type; int fmt; unsigned long n, after;
     unsigned char *data = NULL;
+    Window xid = 0;
     if (XGetWindowProperty(dpy, DefaultRootWindow(dpy), prop,
                            0, 1, False, XA_WINDOW,
                            &type, &fmt, &n, &after, &data) == Success && data) {
-        Window xid = *(Window *)data;
+        /* A zero-length property still returns a (1-byte) buffer. */
+        if (n >= 1 && fmt == 32)
+            xid = *(Window *)data;
         XFree(data);
-        return xid;
     }
-    return 0;
+    return xid;
 }
 
 /* ── D-Bus method handler ────────────────────────────────────────────────── */

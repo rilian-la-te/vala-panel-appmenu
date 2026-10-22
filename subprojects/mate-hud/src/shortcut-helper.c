@@ -54,7 +54,6 @@ static const char *current_wm_name(Display *dpy, Window root)
     int format;
     unsigned long nitems, after;
     unsigned char *data = NULL;
-    Window *wm_window = NULL;
 
     name_buf[0] = '\0';
     if (wm_check == None || wm_name == None)
@@ -64,10 +63,12 @@ static const char *current_wm_name(Display *dpy, Window root)
                            &type, &format, &nitems, &after, &data) != Success || !data)
         return name_buf;
 
-    wm_window = (Window *)data;
-    Window actual = wm_window[0];
+    /* A zero-length property still returns a (1-byte) buffer. */
+    Window actual = (nitems >= 1 && format == 32) ? ((Window *)data)[0] : None;
     XFree(data);
     data = NULL;
+    if (actual == None)
+        return name_buf;
 
     if (XGetWindowProperty(dpy, actual, wm_name, 0, 64, False,
                            utf8 != None ? utf8 : AnyPropertyType,
