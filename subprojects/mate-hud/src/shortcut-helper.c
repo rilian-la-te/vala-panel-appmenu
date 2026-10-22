@@ -56,23 +56,26 @@ static void handle_term(int signo G_GNUC_UNUSED)
     errno = saved_errno;
 }
 
-static void install_term_handler(void)
+/* Without the pipe, a SIGTERM could be lost before poll() and leave the daemon
+ * waiting on us, so the helper must not run (or grab anything) without it. */
+static gboolean install_term_handler(void)
 {
-    if (pipe(term_pipe) == 0) {
-        for (int i = 0; i < 2; i++) {
-            fcntl(term_pipe[i], F_SETFD, FD_CLOEXEC);
-            fcntl(term_pipe[i], F_SETFL, fcntl(term_pipe[i], F_GETFL) | O_NONBLOCK);
-        }
-    } else {
-        g_warning("mate-hud-shortcut-helper: cannot create termination pipe: %s",
-                  g_strerror(errno));
+    if (pipe(term_pipe) != 0) {
+        g_printerr("mate-hud-shortcut-helper: cannot create termination pipe: %s\n",
+                   g_strerror(errno));
         term_pipe[0] = term_pipe[1] = -1;
+        return FALSE;
+    }
+    for (int i = 0; i < 2; i++) {
+        fcntl(term_pipe[i], F_SETFD, FD_CLOEXEC);
+        fcntl(term_pipe[i], F_SETFL, fcntl(term_pipe[i], F_GETFL) | O_NONBLOCK);
     }
 
     struct sigaction sa = { .sa_handler = handle_term };
     sigemptyset(&sa.sa_mask);
     sigaction(SIGTERM, &sa, NULL);
     sigaction(SIGINT, &sa, NULL);
+    return TRUE;
 }
 
 static const char *current_wm_name(Display *dpy, Window root)
@@ -297,7 +300,6 @@ static void run_loop(GrabState *gs)
 
     while (helper_running) {
         int timeout_ms = -1;
-        /* A negative fd (no pipe) is ignored by poll(). */
         struct pollfd pfd[2] = {
             { .fd = xfd,          .events = POLLIN, .revents = 0 },
             { .fd = term_pipe[0], .events = POLLIN, .revents = 0 },
@@ -397,7 +399,10 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    install_term_handler();
+    if (!install_term_handler()) {
+        XCloseDisplay(dpy);
+        return 1;
+    }
 
     g_message("mate-hud-shortcut-helper: grabbed '%s' in %s mode",
               argv[1], gs.bare_tap ? "modifier-tap" : "modifier-chord");
