@@ -117,6 +117,8 @@ static int dbus_menu_model_is_mutable(GMenuModel *model)
 
 struct layout_data
 {
+	/* Section models only point at their parent, so keep it alive too. */
+	DBusMenuModel *owner;
 	GMenuModel *model;
 	int section_num;
 	uint pos;
@@ -157,6 +159,7 @@ static int dbus_menu_model_sort_func(gconstpointer a, gconstpointer b,
 static void layout_data_free(struct layout_data *data)
 {
 	g_clear_object(&data->model);
+	g_clear_object(&data->owner);
 	g_free(data);
 }
 
@@ -173,6 +176,7 @@ static void add_signal_to_queue(DBusMenuModel *model, GQueue *queue, int sect_nu
 			return;
 	}
 	struct layout_data *data = g_new0(struct layout_data, 1);
+	data->owner       = g_object_ref(model);
 	data->model       = g_object_ref(target);
 	data->section_num = sect_num;
 	data->pos         = pos;
