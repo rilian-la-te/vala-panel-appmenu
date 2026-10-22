@@ -1,10 +1,15 @@
 #include "shortcut.h"
 #include <gio/gio.h>
 #include <glib.h>
+#include <errno.h>
 #include <signal.h>
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
+/* Longer than the helper's 2 s Activate call, so a helper that is mid-call
+ * still gets to exit (and release its grabs) on its own. */
+#define HELPER_EXIT_TIMEOUT_MS 3000
 
 struct ShortcutGrab {
     GPid   child_pid;
@@ -47,6 +52,29 @@ static void shortcut_child_watch(GPid pid, gint status, gpointer user_data)
     } else {
         g_warning("mate-hud: shortcut helper exited unexpectedly");
     }
+}
+
+/* Reap the helper after SIGTERM. Waiting keeps the old grab from overlapping
+ * the next helper's, but a helper that never exits must not freeze the daemon:
+ * after the timeout it is killed, and the X server drops its grabs when the
+ * connection closes. */
+static void wait_for_helper_exit(GPid pid)
+{
+    int status = 0;
+    gint64 deadline = g_get_monotonic_time() + HELPER_EXIT_TIMEOUT_MS * 1000;
+
+    while (g_get_monotonic_time() < deadline) {
+        pid_t r = waitpid(pid, &status, WNOHANG);
+        if (r == pid || (r < 0 && errno != EINTR))
+            return;
+        g_usleep(1000);
+    }
+
+    g_warning("mate-hud: shortcut helper (pid=%d) did not exit; killing it",
+              (int)pid);
+    kill(pid, SIGKILL);
+    while (waitpid(pid, &status, 0) < 0 && errno == EINTR)
+        ;
 }
 
 ShortcutGrab *shortcut_new(Display *xdpy G_GNUC_UNUSED)
@@ -113,8 +141,7 @@ void shortcut_ungrab(ShortcutGrab *sg)
     }
 
     if (sg->child_pid != 0) {
-        int status = 0;
-        waitpid(sg->child_pid, &status, 0);
+        wait_for_helper_exit(sg->child_pid);
         g_spawn_close_pid(sg->child_pid);
         sg->child_pid = 0;
     }

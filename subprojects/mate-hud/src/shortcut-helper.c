@@ -1,9 +1,12 @@
 #include <gio/gio.h>
 #include <glib.h>
 #include <gtk/gtk.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <poll.h>
 #include <signal.h>
 #include <string.h>
+#include <unistd.h>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
@@ -37,11 +40,39 @@ typedef struct {
     guint32  tap_start_time;
 } GrabState;
 
-static gboolean helper_running = TRUE;
+static volatile sig_atomic_t helper_running = 1;
+/* The handler also writes here, so a signal that lands between the
+ * helper_running check and poll() still wakes the loop. It may run on any of
+ * the threads gtk_init() started, which is why a pipe is used rather than
+ * relying on poll() being interrupted. */
+static int term_pipe[2] = { -1, -1 };
 
 static void handle_term(int signo G_GNUC_UNUSED)
 {
-    helper_running = FALSE;
+    int saved_errno = errno;
+    helper_running = 0;
+    if (term_pipe[1] >= 0)
+        (void)!write(term_pipe[1], "x", 1);
+    errno = saved_errno;
+}
+
+static void install_term_handler(void)
+{
+    if (pipe(term_pipe) == 0) {
+        for (int i = 0; i < 2; i++) {
+            fcntl(term_pipe[i], F_SETFD, FD_CLOEXEC);
+            fcntl(term_pipe[i], F_SETFL, fcntl(term_pipe[i], F_GETFL) | O_NONBLOCK);
+        }
+    } else {
+        g_warning("mate-hud-shortcut-helper: cannot create termination pipe: %s",
+                  g_strerror(errno));
+        term_pipe[0] = term_pipe[1] = -1;
+    }
+
+    struct sigaction sa = { .sa_handler = handle_term };
+    sigemptyset(&sa.sa_mask);
+    sigaction(SIGTERM, &sa, NULL);
+    sigaction(SIGINT, &sa, NULL);
 }
 
 static const char *current_wm_name(Display *dpy, Window root)
@@ -266,7 +297,11 @@ static void run_loop(GrabState *gs)
 
     while (helper_running) {
         int timeout_ms = -1;
-        struct pollfd pfd = { .fd = xfd, .events = POLLIN, .revents = 0 };
+        /* A negative fd (no pipe) is ignored by poll(). */
+        struct pollfd pfd[2] = {
+            { .fd = xfd,          .events = POLLIN, .revents = 0 },
+            { .fd = term_pipe[0], .events = POLLIN, .revents = 0 },
+        };
 
         if (gs->bare_tap && gs->possible_tap) {
             gint64 now_ms = g_get_monotonic_time() / 1000;
@@ -275,7 +310,7 @@ static void run_loop(GrabState *gs)
         }
 
         if (XPending(gs->dpy) == 0) {
-            int rv = poll(&pfd, 1, timeout_ms);
+            int rv = poll(pfd, 2, timeout_ms);
             if (rv == 0) {
                 release_keyboard_if_stuck(gs);
                 continue;
@@ -362,8 +397,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    signal(SIGTERM, handle_term);
-    signal(SIGINT, handle_term);
+    install_term_handler();
 
     g_message("mate-hud-shortcut-helper: grabbed '%s' in %s mode",
               argv[1], gs.bare_tap ? "modifier-tap" : "modifier-chord");
