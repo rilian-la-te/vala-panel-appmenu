@@ -3,11 +3,11 @@
 This version of [vala-panel-appmenu](https://gitlab.com/vala-panel-project/vala-panel-appmenu) is forked from the main project on GitLab. This improved version includes the following features focusing on global menu applet on MATE:
 
  - 🖼️ Preference to show the window icon
- - 🔍 **Replacement of mate-hud** (in progress)
+ - 🔍 **Replacement of mate-hud** 
 
-In the next version, I'm planning to **replace mate-hud with a search option** delivered by this applet just like mate-panel run dialog. MATE HUD doesn't align with the philosophy of a pure GTK environment by using rofi.
+`mate-hud` subproject **replaces legacy python mate-hud with a search option** delivered by this applet just like mate-panel run dialog. 
 
-⚠️ **IMPORTANT:** The following instructions for building and installing this version of Vala Panel Application Menu are for **ONLY ON DEBIAN** systems. 🛑 **NOT TESTED ON UBUNTU YET!!!** If you wish to use precompiled `appmenu-registar` and `appmenu-gtk-module` packages from Debian repos, `subprojects` can be disabled for compiling.
+⚠️ **IMPORTANT:** The following instructions for building and installing this fork of Vala Panel Application Menu are for **ONLY ON DEBIAN and FEDORA** systems. 🛑 **NOT TESTED ON UBUNTU YET!!!** If you wish to use precompiled `appmenu-registar` and `appmenu-gtk-module` packages from Debian repos, `subprojects` can be disabled for compiling.
 
 ## 📦 Prerequisites
 
@@ -17,7 +17,7 @@ In the next version, I'm planning to **replace mate-hud with a search option** d
 
 ```bash
 sudo apt-get install git build-essential meson cmake ninja-build \
-  libgtk2.0-dev libglib2.0-dev libgtk-3-dev libdbusmenu-glib-dev valac libwnck-3-dev \
+  libgtk2.0-dev libglib2.0-dev libgtk-3-dev libdbusmenu-glib-dev valac libwnck-3-dev libjson-glib-dev\
   libmate-panel-applet-dev gobject-introspection libgirepository1.0-dev default-jdk
 ```
 
@@ -27,8 +27,8 @@ sudo apt-get install git build-essential meson cmake ninja-build \
 ### 1. 📥 Clone the Repository
 
 ```bash
-git clone https://gitlab.com/KeremSoke/vala-panel-appmenu.git
-cd vala-panel-appmenu
+git clone https://gitlab.com/KeremSoke/mate-appmenu.git
+cd mate-appmenu
 ```
 
 ### 2. ⚙️ Configure with Meson
@@ -135,12 +135,13 @@ gtk-shell-shows-menubar=true
 
 ## ⚙️ Applet Configuration
 
-Right-click on the AppMenu applet and select **Preferences** to configure:
+Right-click on the AppMenu applet and select **Preferences** OR MATE Control Center > Global Menu to configure:
 
 - 🤏 **Use Compact mode** - Combines all menus under a single application menu
 - **🇧 Use bold application name** - Makes the application name bold
-- 🖼️ **Show activities icon** - Displays the current application's icon before the menu (e.g., Firefox icon when Firefox is active)
+- 🖼️ **Show app icon** - Displays the current application's icon before the menu (e.g., Firefox icon when Firefox is active)
 - 🎚️ Adjust the padding for the activity icon.
+- Various *HUD* anchoring settings 
 
 ---
-ℹ️ *This guide is for vala-panel-appmenu version 25.04 and later.*
+ℹ️ *This guide is for mate-appmenu version 26.10 and later.*
