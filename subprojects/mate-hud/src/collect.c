@@ -45,6 +45,13 @@ static gboolean query_registrar(gulong xid, char **service, char **path)
         return FALSE;
     }
 
+    if (!g_variant_is_of_type(reply, G_VARIANT_TYPE("(so)"))) {
+        g_message("mate-hud: registrar returned unexpected type %s for xid=%lu",
+                  g_variant_get_type_string(reply), xid);
+        g_variant_unref(reply);
+        return FALSE;
+    }
+
     const char *svc, *pth;
     g_variant_get(reply, "(&s&o)", &svc, &pth);
 

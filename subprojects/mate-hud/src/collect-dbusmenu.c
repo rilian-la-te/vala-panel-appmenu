@@ -87,6 +87,11 @@ static void traverse(GDBusProxy *proxy, int item_id,
         G_DBUS_CALL_FLAGS_NONE, timeout_ms, NULL, &err);
 
     if (!layout_reply) return;
+    /* Replies come from the application; never destructure an unchecked type. */
+    if (!g_variant_is_of_type(layout_reply, G_VARIANT_TYPE("(u(ia{sv}av))"))) {
+        g_variant_unref(layout_reply);
+        return;
+    }
 
     guint32 revision;
     GVariant *layout;
@@ -106,6 +111,10 @@ static void traverse(GDBusProxy *proxy, int item_id,
     while ((child_v = g_variant_iter_next_value(&child_iter))) {
         GVariant *child = g_variant_get_variant(child_v);
         g_variant_unref(child_v);
+        if (!g_variant_is_of_type(child, G_VARIANT_TYPE("(ia{sv}av)"))) {
+            g_variant_unref(child);
+            continue;
+        }
 
         gint32 child_id;
         GVariant *child_props;

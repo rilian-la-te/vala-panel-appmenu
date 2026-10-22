@@ -128,6 +128,11 @@ static void traverse_menu(TraverseCtx *ctx,
         g_object_unref(proxy);
         return;
     }
+    if (!g_variant_is_of_type(start_reply, G_VARIANT_TYPE("(a(uuaa{sv}))"))) {
+        g_variant_unref(start_reply);
+        g_object_unref(proxy);
+        return;
+    }
 
     GVariant *content;
     g_variant_get(start_reply, "(@a(uuaa{sv}))", &content);
