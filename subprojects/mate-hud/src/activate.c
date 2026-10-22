@@ -46,6 +46,14 @@ void hud_activate(gulong xid,
         return;
     }
 
+    /* The HUD widget is destroyed before the nested gtk_main() below returns
+     * and the session is torn down; nothing can be refreshed or re-presented
+     * in that gap. */
+    if (current_window && !hud_window_widget(current_window)) {
+        g_message("mate-hud: activation ignored because the HUD session is closing");
+        return;
+    }
+
     if (current_window) {
         gulong hud_xid = hud_window_xid(current_window);
         if (hud_xid != 0 && xid == hud_xid)

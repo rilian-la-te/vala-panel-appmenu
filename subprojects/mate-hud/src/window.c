@@ -201,6 +201,9 @@ static gboolean place_at_applet(HudWindow *w, int win_w, int win_h)
 
 static void place_window(HudWindow *w, gulong target_xid)
 {
+    if (!w->window)
+        return;
+
     GdkRectangle target = {0};
     GdkRectangle area = {0};
     gboolean have_target = get_target_rect(target_xid, &target);
@@ -499,7 +502,11 @@ static gboolean on_window_focus_out(GtkWidget *widget,
 static void on_window_destroy(GtkWidget *widget G_GNUC_UNUSED, gpointer user_data)
 {
     HudWindow *w = user_data;
-    w->window = NULL; /* already being destroyed */
+    /* Already being destroyed, children included. The HudWindow outlives them
+     * until the nested gtk_main() returns, so drop every widget pointer. */
+    w->window = NULL;
+    w->search_entry = NULL;
+    w->tree_view = NULL;
     gtk_main_quit();
 }
 
@@ -641,6 +648,8 @@ void hud_window_update(HudWindow *w,
     w->wm_class = g_strdup(wm_class);
     w->history_max = history_max;
     set_placement(w, attach_to, location);
+    if (!w->window)
+        return;
 
     gtk_entry_set_text(GTK_ENTRY(w->search_entry), "");
     model_populate(w->store, entries);
@@ -661,6 +670,8 @@ void hud_window_set_placement(HudWindow *w,
 
 void hud_window_present(HudWindow *w, guint32 timestamp, gulong target_xid)
 {
+    if (!w || !w->window)
+        return;
     w->target_xid = target_xid;
     /* Grab focus before realize so GTK knows which widget to focus */
     gtk_widget_grab_focus(w->search_entry);
