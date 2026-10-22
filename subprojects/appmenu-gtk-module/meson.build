@@ -1,6 +1,6 @@
 project('appmenu-gtk-module', 'c',
 	meson_version: '>=0.61.0',
-	version: '26.10-rc1',
+	version: '26.10',
 	license: ['LGPL-3.0-or-later'],
     default_options: [
         'c_std=gnu11',
