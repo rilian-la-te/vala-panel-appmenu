@@ -41,6 +41,9 @@ typedef struct {
     int           history_max;
     char         *attach_to;
     char         *location;
+    /* Activations in progress. Nested ones run inside an open HUD's main
+     * loop; the helper stays stopped until the outermost one finishes. */
+    guint         shortcut_suspend_depth;
 } Daemon;
 
 static void apply_shortcut_prefs(Daemon *d);
@@ -48,14 +51,16 @@ static void apply_shortcut_prefs(Daemon *d);
 static void suspend_internal_shortcut(gpointer user_data)
 {
     Daemon *d = user_data;
-    shortcut_ungrab(d->grab);
+    if (d->shortcut_suspend_depth++ == 0)
+        shortcut_ungrab(d->grab);
 }
 
 static void restore_internal_shortcut(gpointer user_data)
 {
     Daemon *d = user_data;
 
-    if (!d->use_system_shortcut)
+    g_return_if_fail(d->shortcut_suspend_depth > 0);
+    if (--d->shortcut_suspend_depth == 0 && !d->use_system_shortcut)
         apply_shortcut_prefs(d);
 }
 
@@ -158,12 +163,12 @@ static void handle_dbus_method(GDBusConnection  *conn G_GNUC_UNUSED,
         data->history_max = d->history_max;
         data->attach_to   = g_strdup(d->attach_to);
         data->location    = g_strdup(d->location);
-        if (!d->use_system_shortcut) {
-            data->started       = suspend_internal_shortcut;
-            data->started_data  = d;
-            data->finished      = restore_internal_shortcut;
-            data->finished_data = d;
-        }
+        /* Tracked in either shortcut mode, so a switch to the internal one
+         * while a HUD is open cannot start the helper underneath it. */
+        data->started       = suspend_internal_shortcut;
+        data->started_data  = d;
+        data->finished      = restore_internal_shortcut;
+        data->finished_data = d;
         g_idle_add_full(G_PRIORITY_HIGH, hud_activate_idle, data,
                         (GDestroyNotify)hud_activate_data_free);
     }
@@ -203,6 +208,11 @@ static void apply_shortcut_prefs(Daemon *d)
     if (use_sys) {
         shortcut_ungrab(d->grab);
         g_message("mate-hud: system shortcut mode enabled; internal key grabbing disabled");
+    } else if (d->shortcut_suspend_depth > 0) {
+        /* A HUD session is open; restore_internal_shortcut() grabs with
+         * these settings once it ends. */
+        g_message("mate-hud: internal shortcut '%s' will be grabbed after the HUD closes",
+                  accel);
     } else {
         if (!shortcut_grab(d->grab, accel, NULL, d->history_max)) {
             g_warning("mate-hud: failed to grab shortcut '%s'", accel);
