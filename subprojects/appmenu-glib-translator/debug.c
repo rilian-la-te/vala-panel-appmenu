@@ -26,7 +26,10 @@
  * release because it wasn't generally useful.  We want it here, though.
  */
 
-G_GNUC_INTERNAL void g_menu_markup_print_to_console(GMenuModel *menu)
+G_GNUC_INTERNAL GString *g_menu_markup_print_string(GString *string, GMenuModel *model, gint indent,
+                                                    gint tabstop);
+
+void g_menu_markup_print_to_console(GMenuModel *menu)
 {
 	GString *str = g_string_new(NULL);
 	g_menu_markup_print_string(str, menu, 4, 4);
@@ -34,7 +37,7 @@ G_GNUC_INTERNAL void g_menu_markup_print_to_console(GMenuModel *menu)
 	g_print("%s\n", cstr);
 }
 
-G_GNUC_INTERNAL void dbus_menu_print_variant(GVariant *var)
+void dbus_menu_print_variant(GVariant *var)
 {
 	g_autofree char *pr = g_variant_print(var, true);
 	g_print("%s\n", pr);

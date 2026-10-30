@@ -55,7 +55,7 @@ importer_lib = library(importer_name, imp_sources, importer_enums_gen, imp_dbus,
     pic : true
 )
 importer_inc = include_directories('.')
-imp_public = ['importer.h']
+imp_public = ['importer.h', 'debug.h']
 install_headers(imp_public, subdir : importer_name)
 
 pkgconfig.generate(importer_lib,
