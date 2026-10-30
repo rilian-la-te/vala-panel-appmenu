@@ -1,4 +1,5 @@
 if build_gtk3 and get_option('tests')
+    subdir('integration')
     client_sources = files (
 	    join_paths('demos','altgrabber.h'),
 	    join_paths('demos','altgrabber.c'),
