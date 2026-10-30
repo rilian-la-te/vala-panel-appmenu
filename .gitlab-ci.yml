@@ -5,6 +5,7 @@ before_script:
   - mkdir -p _ccache
   - export CCACHE_BASEDIR=${PWD}
   - export CCACHE_DIR=${PWD}/_ccache
+  - apk add --no-cache python3 glib-dev meson ninja xz build-base git
 
 cache:
   paths:
@@ -14,7 +15,7 @@ build-applet-alpine:
   image: alpine:edge
   stage: build
   script:
-   - apk add --no-cache python3 gobject-introspection-dev gtk+3.0-dev vala meson ninja xz libwnck3-dev build-base git wayland-protocols wayland-dev
+   - apk add --no-cache gobject-introspection-dev gtk+3.0-dev vala libwnck3-dev wayland-protocols wayland-dev
    - git clone https://gitlab.com/vala-panel-project/vala-panel.git
    - meson --prefix=/usr vp-build vala-panel && meson install -C vp-build && rm -rf vala-panel && rm -rf vp-build
    - meson --prefix=/usr -Dregistrar=disabled -Djayatana=disabled -Dappmenu-gtk-module=disabled build
@@ -29,11 +30,22 @@ build-applet-alpine:
 build-gtk-module-main:
   image: alpine:edge
   stage: build
+  variables:
+    XDG_RUNTIME_DIR: "/tmp/runtime-dir"
+    GDK_BACKEND: "wayland"
+    NO_AT_BRIDGE: "1"
   script:
-   - apk add --no-cache python3 gtk+3.0-dev gtk+2.0-dev xz meson ninja libwnck3-dev build-base git wayland-protocols wayland-dev
+   - apk add --no-cache gtk+3.0-dev gtk+2.0-dev libwnck3-dev wayland-protocols wayland-dev gobject-introspection-dev vala weston mutter dbus
    - export VERSION=$(git describe --abbrev=0)
-   - meson --prefix=/usr build subprojects/appmenu-gtk-module
+   - mkdir -p -m 700 $XDG_RUNTIME_DIR
+   - mkdir -p subprojects/appmenu-gtk-module/subprojects
+   - ln -s ../../appmenu-glib-translator subprojects/appmenu-gtk-module/subprojects/appmenu-glib-translator
+   - meson --prefix=/usr -Dtests=true build subprojects/appmenu-gtk-module
    - meson compile -C build
+   - >-
+     dbus-run-session --
+     mutter --headless --wayland --no-x11 --virtual-monitor 1024x768 --
+     meson test -C build --verbose
    - meson install -C build --no-rebuild
    - meson dist -C build --no-tests
   artifacts:
@@ -45,7 +57,7 @@ build-glib-translator-main:
   image: alpine:edge
   stage: build
   script:
-   - apk add --no-cache python3 glib-dev gobject-introspection-dev vala xz meson build-base git
+   - apk add --no-cache python3 gobject-introspection-dev vala
    - export VERSION=$(git describe --abbrev=0)
    - meson --prefix=/usr build subprojects/appmenu-glib-translator
    - meson compile -C build
@@ -60,7 +72,6 @@ build-registrar-main:
   image: alpine:edge
   stage: build
   script:
-   - apk add --no-cache python3 glib-dev meson xz build-base git
    - export VERSION=$(git describe --abbrev=0)
    - meson --prefix=/usr --libexecdir=lib build subprojects/registrar
    - meson compile -C build
@@ -104,4 +115,3 @@ release-main:
     - "build/meson-dist/jayatana*.tar.xz"
   only:
     - tags
-
