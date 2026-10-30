@@ -9,6 +9,7 @@ fs = import('fs')
 
 roundtrip_sources = files(
   'menu-roundtrip-static.c',
+  'menu-roundtrip-radio.c'
 )
 
 foreach src : roundtrip_sources
