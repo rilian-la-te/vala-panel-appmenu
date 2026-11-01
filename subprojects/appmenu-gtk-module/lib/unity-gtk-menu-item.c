@@ -101,6 +101,19 @@ static GtkImage *gtk_menu_item_get_nth_image(GtkMenuItem *menu_item, guint index
 	return search.object != NULL ? GTK_IMAGE(search.object) : NULL;
 }
 
+static gboolean gtk_menu_item_is_model(GtkMenuItem* menu_item)
+{
+    if(!menu_item)
+        return FALSE;
+
+    GType model_item_type = g_type_from_name ("GtkModelMenuItem");
+
+    if (!model_item_type)
+        return FALSE;
+
+    return G_TYPE_CHECK_INSTANCE_TYPE(menu_item, model_item_type);
+}
+
 static GIcon *gtk_image_get_icon(GtkImage *image)
 {
 	GIcon *icon = NULL;
@@ -545,7 +558,7 @@ static void unity_gtk_menu_item_set_menu_item(UnityGtkMenuItem *item, GtkMenuIte
 			 * accelerators using private API, and there's no way for us to
 			 * detect when they change.
 			 */
-			if (gtk_menu_item_get_submenu(menu_item) != NULL)
+			if (!gtk_menu_item_is_model(menu_item) && gtk_menu_item_get_submenu(menu_item) != NULL)
 				g_signal_emit_by_name(gtk_menu_item_get_submenu(menu_item), "show");
 		}
 
