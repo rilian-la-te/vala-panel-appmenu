@@ -150,7 +150,7 @@ G_GNUC_INTERNAL WindowData *gtk_window_get_window_data(GtkWindow *window)
 	GdkWindow* gdk_win = gtk_widget_get_window((GtkWidget*)window);
 
 	if(!gdk_win)
-		g_message("There is no GdkWindow for requested GtkWindow. It is likely caused by Wayland first attempt.");
+		g_info("There is no GdkWindow for requested GtkWindow. It is likely caused by Wayland first attempt.");
 
 #if (defined(GDK_WINDOWING_WAYLAND))
 	if (GDK_IS_WAYLAND_WINDOW(gdk_win))
