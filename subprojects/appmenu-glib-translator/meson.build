@@ -31,11 +31,9 @@ imp_sources = files(
     )
 imp_headers = files('definitions.h')
 enum = 'importer-enums'
-importer_enums_gen = gnome.mkenums(
+importer_enums_gen = gnome.mkenums_simple(
   enum,
-  sources: imp_headers,
-  c_template: enum + '.c.template',
-  h_template: enum + '.h.template',
+  sources: imp_headers
 )
 imp_dbus = gnome.gdbus_codegen(
     'dbusmenu-interface',
