@@ -64,6 +64,8 @@ typedef enum
 #define DBUS_MENU_PROP_DISPOSITION "disposition"
 
 #define DBUS_MENU_EVENT_OPENED "opened"
+#define DBUS_MENU_EVENT_CLOSED "closed"
+#define DBUS_MENU_EVENT_ACTIVATED "clicked"
 
 #define DBUS_MENU_SHORTCUT_CONTROL "Control"
 #define DBUS_MENU_SHORTCUT_ALT "Alt"

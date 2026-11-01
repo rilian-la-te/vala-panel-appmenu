@@ -32,6 +32,10 @@ imp_sources = files(
     'importer/utils.h'
     )
 exp_sources = files(
+    'exporter/exporter.c',
+    'exporter/exporter.h',
+    'exporter/exporter-item.c',
+    'exporter/exporter-item.h',
     'exporter/gtkactionmuxer.c',
     'exporter/gtkactionmuxer.h',
     'exporter/gtkactionobservable.c',
