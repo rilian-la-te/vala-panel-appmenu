@@ -34,13 +34,13 @@ void g_menu_markup_print_to_console(GMenuModel *menu)
 	GString *str = g_string_new(NULL);
 	g_menu_markup_print_string(str, menu, 4, 4);
 	char *cstr = g_string_free(str, false);
-	g_print("%s\n", cstr);
+	g_printerr("%s\n", cstr);
 }
 
 void dbus_menu_print_variant(GVariant *var)
 {
 	g_autofree char *pr = g_variant_print(var, true);
-	g_print("%s\n", pr);
+	g_printerr("%s\n", pr);
 }
 
 static void indent_string(GString *string, gint indent)
