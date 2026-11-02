@@ -39,19 +39,19 @@ struct _DBusMenuModel
 	uint parse_pending;
 };
 
-static const char *property_names[] = { "accessible-desc",
-	                                "children-display",
-	                                "disposition",
-	                                "enabled",
-	                                "icon-data",
-	                                "icon-name",
-	                                "label",
-	                                "shortcut",
-	                                "toggle-type",
-	                                "toggle-state",
-	                                "type",
-	                                "visible",
-	                                NULL };
+static const char *property_names[] = { DBUS_MENU_PROP_ACCESSIBLE_DESC,
+	                                    DBUS_MENU_PROP_CHILDREN_DISPLAY,
+	                                    DBUS_MENU_PROP_DISPOSITION,
+    	                                DBUS_MENU_PROP_ENABLED,
+    	                                DBUS_MENU_PROP_ICON_DATA,
+    	                                DBUS_MENU_PROP_ICON_NAME,
+    	                                DBUS_MENU_PROP_LABEL,
+    	                                DBUS_MENU_PROP_SHORTCUT,
+    	                                DBUS_MENU_PROP_TOGGLE_TYPE,
+    	                                DBUS_MENU_PROP_TOGGLE_STATE,
+    	                                DBUS_MENU_PROP_TYPE,
+    	                                DBUS_MENU_PROP_VISIBLE,
+    	                                NULL };
 enum
 {
 	PROP_NULL         = 0,

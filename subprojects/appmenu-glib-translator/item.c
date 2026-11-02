@@ -140,7 +140,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 				action_creator_found = true;
 			}
 		}
-		else if (g_strcmp0(prop, "x-kde-title") == 0)
+		else if (g_strcmp0(prop, DBUS_MENU_PROP_KDE_TITLE) == 0)
 		{
 			item->action_type = DBUS_MENU_ACTION_SECTION;
 			g_hash_table_insert(item->attrs,
@@ -242,7 +242,7 @@ G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item)
 		return;
 	dbus_menu_xml_call_event_sync(xml,
 	                              id,
-	                              "opened",
+	                              DBUS_MENU_EVENT_OPENED,
 	                              g_variant_new("v", g_variant_new_int32(0)),
 	                              CURRENT_TIME,
 	                              NULL,
@@ -368,19 +368,19 @@ G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 	g_variant_iter_init(&iter, props);
 	while (g_variant_iter_loop(&iter, "{&sv}", &prop, &value))
 	{
-		if (g_strcmp0(prop, "accessible-desc") == 0)
+		if (g_strcmp0(prop, DBUS_MENU_PROP_ACCESSIBLE_DESC) == 0)
 		{
 			// TODO: Can we supported this property?
 			// properties_is_updated = true;
 		}
-		else if (g_strcmp0(prop, "enabled") == 0)
+		else if (g_strcmp0(prop, DBUS_MENU_PROP_ENABLED) == 0)
 		{
 			bool enabled = g_variant_get_boolean(value);
 			properties_is_updated =
 			    dbus_menu_item_update_enabled(item, enabled) || properties_is_updated;
 		}
 #if 0
-		else if (g_strcmp0(prop, "icon-data") == 0)
+		else if (g_strcmp0(prop, DBUS_MENU_PROP_ICON_DATA) == 0)
 		{
 			// icon-name has more priority
             if (!g_hash_table_lookup(item->attrs, G_MENU_ATTRIBUTE_ICON))
@@ -399,7 +399,7 @@ G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 				                                       value);
 			}
 		}
-		else if (g_strcmp0(prop, "icon-name") == 0)
+		else if (g_strcmp0(prop, DBUS_MENU_PROP_ICON_NAME) == 0)
 		{
 			g_autoptr(GIcon) icon =
 			    g_themed_icon_new(g_variant_get_string(value, NULL));
@@ -418,23 +418,23 @@ G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
                 attr_update_checked(item, HAS_ICON_NAME, boolvar);
 		}
 #endif
-		else if (g_strcmp0(prop, "label") == 0)
+		else if (g_strcmp0(prop, DBUS_MENU_PROP_LABEL) == 0)
 		{
 			properties_is_updated =
 			    attr_update_checked(item, G_MENU_ATTRIBUTE_LABEL, value) ||
 			    properties_is_updated;
 		}
-		else if (g_strcmp0(prop, "shortcut") == 0)
+		else if (g_strcmp0(prop, DBUS_MENU_PROP_SHORTCUT) == 0)
 		{
 			properties_is_updated =
 			    dbus_menu_item_update_shortcut(item, value) || properties_is_updated;
 		}
-		else if (g_strcmp0(prop, "toggle-state") == 0)
+		else if (g_strcmp0(prop, DBUS_MENU_PROP_TOGGLE_STATE) == 0)
 		{
 			item->toggled = g_variant_get_int32(value) > 0;
 			act_props_try_update(item);
 		}
-		else if (g_strcmp0(prop, "visible") == 0)
+		else if (g_strcmp0(prop, DBUS_MENU_PROP_VISIBLE) == 0)
 		{
 			bool vis = g_variant_get_boolean(value);
 			if (item->action_type == DBUS_MENU_ACTION_SECTION)
@@ -490,17 +490,17 @@ G_GNUC_INTERNAL bool dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *p
 	g_variant_iter_init(&iter, props);
 	while (g_variant_iter_next(&iter, "&s", &prop))
 	{
-		if (g_strcmp0(prop, "accessible-desc") == 0)
+		if (g_strcmp0(prop, DBUS_MENU_PROP_ACCESSIBLE_DESC) == 0)
 		{
 			// TODO: Can we support this property?
 			// properties_is_updated = true;
 		}
-		else if (g_strcmp0(prop, "enabled") == 0)
+		else if (g_strcmp0(prop, DBUS_MENU_PROP_ENABLED) == 0)
 		{
 			bool enabled = true;
 			dbus_menu_item_update_enabled(item, enabled);
 		}
-		else if (g_strcmp0(prop, "icon-name") == 0)
+		else if (g_strcmp0(prop, DBUS_MENU_PROP_ICON_NAME) == 0)
 		{
 			if (g_hash_table_lookup(item->attrs, HAS_ICON_NAME))
 			{
@@ -510,7 +510,7 @@ G_GNUC_INTERNAL bool dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *p
 				properties_is_updated = true;
 			}
 		}
-		else if (g_strcmp0(prop, "icon-data") == 0)
+		else if (g_strcmp0(prop, DBUS_MENU_PROP_ICON_DATA) == 0)
 		{
 			if (!g_hash_table_lookup(item->attrs, HAS_ICON_NAME))
 			{
@@ -519,17 +519,17 @@ G_GNUC_INTERNAL bool dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *p
 				properties_is_updated = true;
 			}
 		}
-		else if (g_strcmp0(prop, "label") == 0)
+		else if (g_strcmp0(prop, DBUS_MENU_PROP_LABEL) == 0)
 		{
 			g_hash_table_remove(item->attrs, G_MENU_ATTRIBUTE_LABEL);
 			properties_is_updated = true;
 		}
-		else if (g_strcmp0(prop, "shortcut") == 0)
+		else if (g_strcmp0(prop, DBUS_MENU_PROP_SHORTCUT) == 0)
 		{
 			g_hash_table_remove(item->attrs, G_MENU_ATTRIBUTE_ACCEL);
 			properties_is_updated = true;
 		}
-		else if (g_strcmp0(prop, "visible") == 0)
+		else if (g_strcmp0(prop, DBUS_MENU_PROP_VISIBLE) == 0)
 		{
 			g_autofree char *name =
 			    dbus_menu_action_get_name(item->id, item->action_type, false);

@@ -52,6 +52,19 @@ typedef enum
 #define DBUS_MENU_PROP_CHILDREN_DISPLAY "children-display"
 #define DBUS_MENU_CHILDREN_DISPLAY_SUBMENU "submenu"
 
+#define DBUS_MENU_PROP_KDE_TITLE "x-kde-title"
+#define DBUS_MENU_PROP_ACCESSIBLE_DESC "accessible-desc"
+#define DBUS_MENU_PROP_ENABLED "enabled"
+#define DBUS_MENU_PROP_TOGGLE_STATE "toggle-state"
+#define DBUS_MENU_PROP_VISIBLE "visible"
+#define DBUS_MENU_PROP_SHORTCUT "shortcut"
+#define DBUS_MENU_PROP_LABEL "label"
+#define DBUS_MENU_PROP_ICON_NAME "icon-name"
+#define DBUS_MENU_PROP_ICON_DATA "icon-data"
+#define DBUS_MENU_PROP_DISPOSITION "disposition"
+
+#define DBUS_MENU_EVENT_OPENED "opened"
+
 #define DBUS_MENU_SHORTCUT_CONTROL "Control"
 #define DBUS_MENU_SHORTCUT_ALT "Alt"
 #define DBUS_MENU_SHORTCUT_SHIFT "Shift"
@@ -64,8 +77,6 @@ typedef enum
 
 #define DBUS_MENU_DISABLED_ACTION "ls.disabled"
 #define DBUS_MENU_DISABLED_SUBMENU "disabled-submenu"
-#define DBUS_MENU_PROPERTY_ENABLED "enabled"
-#define DBUS_MENU_PROPERTY_TOGGLE_STATE "toggle-state"
 #define DBUS_MENU_ACTION_RADIO_SELECTED "+"
 #define DBUS_MENU_ACTION_RADIO_UNSELECTED "-"
 
