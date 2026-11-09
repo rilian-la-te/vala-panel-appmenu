@@ -43,7 +43,7 @@ typedef enum
 
 #define DBUS_MENU_PROP_TYPE "type"
 #define DBUS_MENU_TYPE_SEPARATOR "separator"
-#define DBUS_MENU_TYPE_NORMAL "normal"
+#define DBUS_MENU_TYPE_NORMAL "standard"
 
 #define DBUS_MENU_PROP_TOGGLE_TYPE "toggle-type"
 #define DBUS_MENU_TOGGLE_TYPE_CHECK "checkmark"
