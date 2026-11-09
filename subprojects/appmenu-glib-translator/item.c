@@ -54,6 +54,12 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id,
 	return item;
 }
 
+static inline DBusMenuActionType dbus_menu_item_update_action_type(DBusMenuActionType current,
+                                                                   DBusMenuActionType requested)
+{
+	return current > requested ? current : requested;
+}
+
 G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *parent_model,
                                                  GVariant *props)
 {
@@ -71,7 +77,6 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 	g_object_get(parent_model, "action-group", &item->ref_action_group, NULL);
 	g_variant_iter_init(&iter, props);
 	// Iterate by immutable properties, it is construct_only
-	bool action_creator_found = false;
 	while (g_variant_iter_loop(&iter, "{&sv}", &prop, &value))
 	{
 		if (g_strcmp0(prop, DBUS_MENU_PROP_CHILDREN_DISPLAY) == 0)
@@ -84,13 +89,14 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 			else if (g_strcmp0(g_variant_get_string(value, NULL),
 			                   DBUS_MENU_CHILDREN_DISPLAY_SUBMENU) == 0)
 			{
-				item->action_type = DBUS_MENU_ACTION_SUBMENU;
+				item->action_type =
+				    dbus_menu_item_update_action_type(item->action_type,
+				                                      DBUS_MENU_ACTION_SUBMENU);
 				g_autofree char *name =
 				    dbus_menu_action_get_name(id, item->action_type, true);
 				g_hash_table_insert(item->attrs,
 				                    g_strdup(G_MENU_ATTRIBUTE_SUBMENU_ACTION),
 				                    g_variant_ref_sink(g_variant_new_string(name)));
-				action_creator_found = true;
 			}
 		}
 		else if (g_strcmp0(prop, DBUS_MENU_PROP_TOGGLE_TYPE) == 0)
@@ -100,16 +106,19 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 			if (g_strcmp0(g_variant_get_string(value, NULL),
 			              DBUS_MENU_TOGGLE_TYPE_CHECK) == 0)
 			{
-				item->action_type = DBUS_MENU_ACTION_CHECKMARK;
+				item->action_type =
+				    dbus_menu_item_update_action_type(item->action_type,
+				                                      DBUS_MENU_ACTION_CHECKMARK);
 				g_hash_table_insert(item->attrs,
 				                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
 				                    g_variant_ref_sink(g_variant_new_string(name)));
-				action_creator_found = true;
 			}
 			else if (g_strcmp0(g_variant_get_string(value, NULL),
 			                   DBUS_MENU_TOGGLE_TYPE_RADIO) == 0)
 			{
-				item->action_type = DBUS_MENU_ACTION_RADIO;
+				item->action_type =
+				    dbus_menu_item_update_action_type(item->action_type,
+				                                      DBUS_MENU_ACTION_RADIO);
 				g_hash_table_insert(item->attrs,
 				                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
 				                    g_variant_ref_sink(g_variant_new_string(name)));
@@ -118,7 +127,6 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 				g_hash_table_insert(item->attrs,
 				                    g_strdup(G_MENU_ATTRIBUTE_TARGET),
 				                    g_variant_ref_sink(vstr));
-				action_creator_found = true;
 			}
 		}
 		else if (g_strcmp0(prop, DBUS_MENU_PROP_TYPE) == 0)
@@ -126,38 +134,39 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 			const char *type = g_variant_get_string(value, NULL);
 			if (!g_strcmp0(type, DBUS_MENU_TYPE_SEPARATOR))
 			{
-				item->action_type    = DBUS_MENU_ACTION_SECTION;
-				action_creator_found = true;
+				item->action_type =
+				    dbus_menu_item_update_action_type(item->action_type,
+				                                      DBUS_MENU_ACTION_SECTION);
 			}
 			else if (!g_strcmp0(type, DBUS_MENU_TYPE_NORMAL))
 			{
-				item->action_type = DBUS_MENU_ACTION_NORMAL;
+				item->action_type =
+				    dbus_menu_item_update_action_type(item->action_type,
+				                                      DBUS_MENU_ACTION_NORMAL);
 				g_autofree char *name =
 				    dbus_menu_action_get_name(id, item->action_type, true);
 				g_hash_table_insert(item->attrs,
 				                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
 				                    g_variant_ref_sink(g_variant_new_string(name)));
-				action_creator_found = true;
 			}
 		}
 		else if (g_strcmp0(prop, DBUS_MENU_PROP_KDE_TITLE) == 0)
 		{
-			item->action_type = DBUS_MENU_ACTION_SECTION;
+			item->action_type =
+			    dbus_menu_item_update_action_type(item->action_type,
+			                                      DBUS_MENU_ACTION_SECTION);
 			g_hash_table_insert(item->attrs,
 			                    g_strdup(G_MENU_ATTRIBUTE_LABEL),
 			                    g_variant_ref_sink(value));
-			action_creator_found = true;
 		}
-		else if (!action_creator_found)
-		{
-			item->action_type = DBUS_MENU_ACTION_NORMAL;
-			g_autofree char *name =
-			    dbus_menu_action_get_name(id, item->action_type, true);
-			g_hash_table_insert(item->attrs,
-			                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
-			                    g_variant_ref_sink(g_variant_new_string(name)));
-			action_creator_found = true;
-		}
+	}
+	if (item->action_type == DBUS_MENU_ACTION_NONE)
+	{
+		item->action_type     = DBUS_MENU_ACTION_NORMAL;
+		g_autofree char *name = dbus_menu_action_get_name(id, item->action_type, true);
+		g_hash_table_insert(item->attrs,
+		                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
+		                    g_variant_ref_sink(g_variant_new_string(name)));
 	}
 	if (item->action_type != DBUS_MENU_ACTION_SECTION)
 		g_hash_table_insert(item->attrs,
