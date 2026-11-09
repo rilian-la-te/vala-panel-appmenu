@@ -81,3 +81,7 @@ translator_dep = declare_dependency(
         dependencies: [translator_vapi, giounix, gdkpixbuf],
         link_with: translator_lib
 )
+
+if get_option('tests')
+    subdir('tests')
+endif
