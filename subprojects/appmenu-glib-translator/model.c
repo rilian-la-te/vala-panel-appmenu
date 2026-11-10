@@ -210,7 +210,7 @@ static void menu_item_copy_and_load(DBusMenuModel *menu, DBusMenuItem *old, DBus
 	 */
 	dbus_menu_item_update_enabled(new_item, new_submenu || new_item->enabled);
 	new_item->toggled = true;
-	g_timeout_add_full(100, 300, (GSourceFunc)preload_idle, new_item, NULL);
+	g_timeout_add_full(100, 100, (GSourceFunc)preload_idle, new_item, NULL);
 }
 
 // We deal only with layouts with depth 1 (not all)
@@ -462,6 +462,58 @@ static void dbus_menu_update_item_properties_from_layout_sync(DBusMenuModel *men
 	if (is_item_updated)
 		add_signal_to_queue(menu, signal_queue, sect_n, pos, 1, 1);
 	queue_emit_all(signal_queue);
+}
+
+struct AboutToShowCtx {
+    DBusMenuModel* model;
+    GSimpleAction* submenu_action;
+};
+
+static void dbus_menu_model_about_to_show_cb(GObject *source, GAsyncResult *res, gpointer user_data)
+{
+	struct AboutToShowCtx *ctx = user_data;
+	g_autoptr(GError) error = NULL;
+	int need_update = 0;
+	dbus_menu_xml_call_about_to_show_finish(DBUS_MENU_XML(source),
+	                                        (gboolean *)&need_update,
+	                                        res, &error);
+	if (error != NULL)
+	{
+		if (!g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+			g_debug("%s", error->message);
+		goto fail;
+	}
+	if (g_menu_model_get_n_items(G_MENU_MODEL(ctx->model)) == 0)
+		need_update = true;
+	need_update = need_update ||
+	              dbus_menu_model_is_layout_update_required(ctx->model);
+	if (need_update)
+		dbus_menu_model_update_layout(ctx->model);
+	if (ctx->submenu_action && G_IS_SIMPLE_ACTION(ctx->submenu_action))
+		g_simple_action_set_state(ctx->submenu_action, g_variant_new_boolean(true));
+
+fail:
+	if (ctx->submenu_action && G_IS_SIMPLE_ACTION(ctx->submenu_action))
+		g_object_unref(ctx->submenu_action);
+	if (ctx->model && G_IS_OBJECT(ctx->model))
+		g_object_unref(ctx->model);
+	g_free(ctx);
+}
+
+G_GNUC_INTERNAL void dbus_menu_model_load(DBusMenuModel* self, GSimpleAction* action) {
+	/* Async preload now. Just fire-and-forget */
+	dbus_menu_xml_call_event(self->xml, self->parent_id,
+							DBUS_MENU_EVENT_OPENED,
+							g_variant_new("v", g_variant_new_int32(0)),
+							CURRENT_TIME,
+							NULL, NULL, NULL);
+	struct AboutToShowCtx* ctx = g_malloc0(sizeof(*ctx));
+	ctx->model = g_object_ref(self);
+	ctx->submenu_action = action ? g_object_ref(action) : NULL;
+	/* Unfortunately, this can hold a ref to a aged model */
+	dbus_menu_xml_call_about_to_show(self->xml, self->parent_id, self->cancellable,
+									dbus_menu_model_about_to_show_cb,
+									ctx);
 }
 
 G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)

@@ -105,46 +105,26 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 	GVariant *statev  = g_action_get_state(G_ACTION(action));
 	bool opened       = g_variant_get_boolean(statev);
 	g_variant_unref(statev);
-	int need_update = true;
 	if(!xml)
 		return;
 	if (request_open)
 	{
-		if(!opened) {
-		// Use opened before actual open. For Firefox.
-			dbus_menu_xml_call_event_sync(xml,
-										id,
-										"opened",
-										g_variant_new("v", g_variant_new_int32(0)),
-										CURRENT_TIME,
-										NULL,
-										NULL);
-			dbus_menu_xml_call_about_to_show_sync(xml,
-												id,
-												(gboolean *)&need_update,
-												NULL,
-												NULL);
-			if (g_menu_model_get_n_items(G_MENU_MODEL(model)) == 0)
-				need_update = true;
-		}
-		need_update = need_update || dbus_menu_model_is_layout_update_required(model);
-		if (need_update)
-		{
-			// TODD: Populate layout after request;
-			if (DBUS_MENU_IS_MODEL(model))
-				dbus_menu_model_update_layout(model);
-		}
-		g_simple_action_set_state(action, g_variant_new_boolean(true));
+		if(!opened)
+			dbus_menu_model_load(model, action);
+		else 
+			g_simple_action_set_state(action, g_variant_new_boolean(true));
 	}
 	else
 	{
-		dbus_menu_xml_call_event_sync(xml,
-		                              id,
-		                              "closed",
-		                              g_variant_new("v", g_variant_new_int32(0)),
-		                              CURRENT_TIME,
-		                              NULL,
-		                              NULL);
+		/* Just fire and forget closed */
+		dbus_menu_xml_call_event(xml,
+								id,
+								DBUS_MENU_EVENT_CLOSED,
+								g_variant_new("v", g_variant_new_int32(0)),
+								CURRENT_TIME,
+								NULL,
+								NULL,
+								NULL);
 		g_simple_action_set_state(action, g_variant_new_boolean(false));
 	}
 	g_object_unref(xml);

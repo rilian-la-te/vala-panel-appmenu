@@ -233,34 +233,18 @@ G_GNUC_INTERNAL bool dbus_menu_item_is_firefox_stub(DBusMenuItem *item)
 	return false;
 }
 
-G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item)
+G_GNUC_INTERNAL void
+dbus_menu_item_preload(DBusMenuItem *item)
 {
 	if (!item_check_magic(item))
 		return;
 	if (item->action_type != DBUS_MENU_ACTION_SUBMENU)
 		return;
-	int id;
-	DBusMenuXml *xml = NULL;
-	int need_update = 0;
 	DBusMenuModel *submenu =
 	    DBUS_MENU_MODEL(g_hash_table_lookup(item->links, submenu_str(item->enabled)));
 	if (!submenu || !DBUS_MENU_IS_MODEL(submenu))
 		return;
-	g_object_get(submenu, "parent-id", &id, "xml", &xml, NULL);
-	if (!xml || !DBUS_MENU_IS_XML(xml))
-		return;
-	dbus_menu_xml_call_event_sync(xml,
-	                              id,
-	                              DBUS_MENU_EVENT_OPENED,
-	                              g_variant_new("v", g_variant_new_int32(0)),
-	                              CURRENT_TIME,
-	                              NULL,
-	                              NULL);
-	dbus_menu_xml_call_about_to_show_sync(xml, id, (gboolean *)&need_update, NULL, NULL);
-	need_update = need_update || dbus_menu_model_is_layout_update_required(submenu);
-	if (need_update)
-		dbus_menu_model_update_layout(submenu);
-	g_object_unref(xml);
+	dbus_menu_model_load(submenu, NULL);
 }
 
 G_GNUC_INTERNAL bool dbus_menu_item_copy_attrs(DBusMenuItem *src, DBusMenuItem *dst)
