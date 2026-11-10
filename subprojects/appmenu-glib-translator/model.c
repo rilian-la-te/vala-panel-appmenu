@@ -66,6 +66,7 @@ static GParamSpec *properties[NUM_PROPS] = { NULL };
 static DBusMenuItem *dbus_menu_model_find(DBusMenuModel *menu, uint item_id);
 static DBusMenuItem *dbus_menu_model_find_section(DBusMenuModel *menu, uint section_num);
 static GSequenceIter *dbus_menu_model_find_place(DBusMenuModel *menu, uint section_num, int place);
+static void dbus_menu_model_update_layout(DBusMenuModel *menu, u_int32_t child_id);
 
 G_DEFINE_TYPE(DBusMenuModel, dbus_menu_model, G_TYPE_MENU_MODEL)
 
@@ -214,25 +215,8 @@ static void menu_item_copy_and_load(DBusMenuModel *menu, DBusMenuItem *old, DBus
 }
 
 // We deal only with layouts with depth 1 (not all)
-static void layout_parse(DBusMenuModel *menu, GVariant *layout)
+static void layout_parse_items(DBusMenuModel *menu, GVariant *items)
 {
-	guint id;
-	GVariant *props;
-	GVariant *items;
-	if (!g_variant_is_of_type(layout, G_VARIANT_TYPE("(ia{sv}av)")))
-	{
-		g_warning(
-		    "Type of return value for 'layout' property in "
-		    "'GetLayout' call should be '(ia{sv}av)' but got '%s'",
-		    g_variant_get_type_string(layout));
-
-		return;
-	}
-	//We really should not run if we are not a menu
-	if(!DBUS_MENU_IS_MODEL(menu))
-		return;
-	g_variant_get(layout, "(i@a{sv}@av)", &id, &props, &items);
-	g_variant_unref(props);
 	GVariantIter iter;
 	GVariant *child;
 	// Start parsing. We need to track section number, and also GSequenceIter to
@@ -383,9 +367,41 @@ static void layout_parse(DBusMenuModel *menu, GVariant *layout)
 		if (delta > 0)
 			g_sequence_remove_range(place_iter, last_iter);
 	}
-	g_variant_unref(items);
 	// Update all layout
 	g_menu_model_items_changed(G_MENU_MODEL(menu), 0, old_sections, section_num);
+}
+
+static void layout_parse(DBusMenuModel *menu, GVariant* layout) {
+	guint id;
+	g_autoptr(GVariant) props;
+	g_autoptr(GVariant) items;
+	if (!g_variant_is_of_type(layout, G_VARIANT_TYPE("(ia{sv}av)")))
+	{
+		g_warning(
+		    "Type of return value for 'layout' property in "
+		    "'GetLayout' call should be '(ia{sv}av)' but got '%s'",
+		    g_variant_get_type_string(layout));
+
+		return;
+	}
+	//We really should not run if we are not a menu
+	if(!DBUS_MENU_IS_MODEL(menu))
+		return;
+	g_variant_get(layout, "(i@a{sv}@av)", &id, &props, &items);
+	if (id == menu->parent_id) {
+		layout_parse_items(menu, items);
+		return;
+	}
+
+	DBusMenuItem *item = dbus_menu_model_find(menu, (uint)id);
+	if(!item)
+		return;
+	g_autoptr(GQueue) signal_queue = g_queue_new();
+	int sect_n = item->section_num, pos = item->place;
+	bool is_item_updated = dbus_menu_item_update_props(item, props);
+	if (is_item_updated)
+		add_signal_to_queue(menu, signal_queue, sect_n, pos, 1, 1);
+	queue_emit_all(signal_queue);
 }
 
 static bool get_layout_idle(DBusMenuModel *self)
@@ -426,44 +442,6 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 	g_object_unref(menu);
 }
 
-static void dbus_menu_update_item_properties_from_layout_sync(DBusMenuModel *menu,
-                                                              DBusMenuItem *item, int sect_n,
-                                                              int pos)
-{
-	g_return_if_fail(DBUS_MENU_IS_MODEL(menu));
-
-	if (menu->parse_pending)
-	{
-		dbus_menu_model_update_layout(menu);
-		return;
-	}
-	g_autoptr(GVariant) props      = NULL;
-	g_autoptr(GVariant) items      = NULL;
-	g_autoptr(GVariant) layout     = NULL;
-	g_autoptr(GError) error        = NULL;
-	g_autoptr(GQueue) signal_queue = g_queue_new();
-	guint id, revision;
-	dbus_menu_xml_call_get_layout_sync(menu->xml,
-	                                   item->id,
-	                                   0,
-	                                   property_names,
-	                                   &revision,
-	                                   &layout,
-	                                   menu->cancellable,
-	                                   &error);
-	if (error != NULL)
-	{
-		if (!g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-			g_warning("%s", error->message);
-		return;
-	}
-	g_variant_get(layout, "(i@a{sv}@av)", &id, &props, &items);
-	bool is_item_updated = dbus_menu_item_update_props(item, props);
-	if (is_item_updated)
-		add_signal_to_queue(menu, signal_queue, sect_n, pos, 1, 1);
-	queue_emit_all(signal_queue);
-}
-
 struct AboutToShowCtx {
     DBusMenuModel* model;
     GSimpleAction* submenu_action;
@@ -488,7 +466,7 @@ static void dbus_menu_model_about_to_show_cb(GObject *source, GAsyncResult *res,
 	need_update = need_update ||
 	              dbus_menu_model_is_layout_update_required(ctx->model);
 	if (need_update)
-		dbus_menu_model_update_layout(ctx->model);
+		dbus_menu_model_update_layout(ctx->model, 0);
 	if (ctx->submenu_action && G_IS_SIMPLE_ACTION(ctx->submenu_action))
 		g_simple_action_set_state(ctx->submenu_action, g_variant_new_boolean(true));
 
@@ -516,12 +494,12 @@ G_GNUC_INTERNAL void dbus_menu_model_load(DBusMenuModel* self, GSimpleAction* ac
 									ctx);
 }
 
-G_GNUC_INTERNAL void dbus_menu_model_update_layout(DBusMenuModel *menu)
+static void dbus_menu_model_update_layout(DBusMenuModel *menu, u_int32_t child_id)
 {
 	g_return_if_fail(DBUS_MENU_IS_MODEL(menu));
 	dbus_menu_xml_call_get_layout(menu->xml,
-	                              menu->parent_id,
-	                              1,
+	                              child_id ? child_id : menu->parent_id,
+	                              child_id ? 0 : 1,
 	                              property_names,
 	                              menu->cancellable,
 	                              get_layout_cb,
@@ -534,17 +512,14 @@ static void layout_updated_cb(DBusMenuXml *proxy, guint revision, gint parent, D
 		return;
 	if (((uint)parent == menu->parent_id) && menu->current_revision < revision)
 	{
-		g_debug("Remote attempt to update %u with rev %u\n", parent, revision);
-		dbus_menu_model_update_layout(menu);
+		g_debug("Remote attempt to update %u with rev %u", parent, revision);
+		dbus_menu_model_update_layout(menu, 0);
 		menu->current_revision = revision;
 		return;
 	}
 	DBusMenuItem *item = dbus_menu_model_find(menu, (uint)parent);
 	if (item != NULL)
-		dbus_menu_update_item_properties_from_layout_sync(menu,
-		                                                  item,
-		                                                  item->section_num,
-		                                                  item->place);
+		dbus_menu_model_update_layout(menu, menu->parse_pending ? 0 : item->id);
 }
 
 static void item_activation_requested_cb(DBusMenuXml *proxy, gint id, guint timestamp,
@@ -573,7 +548,7 @@ static void items_properties_loop(DBusMenuModel *menu, GVariant *up_props, GQueu
 			// It is the best what we can do to update a section
 			if (item->action_type == DBUS_MENU_ACTION_SECTION)
 			{
-				//                            dbus_menu_model_update_layout(menu);
+				//                            dbus_menu_model_update_layout(menu, 0);
 			}
 			else
 			{
@@ -619,7 +594,7 @@ static void on_xml_property_changed(DBusMenuModel *model)
 	                 G_CALLBACK(item_activation_requested_cb),
 	                 model);
 	if (model->parent_id == 0)
-		dbus_menu_model_update_layout(model);
+		dbus_menu_model_update_layout(model, 0);
 }
 
 G_GNUC_INTERNAL DBusMenuModel *dbus_menu_model_new(uint parent_id, DBusMenuModel *parent,
