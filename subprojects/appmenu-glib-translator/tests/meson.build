@@ -6,3 +6,9 @@ basic = executable('basic', 'basic-test.c',
     link_whole: test_library,
 )
 test('basic', basic)
+
+radio = executable('radio', 'radio-test.c',
+    dependencies: translator_dep,
+    link_whole: test_library,
+)
+test('radio', radio)
