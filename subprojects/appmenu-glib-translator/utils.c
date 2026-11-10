@@ -23,53 +23,39 @@
 #include "definitions.h"
 #include "model.h"
 
-static void activate_ordinary_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+static void ordinary_send_activated_event(GAction *action, gpointer user_data)
 {
 	DBusMenuXml *xml = DBUS_MENU_XML(user_data);
-	u_int32_t id;
-	sscanf(g_action_get_name(G_ACTION(action)), ACTION_PREFIX "%u", &id);
+	u_int32_t id     = 0;
+	sscanf(g_action_get_name(action), ACTION_PREFIX "%u", &id);
 	// use CURRENT_TIME instead of gtk_get_current_event_time to avoid linking to GTK.
-	dbus_menu_xml_call_event_sync(xml,
-	                              id,
-	                              "clicked",
-	                              g_variant_new("v", g_variant_new_int32(0)),
-	                              CURRENT_TIME,
-	                              NULL,
-	                              NULL);
+	/* Async clicked now. Just fire-and-forget */
+	dbus_menu_xml_call_event(xml,
+	                         id,
+	                         DBUS_MENU_EVENT_ACTIVATED,
+	                         g_variant_new("v", g_variant_new_int32(0)),
+	                         CURRENT_TIME,
+	                         NULL,
+	                         NULL,
+	                         NULL);
+}
+
+static void activate_ordinary_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+{
+	ordinary_send_activated_event(G_ACTION(action), user_data);
 }
 
 static void activate_checkbox_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
-	DBusMenuXml *xml = DBUS_MENU_XML(user_data);
-	u_int32_t id;
-	sscanf(g_action_get_name(G_ACTION(action)), ACTION_PREFIX "%u", &id);
 	g_autoptr(GVariant) state = g_action_get_state(G_ACTION(action));
-	// use CURRENT_TIME instead of gtk_get_current_event_time to avoid linking to GTK.
-	dbus_menu_xml_call_event_sync(xml,
-	                              id,
-	                              "clicked",
-	                              g_variant_new("v", g_variant_new_int32(0)),
-	                              CURRENT_TIME,
-	                              NULL,
-	                              NULL);
+	ordinary_send_activated_event(G_ACTION(action), user_data);
 	g_action_change_state(G_ACTION(action),
 	                      g_variant_new_boolean(!g_variant_get_boolean(state)));
 }
 
 static void state_radio_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
-	DBusMenuXml *xml   = DBUS_MENU_XML(user_data);
-	const char *id_str = g_action_get_name(G_ACTION(action));
-	uint id;
-	sscanf(id_str, ACTION_PREFIX "%u", &id);
-	// use CURRENT_TIME instead of gtk_get_current_event_time to avoid linking to GTK.
-	dbus_menu_xml_call_event_sync(xml,
-	                              id,
-	                              "clicked",
-	                              g_variant_new("v", g_variant_new_int32(0)),
-	                              CURRENT_TIME,
-	                              NULL,
-	                              NULL);
+	ordinary_send_activated_event(G_ACTION(action), user_data);
 	g_simple_action_set_state(action, parameter);
 }
 
