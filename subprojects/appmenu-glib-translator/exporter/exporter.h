@@ -11,5 +11,6 @@ G_DECLARE_FINAL_TYPE(DBusMenuExporter, dbus_menu_exporter, DBUS_MENU, EXPORTER, 
 DBusMenuExporter *dbus_menu_exporter_new(GMenuModel *menu_model, gchar *action_prefix,
                                          GActionGroup *action_group, gchar *bus_name,
                                          gchar *object_path);
-
+void dbus_menu_exporter_insert(DBusMenuExporter* self, const gchar* prefix, GActionGroup* group);
+void dbus_menu_exporter_remove(DBusMenuExporter* self, const gchar* prefix);
 G_END_DECLS

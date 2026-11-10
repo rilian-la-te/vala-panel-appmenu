@@ -12,3 +12,8 @@ radio = executable('radio', 'radio-test.c',
     link_whole: test_library,
 )
 test('radio', radio)
+insert = executable('insert', 'insert-test.c',
+    dependencies: translator_dep,
+    link_whole: test_library,
+)
+test('insert', insert)

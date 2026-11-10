@@ -533,6 +533,18 @@ static void dbus_menu_exporter_init(DBusMenuExporter *menu)
 	menu->flush_timeout_id            = 0;
 }
 
+void dbus_menu_exporter_insert(DBusMenuExporter* self, const gchar* prefix, GActionGroup* group)
+{
+	if(prefix && group)
+		dbus_menu_exporter_muxer_insert(self->source_actions, prefix, group);
+}
+
+void dbus_menu_exporter_remove(DBusMenuExporter* self, const gchar* prefix)
+{
+	if(prefix)
+		dbus_menu_exporter_muxer_remove(self->source_actions, prefix);
+}
+
 DBusMenuExporter *dbus_menu_exporter_new(GMenuModel *menu_model, gchar *action_prefix,
                                          GActionGroup *action_group, gchar *bus_name,
                                          gchar *object_path)
@@ -545,8 +557,6 @@ DBusMenuExporter *dbus_menu_exporter_new(GMenuModel *menu_model, gchar *action_p
 	                    "object-path",
 	                    object_path,
 	                    NULL));
-
-	if(action_prefix && action_group)
-		dbus_menu_exporter_muxer_insert(self->source_actions, action_prefix, action_group);
+	dbus_menu_exporter_insert(self, action_prefix, action_group);
 	return self;
 }
