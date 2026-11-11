@@ -43,6 +43,21 @@ typedef struct
 	gpointer magic;
 } DBusMenuItem;
 
+typedef enum 
+{
+	DBUS_MENU_UPDATER_NONE = 0,
+	DBUS_MENU_UPDATER_MUTABLE = 1,
+	DBUS_MENU_UPDATER_IMMUTABLE = 2
+} DBusMenuUpdaterFlags;
+
+typedef GQueue UpdaterQueue;
+
+static void updater_queue_free(UpdaterQueue *q)
+{
+    g_queue_free_full(q, g_free);
+}
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(UpdaterQueue, updater_queue_free)
+
 G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *parent_model,
                                                  GVariant *props);
 G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id,
@@ -52,9 +67,9 @@ G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data);
 
 G_GNUC_INTERNAL bool dbus_menu_item_update_enabled(DBusMenuItem *item, bool enabled);
 
-G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *props);
+G_GNUC_INTERNAL DBusMenuUpdaterFlags dbus_menu_item_update_props(DBusMenuItem *item, GVariant *props);
 
-G_GNUC_INTERNAL bool dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *props);
+G_GNUC_INTERNAL DBusMenuUpdaterFlags dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *props);
 
 G_GNUC_INTERNAL bool dbus_menu_item_compare_immutable(DBusMenuItem *a, DBusMenuItem *b);
 

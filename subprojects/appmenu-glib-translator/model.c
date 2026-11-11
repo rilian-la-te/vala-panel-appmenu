@@ -396,10 +396,12 @@ static void layout_parse(DBusMenuModel *menu, GVariant* layout) {
 	DBusMenuItem *item = dbus_menu_model_find(menu, (uint)id);
 	if(!item)
 		return;
-	g_autoptr(GQueue) signal_queue = g_queue_new();
+	g_autoptr(UpdaterQueue) signal_queue = g_queue_new();
 	int sect_n = item->section_num, pos = item->place;
-	bool is_item_updated = dbus_menu_item_update_props(item, props);
-	if (is_item_updated)
+	DBusMenuUpdaterFlags is_item_updated = dbus_menu_item_update_props(item, props);
+	if (is_item_updated & DBUS_MENU_UPDATER_IMMUTABLE)
+		dbus_menu_model_update_layout(menu, 0);
+	else if (is_item_updated)
 		add_signal_to_queue(menu, signal_queue, sect_n, pos, 1, 1);
 	queue_emit_all(signal_queue);
 }
@@ -532,7 +534,7 @@ static void item_activation_requested_cb(DBusMenuXml *proxy, gint id, guint time
 	g_debug("activation requested: id - %d, timestamp - %d", id, timestamp);
 }
 
-static void items_properties_loop(DBusMenuModel *menu, GVariant *up_props, GQueue *signal_queue,
+static bool items_properties_loop(DBusMenuModel *menu, GVariant *up_props, GQueue *signal_queue,
                                   bool is_removal)
 {
 	GVariantIter iter;
@@ -542,20 +544,20 @@ static void items_properties_loop(DBusMenuModel *menu, GVariant *up_props, GQueu
 	while (g_variant_iter_loop(&iter, !is_removal ? "(i@a{sv})" : "(i@as)", &id, &props))
 	{
 		DBusMenuItem *item   = (DBusMenuItem *)dbus_menu_model_find(menu, id);
-		bool is_item_updated = false;
+		DBusMenuUpdaterFlags is_item_updated = DBUS_MENU_UPDATER_NONE;
 		if (item != NULL)
 		{
 			// It is the best what we can do to update a section
 			if (item->action_type == DBUS_MENU_ACTION_SECTION)
-			{
-				//                            dbus_menu_model_update_layout(menu, 0);
-			}
+				return true;
 			else
 			{
 				is_item_updated = !is_removal
 				                      ? dbus_menu_item_update_props(item, props)
 				                      : dbus_menu_item_remove_props(item, props);
-				if (is_item_updated)
+				if (is_item_updated & DBUS_MENU_UPDATER_IMMUTABLE)
+					return true;
+				else if (is_item_updated)
 					add_signal_to_queue(menu,
 					                    signal_queue,
 					                    item->section_num,
@@ -565,6 +567,7 @@ static void items_properties_loop(DBusMenuModel *menu, GVariant *up_props, GQueu
 			}
 		}
 	}
+	return false;
 }
 
 static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_props,
@@ -574,9 +577,15 @@ static void items_properties_updated_cb(DBusMenuXml *proxy, GVariant *updated_pr
 		return;
 	if (menu->parse_pending)
 		return;
-	g_autoptr(GQueue) signal_queue = g_queue_new();
-	items_properties_loop(menu, updated_props, signal_queue, false);
-	items_properties_loop(menu, removed_props, signal_queue, true);
+	g_autoptr(UpdaterQueue) signal_queue = g_queue_new();
+	bool immutable = false;
+	immutable |= items_properties_loop(menu, updated_props, signal_queue, false);
+	immutable |= items_properties_loop(menu, removed_props, signal_queue, true);
+	if (immutable)
+	{
+		dbus_menu_model_update_layout(menu, 0);
+		return;
+	}
 	queue_emit_all(signal_queue);
 }
 

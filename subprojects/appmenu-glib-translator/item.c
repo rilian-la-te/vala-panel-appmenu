@@ -320,12 +320,14 @@ static bool dbus_menu_item_update_shortcut(DBusMenuItem *item, GVariant *value)
 	return updated;
 }
 
-G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *props)
+G_GNUC_INTERNAL DBusMenuUpdaterFlags dbus_menu_item_update_props(DBusMenuItem *item,
+                                                                 GVariant *props)
 {
 	GVariantIter iter;
 	const char *prop;
 	GVariant *value;
 	bool properties_is_updated = false;
+	bool immutable             = false;
 
 	g_variant_iter_init(&iter, props);
 	while (g_variant_iter_loop(&iter, "{&sv}", &prop, &value))
@@ -435,19 +437,28 @@ G_GNUC_INTERNAL bool dbus_menu_item_update_props(DBusMenuItem *item, GVariant *p
 				}
 			}
 		}
+		else if ((g_strcmp0(prop, DBUS_MENU_PROP_TYPE) == 0) ||
+		         (g_strcmp0(prop, DBUS_MENU_PROP_KDE_TITLE) == 0) ||
+		         (g_strcmp0(prop, DBUS_MENU_PROP_TOGGLE_TYPE) == 0) ||
+		         (g_strcmp0(prop, DBUS_MENU_PROP_CHILDREN_DISPLAY) == 0))
+		{
+			immutable = true;
+		}
 		else
 		{
 			g_debug("updating unsupported property - '%s'", prop);
 		}
 	}
-	return properties_is_updated;
+	return (properties_is_updated ? DBUS_MENU_UPDATER_MUTABLE : 0) | (immutable? DBUS_MENU_UPDATER_IMMUTABLE : 0);
 }
 
-G_GNUC_INTERNAL bool dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *props)
+G_GNUC_INTERNAL DBusMenuUpdaterFlags dbus_menu_item_remove_props(DBusMenuItem *item,
+                                                                 GVariant *props)
 {
 	GVariantIter iter;
 	const char *prop;
 	bool properties_is_updated = false;
+	bool immutable = false;
 
 	g_variant_iter_init(&iter, props);
 	while (g_variant_iter_next(&iter, "&s", &prop))
@@ -501,12 +512,19 @@ G_GNUC_INTERNAL bool dbus_menu_item_remove_props(DBusMenuItem *item, GVariant *p
 			                    g_variant_ref_sink(g_variant_new_string(name)));
 			properties_is_updated = true;
 		}
+		else if ((g_strcmp0(prop, DBUS_MENU_PROP_TYPE) == 0) ||
+		         (g_strcmp0(prop, DBUS_MENU_PROP_KDE_TITLE) == 0) ||
+		         (g_strcmp0(prop, DBUS_MENU_PROP_TOGGLE_TYPE) == 0) ||
+		         (g_strcmp0(prop, DBUS_MENU_PROP_CHILDREN_DISPLAY) == 0))
+		{
+			immutable = true;
+		}
 		else
 		{
 			g_debug("removing unsupported property - '%s'", prop);
 		}
 	}
-	return properties_is_updated;
+	return (properties_is_updated ? DBUS_MENU_UPDATER_MUTABLE : 0) | (immutable? DBUS_MENU_UPDATER_IMMUTABLE : 0);
 }
 
 G_GNUC_INTERNAL int dbus_menu_item_compare_func(const DBusMenuItem *a, const DBusMenuItem *b,
