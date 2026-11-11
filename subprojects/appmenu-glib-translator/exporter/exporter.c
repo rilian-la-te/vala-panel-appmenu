@@ -8,6 +8,8 @@
 #include "gtkmenutracker.h"
 #include "gtkmenutrackeritem.h"
 
+#include <stdbool.h>
+
 struct _DBusMenuExporter
 {
 	GObject parent_instance;
@@ -75,9 +77,7 @@ static gboolean dbus_menu_exporter_flush_properties_cb(gpointer user_data)
 	GVariantBuilder updated_builder;
 	GVariantBuilder removed_builder;
 
-	// a(ia{sv}) - (id, dict), so, just use id + GVariantDict
 	g_variant_builder_init(&updated_builder, G_VARIANT_TYPE("a(ia{sv})"));
-	// removed properties always empty - engine limitation
 	g_variant_builder_init(&removed_builder, G_VARIANT_TYPE("a(ias)"));
 
 	GHashTableIter iter;
@@ -87,12 +87,47 @@ static gboolean dbus_menu_exporter_flush_properties_cb(gpointer user_data)
 	while (g_hash_table_iter_next(&iter, &key_id, &value_table))
 	{
 		guint item_id       = GPOINTER_TO_UINT(key_id);
-		GVariantDict *props = (GVariantDict *)value_table;
+		GHashTable *props   = (GHashTable *)value_table;
+		gpointer propd, valued;
+		GHashTableIter niter;
 
-		g_variant_builder_open(&updated_builder, G_VARIANT_TYPE("(ia{sv})"));
-		g_variant_builder_add(&updated_builder, "i", (gint)item_id);
-		g_variant_builder_add_value(&updated_builder, g_variant_dict_end(props));
-		g_variant_builder_close(&updated_builder);
+		bool has_updated = false, has_removed = false;
+		GVariantBuilder item_updated, item_removed;
+		g_variant_builder_init(&item_updated, G_VARIANT_TYPE("a{sv}"));
+		g_variant_builder_init(&item_removed, G_VARIANT_TYPE("as"));
+
+		g_hash_table_iter_init(&niter, props);
+		while (g_hash_table_iter_next(&niter, &propd, &valued))
+		{
+			const char* prop = (const char*)propd;
+			GVariant* value = (GVariant*)valued;
+
+			if (g_variant_is_of_type(value, G_VARIANT_TYPE("mv")))
+			{
+				g_variant_builder_add(&item_removed, "s", prop);
+				has_removed = true;
+			}
+			else
+			{
+				g_variant_builder_add(&item_updated, "{sv}", prop, value);
+				has_updated = true;
+			}
+		}
+		if (has_updated)
+		{
+			g_variant_builder_open(&updated_builder, G_VARIANT_TYPE("(ia{sv})"));
+			g_variant_builder_add(&updated_builder, "i", (gint)item_id);
+			g_variant_builder_add_value(&updated_builder, g_variant_builder_end(&item_updated));
+			g_variant_builder_close(&updated_builder);
+		}
+
+		if (has_removed)
+		{
+			g_variant_builder_open(&removed_builder, G_VARIANT_TYPE("(ias)"));
+			g_variant_builder_add(&removed_builder, "i", (gint)item_id);
+			g_variant_builder_add_value(&removed_builder, g_variant_builder_end(&item_removed));
+			g_variant_builder_close(&removed_builder);
+		}
 	}
 	g_hash_table_remove_all(self->pending_properties);
 
@@ -113,17 +148,17 @@ G_GNUC_INTERNAL void dbus_menu_exporter_queue_property_change(DBusMenuExporter *
 
 	GVariant *value = dbus_menu_exporter_item_get_variant_for_prop(item, dbus_prop);
 	if (!value)
-		return;
+		value = g_variant_new_maybe(G_VARIANT_TYPE_VARIANT, NULL);
 
 	gpointer id_ptr          = GUINT_TO_POINTER(item->id);
-	GVariantDict *item_props = g_hash_table_lookup(self->pending_properties, id_ptr);
+	GHashTable *item_props = g_hash_table_lookup(self->pending_properties, id_ptr);
 	if (!item_props)
 	{
-		item_props = g_variant_dict_new(NULL);
+		item_props = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, (GDestroyNotify)g_variant_unref);
 		g_hash_table_insert(self->pending_properties, id_ptr, item_props);
 	}
 
-	g_variant_dict_insert_value(item_props, dbus_prop, value);
+	g_hash_table_insert(item_props, (gpointer)dbus_prop, g_variant_ref_sink(value));
 	if (self->flush_timeout_id == 0)
 		self->flush_timeout_id =
 		    g_timeout_add(200, dbus_menu_exporter_flush_properties_cb, self);
@@ -494,7 +529,7 @@ static void dbus_menu_exporter_init(DBusMenuExporter *menu)
 	menu->pending_properties          = g_hash_table_new_full(g_direct_hash,
                                                          g_direct_equal,
                                                          NULL,
-                                                         (GDestroyNotify)g_variant_dict_unref);
+                                                         (GDestroyNotify)g_hash_table_unref);
 	menu->flush_timeout_id            = 0;
 }
 
