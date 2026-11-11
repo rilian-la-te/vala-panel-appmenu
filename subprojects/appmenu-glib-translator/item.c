@@ -30,8 +30,6 @@
 #define submenu_str(en) ((en) ? G_MENU_LINK_SUBMENU : DBUS_MENU_DISABLED_SUBMENU)
 
 G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data);
-G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_copy(DBusMenuItem *src);
-G_DEFINE_BOXED_TYPE(DBusMenuItem, dbus_menu_item, dbus_menu_item_copy, dbus_menu_item_free)
 #if 0
 #include "item-pixbuf.c"
 #endif
@@ -188,21 +186,6 @@ G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data)
 	g_clear_object(&item->ref_action_group);
 	g_source_remove_by_user_data(item);
 	g_slice_free(DBusMenuItem, data);
-}
-
-G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_copy(DBusMenuItem *src)
-{
-	DBusMenuItem *dst     = g_slice_new0(DBusMenuItem);
-	item_set_magic(dst);
-	dst->id               = src->id;
-	dst->action_type      = src->action_type;
-	dst->enabled          = src->enabled;
-	dst->toggled          = src->toggled;
-	dst->ref_action       = src->ref_action ? G_ACTION(g_object_ref(src->ref_action)) : NULL;
-	dst->ref_action_group = src->ref_action_group ? g_object_ref(src->ref_action_group) : NULL;
-	dst->attrs            = src->attrs ? g_hash_table_ref(src->attrs) : NULL;
-	dst->links            = src->links ? g_hash_table_ref(src->links) : NULL;
-	return dst;
 }
 
 static bool attr_update_checked(DBusMenuItem *item, const char *key, GVariant *value)
