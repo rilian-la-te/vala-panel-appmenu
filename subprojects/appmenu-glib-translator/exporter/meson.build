@@ -1,4 +1,6 @@
 exp_internal_sources = files(
+    'exporter-muxer.c',
+    'exporter-muxer.h',
     'gtkactionsnapshot.c',
     'gtkactionsnapshot.h',
     'gtkactionkey.c',
