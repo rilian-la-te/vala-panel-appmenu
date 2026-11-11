@@ -40,7 +40,7 @@
  * toolkits may choose to ignore certain properties, like icon or accel. The
  * role of the item determines its accessibility role, along with its
  * decoration if the GtkMenuTrackerItem::toggled property is true. As an
- * example, if the item has the role %GTK_MENU_TRACKER_ITEM_ROLE_CHECK and
+ * example, if the item has the role %DBUS_MENU_ROLE_CHECK and
  * GtkMenuTrackerItem::toggled is %FALSE, its accessible role should be that of
  * a check menu item, and no decoration should be drawn. But if
  * GtkMenuTrackerItem::toggled is %TRUE, a checkmark should be drawn.
@@ -75,6 +75,9 @@
  * user wants to close the submenu.
  */
 
+#include "definitions.h"
+#include "translator-enums.h"
+
 struct _GtkMenuTrackerItem
 {
   GObject parent_instance;
@@ -85,7 +88,7 @@ struct _GtkMenuTrackerItem
   GVariant              *action_target;
   char                  *action_namespace;
   GMenuItem             *item;
-  guint role : 4; /* GtkMenuTrackerItemRole */
+  guint role : 4; /* DBusMenuRole */
   guint is_separator : 1;
   guint can_activate : 1;
   guint sensitive : 1;
@@ -120,29 +123,6 @@ enum {
 static GParamSpec *gtk_menu_tracker_item_pspecs[N_PROPS];
 
 G_DEFINE_TYPE (GtkMenuTrackerItem, gtk_menu_tracker_item, G_TYPE_OBJECT)
-
-GType
-gtk_menu_tracker_item_role_get_type (void)
-{
-  static gsize gtk_menu_tracker_item_role_type;
-
-  if (g_once_init_enter (&gtk_menu_tracker_item_role_type))
-    {
-      static const GEnumValue values[] = {
-        { GTK_MENU_TRACKER_ITEM_ROLE_NORMAL, "GTK_MENU_TRACKER_ITEM_ROLE_NORMAL", "normal" },
-        { GTK_MENU_TRACKER_ITEM_ROLE_CHECK, "GTK_MENU_TRACKER_ITEM_ROLE_CHECK", "check" },
-        { GTK_MENU_TRACKER_ITEM_ROLE_RADIO, "GTK_MENU_TRACKER_ITEM_ROLE_RADIO", "radio" },
-        { 0, NULL, NULL }
-      };
-      GType type;
-
-      type = g_enum_register_static ("GtkMenuTrackerItemRole", values);
-
-      g_once_init_leave (&gtk_menu_tracker_item_role_type, type);
-    }
-
-  return gtk_menu_tracker_item_role_type;
-}
 
 static void
 gtk_menu_tracker_item_get_property (GObject    *object,
@@ -234,7 +214,7 @@ gtk_menu_tracker_item_class_init (GtkMenuTrackerItemClass *childc)
     g_param_spec_boolean ("sensitive", NULL, NULL, FALSE, G_PARAM_STATIC_NAME | G_PARAM_READABLE);
   gtk_menu_tracker_item_pspecs[PROP_ROLE] =
     g_param_spec_enum ("role", NULL, NULL,
-                       gtk_menu_tracker_item_role_get_type(), GTK_MENU_TRACKER_ITEM_ROLE_NORMAL,
+                       d_bus_menu_role_get_type(), DBUS_MENU_ROLE_NORMAL,
                        G_PARAM_STATIC_NAME | G_PARAM_READABLE);
   gtk_menu_tracker_item_pspecs[PROP_TOGGLED] =
     g_param_spec_boolean ("toggled", NULL, NULL, FALSE, G_PARAM_STATIC_NAME | G_PARAM_READABLE);
@@ -296,7 +276,7 @@ gtk_menu_tracker_item_action_changed (GtkActionSubscription   *subscription,
   gboolean old_can_activate;
   gboolean old_sensitive;
   gboolean old_toggled;
-  GtkMenuTrackerItemRole old_role;
+  DBusMenuRole old_role;
   guint n_changed;
 
   old_can_activate = self->can_activate;
@@ -322,19 +302,19 @@ gtk_menu_tracker_item_action_changed (GtkActionSubscription   *subscription,
 
   self->sensitive = self->can_activate && snapshot->enabled;
   self->toggled = FALSE;
-  self->role = GTK_MENU_TRACKER_ITEM_ROLE_NORMAL;
+  self->role = DBUS_MENU_ROLE_NORMAL;
 
   if (self->can_activate && self->action_target != NULL && snapshot->state != NULL)
     {
       self->toggled = g_variant_equal (snapshot->state, self->action_target);
-      self->role = GTK_MENU_TRACKER_ITEM_ROLE_RADIO;
+      self->role = DBUS_MENU_ROLE_RADIO;
     }
   else if (self->can_activate &&
            snapshot->state != NULL &&
            g_variant_is_of_type (snapshot->state, G_VARIANT_TYPE_BOOLEAN))
     {
       self->toggled = g_variant_get_boolean (snapshot->state);
-      self->role = GTK_MENU_TRACKER_ITEM_ROLE_CHECK;
+      self->role = DBUS_MENU_ROLE_CHECK;
     }
 
   if (old_can_activate && !self->can_activate)
@@ -568,7 +548,7 @@ gtk_menu_tracker_item_get_sensitive (GtkMenuTrackerItem *self)
   return self->sensitive;
 }
 
-GtkMenuTrackerItemRole
+DBusMenuRole
 gtk_menu_tracker_item_get_role (GtkMenuTrackerItem *self)
 {
   return self->role;

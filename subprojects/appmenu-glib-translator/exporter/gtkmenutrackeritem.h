@@ -23,16 +23,11 @@
 
 G_DECLARE_FINAL_TYPE(GtkMenuTrackerItem, gtk_menu_tracker_item, GTK, MENU_TRACKER_ITEM, GObject)
 
+typedef enum _DBusMenuRole DBusMenuRole;
+
 typedef struct _GtkMenuTrackerItem GtkMenuTrackerItem;
 typedef struct _GtkActionNode GtkActionNode;
 
-typedef enum  {
-  GTK_MENU_TRACKER_ITEM_ROLE_NORMAL,
-  GTK_MENU_TRACKER_ITEM_ROLE_CHECK,
-  GTK_MENU_TRACKER_ITEM_ROLE_RADIO,
-} GtkMenuTrackerItemRole;
-
-GType                   gtk_menu_tracker_item_role_get_type           (void);
 GtkMenuTrackerItem     *_gtk_menu_tracker_item_new                    (GtkActionNode      *action_node,
                                                                        GMenuModel         *model,
                                                                        int                 item_index,
@@ -54,7 +49,7 @@ gboolean                gtk_menu_tracker_item_get_use_markup          (GtkMenuTr
 GIcon                  *gtk_menu_tracker_item_get_icon                (GtkMenuTrackerItem *self);
 GIcon                  *gtk_menu_tracker_item_get_verb_icon           (GtkMenuTrackerItem *self);
 gboolean                gtk_menu_tracker_item_get_sensitive           (GtkMenuTrackerItem *self);
-GtkMenuTrackerItemRole  gtk_menu_tracker_item_get_role                (GtkMenuTrackerItem *self);
+DBusMenuRole            gtk_menu_tracker_item_get_role                (GtkMenuTrackerItem *self);
 gboolean                gtk_menu_tracker_item_get_toggled             (GtkMenuTrackerItem *self);
 const char             *gtk_menu_tracker_item_get_accel               (GtkMenuTrackerItem *self);
 GMenuModel             *_gtk_menu_tracker_item_get_link               (GtkMenuTrackerItem *self,
