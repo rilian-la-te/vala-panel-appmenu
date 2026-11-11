@@ -5,6 +5,8 @@ names = [
     'basic',
     'dynamic',
     'radio',
+    'radio-bypass',
+    'radio-selection',
     'submenu',
     'insert'
 ]
