@@ -3,6 +3,7 @@ test_library = static_library('test_translator', files('comparator.c'), dependen
 
 names = [
     'basic',
+    'check',
     'dynamic',
     'radio',
     'radio-bypass',
