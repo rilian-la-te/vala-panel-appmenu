@@ -130,7 +130,7 @@ GSequence *dbus_menu_model_items(DBusMenuModel *model)
 	return model->items;
 }
 
-int queue_compare_func(const struct layout_data *a, const struct layout_data *b)
+static int queue_compare_func(const struct layout_data *a, const struct layout_data *b)
 {
 	if (a->model != b->model)
 		return DBUS_MENU_IS_MODEL(a->model) ? -1 : 1;
