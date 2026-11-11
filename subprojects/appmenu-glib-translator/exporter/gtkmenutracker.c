@@ -35,14 +35,14 @@
  * insertion callback with an early position, as it may ask you to remove
  * an item with a readjusted position later.
  *
- * GtkMenuTracker will give you a GtkMenuTrackerItem in your callback. You
+ * GtkMenuTracker will give you a DBusMenuExporterTrackerItem in your callback. You
  * must hold onto this object until a remove signal is emitted. This item
  * represents a single menu item, which can be one of three classes: normal item,
  * separator, or submenu.
  *
- * Certain properties on the GtkMenuTrackerItem are mutable, and you must
+ * Certain properties on the DBusMenuExporterTrackerItem are mutable, and you must
  * listen for changes in the item. For more details, see the documentation
- * for GtkMenuTrackerItem along with GMenuModel's reference.
+ * for DBusMenuExporterTrackerItem along with GMenuModel's reference.
  *
  * The idea of @with_separators is for special cases where menu models may
  * be tracked in places where separators are not available, like in toplevel
@@ -67,7 +67,7 @@ struct _GtkMenuTracker
 
 struct _GtkMenuTrackerSection
 {
-  gpointer    model;   /* may be a GtkMenuTrackerItem or a GMenuModel */
+  gpointer    model;   /* may be a DBusMenuExporterTrackerItem or a GMenuModel */
   GSList     *items;
   char       *action_namespace;
 
@@ -195,9 +195,9 @@ gtk_menu_tracker_section_sync_separators (GtkMenuTrackerSection *section,
   if (should_have_separator > section->has_separator)
     {
       /* Add a separator */
-      GtkMenuTrackerItem *separator;
+      DBusMenuExporterTrackerItem *separator;
 
-      separator = _gtk_menu_tracker_item_new (tracker->action_node, parent_model, parent_index, FALSE, NULL, TRUE);
+      separator = _dbus_menu_exporter_tracker_item_new (tracker->action_node, parent_model, parent_index, FALSE, NULL, TRUE);
       (* tracker->insert_func) (separator, offset, tracker->user_data);
       g_object_unref (separator);
 
@@ -216,7 +216,7 @@ gtk_menu_tracker_section_sync_separators (GtkMenuTrackerSection *section,
 }
 
 static void
-gtk_menu_tracker_item_visibility_changed (GtkMenuTrackerItem *item,
+dbus_menu_exporter_tracker_item_visibility_changed (DBusMenuExporterTrackerItem *item,
                                           GParamSpec         *pspec,
                                           gpointer            user_data)
 {
@@ -226,7 +226,7 @@ gtk_menu_tracker_item_visibility_changed (GtkMenuTrackerItem *item,
   gboolean was_visible;
   int offset = 0;
 
-  is_now_visible = gtk_menu_tracker_item_get_is_visible (item);
+  is_now_visible = dbus_menu_exporter_tracker_item_get_is_visible (item);
 
   /* remember: the item is our model */
   section = gtk_menu_tracker_section_find_model (tracker->toplevel, item, &offset);
@@ -344,9 +344,9 @@ gtk_menu_tracker_add_items (GtkMenuTracker         *tracker,
         }
       else
         {
-          GtkMenuTrackerItem *item;
+          DBusMenuExporterTrackerItem *item;
 
-          item = _gtk_menu_tracker_item_new (tracker->action_node, model, position + n_items,
+          item = _dbus_menu_exporter_tracker_item_new (tracker->action_node, model, position + n_items,
                                              tracker->mac_os_mode,
                                              section->action_namespace, submenu != NULL);
 
@@ -375,7 +375,7 @@ gtk_menu_tracker_add_items (GtkMenuTracker         *tracker,
            * case that we want to show a separator, but we will never do
            * that because separators are not shown for this fake section.
            */
-          if (gtk_menu_tracker_item_may_disappear (item))
+          if (dbus_menu_exporter_tracker_item_may_disappear (item))
             {
               GtkMenuTrackerSection *fake_section;
 
@@ -383,11 +383,11 @@ gtk_menu_tracker_add_items (GtkMenuTracker         *tracker,
               fake_section->is_fake = TRUE;
               fake_section->model = g_object_ref (item);
               fake_section->handler = g_signal_connect (item, "notify::is-visible",
-                                                        G_CALLBACK (gtk_menu_tracker_item_visibility_changed),
+                                                        G_CALLBACK (dbus_menu_exporter_tracker_item_visibility_changed),
                                                         tracker);
               *change_point = g_slist_prepend (*change_point, fake_section);
 
-              if (gtk_menu_tracker_item_get_is_visible (item))
+              if (dbus_menu_exporter_tracker_item_get_is_visible (item))
                 {
                   (* tracker->insert_func) (item, offset, tracker->user_data);
                   fake_section->items = g_slist_prepend (NULL, NULL);
@@ -577,7 +577,7 @@ gtk_menu_tracker_new (GtkActionNode            *action_node,
 }
 
 GtkMenuTracker *
-gtk_menu_tracker_new_for_item_link (GtkMenuTrackerItem       *item,
+gtk_menu_tracker_new_for_item_link (DBusMenuExporterTrackerItem       *item,
                                     const char               *link_name,
                                     gboolean                  merge_sections,
                                     gboolean                  mac_os_mode,
@@ -589,10 +589,10 @@ gtk_menu_tracker_new_for_item_link (GtkMenuTrackerItem       *item,
   GMenuModel *submenu;
   char *namespace;
 
-  submenu = _gtk_menu_tracker_item_get_link (item, link_name);
-  namespace = _gtk_menu_tracker_item_get_link_namespace (item);
+  submenu = _dbus_menu_exporter_tracker_item_get_link (item, link_name);
+  namespace = _dbus_menu_exporter_tracker_item_get_link_namespace (item);
 
-  tracker = gtk_menu_tracker_new (_gtk_menu_tracker_item_get_action_node (item), submenu,
+  tracker = gtk_menu_tracker_new (_dbus_menu_exporter_tracker_item_get_action_node (item), submenu,
                                   TRUE, merge_sections, mac_os_mode,
                                   namespace, insert_func, remove_func, user_data);
 

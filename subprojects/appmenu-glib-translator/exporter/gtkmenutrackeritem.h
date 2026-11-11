@@ -21,45 +21,45 @@
 
 #include <gio/gio.h>
 
-G_DECLARE_FINAL_TYPE(GtkMenuTrackerItem, gtk_menu_tracker_item, GTK, MENU_TRACKER_ITEM, GObject)
+G_DECLARE_FINAL_TYPE(DBusMenuExporterTrackerItem, dbus_menu_exporter_tracker_item, DBUS_MENU, EXPORTER_TRACKER_ITEM, GObject)
 
 typedef enum _DBusMenuRole DBusMenuRole;
 
-typedef struct _GtkMenuTrackerItem GtkMenuTrackerItem;
+typedef struct _DBusMenuExporterTrackerItem DBusMenuExporterTrackerItem;
 typedef struct _GtkActionNode GtkActionNode;
 
-GtkMenuTrackerItem     *_gtk_menu_tracker_item_new                    (GtkActionNode      *action_node,
+DBusMenuExporterTrackerItem     *_dbus_menu_exporter_tracker_item_new                    (GtkActionNode      *action_node,
                                                                        GMenuModel         *model,
                                                                        int                 item_index,
                                                                        gboolean            mac_os_mode,
                                                                        const char         *action_namespace,
                                                                        gboolean            is_separator);
-const char             *gtk_menu_tracker_item_get_action_name         (GtkMenuTrackerItem *self);
-GVariant               *gtk_menu_tracker_item_get_action_target       (GtkMenuTrackerItem *self);
-const char             *gtk_menu_tracker_item_get_special             (GtkMenuTrackerItem *self);
-const char             *gtk_menu_tracker_item_get_custom              (GtkMenuTrackerItem *self);
-const char             *gtk_menu_tracker_item_get_display_hint        (GtkMenuTrackerItem *self);
-const char             *gtk_menu_tracker_item_get_text_direction      (GtkMenuTrackerItem *self);
-GtkActionNode          *_gtk_menu_tracker_item_get_action_node        (GtkMenuTrackerItem *self);
-gboolean                gtk_menu_tracker_item_get_is_separator        (GtkMenuTrackerItem *self);
-gboolean                gtk_menu_tracker_item_get_has_link            (GtkMenuTrackerItem *self,
+const char             *dbus_menu_exporter_tracker_item_get_action_name         (DBusMenuExporterTrackerItem *self);
+GVariant               *dbus_menu_exporter_tracker_item_get_action_target       (DBusMenuExporterTrackerItem *self);
+const char             *dbus_menu_exporter_tracker_item_get_special             (DBusMenuExporterTrackerItem *self);
+const char             *dbus_menu_exporter_tracker_item_get_custom              (DBusMenuExporterTrackerItem *self);
+const char             *dbus_menu_exporter_tracker_item_get_display_hint        (DBusMenuExporterTrackerItem *self);
+const char             *dbus_menu_exporter_tracker_item_get_text_direction      (DBusMenuExporterTrackerItem *self);
+GtkActionNode          *_dbus_menu_exporter_tracker_item_get_action_node        (DBusMenuExporterTrackerItem *self);
+gboolean                dbus_menu_exporter_tracker_item_get_is_separator        (DBusMenuExporterTrackerItem *self);
+gboolean                dbus_menu_exporter_tracker_item_get_has_link            (DBusMenuExporterTrackerItem *self,
                                                                        const char         *link_name);
-const char             *gtk_menu_tracker_item_get_label               (GtkMenuTrackerItem *self);
-gboolean                gtk_menu_tracker_item_get_use_markup          (GtkMenuTrackerItem *self);
-GIcon                  *gtk_menu_tracker_item_get_icon                (GtkMenuTrackerItem *self);
-GIcon                  *gtk_menu_tracker_item_get_verb_icon           (GtkMenuTrackerItem *self);
-gboolean                gtk_menu_tracker_item_get_sensitive           (GtkMenuTrackerItem *self);
-DBusMenuRole            gtk_menu_tracker_item_get_role                (GtkMenuTrackerItem *self);
-gboolean                gtk_menu_tracker_item_get_toggled             (GtkMenuTrackerItem *self);
-const char             *gtk_menu_tracker_item_get_accel               (GtkMenuTrackerItem *self);
-GMenuModel             *_gtk_menu_tracker_item_get_link               (GtkMenuTrackerItem *self,
+const char             *dbus_menu_exporter_tracker_item_get_label               (DBusMenuExporterTrackerItem *self);
+gboolean                dbus_menu_exporter_tracker_item_get_use_markup          (DBusMenuExporterTrackerItem *self);
+GIcon                  *dbus_menu_exporter_tracker_item_get_icon                (DBusMenuExporterTrackerItem *self);
+GIcon                  *dbus_menu_exporter_tracker_item_get_verb_icon           (DBusMenuExporterTrackerItem *self);
+gboolean                dbus_menu_exporter_tracker_item_get_sensitive           (DBusMenuExporterTrackerItem *self);
+DBusMenuRole            dbus_menu_exporter_tracker_item_get_role                (DBusMenuExporterTrackerItem *self);
+gboolean                dbus_menu_exporter_tracker_item_get_toggled             (DBusMenuExporterTrackerItem *self);
+const char             *dbus_menu_exporter_tracker_item_get_accel               (DBusMenuExporterTrackerItem *self);
+GMenuModel             *_dbus_menu_exporter_tracker_item_get_link               (DBusMenuExporterTrackerItem *self,
                                                                        const char         *link_name);
-char                   *_gtk_menu_tracker_item_get_link_namespace     (GtkMenuTrackerItem *self);
-gboolean                gtk_menu_tracker_item_may_disappear           (GtkMenuTrackerItem *self);
-gboolean                gtk_menu_tracker_item_get_is_visible          (GtkMenuTrackerItem *self);
-gboolean                gtk_menu_tracker_item_get_should_request_show (GtkMenuTrackerItem *self);
-void                    gtk_menu_tracker_item_activated               (GtkMenuTrackerItem *self);
-void                    gtk_menu_tracker_item_request_submenu_shown   (GtkMenuTrackerItem *self,
+char                   *_dbus_menu_exporter_tracker_item_get_link_namespace     (DBusMenuExporterTrackerItem *self);
+gboolean                dbus_menu_exporter_tracker_item_may_disappear           (DBusMenuExporterTrackerItem *self);
+gboolean                dbus_menu_exporter_tracker_item_get_is_visible          (DBusMenuExporterTrackerItem *self);
+gboolean                dbus_menu_exporter_tracker_item_get_should_request_show (DBusMenuExporterTrackerItem *self);
+void                    dbus_menu_exporter_tracker_item_activated               (DBusMenuExporterTrackerItem *self);
+void                    dbus_menu_exporter_tracker_item_request_submenu_shown   (DBusMenuExporterTrackerItem *self,
                                                                        gboolean            shown);
-gboolean                gtk_menu_tracker_item_get_submenu_shown       (GtkMenuTrackerItem *self);
+gboolean                dbus_menu_exporter_tracker_item_get_submenu_shown       (DBusMenuExporterTrackerItem *self);
 

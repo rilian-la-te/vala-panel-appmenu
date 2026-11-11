@@ -22,10 +22,10 @@
 #include "gtkmenutrackeritem.h"
 
 typedef struct _GtkMenuTracker GtkMenuTracker;
-typedef struct _GtkMenuTrackerItem GtkMenuTrackerItem;
+typedef struct _DBusMenuExporterTrackerItem DBusMenuExporterTrackerItem;
 typedef struct _GtkActionNode GtkActionNode;
 
-typedef void (*GtkMenuTrackerInsertFunc) (GtkMenuTrackerItem *item,
+typedef void (*GtkMenuTrackerInsertFunc) (DBusMenuExporterTrackerItem *item,
                                           int                 position,
                                           gpointer            user_data);
 typedef void (*GtkMenuTrackerRemoveFunc) (int                 position,
@@ -41,7 +41,7 @@ GtkMenuTracker *gtk_menu_tracker_new               (GtkActionNode            *ac
                                                     GtkMenuTrackerInsertFunc  insert_func,
                                                     GtkMenuTrackerRemoveFunc  remove_func,
                                                     gpointer                  user_data);
-GtkMenuTracker *gtk_menu_tracker_new_for_item_link (GtkMenuTrackerItem       *item,
+GtkMenuTracker *gtk_menu_tracker_new_for_item_link (DBusMenuExporterTrackerItem       *item,
                                                     const char               *link_name,
                                                     gboolean                  merge_sections,
                                                     gboolean                  mac_os_mode,
