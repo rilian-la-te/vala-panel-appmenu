@@ -230,20 +230,6 @@ dbus_menu_item_preload(DBusMenuItem *item)
 	dbus_menu_model_load(submenu, NULL);
 }
 
-G_GNUC_INTERNAL bool dbus_menu_item_copy_attrs(DBusMenuItem *src, DBusMenuItem *dst)
-{
-	GHashTableIter iter;
-	g_hash_table_iter_init(&iter, src->attrs);
-	bool is_updated = false;
-	char *key;
-	GVariant *value;
-	while (g_hash_table_iter_next(&iter, (void **)&key, (void **)&value))
-	{
-		is_updated = attr_update_checked(dst, key, value) || is_updated;
-	}
-	return is_updated;
-}
-
 G_GNUC_INTERNAL bool dbus_menu_item_update_enabled(DBusMenuItem *item, bool enabled)
 {
 	bool updated = false;
