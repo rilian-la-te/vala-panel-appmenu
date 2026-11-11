@@ -1,19 +1,18 @@
 
 test_library = static_library('test_translator', files('comparator.c'), dependencies: translator_dep)
 
-basic = executable('basic', 'basic-test.c',
-    dependencies: translator_dep,
-    link_whole: test_library,
-)
-test('basic', basic)
+names = [
+    'basic',
+    'dynamic',
+    'radio',
+    'submenu',
+    'insert'
+]
 
-radio = executable('radio', 'radio-test.c',
-    dependencies: translator_dep,
-    link_whole: test_library,
-)
-test('radio', radio)
-insert = executable('insert', 'insert-test.c',
-    dependencies: translator_dep,
-    link_whole: test_library,
-)
-test('insert', insert)
+foreach name : names
+    exe = executable(name, name + '-test.c', 'test-main.c',
+        dependencies: translator_dep,
+        link_whole: test_library,
+    )
+    test(name, exe)
+endforeach

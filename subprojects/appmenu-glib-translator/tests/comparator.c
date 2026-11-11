@@ -216,3 +216,98 @@ gboolean compare_models(GMenuModel *a, GMenuModel *b, GString *errors, int depth
 	g_object_unref(ub);
 	return ok;
 }
+
+static gboolean on_timeout(gpointer data)
+{
+	g_main_loop_quit((GMainLoop *)data);
+	return G_SOURCE_REMOVE;
+}
+
+void test_wait(void)
+{
+	GMainLoop *loop = g_main_loop_new(NULL, FALSE);
+	g_timeout_add(500, on_timeout, loop);
+	g_main_loop_run(loop);
+	g_main_loop_unref(loop);
+}
+
+void fixture_setup(Fixture *f, GMenuModel *source, GSimpleActionGroup *action_group)
+{
+	f->source       = source;
+	f->action_group = g_object_ref_sink(action_group);
+	f->exporter     = dbus_menu_exporter_new(source,
+	                                         "app",
+	                                         G_ACTION_GROUP(f->action_group),
+	                                         TEST_BUS_NAME,
+	                                         TEST_OBJECT_PATH);
+	test_wait();
+	f->importer = dbus_menu_importer_new(TEST_BUS_NAME, TEST_OBJECT_PATH);
+	test_wait();
+	g_object_get(f->importer, "model", &f->target, NULL);
+}
+
+void fixture_teardown(Fixture *f)
+{
+	g_object_unref(f->target);
+	g_object_unref(f->importer);
+	g_object_unref(f->exporter);
+	g_object_unref(f->action_group);
+	g_object_unref(f->source);
+	test_wait();
+}
+
+void dump_and_report(const char *tag, Fixture *f, GString *errors)
+{
+	g_printerr("%s failed:\n%s\n", tag, errors->str);
+	g_printerr("--- source ---\n");
+	g_menu_markup_print_to_console(f->source);
+	g_printerr("--- parsed ---\n");
+	g_menu_markup_print_to_console(f->target);
+}
+
+static void check_has_any_action(GMenuModel *model, gboolean *found)
+{
+	int n = g_menu_model_get_n_items(model);
+
+	for (int i = 0; i < n && !*found; i++)
+	{
+		char *action = NULL;
+		if (g_menu_model_get_item_attribute(model,
+		                                    i,
+		                                    G_MENU_ATTRIBUTE_ACTION,
+		                                    "s",
+		                                    &action) &&
+		    action != NULL)
+			*found = TRUE;
+		g_free(action);
+
+		GMenuModel *sub = g_menu_model_get_item_link(model, i, G_MENU_LINK_SUBMENU);
+		if (sub != NULL)
+		{
+			check_has_any_action(sub, found);
+			g_object_unref(sub);
+		}
+		GMenuModel *sec = g_menu_model_get_item_link(model, i, G_MENU_LINK_SECTION);
+		if (sec != NULL)
+		{
+			check_has_any_action(sec, found);
+			g_object_unref(sec);
+		}
+	}
+}
+
+gboolean compare_and_check_actions(Fixture *f, GString *errors)
+{
+	gboolean ok = compare_models(f->source, f->target, errors, 0);
+
+	gboolean has_actions = FALSE;
+	check_has_any_action(f->target, &has_actions);
+	if (!has_actions)
+	{
+		g_string_append(errors,
+		                "parsed model contains no action attributes; "
+		                "the action group was not wired\n");
+		ok = FALSE;
+	}
+	return ok;
+}

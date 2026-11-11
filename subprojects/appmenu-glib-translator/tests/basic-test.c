@@ -42,39 +42,25 @@ static GMenuModel *build_source_model(void)
 	return G_MENU_MODEL(menu);
 }
 
-static gboolean
-on_timeout(gpointer data)
-{
-	g_main_loop_quit((GMainLoop *)data);
-	return G_SOURCE_REMOVE;
-}
-
-static void wait() {
-    GMainLoop *loop = g_main_loop_new(NULL, FALSE);
-	g_timeout_add(500, on_timeout, loop);
-	g_main_loop_run(loop);
-	g_main_loop_unref(loop);
-}
-
 /* ------------------------------------------------------------------ */
 
-int main(int argc, char *argv[])
+G_GNUC_INTERNAL void test_func(void)
 {
-	g_test_init(&argc, &argv, NULL);
-	GTestDBus *bus = g_test_dbus_new(G_TEST_DBUS_NONE);
-	g_test_dbus_up(bus);
-	GMenuModel *source = build_source_model();
-    GSimpleActionGroup* action_group = g_simple_action_group_new();
-    DBusMenuExporter* exporter = dbus_menu_exporter_new(source, "", G_ACTION_GROUP(action_group), TEST_BUS_NAME, TEST_OBJECT_PATH);
-    wait();
-    DBusMenuImporter* importer = dbus_menu_importer_new(TEST_BUS_NAME, TEST_OBJECT_PATH);
-    wait();
-    GMenuModel* target = NULL;
+	GMenuModel *source               = build_source_model();
+	GSimpleActionGroup *action_group = g_simple_action_group_new();
+	DBusMenuExporter *exporter       = dbus_menu_exporter_new(source,
+	                                                          "",
+	                                                          G_ACTION_GROUP(action_group),
+	                                                          TEST_BUS_NAME,
+	                                                          TEST_OBJECT_PATH);
+	test_wait();
+	DBusMenuImporter *importer = dbus_menu_importer_new(TEST_BUS_NAME, TEST_OBJECT_PATH);
+	test_wait();
+	GMenuModel *target = NULL;
+	g_object_get(importer, "model", &target, NULL);
 
-    g_object_get(importer, "model", &target, NULL);
 	GString *errors = g_string_new(NULL);
-	gboolean ok = compare_models(source, target, errors, 0);
-
+	gboolean ok     = compare_models(source, target, errors, 0);
 	if (!ok)
 	{
 		g_printerr("Models differ:\n%s\n", errors->str);
@@ -86,14 +72,11 @@ int main(int argc, char *argv[])
 
 	g_string_free(errors, TRUE);
 	g_object_unref(action_group);
-    g_object_unref(exporter);
-    g_object_unref(importer);
-    g_object_unref(target);
+	g_object_unref(exporter);
+	g_object_unref(importer);
+	g_object_unref(target);
 	g_object_unref(source);
-    wait();
-	g_test_dbus_down(bus);
-    wait();
-	g_object_unref(bus);
+	test_wait();
 
-	return ok ? 0 : 1;
+	g_assert_true(ok);
 }
