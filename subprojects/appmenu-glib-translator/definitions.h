@@ -39,6 +39,13 @@ typedef enum
 	DBUS_MENU_ACTION_ALL
 } DBusMenuActionType;
 
+typedef enum _DBusMenuRole
+{
+	DBUS_MENU_ROLE_NORMAL,
+	DBUS_MENU_ROLE_CHECK,
+	DBUS_MENU_ROLE_RADIO,
+} DBusMenuRole;
+
 #define SUBMENU_ACTION_MENUMODEL_QUARK_STR "submenu-action_menumodel"
 #define ACTIVATE_ID_QUARK_STR "checker-quark"
 #define POPULATED_QUARK "is-populated"
