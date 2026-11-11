@@ -1,0 +1,12 @@
+{
+  global:
+    g_menu_markup_print_to_console;
+    dbus_menu_exporter_get_type;
+    dbus_menu_exporter_new;
+    dbus_menu_exporter_insert;
+    dbus_menu_exporter_remove;
+    dbus_menu_importer_get_type;
+    dbus_menu_importer_new;
+  local:
+    *;
+};

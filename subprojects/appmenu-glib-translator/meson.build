@@ -47,6 +47,7 @@ common_sources, translator_enums_gen, translator_dbus, imp_sources, exp_sources,
     version: meson.project_version(),
     install: true,
     soversion: 0,
+    link_args: ['-Wl,--version-script=' + meson.current_source_dir() / 'translator.map'],
     pic : true
 )
 install_headers(translator_public + 'debug.h', subdir : translator_name)
