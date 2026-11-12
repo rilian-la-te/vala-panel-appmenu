@@ -26,6 +26,15 @@
 #define PLATFORM_H
 
 #include <gtk/gtk.h>
+#include <stdbool.h>
+
+typedef struct _WindowData WindowData;
+typedef struct _ModuleBackend {
+    bool (*is_runnable)();
+    bool (*is_applicable)(GtkWindow* window);
+    WindowData* (*establish_window_data)(GtkWindow *window);
+    bool before_realize_allowed;
+} ModuleBackend;
 
 #if (GTK_MAJOR_VERSION < 3) || defined(GDK_WINDOWING_X11)
 #include <gdk/gdkx.h>
