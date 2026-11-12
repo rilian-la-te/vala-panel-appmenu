@@ -142,27 +142,15 @@ G_GNUC_INTERNAL MenuShellData *gtk_menu_shell_get_menu_shell_data(GtkMenuShell *
 	return menu_shell_data;
 }
 
-G_GNUC_INTERNAL WindowData *gtk_window_get_window_data(GtkWindow *window)
+G_GNUC_INTERNAL WindowData *gtk_window_get_window_data(GtkWindow *window, bool before)
 {
-	WindowData *window_data = NULL;
-
 	g_return_val_if_fail(GTK_IS_WINDOW(window), NULL);
 	GdkWindow* gdk_win = gtk_widget_get_window((GtkWidget*)window);
 
 	if(!gdk_win)
 		g_info("There is no GdkWindow for requested GtkWindow. It is likely caused by Wayland first attempt.");
 
-#if (defined(GDK_WINDOWING_WAYLAND))
-	if (GDK_IS_WAYLAND_WINDOW(gdk_win))
-		window_data = gtk_wayland_window_get_window_data(window);
-#endif
-#if (defined(GDK_WINDOWING_X11))
-#if GTK_MAJOR_VERSION == 3
-	if (GDK_IS_X11_WINDOW(gdk_win))
-#endif
-		window_data = gtk_x11_window_get_window_data(window);
-#endif
-	return window_data;
+	return backend_get_window_data(window, before);
 }
 
 G_GNUC_INTERNAL void gtk_window_disconnect_menu_shell(GtkWindow *window, GtkMenuShell *menu_shell)
@@ -177,7 +165,7 @@ G_GNUC_INTERNAL void gtk_window_disconnect_menu_shell(GtkWindow *window, GtkMenu
 
 	g_warn_if_fail(window == menu_shell_data->window);
 
-	window_data = gtk_window_get_window_data(menu_shell_data->window);
+	window_data = gtk_window_get_window_data(menu_shell_data->window, false);
 
 	if (window_data != NULL)
 	{
@@ -223,7 +211,7 @@ G_GNUC_INTERNAL void gtk_window_connect_menu_shell(GtkWindow *window, GtkMenuShe
 		if (menu_shell_data->window != NULL)
 			gtk_window_disconnect_menu_shell(menu_shell_data->window, menu_shell);
 
-		window_data = gtk_window_get_window_data(window);
+		window_data = gtk_window_get_window_data(window, false);
 
 		if (window_data != NULL)
 		{

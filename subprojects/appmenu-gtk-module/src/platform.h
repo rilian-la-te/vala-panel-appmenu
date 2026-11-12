@@ -36,26 +36,9 @@ typedef struct _ModuleBackend {
     bool before_realize_allowed;
 } ModuleBackend;
 
-#if (GTK_MAJOR_VERSION < 3) || defined(GDK_WINDOWING_X11)
-#include <gdk/gdkx.h>
-#endif
-#if GTK_MAJOR_VERSION >= 3
-#ifdef GDK_WINDOWING_WAYLAND
-#include <gdk/gdkwayland.h>
-#endif
-#endif
-
 #include "datastructs.h"
 
 G_GNUC_INTERNAL WindowData *backend_get_window_data(GtkWindow *window, bool before);
 G_GNUC_INTERNAL bool gtk_module_has_backend();
-
-#ifdef GDK_WINDOWING_X11
-G_GNUC_INTERNAL WindowData *gtk_x11_window_get_window_data(GtkWindow *window);
-#endif
-
-#ifdef GDK_WINDOWING_WAYLAND
-G_GNUC_INTERNAL WindowData *gtk_wayland_window_get_window_data(GtkWindow *window);
-#endif
 
 #endif // PLATFORM_H
