@@ -31,12 +31,13 @@ if wl_dep.found()
     )
 
     wayland_lib = static_library('libappmenu-wayland',
-            generated,
+            generated, 'protocol-check.c',
             dependencies: wl_dep,
             pic: true
         )
     wayland_dep = declare_dependency(
         link_with: wayland_lib,
+        include_directories: include_directories('.'),
         dependencies: wl_dep
     )
 else
