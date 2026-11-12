@@ -47,6 +47,9 @@ typedef struct _ModuleBackend {
 
 #include "datastructs.h"
 
+G_GNUC_INTERNAL WindowData *backend_get_window_data(GtkWindow *window, bool before);
+G_GNUC_INTERNAL bool gtk_module_has_backend();
+
 #ifdef GDK_WINDOWING_X11
 G_GNUC_INTERNAL WindowData *gtk_x11_window_get_window_data(GtkWindow *window);
 #endif
