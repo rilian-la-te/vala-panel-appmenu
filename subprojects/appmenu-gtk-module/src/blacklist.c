@@ -30,16 +30,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* BLACKLIST is sorted alphabetically to allow O(log N) binary search */
 static const char *const BLACKLIST[] = {
-	"acroread",
 	"appmenu-mate",
 	"budgie-panel",
-	"emacs",
-	"emacs23",
-	"emacs23-lucid",
-	"emacs24",
-	"emacs24-lucid",
 	"indicator-applet",
 	"mate-indicator-applet",
 	"mate-indicator-applet-appmenu",
@@ -48,25 +41,19 @@ static const char *const BLACKLIST[] = {
 	"mate-panel",
 	"vala-panel",
 	"wrapper-1.0",
-	"wrapper-2.0"
+	"wrapper-2.0",
+	NULL
 };
 
-static int compare_strings(const void *key, const void *element)
-{
-	return strcmp(*(const char * const *)key, *(const char * const *)element);
-}
-
 G_GNUC_INTERNAL
-bool is_blacklisted(const char *name)
-{
-	if (name == NULL)
+bool is_blacklisted(const char *name) {
+
+	if (!name)
 		return false;
 
-	const char *key = name;
-	const char *const *res = bsearch(&key,
-	                                 BLACKLIST,
-	                                 G_N_ELEMENTS(BLACKLIST),
-	                                 sizeof(char *),
-	                                 compare_strings);
-	return res != NULL;
+	g_autoptr(GSettings) settings = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
+	g_autoptr(GVariant) arrayv = g_settings_get_value(settings, BLACKLIST_KEY);
+	g_autofree const char** array = g_variant_get_strv(arrayv, NULL);
+
+	return g_strv_contains(BLACKLIST, name) || g_strv_contains(array, name); 
 }
