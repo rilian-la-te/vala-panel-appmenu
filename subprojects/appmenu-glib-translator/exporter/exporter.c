@@ -192,6 +192,40 @@ static gboolean dbus_menu_exporter_handle_about_to_show(DBusMenuXml *object,
 	return TRUE;
 }
 
+static gboolean dbus_menu_exporter_handle_about_to_show_group(DBusMenuXml *object,
+                                                              GDBusMethodInvocation *invocation,
+                                                              GVariant *ids,
+                                                              gpointer user_data)
+{
+	DBusMenuExporter *self = DBUS_MENU_EXPORTER(user_data);
+	GVariantBuilder updates_builder, errors_builder;
+	GVariantIter iter;
+	gint32 id;
+
+	g_variant_builder_init(&updates_builder, G_VARIANT_TYPE("ai"));
+	g_variant_builder_init(&errors_builder, G_VARIANT_TYPE("ai"));
+
+	g_variant_iter_init(&iter, ids);
+	while (g_variant_iter_next(&iter, "i", &id))
+	{
+		DBusMenuExporterItem *item = dbus_menu_exporter_get_by_id(self, id);
+
+		if (id < 0 || item == NULL)
+		{
+			g_variant_builder_add(&errors_builder, "i", id);
+			continue;
+		}
+
+		dbus_menu_exporter_item_about_to_show(item);
+		g_variant_builder_add(&updates_builder, "i", id);
+	}
+
+	dbus_menu_xml_complete_about_to_show_group(object, invocation,
+												g_variant_builder_end(&updates_builder),
+												g_variant_builder_end(&errors_builder));
+	return TRUE;
+}
+
 static gboolean dbus_menu_exporter_handle_event(DBusMenuXml *object,
                                                 GDBusMethodInvocation *invocation, gint id,
                                                 const gchar *event_id, GVariant *data,
@@ -203,6 +237,40 @@ static gboolean dbus_menu_exporter_handle_event(DBusMenuXml *object,
 		return TRUE;
 	dbus_menu_exporter_item_event(item, event_id);
 	dbus_menu_xml_complete_event(object, invocation);
+	return TRUE;
+}
+
+static gboolean dbus_menu_exporter_handle_event_group(DBusMenuXml *object,
+                                                      GDBusMethodInvocation *invocation,
+                                                      GVariant *events,
+                                                      gpointer user_data)
+{
+	DBusMenuExporter *self = DBUS_MENU_EXPORTER(user_data);
+	GVariantBuilder errors_builder;
+	GVariantIter iter;
+	gint32 id;
+	const gchar *event_id;
+	GVariant *data;
+	guint32 timestamp;
+
+	g_variant_builder_init(&errors_builder, G_VARIANT_TYPE("ai"));
+
+	g_variant_iter_init(&iter, events);
+	while (g_variant_iter_next(&iter, "(i&s&vu)", &id, &event_id, &data, &timestamp))
+	{
+		DBusMenuExporterItem *item = dbus_menu_exporter_get_by_id(self, id);
+
+		if (id < 0 || item == NULL)
+		{
+			g_variant_builder_add(&errors_builder, "i", id);
+			continue;
+		}
+
+		dbus_menu_exporter_item_event(item, event_id);
+	}
+
+	dbus_menu_xml_complete_event_group(object, invocation,
+										g_variant_builder_end(&errors_builder));
 	return TRUE;
 }
 
@@ -226,6 +294,37 @@ static gboolean dbus_menu_exporter_handle_get_property(DBusMenuXml *object,
 		return TRUE;
 	}
 	dbus_menu_xml_complete_get_property(object, invocation, value);
+	return TRUE;
+}
+
+static gboolean dbus_menu_exporter_handle_get_group_properties(DBusMenuXml *object,
+                                                               GDBusMethodInvocation *invocation,
+                                                               GVariant *ids,
+                                                               const gchar *const *requested_props,
+                                                               gpointer user_data)
+{
+	DBusMenuExporter *self = DBUS_MENU_EXPORTER(user_data);
+	GVariantBuilder items_builder;
+	GVariantIter iter;
+	gint32 id;
+
+	g_variant_builder_init(&items_builder, G_VARIANT_TYPE("a(ia{sv})"));
+
+	g_variant_iter_init(&iter, ids);
+	while (g_variant_iter_next(&iter, "i", &id))
+	{
+		DBusMenuExporterItem *item = dbus_menu_exporter_get_by_id(self, id);
+
+		if (id < 0 || item == NULL)
+			continue;
+
+		GVariant *props = dbus_menu_exporter_item_build_properties_variant(item,
+																			requested_props);
+		g_variant_builder_add(&items_builder, "(i@a{sv})", id, props);
+	}
+
+	dbus_menu_xml_complete_get_group_properties(object, invocation,
+												g_variant_builder_end(&items_builder));
 	return TRUE;
 }
 
@@ -434,12 +533,24 @@ static void dbus_menu_exporter_constructed(GObject *object)
 	                 G_CALLBACK(dbus_menu_exporter_handle_about_to_show),
 	                 menu);
 	g_signal_connect(menu->xml,
+	                 "handle-about-to-show-group",
+	                 G_CALLBACK(dbus_menu_exporter_handle_about_to_show_group),
+	                 menu);
+	g_signal_connect(menu->xml,
 	                 "handle-event",
 	                 G_CALLBACK(dbus_menu_exporter_handle_event),
 	                 menu);
 	g_signal_connect(menu->xml,
+	                 "handle-event-group",
+	                 G_CALLBACK(dbus_menu_exporter_handle_event_group),
+	                 menu);
+	g_signal_connect(menu->xml,
 	                 "handle-get-property",
 	                 G_CALLBACK(dbus_menu_exporter_handle_get_property),
+	                 menu);
+	g_signal_connect(menu->xml,
+	                 "handle-get-group-properties",
+	                 G_CALLBACK(dbus_menu_exporter_handle_get_group_properties),
 	                 menu);
 	g_signal_connect(menu->xml,
 	                 "handle-get-layout",

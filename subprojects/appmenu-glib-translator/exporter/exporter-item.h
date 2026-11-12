@@ -40,6 +40,8 @@ G_GNUC_INTERNAL void dbus_menu_exporter_item_about_to_show(DBusMenuExporterItem*
 G_GNUC_INTERNAL GVariant *dbus_menu_exporter_item_get_variant_for_prop(DBusMenuExporterItem *self,
                                                                        const char *prop);
 G_GNUC_INTERNAL const gchar *dbus_menu_prop_for_tracker_prop(const gchar *name);
+G_GNUC_INTERNAL GVariant *dbus_menu_exporter_item_build_properties_variant(DBusMenuExporterItem *self,
+                                                                           const gchar *const *requested_props);
 G_GNUC_INTERNAL GVariant *dbus_menu_exporter_item_build_representation(DBusMenuExporterItem *self,
                                                                        int children_depth, const gchar *const *requested_props);
 
