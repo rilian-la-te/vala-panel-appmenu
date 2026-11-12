@@ -27,6 +27,54 @@
 #include "datastructs-private.h"
 #include "datastructs.h"
 
+static const ModuleBackend *const backends[] = {
+    NULL
+};
+
+static WindowData* applicable_backends_establish_window_data(GtkWindow *window, bool before) {	
+	for(int i = 0; i < G_N_ELEMENTS(backends); i++) {
+		const ModuleBackend* b = backends[i];
+		if (!b)
+			continue;
+		if(b->is_applicable(window) && (!before || (b->before_realize_allowed == before))) {
+			return b->establish_window_data(window);
+		}
+	}
+	return NULL;
+}
+
+G_GNUC_INTERNAL bool gtk_module_has_backend() {
+	for(int i = 0; i < G_N_ELEMENTS(backends); i++) {
+		const ModuleBackend* b = backends[i];
+		if (!b)
+			continue;
+		if(b->is_runnable()) {
+			return true;
+		}
+	}
+	return false;
+}
+
+G_GNUC_INTERNAL WindowData *backend_get_window_data(GtkWindow *window, bool before)
+{
+	WindowData *window_data;
+
+	g_return_val_if_fail(GTK_IS_WINDOW(window), NULL);
+
+	window_data = g_object_get_qdata(G_OBJECT(window), window_data_quark());
+
+	if(!window_data) {
+		window_data = applicable_backends_establish_window_data(window, before);
+
+	    g_object_set_qdata_full(G_OBJECT(window),
+                            window_data_quark(),
+                            window_data,
+                            window_data_free);
+	}
+
+	return window_data;
+}
+
 #ifdef GDK_WINDOWING_X11
 G_GNUC_INTERNAL char *gtk_widget_get_x11_property_string(GtkWidget *widget, const char *name)
 {
