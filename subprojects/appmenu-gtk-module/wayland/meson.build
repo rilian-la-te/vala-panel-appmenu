@@ -19,7 +19,8 @@ if wl_dep.found()
     protocols = [
         decor,
         shell,
-        'org.kde.appmenu.xml'
+        'org.kde.appmenu.xml',
+        'gtk-shell.xml'
     ]
 
     generated = wl_mod.scan_xml(
