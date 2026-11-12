@@ -45,6 +45,7 @@
 #include "blacklist.h"
 #include "consts.h"
 #include "support.h"
+#include "platform.h"
 
 static bool is_true(const char *value)
 {
@@ -56,24 +57,10 @@ static bool is_true(const char *value)
 G_GNUC_INTERNAL bool gtk_module_should_run()
 {
 	const char *proxy          = g_getenv("UBUNTU_MENUPROXY");
-	bool is_platform_supported = false;
+	bool is_platform_supported = gtk_module_has_backend();
 	bool is_program_supported  = false;
 	bool should_run            = false;
 	static bool run_once       = true;
-#if GTK_MAJOR_VERSION >= 3
-	if (GDK_IS_X11_DISPLAY(gdk_display_get_default()))
-		is_platform_supported = true;
-	else if (GDK_IS_WAYLAND_DISPLAY(gdk_display_get_default()))
-	{
-		g_autoptr(GSettings) gsettings = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
-		bool use_wayland                  = g_settings_get_boolean(gsettings, RUN_ON_WAYLAND);
-		is_platform_supported = use_wayland;
-	}
-	else
-		is_platform_supported = false;
-#else
-	is_platform_supported = true;
-#endif
 	is_program_supported =
 	    (proxy == NULL || is_true(proxy)) && !is_blacklisted(g_get_prgname());
 	should_run = is_program_supported && is_platform_supported && run_once;

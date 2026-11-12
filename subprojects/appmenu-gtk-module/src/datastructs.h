@@ -33,7 +33,7 @@ typedef struct _WindowData WindowData;
 G_GNUC_INTERNAL GQuark window_data_quark(void);
 G_GNUC_INTERNAL WindowData *window_data_new(void);
 G_GNUC_INTERNAL WindowData *window_data_copy(WindowData *source);
-G_GNUC_INTERNAL WindowData *gtk_window_get_window_data(GtkWindow *window);
+G_GNUC_INTERNAL WindowData *gtk_window_get_window_data(GtkWindow *window, bool before);
 G_GNUC_INTERNAL void window_data_free(gpointer data);
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(WindowData, window_data_free);
 

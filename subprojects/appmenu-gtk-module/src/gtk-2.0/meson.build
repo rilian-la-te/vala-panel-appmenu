@@ -1,5 +1,5 @@
 gtk2_module = shared_module(
-    'appmenu-gtk-module', module_sources,
+    'appmenu-gtk-module', module_sources, x11_sources,
     dependencies: gtk2_parser_dep,
     c_args: '-Wno-deprecated-declarations',
     install: true,
