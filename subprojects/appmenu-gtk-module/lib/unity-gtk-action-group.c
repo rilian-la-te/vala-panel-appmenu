@@ -940,6 +940,92 @@ static char *unity_gtk_action_group_get_state_name(UnityGtkActionGroup *group,
 	return name;
 }
 
+static void on_menu_item_active_notify(GtkCheckMenuItem *menu_item, GParamSpec *pspec,
+                                       gpointer user_data)
+{
+	UnityGtkMenuItem *item = user_data;
+	UnityGtkAction *action;
+	UnityGtkMenuShell *parent_shell;
+	UnityGtkActionGroup *group;
+	gboolean active;
+
+	(void)pspec;
+
+	if (!UNITY_GTK_IS_MENU_ITEM(item))
+		return;
+
+	action       = item->action;
+	parent_shell = item->parent_shell;
+
+	if (action == NULL || parent_shell == NULL)
+		return;
+
+	group = parent_shell->action_group;
+	if (group == NULL)
+		return;
+
+	active = gtk_check_menu_item_get_active(menu_item);
+
+	if (action->items_by_name != NULL)
+	{
+		GHashTableIter iter;
+		gpointer key, value;
+
+		/* Real radio: only emit on the item that becomes active. */
+		if (!active)
+			return;
+
+		g_hash_table_iter_init(&iter, action->items_by_name);
+		while (g_hash_table_iter_next(&iter, &key, &value))
+		{
+			if (value == item)
+			{
+				g_action_group_action_state_changed(G_ACTION_GROUP(group),
+				                                    action->name,
+				                                    g_variant_new_string(key));
+				return;
+			}
+		}
+		return;
+	}
+
+	if (action->item == item && unity_gtk_menu_item_is_check(item))
+	{
+		if (unity_gtk_menu_item_get_draw_as_radio(item))
+		{
+			g_action_group_action_state_changed(G_ACTION_GROUP(group),
+			                                    action->name,
+			                                    g_variant_new_string(
+			                                        active ? action->name : ""));
+		}
+		else
+		{
+			g_action_group_action_state_changed(G_ACTION_GROUP(group),
+			                                    action->name,
+			                                    g_variant_new_boolean(active));
+		}
+	}
+}
+
+static void install_active_hook(UnityGtkMenuItem *item)
+{
+	if (item->menu_item == NULL || !GTK_IS_CHECK_MENU_ITEM(item->menu_item))
+		return;
+
+	g_signal_connect(item->menu_item,
+	                 "notify::active",
+	                 G_CALLBACK(on_menu_item_active_notify),
+	                 item);
+}
+
+static void remove_active_hook(UnityGtkMenuItem *item)
+{
+	if (item->menu_item == NULL || !GTK_IS_CHECK_MENU_ITEM(item->menu_item))
+		return;
+
+	g_signal_handlers_disconnect_by_func(item->menu_item, on_menu_item_active_notify, item);
+}
+
 void unity_gtk_action_group_connect_item(UnityGtkActionGroup *group, UnityGtkMenuItem *item)
 {
 	g_return_if_fail(UNITY_GTK_IS_ACTION_GROUP(group));
@@ -1026,6 +1112,7 @@ void unity_gtk_action_group_connect_item(UnityGtkActionGroup *group, UnityGtkMen
 		}
 
 		unity_gtk_menu_item_set_action(item, action);
+		install_active_hook(item);
 
 		if (new_action != NULL)
 		{
@@ -1153,6 +1240,7 @@ void unity_gtk_action_group_disconnect_item(UnityGtkActionGroup *group, UnityGtk
 		}
 	}
 
+	remove_active_hook(item);
 	unity_gtk_menu_item_set_action(item, NULL);
 }
 
