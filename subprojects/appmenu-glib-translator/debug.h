@@ -21,5 +21,4 @@
 
 #include <gio/gio.h>
 void g_menu_markup_print_to_console(GMenuModel *menu);
-void dbus_menu_print_variant(GVariant *var);
 #endif // DEBUG_H
