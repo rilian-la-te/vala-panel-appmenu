@@ -45,7 +45,8 @@ build_gtk2 = gtk2.found()
 build_gtk3 = gtk3.found()
 
 wayland_requested = get_option('wayland')
-importer_dep = dependency('appmenu-glib-translator', version : '>=26.11', required: wayland_requested, fallback : ['appmenu-glib-translator', 'translator_dep'])
+tests_requested = get_option('tests')
+importer_dep = dependency('appmenu-glib-translator', version : '>=26.11', required: wayland_requested or tests_requested, fallback : ['appmenu-glib-translator', 'translator_dep'])
 wl_dep = dependency('wayland-client', required: wayland_requested)
 
 #################
