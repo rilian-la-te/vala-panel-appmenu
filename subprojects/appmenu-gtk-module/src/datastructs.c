@@ -56,6 +56,8 @@ G_GNUC_INTERNAL void window_data_free(gpointer data)
 		if (window_data->menu_model_export_id)
 			g_dbus_connection_unexport_menu_model(session,
 			                                      window_data->menu_model_export_id);
+		if (window_data->exporter)
+			g_object_unref(window_data->exporter);
 
 		if (window_data->action_group != NULL)
 			g_object_unref(window_data->action_group);
@@ -78,6 +80,8 @@ G_GNUC_INTERNAL WindowData *window_data_copy(WindowData *source)
 	WindowData *ret             = window_data_new();
 	ret->action_group_export_id = source->action_group_export_id;
 	ret->menu_model_export_id   = source->menu_model_export_id;
+	if (source->exporter)
+		ret->exporter = g_object_ref(source->exporter);
 	if (source->action_group != NULL)
 		ret->action_group = g_object_ref(source->action_group);
 
