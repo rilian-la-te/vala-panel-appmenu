@@ -1,8 +1,7 @@
 
 test_deps = [gtk3, importer_dep, gtk3_parser_dep]
 
-
-test_library = static_library('test_gtk_module', files('comparator.c'), dependencies: test_deps)
+test_library = static_library('test_gtk_module', files('comparator.c', 'test-helper.c'), dependencies: test_deps, include_directories: include_directories('.'))
 
 fs = import('fs')
 
@@ -26,4 +25,21 @@ foreach src : roundtrip_sources
     c_args: ['-DNO_LAZY'],
   )
   test(name + '-nolazy', rt_nolazy)
+endforeach
+
+names = [
+    'checkbox-source',
+    'checkbox-target',
+    'radio-source',
+    'radio-target',
+    'dynamic-bypass',
+    'regular-activate'
+]
+
+foreach name : names
+    exe = executable(name, name + '.c', 'test-main.c',
+        dependencies: test_deps,
+        link_whole: test_library,
+    )
+    test(name, exe)
 endforeach
