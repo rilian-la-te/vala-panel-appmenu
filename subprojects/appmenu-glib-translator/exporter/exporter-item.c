@@ -232,6 +232,9 @@ G_GNUC_INTERNAL GVariant *dbus_menu_exporter_item_build_properties_variant(
 	GVariantDict vardict;
 	guint n_properties;
 
+	if (requested_props && !g_strv_length((GStrv)requested_props))
+		requested_props = NULL;
+
 	g_variant_dict_init(&vardict, NULL);
 	if (self->is_submenu && !requested_props)
 	{
