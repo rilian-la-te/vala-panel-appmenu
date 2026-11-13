@@ -114,6 +114,15 @@ static gboolean gtk_menu_item_is_model(GtkMenuItem* menu_item)
     return G_TYPE_CHECK_INSTANCE_TYPE(menu_item, model_item_type);
 }
 
+static gboolean gtk_model_menu_item_has_indicator(GtkMenuItem* menu_item) {
+	if(!gtk_menu_item_is_model(menu_item))
+		return TRUE;
+	
+	uint action_role = 1;
+	g_object_get(menu_item, "action-role", &action_role, NULL);
+	return action_role;
+}
+
 static GIcon *gtk_image_get_icon(GtkImage *image)
 {
 	GIcon *icon = NULL;
@@ -879,7 +888,7 @@ gboolean unity_gtk_menu_item_is_check(UnityGtkMenuItem *item)
 {
 	g_return_val_if_fail(UNITY_GTK_IS_MENU_ITEM(item), FALSE);
 
-	return GTK_IS_CHECK_MENU_ITEM(item->menu_item);
+	return GTK_IS_CHECK_MENU_ITEM(item->menu_item) && gtk_model_menu_item_has_indicator(item->menu_item);
 }
 
 gboolean unity_gtk_menu_item_is_radio(UnityGtkMenuItem *item)

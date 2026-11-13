@@ -28,6 +28,7 @@ foreach src : roundtrip_sources
 endforeach
 
 names = [
+    'action-types',
     'checkbox-source',
     'checkbox-target',
     'radio-source',
