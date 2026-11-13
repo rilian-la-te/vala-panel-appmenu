@@ -15,7 +15,7 @@ struct _DBusMenuExporter
 	GObject parent_instance;
 	DBusMenuXml *xml;
 	gchar *bus_name;
-	ulong name_id;
+	guint name_id;
 	gchar *object_path;
 	GMenuModel *source_menu;
 	DBusMenuExporterMuxer *source_actions;
@@ -591,18 +591,27 @@ static void dbus_menu_exporter_dispose(GObject *object)
 {
 	DBusMenuExporter *menu = DBUS_MENU_EXPORTER(object);
 
-	if (menu->name_id)
+	g_clear_handle_id(&menu->flush_timeout_id, g_source_remove);
+	g_clear_handle_id(&menu->name_id, g_bus_unown_name);
+
+	if (menu->xml)
 	{
-		g_bus_unown_name(menu->name_id);
-		menu->name_id = 0;
-	}
-	if(g_dbus_is_unique_name(menu->bus_name)) {
-		GDBusConnection* conn = g_dbus_interface_skeleton_get_connection(G_DBUS_INTERFACE_SKELETON(menu->xml));
-		if(conn)
-			name_lost_cb(conn, menu->bus_name, menu);
+		if (g_dbus_is_unique_name(menu->bus_name))
+		{
+			GDBusConnection *conn = g_dbus_interface_skeleton_get_connection(
+			    G_DBUS_INTERFACE_SKELETON(menu->xml));
+			if (conn)
+				name_lost_cb(conn, menu->bus_name, menu);
+		}
+
+		g_signal_handlers_disconnect_by_data(menu->xml, menu);
+		g_clear_object(&menu->xml);
 	}
 
-	g_signal_handlers_disconnect_by_data(menu->xml, menu);
+	g_clear_object(&menu->source_menu);
+	g_clear_object(&menu->source_actions);
+	g_clear_pointer(&menu->items, g_ptr_array_unref);
+
 	G_OBJECT_CLASS(dbus_menu_exporter_parent_class)->dispose(object);
 }
 
@@ -610,17 +619,7 @@ static void dbus_menu_exporter_finalize(GObject *object)
 {
 	DBusMenuExporter *menu = DBUS_MENU_EXPORTER(object);
 
-	if (menu->flush_timeout_id)
-	{
-		g_source_remove(menu->flush_timeout_id);
-		menu->flush_timeout_id = 0;
-	}
 	g_clear_pointer(&menu->pending_properties, g_hash_table_destroy);
-	g_clear_pointer(&menu->items, g_ptr_array_unref);
-
-	g_clear_object(&menu->source_menu);
-	g_clear_object(&menu->xml);
-	g_clear_object(&menu->source_actions);
 	g_clear_pointer(&menu->bus_name, g_free);
 	g_clear_pointer(&menu->object_path, g_free);
 	g_clear_pointer(&menu->free_ids, g_slist_free);
