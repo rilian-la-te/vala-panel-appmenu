@@ -29,10 +29,12 @@
 
 extern const ModuleBackend x11_platform __attribute__((weak));
 extern const ModuleBackend gtk_shell_platform __attribute__((weak));
+extern const ModuleBackend kwin_platform __attribute__((weak));
 
 static const ModuleBackend *const backends[] = {
 	&x11_platform,
     &gtk_shell_platform,
+    &kwin_platform,
     NULL
 };
 

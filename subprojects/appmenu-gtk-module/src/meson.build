@@ -20,7 +20,8 @@ x11_sources = files(
 
 if wayland_requested
     wl_sources = files(
-        'platform-gtk-shell.c'
+        'platform-gtk-shell.c',
+        'platform-kwin.c'
     )
 else
     wl_sources = []
