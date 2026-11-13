@@ -114,6 +114,18 @@ static gboolean gtk_menu_item_is_model(GtkMenuItem* menu_item)
     return G_TYPE_CHECK_INSTANCE_TYPE(menu_item, model_item_type);
 }
 
+static gboolean gtk_model_menu_item_has_indicator(GtkMenuItem* menu_item) {
+	if(!gtk_menu_item_is_model(menu_item))
+		return TRUE;
+	
+	//Dirty trick with ATK - GtkModelMenuItem can be distinguished only this way
+	AtkObject* acc = gtk_widget_get_accessible(GTK_WIDGET(menu_item));
+	AtkRole action_role = atk_object_get_role(acc);
+	if(action_role == ATK_ROLE_MENU_ITEM || action_role == ATK_ROLE_MENU)
+		return FALSE;
+	return TRUE;
+}
+
 static GIcon *gtk_image_get_icon(GtkImage *image)
 {
 	GIcon *icon = NULL;
@@ -879,7 +891,7 @@ gboolean unity_gtk_menu_item_is_check(UnityGtkMenuItem *item)
 {
 	g_return_val_if_fail(UNITY_GTK_IS_MENU_ITEM(item), FALSE);
 
-	return GTK_IS_CHECK_MENU_ITEM(item->menu_item);
+	return GTK_IS_CHECK_MENU_ITEM(item->menu_item) && gtk_model_menu_item_has_indicator(item->menu_item);
 }
 
 gboolean unity_gtk_menu_item_is_radio(UnityGtkMenuItem *item)
