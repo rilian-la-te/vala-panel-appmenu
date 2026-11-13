@@ -332,6 +332,9 @@ static void on_tracker_item_notify(GObject *object, GParamSpec *pspec, gpointer 
 	DBusMenuExporterItem *item = (DBusMenuExporterItem *)user_data;
 	DBusMenuExporter *exporter = dbus_menu_exporter_item_get_exporter(item);
 
+	if(g_str_equal(pspec->name, "submenu-shown"))
+		return;
+
 	const gchar *dbus_prop = dbus_menu_prop_for_tracker_prop(pspec->name);
 	if (!dbus_prop)
 		return;

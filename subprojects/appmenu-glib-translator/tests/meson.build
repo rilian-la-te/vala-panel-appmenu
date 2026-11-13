@@ -2,6 +2,7 @@
 test_library = static_library('test_translator', files('comparator.c'), dependencies: translator_dep)
 
 names = [
+    'bad-children',
     'basic',
     'check',
     'dynamic',
