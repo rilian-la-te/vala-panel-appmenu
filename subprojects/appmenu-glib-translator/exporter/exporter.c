@@ -603,6 +603,7 @@ static void dbus_menu_exporter_finalize(GObject *object)
 		menu->flush_timeout_id = 0;
 	}
 	g_clear_pointer(&menu->pending_properties, g_hash_table_destroy);
+	g_clear_pointer(&menu->items, g_ptr_array_unref);
 
 	g_clear_object(&menu->source_menu);
 	g_clear_object(&menu->xml);
@@ -610,7 +611,6 @@ static void dbus_menu_exporter_finalize(GObject *object)
 	g_clear_pointer(&menu->bus_name, g_free);
 	g_clear_pointer(&menu->object_path, g_free);
 	g_clear_pointer(&menu->free_ids, g_slist_free);
-	g_clear_pointer(&menu->items, g_ptr_array_unref);
 
 	G_OBJECT_CLASS(dbus_menu_exporter_parent_class)->finalize(object);
 }
