@@ -6,9 +6,9 @@
       <description>List of applications where appmenu-gtk-module should be disabled.</description>
       <default>['anjuta', 'freeciv', 'freeciv-gtk2', 'freeciv-gtk3', 'glade', 'gwyddion', 'acroread', 'emacs', 'emacs23', 'emacs23-lucid', 'emacs24', 'emacs24-lucid']</default>
     </key>
-    <key name="always-show-inner-menu" type="b">
-      <summary>Always show menus in application</summary>
-      <description>If this is enabled, menus will not removed from applications even if registrar found. Useful for HUD-only usage.</description>
+    <key name="shell-override" type="b">
+      <summary>Override default shell settings for shows-menubar</summary>
+      <description>If this is enabled, menus will follow module presence and possibility of export, not shell settings.</description>
       <default>false</default>
     </key>
     <key name="run-on-wayland" type="b">

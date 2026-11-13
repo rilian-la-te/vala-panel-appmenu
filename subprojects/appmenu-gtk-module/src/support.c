@@ -184,10 +184,10 @@ static bool set_gtk_shell_shows_menubar(bool shows)
 	    g_object_class_find_property(G_OBJECT_GET_CLASS(settings), "gtk-shell-shows-menubar");
 
 	g_autoptr(GSettings) gsettings = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
-	bool need_set                  = !g_settings_get_boolean(gsettings, INNER_MENU_KEY);
+	bool override                  = g_settings_get_boolean(gsettings, SHELL_OVERRIDE_KEY);
 
-	if (pspec && pspec->value_type == G_TYPE_BOOLEAN)
-		g_object_set(settings, "gtk-shell-shows-menubar", need_set ? shows : false, NULL);
+	if (pspec && pspec->value_type == G_TYPE_BOOLEAN && override)
+		g_object_set(settings, "gtk-shell-shows-menubar", shows, NULL);
 
 	return true;
 }
