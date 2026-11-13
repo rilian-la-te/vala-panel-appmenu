@@ -569,14 +569,22 @@ static void dbus_menu_exporter_constructed(GObject *object)
 	                                           root);
 	root->is_submenu    = TRUE;
 
-	menu->name_id = g_bus_own_name(G_BUS_TYPE_SESSION,
-	                               menu->bus_name,
-	                               G_BUS_NAME_OWNER_FLAGS_DO_NOT_QUEUE,
-	                               NULL,
-	                               name_acquired_cb,
-	                               name_lost_cb,
-	                               menu,
-	                               NULL);
+	if(g_dbus_is_unique_name(menu->bus_name)) {
+		g_autoptr(GDBusConnection) conn = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, NULL);
+		if(conn)
+			name_acquired_cb(conn, menu->bus_name, menu);
+	}
+	else 
+    {
+		menu->name_id = g_bus_own_name(G_BUS_TYPE_SESSION,
+									menu->bus_name,
+									G_BUS_NAME_OWNER_FLAGS_DO_NOT_QUEUE,
+									NULL,
+									name_acquired_cb,
+									name_lost_cb,
+									menu,
+									NULL);
+	}
 }
 
 static void dbus_menu_exporter_dispose(GObject *object)
@@ -587,6 +595,11 @@ static void dbus_menu_exporter_dispose(GObject *object)
 	{
 		g_bus_unown_name(menu->name_id);
 		menu->name_id = 0;
+	}
+	if(g_dbus_is_unique_name(menu->bus_name)) {
+		GDBusConnection* conn = g_dbus_interface_skeleton_get_connection(G_DBUS_INTERFACE_SKELETON(menu->xml));
+		if(conn)
+			name_lost_cb(conn, menu->bus_name, menu);
 	}
 
 	g_signal_handlers_disconnect_by_data(menu->xml, menu);
