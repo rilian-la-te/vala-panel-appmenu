@@ -1,7 +1,3 @@
-wayland_requested = get_option('wayland')
-
-wl_dep = dependency('wayland-client', required: wayland_requested)
-
 if wl_dep.found()
     wl_mod = import('wayland')
 
