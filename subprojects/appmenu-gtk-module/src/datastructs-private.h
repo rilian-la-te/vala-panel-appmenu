@@ -38,6 +38,7 @@ struct _WindowData
 	GMenuModel *old_model;
 	UnityGtkActionGroup *action_group;
 	guint action_group_export_id;
+	GObject* exporter; /* opaque object using to export as DBusMenu */
 };
 
 struct _MenuShellData
