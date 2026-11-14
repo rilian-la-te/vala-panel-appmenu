@@ -297,6 +297,9 @@ void e2e_setup(E2E *e)
 	gtk_widget_insert_action_group(e->menubar, "app", G_ACTION_GROUP(e->actions));
 	gtk_menu_shell_bind_model(GTK_MENU_SHELL(e->menubar), e->source, NULL, TRUE);
 
+	unity_gtk_menu_shell_set_debug(TRUE);
+	unity_gtk_action_group_set_debug(TRUE);
+
 	e->shell         = unity_gtk_menu_shell_new(GTK_MENU_SHELL(e->menubar));
 	e->unity_actions = unity_gtk_action_group_new(NULL);
 	unity_gtk_action_group_connect_shell(e->unity_actions, e->shell);
