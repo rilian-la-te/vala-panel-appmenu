@@ -668,7 +668,7 @@ static gboolean unity_gtk_action_group_query_action(GActionGroup *action_group, 
 		                                   state_hint,
 		                                   state);
 
-	g_warn_if_reached();
+	g_debug("action %s does not exist in group now, it seems widgets dead\n", name);
 
 	return FALSE;
 }
@@ -1211,7 +1211,7 @@ void unity_gtk_action_group_disconnect_item(UnityGtkActionGroup *group, UnityGtk
 					}
 				}
 				else
-					g_warn_if_reached();
+					g_debug("action-group: there is no names available for this item, ignoring\n");
 			}
 			else
 				g_warn_if_reached();
