@@ -522,6 +522,30 @@ static void unity_gtk_menu_item_handle_accel_closures_changed(GtkWidget *widget,
 	unity_gtk_menu_shell_handle_item_notify(parent_shell, item, "accel-path");
 }
 
+static gboolean on_submenu_show_refresh_accels_idle(gpointer data)
+{
+	GWeakRef *weak                   = data;
+	g_autoptr(UnityGtkMenuItem) item = g_weak_ref_get(weak);
+
+	if (item && item->parent_shell)
+		unity_gtk_menu_shell_handle_item_notify(item->parent_shell, item, "accel-path");
+
+	g_weak_ref_clear(weak);
+	g_free(weak);
+	return G_SOURCE_REMOVE;
+}
+
+static void on_submenu_show_refresh_accels(GtkWidget *submenu, gpointer data)
+{
+	UnityGtkMenuItem *item = UNITY_GTK_MENU_ITEM(data);
+	GWeakRef *weak         = g_new(GWeakRef, 1);
+
+	g_weak_ref_init(weak, item);
+	g_idle_add(on_submenu_show_refresh_accels_idle, weak);
+
+	g_signal_handlers_disconnect_by_func(submenu, on_submenu_show_refresh_accels, data);
+}
+
 static void unity_gtk_menu_item_set_menu_item(UnityGtkMenuItem *item, GtkMenuItem *menu_item)
 {
 	g_return_if_fail(UNITY_GTK_IS_MENU_ITEM(item));
@@ -570,8 +594,15 @@ static void unity_gtk_menu_item_set_menu_item(UnityGtkMenuItem *item, GtkMenuIte
 			 * accelerators using private API, and there's no way for us to
 			 * detect when they change.
 			 */
-			if (!gtk_menu_item_is_model(menu_item) && gtk_menu_item_get_submenu(menu_item) != NULL)
-				g_signal_emit_by_name(gtk_menu_item_get_submenu(menu_item), "show");
+			GtkWidget *submenu = gtk_menu_item_get_submenu(menu_item);
+			if (submenu && !gtk_menu_item_is_model(menu_item))
+			{
+				g_signal_connect_object(submenu,
+				                        "show",
+				                        G_CALLBACK(on_submenu_show_refresh_accels),
+				                        item,
+				                        G_CONNECT_AFTER);
+			}
 		}
 
 		unity_gtk_menu_item_connect_labels(item);
