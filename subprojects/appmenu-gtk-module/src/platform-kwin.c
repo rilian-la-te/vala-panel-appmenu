@@ -3,12 +3,12 @@
 #include "datastructs-private.h"
 #include "datastructs.h"
 #include "glibconfig.h"
+#include "org.kde.appmenu-client-protocol.h"
 #include "platform.h"
 
-#include "org.kde.appmenu-client-protocol.h"
+#include <exporter.h>
 #include <gdk/gdkwayland.h>
 #include <wayland-client.h>
-#include <exporter.h>
 
 extern bool wl_has(const char *interface);
 
@@ -65,29 +65,27 @@ static struct org_kde_kwin_appmenu_manager *get_kwin_manager(void)
 	return kwin_manager;
 }
 
-static gboolean
-on_window_map_event(GtkWidget *w, GdkEvent *ev, GObject *exporter)
+static gboolean on_window_map_event(GtkWidget *w, GdkEvent *ev, GObject *exporter)
 {
-    struct org_kde_kwin_appmenu_manager *manager = get_kwin_manager();
-    struct wl_surface *wl_surface =
-        gdk_wayland_window_get_wl_surface(gtk_widget_get_window(w));
-    char *bus  = NULL;
-    char *path = NULL;
-    g_object_get(exporter,
-                 "bus-name",    &bus,
-                 "object-path", &path,
-                 NULL);
+	struct org_kde_kwin_appmenu_manager *manager = get_kwin_manager();
+	struct wl_surface *wl_surface = gdk_wayland_window_get_wl_surface(gtk_widget_get_window(w));
+	char *bus                     = NULL;
+	char *path                    = NULL;
+	g_object_get(exporter, "bus-name", &bus, "object-path", &path, NULL);
 
-    if (manager != NULL && wl_surface != NULL) {
-        struct org_kde_kwin_appmenu *fresh =
-            org_kde_kwin_appmenu_manager_create(manager, wl_surface);
-        org_kde_kwin_appmenu_set_address(fresh, bus, path);
-        g_object_set_qdata_full(exporter, kwin_backend_quark(),
-                                fresh, (GDestroyNotify)org_kde_kwin_appmenu_release);
-    }
-    g_free(bus);
-    g_free(path);
-    return FALSE;
+	if (manager != NULL && wl_surface != NULL)
+	{
+		struct org_kde_kwin_appmenu *fresh =
+		    org_kde_kwin_appmenu_manager_create(manager, wl_surface);
+		org_kde_kwin_appmenu_set_address(fresh, bus, path);
+		g_object_set_qdata_full(exporter,
+		                        kwin_backend_quark(),
+		                        fresh,
+		                        (GDestroyNotify)org_kde_kwin_appmenu_release);
+	}
+	g_free(bus);
+	g_free(path);
+	return FALSE;
 }
 
 static WindowData *establish_window_data_kwin(GtkWindow *window)
@@ -149,8 +147,11 @@ static WindowData *establish_window_data_kwin(GtkWindow *window)
 		                        kwin_backend_quark(),
 		                        appmenu,
 		                        (GDestroyNotify)org_kde_kwin_appmenu_release);
-    g_signal_connect_object(window, "map-event",
-        G_CALLBACK(on_window_map_event), window_data->exporter, 0);
+		g_signal_connect_object(window,
+		                        "map-event",
+		                        G_CALLBACK(on_window_map_event),
+		                        window_data->exporter,
+		                        0);
 	}
 
 	g_free(unique_bus_name);
