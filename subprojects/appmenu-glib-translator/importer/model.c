@@ -419,9 +419,9 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 	guint revision;
 	if (!DBUS_MENU_IS_MODEL(user_data))
 		return;
-	DBusMenuModel *menu     = DBUS_MENU_MODEL(user_data);
-	g_autoptr(GError) error = NULL;
-	g_clear_pointer(&menu->current_layout, g_variant_unref);
+	DBusMenuModel *menu            = DBUS_MENU_MODEL(user_data);
+	g_autoptr(GError) error        = NULL;
+	g_autoptr(GVariant) old_layout = menu->current_layout;
 	dbus_menu_xml_call_get_layout_finish((DBusMenuXml *)(source_object),
 	                                     &revision,
 	                                     &menu->current_layout,
@@ -435,7 +435,9 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 		return;
 	}
 	menu->layout_update_required = false;
-	if (!menu->parse_pending)
+	bool layout_changed          = !(old_layout && menu->current_layout &&
+	                                 g_variant_equal(old_layout, menu->current_layout));
+	if (!menu->parse_pending && layout_changed)
 		menu->parse_pending = g_timeout_add_full(G_PRIORITY_HIGH,
 		                                         100,
 		                                         (GSourceFunc)get_layout_idle,
