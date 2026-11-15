@@ -38,6 +38,12 @@ static const ModuleBackend *const backends[] = {
     NULL
 };
 
+static bool is_backend_allowed(const ModuleBackend* backend) {
+	g_autoptr(GSettings) gsettings = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
+	g_auto(GStrv) backends_allowed = g_settings_get_strv(gsettings, BACKENDS_ALLOWED);
+	return g_strv_contains((const gchar * const*)backends_allowed, backend->name);
+}
+
 static WindowData* applicable_backends_establish_window_data(GtkWindow *window, bool before) {	
 	for(int i = 0; i < G_N_ELEMENTS(backends); i++) {
 		const ModuleBackend* b = backends[i];
@@ -55,7 +61,7 @@ G_GNUC_INTERNAL bool gtk_module_has_backend() {
 		const ModuleBackend* b = backends[i];
 		if (!b)
 			continue;
-		if(b->is_runnable()) {
+		if(b->is_runnable() && is_backend_allowed(b)) {
 			return true;
 		}
 	}

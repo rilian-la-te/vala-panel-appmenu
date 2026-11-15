@@ -30,6 +30,7 @@
 
 typedef struct _WindowData WindowData;
 typedef struct _ModuleBackend {
+    const char* name; //used in GSettings
     bool (*is_runnable)();
     bool (*is_applicable)(GtkWindow* window);
     WindowData* (*establish_window_data)(GtkWindow *window);
