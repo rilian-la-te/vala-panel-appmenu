@@ -122,6 +122,8 @@ static gboolean dbus_menu_exporter_flush_properties_cb(gpointer user_data)
 			g_variant_builder_add_value(&updated_builder, g_variant_builder_end(&item_updated));
 			g_variant_builder_close(&updated_builder);
 		}
+		else
+			g_variant_builder_clear(&item_updated);
 
 		if (has_removed)
 		{
@@ -130,6 +132,8 @@ static gboolean dbus_menu_exporter_flush_properties_cb(gpointer user_data)
 			g_variant_builder_add_value(&removed_builder, g_variant_builder_end(&item_removed));
 			g_variant_builder_close(&removed_builder);
 		}
+		else
+			g_variant_builder_clear(&item_removed);
 	}
 	g_hash_table_remove_all(self->pending_properties);
 
