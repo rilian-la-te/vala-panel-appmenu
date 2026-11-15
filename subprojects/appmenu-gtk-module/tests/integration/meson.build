@@ -31,6 +31,7 @@ names = [
     'action-types',
     'checkbox-source',
     'checkbox-target',
+    'init-finished',
     'radio-source',
     'radio-target',
     'dynamic-bypass',
