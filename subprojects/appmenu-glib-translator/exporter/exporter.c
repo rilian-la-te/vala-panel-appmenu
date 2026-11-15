@@ -25,6 +25,8 @@ struct _DBusMenuExporter
 
 	GHashTable *pending_properties;
 	guint flush_timeout_id;
+	GHashTable *pending_layouts;
+	guint layout_timeout_id;
 };
 
 enum
@@ -162,6 +164,43 @@ G_GNUC_INTERNAL void dbus_menu_exporter_queue_property_change(DBusMenuExporter *
 	if (self->flush_timeout_id == 0)
 		self->flush_timeout_id =
 		    g_timeout_add(200, dbus_menu_exporter_flush_properties_cb, self);
+}
+
+static gboolean dbus_menu_exporter_flush_layouts_cb(gpointer user_data)
+{
+	DBusMenuExporter *self = DBUS_MENU_EXPORTER(user_data);
+	GHashTableIter iter;
+	gpointer id, id2; // they are equal
+
+	if (g_hash_table_size(self->pending_layouts) == 0)
+	{
+		self->layout_timeout_id = 0;
+		return G_SOURCE_REMOVE;
+	}
+	g_hash_table_iter_init(&iter, self->pending_layouts);
+	while (g_hash_table_iter_next(&iter, &id, &id2))
+		dbus_menu_xml_emit_layout_updated(self->xml,
+		                                  self->revision++,
+		                                  GPOINTER_TO_UINT(id));
+	g_hash_table_remove_all(self->pending_layouts);
+	self->layout_timeout_id = 0;
+	return G_SOURCE_REMOVE;
+}
+
+G_GNUC_INTERNAL void dbus_menu_exporter_queue_layout_updated(DBusMenuExporter *self,
+                                                             DBusMenuExporterItem *item)
+{
+	g_return_if_fail(self != NULL);
+	g_return_if_fail(item != NULL);
+
+	for (int i = 0; i < item->children->len; i++)
+		g_hash_table_remove(self->pending_layouts,
+		                    GUINT_TO_POINTER(g_array_index(item->children, u_int32_t, i)));
+
+	g_hash_table_add(self->pending_layouts, GUINT_TO_POINTER(item->id));
+	if (self->layout_timeout_id == 0)
+		self->layout_timeout_id =
+		    g_timeout_add(200, dbus_menu_exporter_flush_layouts_cb, self);
 }
 
 static gboolean check_invocation(DBusMenuExporter *self, GDBusMethodInvocation *invocation, gint id)
@@ -377,7 +416,7 @@ static void dbus_menu_exporter_tracker_add_func(DBusMenuExporterTrackerItem *ite
 		                                       dbus_menu_exporter_tracker_remove_func,
 		                                       child);
 	}
-	dbus_menu_xml_emit_layout_updated(self->xml, self->revision++, parent->id);
+	dbus_menu_exporter_queue_layout_updated(self, parent);
 }
 
 static void dbus_menu_exporter_tracker_remove_func(gint position, gpointer user_data)
@@ -402,11 +441,12 @@ static void dbus_menu_exporter_tracker_remove_func(gint position, gpointer user_
 		g_warning("double remove id %u", id);
 		return;
 	}
+	g_hash_table_remove(self->pending_properties, GUINT_TO_POINTER(child->id));
 	dbus_menu_exporter_item_remove_child(parent, position);
 	dbus_menu_exporter_item_free(child);
 	g_ptr_array_index(self->items, id) = NULL;
 	self->free_ids                     = g_slist_prepend(self->free_ids, GUINT_TO_POINTER(id));
-	dbus_menu_xml_emit_layout_updated(self->xml, self->revision++, parent->id);
+	dbus_menu_exporter_queue_layout_updated(self, parent);
 }
 
 static void name_acquired_cb(GDBusConnection *conn, const gchar *name, void *user_data)
@@ -592,6 +632,7 @@ static void dbus_menu_exporter_dispose(GObject *object)
 	DBusMenuExporter *menu = DBUS_MENU_EXPORTER(object);
 
 	g_clear_handle_id(&menu->flush_timeout_id, g_source_remove);
+	g_clear_handle_id(&menu->layout_timeout_id, g_source_remove);
 	g_clear_handle_id(&menu->name_id, g_bus_unown_name);
 	g_clear_pointer(&menu->items, g_ptr_array_unref);
 
@@ -619,6 +660,7 @@ static void dbus_menu_exporter_finalize(GObject *object)
 {
 	DBusMenuExporter *menu = DBUS_MENU_EXPORTER(object);
 
+	g_clear_pointer(&menu->pending_layouts, g_hash_table_destroy);
 	g_clear_pointer(&menu->pending_properties, g_hash_table_destroy);
 	g_clear_pointer(&menu->bus_name, g_free);
 	g_clear_pointer(&menu->object_path, g_free);
@@ -654,6 +696,9 @@ static void dbus_menu_exporter_init(DBusMenuExporter *menu)
                                                          NULL,
                                                          (GDestroyNotify)g_hash_table_unref);
 	menu->flush_timeout_id            = 0;
+	menu->pending_layouts             = g_hash_table_new(g_direct_hash,
+														g_direct_equal);
+	menu->layout_timeout_id           = 0;
 }
 
 void dbus_menu_exporter_insert(DBusMenuExporter* self, const gchar* prefix, GActionGroup* group)
