@@ -697,25 +697,25 @@ typedef struct {
   GtkActionSubscription *subscription;
   GtkActionKey          *action_key;
   gboolean               first_time;
-} GtkMenuTrackerOpener;
+} DBusMenuExporterTrackerOpener;
 
 typedef struct {
   GObjectClass parent_class;
-} GtkMenuTrackerOpenerClass;
+} DBusMenuExporterTrackerOpenerClass;
 
-GType gtk_menu_tracker_opener_get_type (void);
+GType dbus_menu_exporter_tracker_opener_get_type (void);
 
-G_DEFINE_TYPE (GtkMenuTrackerOpener, gtk_menu_tracker_opener, G_TYPE_OBJECT)
+G_DEFINE_TYPE (DBusMenuExporterTrackerOpener, dbus_menu_exporter_tracker_opener, G_TYPE_OBJECT)
 
 static void
-gtk_menu_tracker_opener_init (GtkMenuTrackerOpener *self)
+dbus_menu_exporter_tracker_opener_init (DBusMenuExporterTrackerOpener *self)
 {
 }
 
 static void
-gtk_menu_tracker_opener_finalize (GObject *object)
+dbus_menu_exporter_tracker_opener_finalize (GObject *object)
 {
-  GtkMenuTrackerOpener *opener = (GtkMenuTrackerOpener *)object;
+  DBusMenuExporterTrackerOpener *opener = (DBusMenuExporterTrackerOpener *)object;
 
   if (opener->item != NULL)
     {
@@ -738,17 +738,17 @@ gtk_menu_tracker_opener_finalize (GObject *object)
 
   g_clear_pointer (&opener->action_key, gtk_action_key_unref);
 
-  G_OBJECT_CLASS (gtk_menu_tracker_opener_parent_class)->finalize (object);
+  G_OBJECT_CLASS (dbus_menu_exporter_tracker_opener_parent_class)->finalize (object);
 }
 
 static void
-gtk_menu_tracker_opener_class_init (GtkMenuTrackerOpenerClass *class)
+dbus_menu_exporter_tracker_opener_class_init (DBusMenuExporterTrackerOpenerClass *class)
 {
-  G_OBJECT_CLASS (class)->finalize = gtk_menu_tracker_opener_finalize;
+  G_OBJECT_CLASS (class)->finalize = dbus_menu_exporter_tracker_opener_finalize;
 }
 
 static void
-gtk_menu_tracker_opener_update (GtkMenuTrackerOpener    *opener,
+dbus_menu_exporter_tracker_opener_update (DBusMenuExporterTrackerOpener    *opener,
                                 const GtkActionSnapshot *snapshot)
 {
   gboolean is_open = TRUE;
@@ -789,22 +789,22 @@ gtk_menu_tracker_opener_update (GtkMenuTrackerOpener    *opener,
 }
 
 static void
-gtk_menu_tracker_opener_changed (GtkActionSubscription   *subscription,
+dbus_menu_exporter_tracker_opener_changed (GtkActionSubscription   *subscription,
                                  GtkActionChange          changed,
                                  const GtkActionSnapshot *snapshot,
                                  gpointer                 user_data)
 {
-  gtk_menu_tracker_opener_update (user_data, snapshot);
+  dbus_menu_exporter_tracker_opener_update (user_data, snapshot);
 }
 
-static GtkMenuTrackerOpener *
-gtk_menu_tracker_opener_new (DBusMenuExporterTrackerItem *item,
+static DBusMenuExporterTrackerOpener *
+dbus_menu_exporter_tracker_opener_new (DBusMenuExporterTrackerItem *item,
                              const char         *submenu_action)
 {
-  GtkMenuTrackerOpener *opener;
+  DBusMenuExporterTrackerOpener *opener;
   char *full_name;
 
-  opener = g_object_new (gtk_menu_tracker_opener_get_type (), NULL);
+  opener = g_object_new (dbus_menu_exporter_tracker_opener_get_type (), NULL);
 
   opener->first_time = TRUE;
 
@@ -825,7 +825,7 @@ gtk_menu_tracker_opener_new (DBusMenuExporterTrackerItem *item,
                                  NULL,
                                  (GTK_ACTION_INTEREST_PRESENT |
                                   GTK_ACTION_INTEREST_RAW_STATE),
-                                 gtk_menu_tracker_opener_changed,
+                                 dbus_menu_exporter_tracker_opener_changed,
                                  opener,
                                  NULL);
       if (opener->subscription != NULL)
@@ -858,7 +858,7 @@ dbus_menu_exporter_tracker_item_request_submenu_shown (DBusMenuExporterTrackerIt
     {
       if (shown)
         g_object_set_data_full (G_OBJECT (self), "submenu-opener",
-                                gtk_menu_tracker_opener_new (self, submenu_action),
+                                dbus_menu_exporter_tracker_opener_new (self, submenu_action),
                                 g_object_unref);
       else
         g_object_set_data (G_OBJECT (self), "submenu-opener", NULL);
