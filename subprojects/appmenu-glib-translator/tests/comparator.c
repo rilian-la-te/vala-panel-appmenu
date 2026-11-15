@@ -223,12 +223,17 @@ static gboolean on_timeout(gpointer data)
 	return G_SOURCE_REMOVE;
 }
 
-void test_wait(void)
+void test_wait_ms(guint ms)
 {
 	GMainLoop *loop = g_main_loop_new(NULL, FALSE);
-	g_timeout_add(500, on_timeout, loop);
+	g_timeout_add(ms, on_timeout, loop);
 	g_main_loop_run(loop);
 	g_main_loop_unref(loop);
+}
+
+void test_wait(void)
+{
+	test_wait_ms(500);
 }
 
 void fixture_setup(Fixture *f, GMenuModel *source, GSimpleActionGroup *action_group)

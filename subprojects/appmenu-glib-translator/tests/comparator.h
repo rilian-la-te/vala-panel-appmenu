@@ -24,6 +24,7 @@ typedef struct
 } Fixture;
 
 void test_wait(void);
+void test_wait_ms(guint ms);
 void fixture_setup(Fixture *f, GMenuModel *source, GSimpleActionGroup *action_group);
 void fixture_teardown(Fixture *f);
 void dump_and_report(const char *tag, Fixture *f, GString *errors);
