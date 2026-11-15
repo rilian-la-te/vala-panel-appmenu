@@ -520,8 +520,10 @@ static void layout_updated_cb(DBusMenuXml *proxy, guint revision, gint parent, D
 		return;
 	}
 	DBusMenuItem *item = dbus_menu_model_find(menu, (uint)parent);
-	if (item != NULL)
+	if (item != NULL && menu->current_revision < revision) {
+		menu->current_revision = revision;
 		dbus_menu_model_update_layout(menu, menu->parse_pending ? 0 : item->id);
+	}
 }
 
 static void item_activation_requested_cb(DBusMenuXml *proxy, gint id, guint timestamp,
