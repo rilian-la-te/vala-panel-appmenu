@@ -24,7 +24,7 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
     if (iid != "AppmenuApplet") {
         return false;
     }
-    applet.flags = MatePanel.AppletFlags.HAS_HANDLE | MatePanel.AppletFlags.EXPAND_MAJOR | MatePanel.AppletFlags.EXPAND_MINOR;
+    applet.flags = MatePanel.AppletFlags.EXPAND_MAJOR | MatePanel.AppletFlags.EXPAND_MINOR;
     var layout = new Appmenu.MenuWidget();
     var settings = MatePanel.AppletSettings.@new(applet,"org.valapanel.appmenu");
     settings.bind(Key.COMPACT_MODE,layout,Key.COMPACT_MODE,SettingsBindFlags.DEFAULT);
@@ -63,12 +63,5 @@ private bool factory_callback(MatePanel.Applet applet, string iid)
 
 public int _mate_panel_applet_shlib_factory()
 {
-//    GLib.Intl.bindtextdomain(Config.GETTEXT_PACKAGE,Config.LOCALE_DIR);
-//    GLib.Intl.bind_textdomain_codeset(Config.GETTEXT_PACKAGE,"UTF-8");
     return MatePanel.Applet.factory_setup_in_process("AppmenuAppletFactory", typeof (MatePanel.Applet), factory_callback);
 }
-
-//void main(string[] args) {
-//    Gtk.init(ref args);
-//    MatePanel.Applet.factory_main("SNTrayAppletFactory", true, typeof (MatePanel.Applet), StatusNotifier.factory_callback);
-//}
