@@ -28,7 +28,7 @@
 #define UNITY_GTK_MODULE_SCHEMA "org.appmenu.gtk-module"
 #define BLACKLIST_KEY "blacklist"
 #define SHELL_OVERRIDE_KEY "shell-override"
-#define RUN_ON_WAYLAND "run-on-wayland"
+#define BACKENDS_ALLOWED "backends-allowed"
 
 #define _GTK_UNIQUE_BUS_NAME "_GTK_UNIQUE_BUS_NAME"
 #define _UNITY_OBJECT_PATH "_UNITY_OBJECT_PATH"

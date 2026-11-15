@@ -114,12 +114,11 @@ static bool is_applicable(GtkWindow *window)
 static bool is_runnable()
 {
 	bool wl                        = GDK_IS_WAYLAND_DISPLAY(gdk_display_get_default());
-	g_autoptr(GSettings) gsettings = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
-	bool use_wayland               = g_settings_get_boolean(gsettings, RUN_ON_WAYLAND);
-	return wl && use_wayland && wl_has(gtk_surface1_interface.name);
+	return wl && wl_has(gtk_surface1_interface.name);
 }
 
 const ModuleBackend gtk_shell_platform = {
+	.name                   = "gtk-shell-wayland",
 	.is_runnable            = is_runnable,
 	.establish_window_data  = establish_window_data_gtk_shell,
 	.is_applicable          = is_applicable,

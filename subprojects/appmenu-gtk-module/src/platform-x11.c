@@ -213,6 +213,7 @@ static bool is_applicable(GtkWindow *window)
 }
 
 const ModuleBackend x11_platform = {
+	.name                   = "x11",
 	.is_runnable            = is_runnable,
 	.establish_window_data  = establish_window_data_x11,
 	.is_applicable          = is_applicable,
