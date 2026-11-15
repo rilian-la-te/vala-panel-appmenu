@@ -33,7 +33,7 @@ void g_menu_markup_print_to_console(GMenuModel *menu)
 {
 	GString *str = g_string_new(NULL);
 	g_menu_markup_print_string(str, menu, 4, 4);
-	char *cstr = g_string_free(str, false);
+	g_autofree char *cstr = g_string_free(str, false);
 	g_printerr("%s\n", cstr);
 }
 
