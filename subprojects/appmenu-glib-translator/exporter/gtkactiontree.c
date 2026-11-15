@@ -1177,6 +1177,8 @@ rebuild_links (GtkActionTree *tree)
   GtkActionNode *node;
   GHashTable *old_parents;
 
+  gtk_action_tree_begin_update (tree);
+
   old_parents = g_hash_table_new (g_direct_hash, g_direct_equal);
 
   for (node = tree->nodes; node != NULL; node = node->next)
@@ -1205,6 +1207,8 @@ rebuild_links (GtkActionTree *tree)
   queue_all_accel_consumers (tree);
 
   g_hash_table_unref (old_parents);
+
+  gtk_action_tree_end_update (tree);
 }
 
 static void
@@ -1723,12 +1727,16 @@ gtk_action_node_set_synthetic_parent (GtkActionNode *self,
 void
 gtk_action_node_sync_parent (GtkActionNode *self)
 {
+  GtkActionTree *tree;
   GtkActionNode *new_parent;
   GtkActionNode *old_parent;
   GtkActionNode *old_synthetic_parent;
 
   g_return_if_fail (self != NULL);
   g_return_if_fail (!self->retired);
+
+  tree = self->tree;
+  gtk_action_tree_begin_update (tree);
 
   old_synthetic_parent = self->synthetic_parent;
   old_parent = self->parent;
@@ -1745,6 +1753,8 @@ gtk_action_node_sync_parent (GtkActionNode *self)
 
   if (old_synthetic_parent != self->synthetic_parent)
     maybe_prune_synthetic (old_synthetic_parent);
+
+  gtk_action_tree_end_update (tree);
 }
 
 static void
