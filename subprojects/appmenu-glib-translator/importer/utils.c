@@ -62,7 +62,7 @@ static void state_radio_cb(GSimpleAction *action, GVariant *parameter, gpointer 
 static GAction *dbus_menu_action_new(DBusMenuXml *xml, u_int32_t id, DBusMenuActionType action_type)
 {
 	GSimpleAction *ret;
-	g_autofree char *name = g_strdup_printf(ACTION_PREFIX "%u", id);
+	g_autofree char *name = dbus_menu_action_get_name(id, action_type, false);
 	if (action_type == DBUS_MENU_ACTION_CHECKMARK)
 	{
 		ret = g_simple_action_new_stateful(name, NULL, g_variant_new_boolean(false));
@@ -186,8 +186,7 @@ G_GNUC_INTERNAL GAction *dbus_menu_action_reference(u_int32_t id, DBusMenuXml *x
                                                     DBusMenuActionType action_type)
 {
 	bool is_submenu           = action_type == DBUS_MENU_ACTION_SUBMENU;
-	const char *action_prefix = is_submenu ? SUBMENU_PREFIX : ACTION_PREFIX;
-	g_autofree char *name     = g_strdup_printf("%s%u", action_prefix, id);
+	g_autofree char *name     = dbus_menu_action_get_name(id, action_type, false);
 	GAction *ret              = g_action_map_lookup_action(action_group, name);
 	bool check_parameter      = false;
 	if (ret)
