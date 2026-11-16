@@ -373,8 +373,8 @@ static void layout_parse_items(DBusMenuModel *menu, GVariant *items)
 
 static void layout_parse(DBusMenuModel *menu, GVariant* layout) {
 	guint id;
-	g_autoptr(GVariant) props;
-	g_autoptr(GVariant) items;
+	g_autoptr(GVariant) props = NULL;
+	g_autoptr(GVariant) items = NULL;
 	if (!g_variant_is_of_type(layout, G_VARIANT_TYPE("(ia{sv}av)")))
 	{
 		g_warning(
@@ -545,8 +545,9 @@ static bool items_properties_loop(DBusMenuModel *menu, GVariant *up_props, GQueu
 	guint id;
 	GVariant *props;
 	g_variant_iter_init(&iter, up_props);
-	while (g_variant_iter_loop(&iter, !is_removal ? "(i@a{sv})" : "(i@as)", &id, &props))
+	while (g_variant_iter_next(&iter, !is_removal ? "(i@a{sv})" : "(i@as)", &id, &props))
 	{
+		g_autoptr(GVariant) owned_props = props;
 		DBusMenuItem *item   = (DBusMenuItem *)dbus_menu_model_find(menu, id);
 		DBusMenuUpdaterFlags is_item_updated = DBUS_MENU_UPDATER_NONE;
 		if (item != NULL)
@@ -557,8 +558,8 @@ static bool items_properties_loop(DBusMenuModel *menu, GVariant *up_props, GQueu
 			else
 			{
 				is_item_updated = !is_removal
-				                      ? dbus_menu_item_update_props(item, props)
-				                      : dbus_menu_item_remove_props(item, props);
+				                      ? dbus_menu_item_update_props(item, owned_props)
+				                      : dbus_menu_item_remove_props(item, owned_props);
 				if (is_item_updated & DBUS_MENU_UPDATER_IMMUTABLE)
 					return true;
 				else if (is_item_updated)
