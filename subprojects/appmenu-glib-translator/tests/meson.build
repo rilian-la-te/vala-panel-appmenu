@@ -17,7 +17,7 @@ names = [
 ]
 
 foreach name : names
-    exe = executable(name, name + '-test.c', 'test-main.c',
+    exe = executable(name, name + '.c', 'test-main.c',
         dependencies: translator_dep,
         link_whole: test_library,
     )
