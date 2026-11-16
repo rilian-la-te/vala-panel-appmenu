@@ -29,3 +29,7 @@ void fixture_setup(Fixture *f, GMenuModel *source, GSimpleActionGroup *action_gr
 void fixture_teardown(Fixture *f);
 void dump_and_report(const char *tag, Fixture *f, GString *errors);
 gboolean compare_and_check_actions(Fixture *f, GString *errors);
+G_GNUC_INTERNAL char *extract_bare_action(GMenuModel *model, const char *label);
+G_GNUC_INTERNAL char *extract_submenu_action(GMenuModel *model, const char *label);
+G_GNUC_INTERNAL GMenuModel *find_item_section(GMenuModel *model, const char *label,
+                                     int *out_index);

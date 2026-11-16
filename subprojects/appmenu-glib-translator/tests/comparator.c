@@ -316,3 +316,79 @@ gboolean compare_and_check_actions(Fixture *f, GString *errors)
 	}
 	return ok;
 }
+
+/* Locate the item with the given label.  Section-wise / positional
+ * equality between the two models must not be assumed, so descend
+ * through both SECTION and SUBMENU links. */
+G_GNUC_INTERNAL GMenuModel *find_item_section(GMenuModel *model, const char *label,
+                                     int *out_index)
+{
+	int n = g_menu_model_get_n_items(model);
+	for (int i = 0; i < n; i++) {
+		char *item_label = NULL;
+		gboolean match =
+		    g_menu_model_get_item_attribute(model, i,
+		                                    G_MENU_ATTRIBUTE_LABEL, "s",
+		                                    &item_label)
+		    && g_strcmp0(item_label, label) == 0;
+		g_free(item_label);
+		if (match) {
+			*out_index = i;
+			return g_object_ref(model);
+		}
+		GMenuModel *sub =
+		    g_menu_model_get_item_link(model, i, G_MENU_LINK_SECTION);
+		if (sub) {
+			GMenuModel *found = find_item_section(sub, label, out_index);
+			g_object_unref(sub);
+			if (found)
+				return found;
+		}
+		sub = g_menu_model_get_item_link(model, i, G_MENU_LINK_SUBMENU);
+		if (sub) {
+			GMenuModel *found = find_item_section(sub, label, out_index);
+			g_object_unref(sub);
+			if (found)
+				return found;
+		}
+	}
+	return NULL;
+}
+
+/* Models carry the export prefix ("app.my-action", "dbusmenu.id-15"),
+ * while the importer's action group stores bare names ("my-action",
+ * "id-15").  Cut at the first dot. */
+static char *bare_action_name(const char *name)
+{
+	const char *dot = strchr(name, '.');
+	return g_strdup(dot ? dot + 1 : name);
+}
+
+static char *extract_any_bare_action(GMenuModel *model, const char *label, const char* prop)
+{
+	int idx;
+	GMenuModel *sec = find_item_section(model, label, &idx);
+	if (!sec)
+		return NULL;
+	GVariant *v = g_menu_model_get_item_attribute_value(
+	    sec, idx, prop, NULL);
+	g_object_unref(sec);
+	if (!v)
+		return NULL;
+	g_assert_true(g_variant_is_of_type(v, G_VARIANT_TYPE_STRING));
+	char *full = g_variant_dup_string(v, NULL);
+	g_variant_unref(v);
+	char *bare = bare_action_name(full);
+	g_free(full);
+	return bare;
+}
+
+G_GNUC_INTERNAL char *extract_bare_action(GMenuModel *model, const char *label)
+{
+	return extract_any_bare_action(model, label, G_MENU_ATTRIBUTE_ACTION);
+}
+
+G_GNUC_INTERNAL char *extract_submenu_action(GMenuModel *model, const char *label)
+{
+	return extract_any_bare_action(model, label, G_MENU_ATTRIBUTE_SUBMENU_ACTION);
+}
