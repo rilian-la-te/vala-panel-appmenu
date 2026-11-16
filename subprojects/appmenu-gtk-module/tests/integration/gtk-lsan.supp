@@ -1,0 +1,13 @@
+# Fontconfig
+leak:FcInit
+leak:FcFontMatch
+leak:pango_fc_font_map_get_type
+
+# Wayland display init
+leak:_gdk_wayland_display_open
+leak:gdk_registry_handle_global
+leak:wl_proxy_marshal_array_flags
+
+# GDBus init, and sysprof for GLib
+leak:gdbus_shared_thread_func
+leak:sysprof_collector_get

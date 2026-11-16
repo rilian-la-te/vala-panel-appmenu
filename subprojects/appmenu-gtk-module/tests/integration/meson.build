@@ -2,8 +2,14 @@
 test_deps = [gtk3, importer_dep, gtk3_parser_dep]
 
 test_library = static_library('test_gtk_module', files('comparator.c', 'test-helper.c'), dependencies: test_deps, include_directories: include_directories('.'))
+lsan_supp = meson.current_source_dir() / 'gtk-lsan.supp'
 
 fs = import('fs')
+
+add_test_setup('lsan',
+  env: ['LSAN_OPTIONS=suppressions=' + lsan_supp + ':print_suppressions=1'],
+  is_default: true,
+)
 
 roundtrip_sources = files(
   'menu-roundtrip-static.c',
