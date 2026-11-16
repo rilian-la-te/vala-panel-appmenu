@@ -25,6 +25,8 @@
 
 G_BEGIN_DECLS
 
+typedef struct _DBusMenuItem DBusMenuItem;
+
 G_DECLARE_FINAL_TYPE(DBusMenuModel, dbus_menu_model, DBUS_MENU, MODEL, GMenuModel)
 G_GNUC_INTERNAL DBusMenuModel *dbus_menu_model_new(uint parent_id, DBusMenuModel *parent,
                                                    DBusMenuXml *xml, GActionGroup *action_group);
@@ -32,7 +34,8 @@ G_GNUC_INTERNAL bool dbus_menu_model_is_layout_update_required(DBusMenuModel *mo
 
 G_GNUC_INTERNAL GSequence *dbus_menu_model_items(DBusMenuModel *model);
 G_GNUC_INTERNAL void dbus_menu_model_load(DBusMenuModel* self, GSimpleAction* action);
-
+G_GNUC_INTERNAL DBusMenuItem *dbus_menu_model_find_item(DBusMenuModel *menu, int section_num,
+                                                        int place);
 G_END_DECLS
 
 #endif

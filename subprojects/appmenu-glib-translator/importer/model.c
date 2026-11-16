@@ -798,23 +798,26 @@ static DBusMenuItem *dbus_menu_model_find(DBusMenuModel *menu, uint item_id)
 
 static GSequenceIter *dbus_menu_model_find_place(DBusMenuModel *menu, uint section_num, int place)
 {
-	for (GSequenceIter *iter = g_sequence_get_begin_iter(menu->items);
-	     !g_sequence_iter_is_end(iter);
-	     iter = g_sequence_iter_next(iter))
-	{
-		DBusMenuItem *item = (DBusMenuItem *)g_sequence_get(iter);
-		if (item->section_num == section_num && item->place == place)
-			return iter;
-	}
-	return NULL;
+    DBusMenuItem ctx = { .section_num = section_num, .place = place };
+    GSequenceIter *iter =
+        g_sequence_lookup(menu->items, &ctx, dbus_menu_model_sort_func, NULL);
+
+	if (!iter || g_sequence_iter_is_end(iter))
+		return NULL;
+	return iter;
+}
+
+G_GNUC_INTERNAL DBusMenuItem *dbus_menu_model_find_item(DBusMenuModel *menu, int section_num, int place)
+{
+    GSequenceIter *iter = dbus_menu_model_find_place(menu, section_num, place);
+    if (iter == NULL)
+        return NULL;
+    return (DBusMenuItem *)g_sequence_get(iter);
 }
 
 static DBusMenuItem *dbus_menu_model_find_section(DBusMenuModel *menu, uint section_num)
 {
-    GSequenceIter *iter = dbus_menu_model_find_place(menu, section_num, -1);
-    if (iter == NULL)
-        return NULL;
-    return (DBusMenuItem *)g_sequence_get(iter);
+    return dbus_menu_model_find_item(menu, section_num, -1);
 }
 
 static void dbus_menu_model_init(DBusMenuModel *menu)
@@ -840,7 +843,7 @@ static void dbus_menu_model_constructed(GObject *object)
 	g_hash_table_insert(first_section->links,
 	                    G_MENU_LINK_SECTION,
 	                    dbus_menu_section_model_new(menu, 0));
-	g_sequence_insert_sorted(menu->items, first_section, dbus_menu_model_sort_func, NULL);
+	insert_menu_item(menu, first_section);
 }
 
 static void dbus_menu_model_finalize(GObject *object)

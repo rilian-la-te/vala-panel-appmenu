@@ -27,7 +27,7 @@
 
 G_BEGIN_DECLS
 
-typedef struct
+typedef struct _DBusMenuItem
 {
 	int section_num;
 	int place;
