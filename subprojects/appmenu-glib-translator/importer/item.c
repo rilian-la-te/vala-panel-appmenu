@@ -24,8 +24,8 @@
 #include "utils.h"
 
 #define ITEM_MAGIC 0xDEADBEEF
-#define item_set_magic(item) (item)->magic = GUINT_TO_POINTER(ITEM_MAGIC)
-#define item_check_magic(item) (GPOINTER_TO_UINT((item)->magic) == ITEM_MAGIC)
+#define item_set_magic(item) ((item)->magic = ITEM_MAGIC)
+#define item_check_magic(item) ((item)->magic == ITEM_MAGIC)
 
 #define submenu_str(en) ((en) ? G_MENU_LINK_SUBMENU : DBUS_MENU_DISABLED_SUBMENU)
 
@@ -190,10 +190,11 @@ G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data)
 	DBusMenuItem *item = (DBusMenuItem *)data;
 	if (item == NULL)
 		return;
-	item->magic = NULL;
+	item->magic = 0;
 	g_clear_pointer(&item->attrs, g_hash_table_destroy);
 	g_clear_pointer(&item->links, g_hash_table_destroy);
 	g_clear_object(&item->ref_action);
+	g_clear_object(&item->ref_submenu);
 	g_clear_object(&item->ref_action_group);
 	g_source_remove_by_user_data(item);
 	g_slice_free(DBusMenuItem, data);

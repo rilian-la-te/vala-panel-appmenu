@@ -29,18 +29,19 @@ G_BEGIN_DECLS
 
 typedef struct _DBusMenuItem
 {
-	int section_num;
-	int place;
+	uint16_t section_num;
+	int16_t place;
 	u_int32_t id;
 	GActionGroup *ref_action_group;
-	// FIXME: Cannot have activatable submenu item.
-	GAction *ref_action;
+	GAction *ref_action; //On submenus it would be used for enabled
+	GAction *ref_submenu;
 	GHashTable *attrs;
 	GHashTable *links;
 	DBusMenuActionType action_type;
-	bool enabled;
-	bool toggled;
-	gpointer magic;
+	bool enabled : 1;
+	bool toggled : 1;
+	bool visible : 1;
+	uint32_t magic;
 } DBusMenuItem;
 
 typedef enum 

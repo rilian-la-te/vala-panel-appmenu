@@ -28,7 +28,7 @@
 #define HAS_ICON_NAME "has-icon-name"
 
 /* This now holds a priority of DBusMenuAction*/
-typedef enum
+typedef enum __attribute__((packed))
 {
 	DBUS_MENU_ACTION_NONE,
 	DBUS_MENU_ACTION_NORMAL,
