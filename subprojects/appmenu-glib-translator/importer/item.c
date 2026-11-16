@@ -216,16 +216,23 @@ G_GNUC_INTERNAL bool dbus_menu_item_is_firefox_stub(DBusMenuItem *item)
 	return false;
 }
 
-G_GNUC_INTERNAL void
-dbus_menu_item_preload(DBusMenuItem *item)
+G_GNUC_INTERNAL DBusMenuModel *dbus_menu_item_get_submenu(DBusMenuItem *item)
 {
 	if (!item_check_magic(item))
-		return;
+		return NULL;
 	if (item->action_type != DBUS_MENU_ACTION_SUBMENU)
-		return;
+		return NULL;
 	DBusMenuModel *submenu =
 	    DBUS_MENU_MODEL(g_hash_table_lookup(item->links, submenu_str(item->enabled)));
 	if (!submenu || !DBUS_MENU_IS_MODEL(submenu))
+		return NULL;
+	return submenu;
+}
+
+G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item)
+{
+	DBusMenuModel *submenu = dbus_menu_item_get_submenu(item);
+	if (!submenu)
 		return;
 	dbus_menu_model_load(submenu, NULL);
 }
