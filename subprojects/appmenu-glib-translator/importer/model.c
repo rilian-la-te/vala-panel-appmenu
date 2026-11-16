@@ -201,6 +201,10 @@ static bool preload_idle(DBusMenuItem *item)
 	return G_SOURCE_REMOVE;
 }
 
+static void menu_item_schedule_preload(DBusMenuItem* item) {
+	g_timeout_add_full(100, 100, (GSourceFunc)preload_idle, item, NULL);
+}
+
 static void menu_item_copy_and_load(DBusMenuModel *menu, DBusMenuItem *old, DBusMenuItem *new_item)
 {
 	bool new_submenu = dbus_menu_item_copy_submenu(old, new_item, menu);
@@ -211,7 +215,7 @@ static void menu_item_copy_and_load(DBusMenuModel *menu, DBusMenuItem *old, DBus
 	 */
 	dbus_menu_item_update_enabled(new_item, new_submenu || new_item->enabled);
 	new_item->toggled = true;
-	g_timeout_add_full(100, 100, (GSourceFunc)preload_idle, new_item, NULL);
+	menu_item_schedule_preload(new_item);
 }
 
 // We deal only with layouts with depth 1 (not all)
@@ -331,7 +335,13 @@ static void layout_parse_items(DBusMenuModel *menu, GVariant *items)
 				}
 				else
 				{
-					// Just free unneeded item
+					// Schedule reloading on child
+					DBusMenuModel* submenu = dbus_menu_item_get_submenu(old);
+					if(submenu) {
+						submenu->layout_update_required = true;
+						menu_item_schedule_preload(old);
+					}
+					// Free unneeded item
 					dbus_menu_item_free(new_item);
 				}
 			}
@@ -438,9 +448,7 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 	}
 	menu->current_layout = new_layout;
 	menu->layout_update_required = false;
-	bool layout_changed          = !(old_layout && menu->current_layout &&
-	                                 g_variant_equal(old_layout, menu->current_layout));
-	if (!menu->parse_pending && layout_changed)
+	if (!menu->parse_pending)
 		menu->parse_pending = g_timeout_add_full(G_PRIORITY_HIGH,
 		                                         100,
 		                                         (GSourceFunc)get_layout_idle,
