@@ -389,6 +389,9 @@ static void parse_single_child(LayoutParseContext *ctx, GVariant *child)
 	guint cid;
 	g_variant_get(value, "(i@a{sv}@av)", &cid, &cprops, &citems);
 
+	if (!cprops)
+		return;
+
 	DBusMenuItem *new_item = dbus_menu_item_new(cid, ctx->menu, cprops);
 
 	// We receive a section (separator or x-kde-title)
