@@ -88,8 +88,8 @@ static gboolean compare_models_raw(GMenuModel *a, GMenuModel *b, GString *errors
 	for (int i = 0; i < na; i++)
 	{
 		/* label */
-		const char *la = NULL;
-		const char *lb = NULL;
+		g_autofree char *la = NULL;
+		g_autofree const char *lb = NULL;
 		g_menu_model_get_item_attribute(a, i, G_MENU_ATTRIBUTE_LABEL, "s", &la);
 		g_menu_model_get_item_attribute(b, i, G_MENU_ATTRIBUTE_LABEL, "s", &lb);
 

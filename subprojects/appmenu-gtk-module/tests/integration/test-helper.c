@@ -313,8 +313,8 @@ void e2e_setup(E2E *e)
 	e->exporter = dbus_menu_exporter_new(G_MENU_MODEL(e->shell),
 	                                     "unity",
 	                                     G_ACTION_GROUP(e->unity_actions),
-	                                     g_strdup(bus_name),
-	                                     g_strdup(object_path));
+	                                     bus_name,
+	                                     object_path);
 	settle(120);
 
 	e->importer = dbus_menu_importer_new(bus_name, object_path);
