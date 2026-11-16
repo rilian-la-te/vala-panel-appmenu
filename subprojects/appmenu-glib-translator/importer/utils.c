@@ -22,6 +22,7 @@
 
 #include "definitions.h"
 #include "model.h"
+#include "item.h"
 
 static void ordinary_send_activated_event(GAction *action, gpointer user_data)
 {
@@ -180,13 +181,13 @@ G_GNUC_INTERNAL void dbus_menu_action_replace_signals(GAction *action, DBusMenuX
 	}
 }
 
-G_GNUC_INTERNAL GAction *dbus_menu_action_reference(u_int32_t id, DBusMenuXml *xml,
+G_GNUC_INTERNAL GAction *dbus_menu_action_reference(DBusMenuItem* item, DBusMenuXml *xml,
                                                     DBusMenuModel *submenu,
                                                     GActionMap *action_group,
                                                     DBusMenuActionType action_type)
 {
 	bool is_submenu           = action_type == DBUS_MENU_ACTION_SUBMENU;
-	g_autofree char *name     = dbus_menu_action_get_name(id, action_type, false);
+	g_autofree char *name     = dbus_menu_action_get_name(item->id, action_type, false);
 	GAction *ret              = g_action_map_lookup_action(action_group, name);
 	bool check_parameter      = false;
 	if (ret)
@@ -224,7 +225,7 @@ G_GNUC_INTERNAL GAction *dbus_menu_action_reference(u_int32_t id, DBusMenuXml *x
 		else if (is_submenu)
 			return ret;
 		else
-			ret = dbus_menu_action_new(xml, id, action_type);
+			ret = dbus_menu_action_new(xml, item->id, action_type);
 		g_action_map_add_action(G_ACTION_MAP(action_group), ret);
 	}
 	return ret;

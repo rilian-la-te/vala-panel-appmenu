@@ -612,7 +612,7 @@ G_GNUC_INTERNAL void dbus_menu_item_generate_action(DBusMenuItem *item, DBusMenu
 		return;
 	DBusMenuModel *submenu = g_hash_table_lookup(item->links, submenu_str(item->enabled));
 	g_clear_object(&item->ref_action);
-	item->ref_action = dbus_menu_action_reference(item->id,
+	item->ref_action = dbus_menu_action_reference(item,
 	                                              xml,
 	                                              submenu,
 	                                              G_ACTION_MAP(item->ref_action_group),

@@ -26,7 +26,9 @@
 
 G_BEGIN_DECLS
 
-G_GNUC_INTERNAL GAction *dbus_menu_action_reference(u_int32_t id, DBusMenuXml *xml,
+typedef struct _DBusMenuItem DBusMenuItem;
+
+G_GNUC_INTERNAL GAction *dbus_menu_action_reference(DBusMenuItem* item, DBusMenuXml *xml,
                                                     DBusMenuModel *submenu,
                                                     GActionMap *action_group,
                                                     DBusMenuActionType type);
