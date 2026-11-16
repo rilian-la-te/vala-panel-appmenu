@@ -179,20 +179,13 @@ static void add_signal_to_queue(DBusMenuModel *model, GQueue *queue, int sect_nu
     	g_free(data);
 }
 
-static bool queue_emit_now(struct layout_data *index)
-{
-	if (!G_IS_MENU_MODEL(index->model))
-		return G_SOURCE_REMOVE;
-
-	g_menu_model_items_changed(index->model, index->pos, index->old_num, index->new_num);
-	return G_SOURCE_REMOVE;
-}
-
 static void queue_emit_all(GQueue *queue)
 {
-	struct layout_data *index = NULL;
-	while ((index = (struct layout_data *)g_queue_pop_head(queue)))
-		g_idle_add_full(G_PRIORITY_DEFAULT_IDLE, G_SOURCE_FUNC(queue_emit_now), index, g_free);
+	struct layout_data *raw_index = NULL;
+	while ((raw_index = (struct layout_data *)g_queue_pop_head(queue))) {
+		g_autofree struct layout_data* index = raw_index;
+		g_menu_model_items_changed(index->model, index->pos, index->old_num, index->new_num);
+	}
 }
 
 static bool preload_idle(DBusMenuItem *item)
