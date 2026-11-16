@@ -451,25 +451,13 @@ static void layout_parse_items(DBusMenuModel *menu, GVariant *items)
 	}
 
 	// Update all layout
-	if (new_sections > ctx.old_sections)
+	if (new_sections != ctx.old_sections)
 	{
-		add_signal_to_queue(menu,
-		                    queue,
-		                    -1,
-		                    ctx.old_sections,
-		                    0,
-		                    new_sections - ctx.old_sections);
+		int pos     = new_sections > ctx.old_sections ? ctx.old_sections : new_sections;
+		int removed = new_sections > ctx.old_sections ? 0 : ctx.old_sections - new_sections;
+		int added   = new_sections > ctx.old_sections ? new_sections - ctx.old_sections : 0;
+		add_signal_to_queue(menu, queue, -1, pos, removed, added);
 	}
-	else if (new_sections < ctx.old_sections)
-	{
-		add_signal_to_queue(menu,
-		                    queue,
-		                    -1,
-		                    new_sections,
-		                    ctx.old_sections - new_sections,
-		                    0);
-	}
-
 	queue_emit_all(queue);
 }
 
