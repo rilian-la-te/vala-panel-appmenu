@@ -440,15 +440,12 @@ static void layout_parse_items(DBusMenuModel *menu, GVariant *items)
 	int secdiff       = (int)ctx.old_sections - (int)new_sections;
 
 	// Remove last sections from the end
-	if (secdiff > 0)
-	{
-		GSequenceIter *section_iter = dbus_menu_model_find_place(menu, new_sections, -1);
-		g_sequence_remove_range(section_iter, g_sequence_get_end_iter(menu->items));
-	}
-
-	// We need to manage last section's changes. And check its validity
 	if (secdiff >= 0)
 	{
+		if (secdiff > 0) {
+			GSequenceIter *section_iter = dbus_menu_model_find_place(menu, new_sections, -1);
+			g_sequence_remove_range(section_iter, g_sequence_get_end_iter(menu->items));
+		}
 		// Do last section housework
 		finalize_section(&ctx, g_sequence_get_end_iter(menu->items));
 	}
