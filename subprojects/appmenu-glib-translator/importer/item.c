@@ -58,6 +58,17 @@ static inline DBusMenuActionType dbus_menu_item_update_action_type(DBusMenuActio
 	return current > requested ? current : requested;
 }
 
+static bool dbus_menu_item_is_submenu(DBusMenuItem *item)
+{
+	if (!item)
+		return false;
+	if (!item_check_magic(item))
+		return false;
+	if (item->action_type != DBUS_MENU_ACTION_SUBMENU)
+		return false;
+	return true;
+}
+
 G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *parent_model,
                                                  GVariant *props)
 {
@@ -218,9 +229,7 @@ G_GNUC_INTERNAL bool dbus_menu_item_is_firefox_stub(DBusMenuItem *item)
 
 G_GNUC_INTERNAL DBusMenuModel *dbus_menu_item_get_submenu(DBusMenuItem *item)
 {
-	if (!item_check_magic(item))
-		return NULL;
-	if (item->action_type != DBUS_MENU_ACTION_SUBMENU)
+	if (!dbus_menu_item_is_submenu(item))
 		return NULL;
 	DBusMenuModel *submenu =
 	    DBUS_MENU_MODEL(g_hash_table_lookup(item->links, submenu_str(item->enabled)));
@@ -240,7 +249,7 @@ G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item)
 G_GNUC_INTERNAL bool dbus_menu_item_update_enabled(DBusMenuItem *item, bool enabled)
 {
 	bool updated = false;
-	if (item->action_type == DBUS_MENU_ACTION_SUBMENU && !item->toggled)
+	if (dbus_menu_item_is_submenu(item) && !item->toggled)
 	{
 		DBusMenuModel *submenu =
 		    DBUS_MENU_MODEL(g_hash_table_lookup(item->links, submenu_str(item->enabled)));
@@ -557,15 +566,6 @@ G_GNUC_INTERNAL bool dbus_menu_item_compare_immutable(DBusMenuItem *a, DBusMenuI
 	return true;
 }
 
-static bool dbus_menu_item_is_submenu(DBusMenuItem *item)
-{
-	if (!item)
-		return false;
-	if (item->action_type != DBUS_MENU_ACTION_SUBMENU)
-		return false;
-	return true;
-}
-
 G_GNUC_INTERNAL bool dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem *dst,
                                                  DBusMenuModel *parent)
 {
@@ -574,7 +574,7 @@ G_GNUC_INTERNAL bool dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem
 	g_object_get(parent, "xml", &xml, NULL);
 	if (!dbus_menu_item_is_submenu(src))
 	{
-		if (dst->action_type == DBUS_MENU_ACTION_SUBMENU)
+		if (dbus_menu_item_is_submenu(dst))
 		{
 			if (dst->toggled)
 				dst->enabled = true;
@@ -584,8 +584,8 @@ G_GNUC_INTERNAL bool dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem
 		}
 		return false;
 	}
-	if (dst->action_type == DBUS_MENU_ACTION_SUBMENU &&
-	    src->action_type == DBUS_MENU_ACTION_SUBMENU)
+	if (dbus_menu_item_is_submenu(dst) &&
+	    dbus_menu_item_is_submenu(src))
 	{
 		if (src->toggled || dst->toggled)
 			dst->enabled = dst->toggled = true;
