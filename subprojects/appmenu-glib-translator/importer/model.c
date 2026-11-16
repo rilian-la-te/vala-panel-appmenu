@@ -280,7 +280,7 @@ static void finalize_section(LayoutParseContext *ctx, GSequenceIter *end_iter)
 	if (ctx->first_changed != -1)
 	{
 		int new_sec_items  = (int)ctx->place;
-		int untouched_tail = (delta > 0) ? 0 : (ctx->old_sec_items - 1 - ctx->last_changed);
+		int untouched_tail = (delta > 0) ? 0 : MAX(0, ctx->old_sec_items - 1 - ctx->last_changed);
 		int removed        = ctx->old_sec_items - ctx->first_changed - untouched_tail;
 		int added_cnt      = new_sec_items - ctx->first_changed - untouched_tail;
 		add_signal_to_queue(ctx->menu,
