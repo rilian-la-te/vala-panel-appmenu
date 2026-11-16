@@ -356,8 +356,7 @@ G_GNUC_INTERNAL DBusMenuUpdaterFlags dbus_menu_item_update_props(DBusMenuItem *i
 		else if (g_strcmp0(prop, DBUS_MENU_PROP_ENABLED) == 0)
 		{
 			bool enabled = g_variant_get_boolean(value);
-			properties_is_updated =
-			    dbus_menu_item_update_enabled(item, enabled) || properties_is_updated;
+			properties_is_updated |= dbus_menu_item_update_enabled(item, enabled);
 		}
 #if 0
 		else if (g_strcmp0(prop, DBUS_MENU_PROP_ICON_DATA) == 0)
@@ -486,8 +485,7 @@ G_GNUC_INTERNAL DBusMenuUpdaterFlags dbus_menu_item_remove_props(DBusMenuItem *i
 		}
 		else if (g_strcmp0(prop, DBUS_MENU_PROP_ENABLED) == 0)
 		{
-			bool enabled = true;
-			dbus_menu_item_update_enabled(item, enabled);
+			properties_is_updated |= dbus_menu_item_update_enabled(item, true);
 		}
 		else if (g_strcmp0(prop, DBUS_MENU_PROP_ICON_NAME) == 0)
 		{
