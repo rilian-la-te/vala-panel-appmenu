@@ -4,19 +4,6 @@
 
 #include "comparator.h"
 
-static void dump_models(const char *tag, GMenuModel *source, GMenuModel *target)
-{
-	g_printerr("\n===== %s =====\n", tag);
-	g_printerr("--- source ---\n");
-	g_menu_markup_print_to_console(source);
-	g_printerr("--- target ---\n");
-	if (target)
-		g_menu_markup_print_to_console(target);
-	else
-		g_printerr("(NULL)\n");
-	g_printerr("===== end %s =====\n\n", tag);
-}
-
 G_GNUC_INTERNAL void test_func(void)
 {
 	GMenu *root    = g_menu_new();

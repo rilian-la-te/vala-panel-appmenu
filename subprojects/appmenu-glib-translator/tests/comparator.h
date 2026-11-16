@@ -33,3 +33,4 @@ G_GNUC_INTERNAL char *extract_bare_action(GMenuModel *model, const char *label);
 G_GNUC_INTERNAL char *extract_submenu_action(GMenuModel *model, const char *label);
 G_GNUC_INTERNAL GMenuModel *find_item_section(GMenuModel *model, const char *label,
                                      int *out_index);
+void dump_models(const char *tag, GMenuModel *source, GMenuModel *target);

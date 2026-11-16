@@ -261,6 +261,19 @@ void fixture_teardown(Fixture *f)
 	test_wait();
 }
 
+void dump_models(const char *tag, GMenuModel *source, GMenuModel *target)
+{
+	g_printerr("\n===== %s =====\n", tag);
+	g_printerr("--- source ---\n");
+	g_menu_markup_print_to_console(source);
+	g_printerr("--- target ---\n");
+	if (target)
+		g_menu_markup_print_to_console(target);
+	else
+		g_printerr("(NULL)\n");
+	g_printerr("===== end %s =====\n\n", tag);
+}
+
 void dump_and_report(const char *tag, Fixture *f, GString *errors)
 {
 	g_printerr("%s failed:\n%s\n", tag, errors->str);
