@@ -212,181 +212,215 @@ static void menu_item_copy_and_load(DBusMenuModel *menu, DBusMenuItem *old, DBus
 }
 
 // We deal only with layouts with depth 1 (not all)
+typedef struct
+{
+	DBusMenuModel *menu;
+	GQueue *queue;
+	uint section_num;
+	uint place;
+	uint old_sections;
+	int first_changed;
+	int last_changed;
+	int old_sec_items;
+} LayoutParseContext;
+
+static void finalize_section(LayoutParseContext *ctx, GSequenceIter *end_iter)
+{
+	DBusMenuItem *old = (DBusMenuItem *)g_sequence_get(g_sequence_iter_prev(end_iter));
+	int delta         = old->place - (int)(ctx->place - 1);
+
+	// Cleanup all items in prev section (if there is more items than
+	// current)
+	if (delta > 0)
+	{
+		GSequenceIter *place_iter = g_sequence_iter_move(end_iter, -delta);
+		g_sequence_remove_range(place_iter, end_iter);
+	}
+
+	// Update current_section and reset current_iter and added to new
+	// section
+	// If it is changed section - schedule signal for it
+	if (ctx->section_num < ctx->old_sections)
+	{
+		if (delta > 0)
+		{
+			if (ctx->first_changed == -1)
+				ctx->first_changed = (int)ctx->place;
+			ctx->last_changed = ctx->old_sec_items - 1;
+		}
+		if (ctx->first_changed != -1)
+		{
+			int new_sec_items = (int)ctx->place;
+			int untouched_tail =
+			    (delta > 0) ? 0 : (ctx->old_sec_items - 1 - ctx->last_changed);
+			int removed   = ctx->old_sec_items - ctx->first_changed - untouched_tail;
+			int added_cnt = new_sec_items - ctx->first_changed - untouched_tail;
+			add_signal_to_queue(ctx->menu,
+			                    ctx->queue,
+			                    ctx->section_num,
+			                    ctx->first_changed,
+			                    removed,
+			                    added_cnt);
+		}
+	}
+}
+
+static void parse_single_child(LayoutParseContext *ctx, GVariant *child)
+{
+	g_autoptr(GVariant) value  = g_variant_get_variant(child);
+	g_autoptr(GVariant) cprops = NULL;
+	g_autoptr(GVariant) citems = NULL;
+	guint cid;
+	g_variant_get(value, "(i@a{sv}@av)", &cid, &cprops, &citems);
+
+	DBusMenuItem *old      = NULL;
+	DBusMenuItem *new_item = dbus_menu_item_new(cid, ctx->menu, cprops);
+
+	// We receive a section (separator or x-kde-title)
+	if (new_item->action_type == DBUS_MENU_ACTION_SECTION)
+	{
+		bool is_valid_section = !new_item->toggled && ctx->place > 0;
+		// Section is valid, so, parse it
+		if (is_valid_section)
+		{
+			// Do some common tasks: increment section_num
+			uint next_section       = ctx->section_num + 1;
+			new_item->section_num   = next_section;
+			new_item->place         = -1;
+			GSequenceIter *old_iter = g_sequence_lookup(ctx->menu->items,
+			                                            new_item,
+			                                            dbus_menu_model_sort_func,
+			                                            NULL);
+			if (!old_iter)
+			{
+				g_hash_table_insert(new_item->links,
+				                    G_MENU_LINK_SECTION,
+				                    dbus_menu_section_model_new(ctx->menu,
+				                                                next_section));
+				old_iter = g_sequence_insert_sorted(ctx->menu->items,
+				                                    new_item,
+				                                    dbus_menu_model_sort_func,
+				                                    NULL);
+			}
+			else
+				dbus_menu_item_free(new_item);
+
+			finalize_section(ctx, old_iter);
+
+			// Ensure next section
+			ctx->section_num   = next_section;
+			ctx->place         = 0;
+			ctx->first_changed = -1;
+			ctx->last_changed  = -1;
+
+			if (ctx->section_num < ctx->old_sections)
+			{
+				DBusMenuItem *sec =
+				    dbus_menu_model_find_section(ctx->menu, ctx->section_num);
+				GMenuModel *m = G_MENU_MODEL(
+				    g_hash_table_lookup(sec->links, G_MENU_LINK_SECTION));
+				ctx->old_sec_items = g_menu_model_get_n_items(m);
+			}
+			else
+				ctx->old_sec_items = 0;
+		}
+		// If section was invalid, just free received item.
+		else
+			dbus_menu_item_free(new_item);
+	}
+	else if (!dbus_menu_item_is_firefox_stub(new_item))
+	{
+		new_item->section_num = ctx->section_num;
+		new_item->place       = ctx->place;
+		GSequenceIter *old_iter =
+		    g_sequence_lookup(ctx->menu->items, new_item, dbus_menu_model_sort_func, NULL);
+		// There is no old item on this place
+		if (!old_iter)
+		{
+			if (ctx->section_num < ctx->old_sections)
+			{
+				if (ctx->first_changed == -1)
+					ctx->first_changed = (int)ctx->place;
+				ctx->last_changed = (int)ctx->place;
+			}
+			menu_item_copy_and_load(ctx->menu, NULL, new_item);
+			g_sequence_insert_sorted(ctx->menu->items,
+			                         new_item,
+			                         dbus_menu_model_sort_func,
+			                         NULL);
+		}
+		else
+		{
+			old = (DBusMenuItem *)g_sequence_get(old_iter);
+			// We should compare properties of old and new item
+			bool updated = dbus_menu_item_update_props(old, cprops);
+			if (updated)
+			{
+				if (ctx->section_num < ctx->old_sections)
+				{
+					if (ctx->first_changed == -1)
+						ctx->first_changed = (int)ctx->place;
+					ctx->last_changed = (int)ctx->place;
+				}
+				menu_item_copy_and_load(ctx->menu, old, new_item);
+				g_sequence_remove(old_iter);
+				g_sequence_insert_sorted(ctx->menu->items,
+				                         new_item,
+				                         dbus_menu_model_sort_func,
+				                         NULL);
+			}
+			else
+			{
+				// Schedule reloading on child
+				DBusMenuModel *submenu = dbus_menu_item_get_submenu(old);
+				if (submenu)
+				{
+					submenu->layout_update_required = true;
+					menu_item_schedule_preload(old);
+				}
+				// Free unneeded item
+				dbus_menu_item_free(new_item);
+			}
+		}
+		ctx->place++;
+	}
+	else
+		// Just free unnedeed item
+		dbus_menu_item_free(new_item);
+}
+
 static void layout_parse_items(DBusMenuModel *menu, GVariant *items)
 {
 	GVariantIter iter;
 	GVariant *child;
 	g_autoptr(GQueue) queue = g_queue_new();
+
 	// Start parsing. We need to track section number, and also GSequenceIter to
 	// current section. Also we track change position, number of added and removed
 	// items for current section
-	uint section_num            = 0;
-	uint place                  = 0;
-	uint old_sections           = g_menu_model_get_n_items(G_MENU_MODEL(menu));
-
 	// Current section changes, take first section data for references
 	DBusMenuItem *sec0 = dbus_menu_model_find_section(menu, 0);
 	GMenuModel *m0     = G_MENU_MODEL(g_hash_table_lookup(sec0->links, G_MENU_LINK_SECTION));
-	int first_changed = -1;
-	int last_changed  = -1;
-	int old_sec_items = g_menu_model_get_n_items(m0);
+
+	LayoutParseContext ctx = {
+		.menu          = menu,
+		.queue         = queue,
+		.section_num   = 0,
+		.place         = 0,
+		.old_sections  = g_menu_model_get_n_items(G_MENU_MODEL(menu)),
+		.first_changed = -1,
+		.last_changed  = -1,
+		.old_sec_items = g_menu_model_get_n_items(m0),
+	};
 
 	g_variant_iter_init(&iter, items);
 	while ((child = g_variant_iter_next_value(&iter)))
 	{
-		GVariant *value = g_variant_get_variant(child);
-		guint cid;
-		GVariant *cprops;
-		GVariant *citems;
-		g_variant_get(value, "(i@a{sv}@av)", &cid, &cprops, &citems);
-		g_variant_unref(citems);
-
-		DBusMenuItem *old      = NULL;
-		DBusMenuItem *new_item = dbus_menu_item_new(cid, menu, cprops);
-		// We receive a section (separator or x-kde-title)
-		if (new_item->action_type == DBUS_MENU_ACTION_SECTION)
-		{
-			bool is_valid_section = !new_item->toggled && place > 0;
-			// Section is valid, so, parse it
-			if (is_valid_section)
-			{
-				// Do some common tasks: increment section_num
-				uint next_section     = section_num + 1;
-				new_item->section_num = next_section;
-				new_item->place       = -1;
-				GSequenceIter *old_iter =
-				    g_sequence_lookup(menu->items,
-				                      new_item,
-				                      dbus_menu_model_sort_func,
-				                      NULL);
-				if (!old_iter)
-				{
-					g_hash_table_insert(
-					    new_item->links,
-					    G_MENU_LINK_SECTION,
-					    dbus_menu_section_model_new(menu, next_section));
-					old_iter =
-					    g_sequence_insert_sorted(menu->items,
-					                             new_item,
-					                             dbus_menu_model_sort_func,
-					                             NULL);
-				}
-				else
-					dbus_menu_item_free(new_item);
-				old =
-				    (DBusMenuItem *)g_sequence_get(g_sequence_iter_prev(old_iter));
-				int delta                 = old->place - (int)(place - 1);
-				GSequenceIter *place_iter = g_sequence_iter_move(old_iter, -delta);
-				// Cleanup all items in prev section (if there is more items than
-				// current)
-				if (delta > 0)
-					g_sequence_remove_range(place_iter, old_iter);
-				// Update current_section and reset current_iter and added to new
-				// section
-				// If it is changed section - schedule signal for it
-				if (section_num < old_sections)
-				{
-					if (delta > 0)
-					{
-						if (first_changed == -1)
-							first_changed = (int)place;
-						last_changed = old_sec_items - 1;
-					}
-					if (first_changed != -1)
-					{
-						int new_sec_items  = (int)place;
-						int untouched_tail = (delta > 0) ? 0 : (old_sec_items - 1 - last_changed);
-						int removed        = old_sec_items - first_changed - untouched_tail;
-						int added_cnt      = new_sec_items - first_changed - untouched_tail;
-						add_signal_to_queue(menu, queue, section_num, first_changed, removed, added_cnt);
-					}
-				}
-
-				//Ensure next section
-				section_num   = next_section;
-				place         = 0;
-				first_changed = -1;
-				last_changed  = -1;
-
-				if (section_num < old_sections)
-				{
-					DBusMenuItem *sec = dbus_menu_model_find_section(menu, section_num);
-					GMenuModel *m     = G_MENU_MODEL(g_hash_table_lookup(sec->links, G_MENU_LINK_SECTION));
-					old_sec_items     = g_menu_model_get_n_items(m);
-				}
-				else
-					old_sec_items = 0;
-			}
-			// If section was invalid, just free received item.
-			else
-				dbus_menu_item_free(new_item);
-		}
-		else if (!dbus_menu_item_is_firefox_stub(new_item))
-		{
-			new_item->section_num   = section_num;
-			new_item->place         = place;
-			GSequenceIter *old_iter = g_sequence_lookup(menu->items,
-			                                            new_item,
-			                                            dbus_menu_model_sort_func,
-			                                            NULL);
-			// There is no old item on this place
-			if (!old_iter)
-			{
-				if (section_num < old_sections)
-				{
-					if (first_changed == -1)
-						first_changed = (int)place;
-					last_changed = (int)place;
-				}
-				menu_item_copy_and_load(menu, NULL, new_item);
-				g_sequence_insert_sorted(menu->items,
-				                                        new_item,
-				                                        dbus_menu_model_sort_func,
-				                                        NULL);
-			}
-			else
-			{
-				old = (DBusMenuItem *)g_sequence_get(old_iter);
-				// We should compare properties of old and new item
-				bool updated = dbus_menu_item_update_props(old, cprops);
-				if (updated)
-				{
-					if (section_num < old_sections)
-					{
-						if (first_changed == -1)
-							first_changed = (int)place;
-						last_changed = (int)place;
-					}
-					menu_item_copy_and_load(menu, old, new_item);
-					g_sequence_remove(old_iter);
-					g_sequence_insert_sorted(menu->items, 
-					                             new_item,
-					                             dbus_menu_model_sort_func,
-					                             NULL);
-				}
-				else
-				{
-					// Schedule reloading on child
-					DBusMenuModel* submenu = dbus_menu_item_get_submenu(old);
-					if(submenu) {
-						submenu->layout_update_required = true;
-						menu_item_schedule_preload(old);
-					}
-					// Free unneeded item
-					dbus_menu_item_free(new_item);
-				}
-			}
-			place++;
-		}
-		else
-			// Just free unnedeed item
-			dbus_menu_item_free(new_item);
-		g_variant_unref(cprops);
-		g_variant_unref(value);
+		parse_single_child(&ctx, child);
 		g_variant_unref(child);
 	}
-	uint new_sections = section_num + 1;
-	int secdiff       = (int)old_sections - (int)new_sections;
+	uint new_sections = ctx.section_num + 1;
+	int secdiff       = (int)ctx.old_sections - (int)new_sections;
 
 	// Remove last sections from the end
 	if (secdiff > 0)
@@ -397,42 +431,18 @@ static void layout_parse_items(DBusMenuModel *menu, GVariant *items)
 	// We need to manage last section's changes. And check its validity
 	if (secdiff >= 0)
 	{
-		GSequenceIter *last_iter = g_sequence_get_end_iter(menu->items);
-		DBusMenuItem *old = (DBusMenuItem *)g_sequence_get(g_sequence_iter_prev(last_iter));
-		int delta                = old->place - (int)(place - 1);
-		// Cleanup all items in prev section (if there is more items than
-		// current)
-		if (delta > 0)
-		{
-			GSequenceIter *place_iter = g_sequence_iter_move(last_iter, -delta);
-			g_sequence_remove_range(place_iter, last_iter);
-		}
 		// Do last section housework
-
-		if (delta > 0)
-		{
-			if (first_changed == -1)
-				first_changed = (int)place;
-			last_changed = old_sec_items - 1;
-		}
-		if (first_changed != -1)
-		{
-			int new_sec_items  = (int)place;
-			int untouched_tail = (delta > 0) ? 0 : (old_sec_items - 1 - last_changed);
-			int removed        = old_sec_items - first_changed - untouched_tail;
-			int added_cnt      = new_sec_items - first_changed - untouched_tail;
-			add_signal_to_queue(menu, queue, section_num, first_changed, removed, added_cnt);
-		}
+		finalize_section(&ctx, g_sequence_get_end_iter(menu->items));
 	}
 
 	// Update all layout
-	if (new_sections > old_sections)
+	if (new_sections > ctx.old_sections)
 	{
-		add_signal_to_queue(menu, queue, -1, old_sections, 0, new_sections - old_sections);
+		add_signal_to_queue(menu, queue, -1, ctx.old_sections, 0, new_sections - ctx.old_sections);
 	}
-	else if (new_sections < old_sections)
+	else if (new_sections < ctx.old_sections)
 	{
-		add_signal_to_queue(menu, queue, -1, new_sections, old_sections - new_sections, 0);
+		add_signal_to_queue(menu, queue, -1, new_sections, ctx.old_sections - new_sections, 0);
 	}
 
 	queue_emit_all(queue);
