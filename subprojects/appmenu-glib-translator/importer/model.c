@@ -216,6 +216,7 @@ typedef struct
 {
 	DBusMenuModel *menu;
 	GQueue *queue;
+	DBusMenuItem *pending_section;
 	uint section_num;
 	uint place;
 	uint old_sections;
@@ -291,33 +292,28 @@ static void finalize_section(LayoutParseContext *ctx, GSequenceIter *end_iter)
 	}
 }
 
-static void handle_section_item(LayoutParseContext *ctx, DBusMenuItem *new_item)
+static void commit_pending_section(LayoutParseContext *ctx)
 {
-	bool is_valid_section = !new_item->toggled && ctx->place > 0;
-
-	// If section was invalid, just free received item.
-	if (!is_valid_section)
-	{
-		dbus_menu_item_free(new_item);
+	if (!ctx->pending_section)
 		return;
-	}
 
-	// Section is valid, so, parse it
+	DBusMenuItem *sec_item = ctx->pending_section;
+	ctx->pending_section   = NULL;
 	// Do some common tasks: increment section_num
 	uint next_section     = ctx->section_num + 1;
-	new_item->section_num = next_section;
-	new_item->place       = -1;
+	sec_item->section_num = next_section;
+	sec_item->place       = -1;
 
-	GSequenceIter *old_iter = lookup_menu_item(ctx->menu, new_item);
+	GSequenceIter *old_iter = lookup_menu_item(ctx->menu, sec_item);
 	if (!old_iter)
 	{
-		g_hash_table_insert(new_item->links,
+		g_hash_table_insert(sec_item->links,
 		                    G_MENU_LINK_SECTION,
 		                    dbus_menu_section_model_new(ctx->menu, next_section));
-		old_iter = insert_menu_item(ctx->menu, new_item);
+		old_iter = insert_menu_item(ctx->menu, sec_item);
 	}
 	else
-		dbus_menu_item_free(new_item);
+		dbus_menu_item_free(sec_item);
 
 	finalize_section(ctx, old_iter);
 
@@ -331,8 +327,23 @@ static void handle_section_item(LayoutParseContext *ctx, DBusMenuItem *new_item)
 	                         : 0;
 }
 
+static void handle_section_item(LayoutParseContext *ctx, DBusMenuItem *new_item)
+{
+	bool is_valid_section = !new_item->toggled && ctx->place > 0 && !ctx->pending_section;
+
+	// If section was invalid, just free received item.
+	if (!is_valid_section)
+	{
+		dbus_menu_item_free(new_item);
+		return;
+	}
+	// Section is valid, defer creation until a real item arrives
+	ctx->pending_section = new_item;
+}
+
 static void handle_regular_item(LayoutParseContext *ctx, DBusMenuItem *new_item, GVariant *cprops)
 {
+	commit_pending_section(ctx);
 	new_item->section_num   = ctx->section_num;
 	new_item->place         = ctx->place;
 	GSequenceIter *old_iter = lookup_menu_item(ctx->menu, new_item);
@@ -401,14 +412,15 @@ static void layout_parse_items(DBusMenuModel *menu, GVariant *items)
 	// items for current section
 	// Current section changes, take first section data for references
 	LayoutParseContext ctx = {
-		.menu          = menu,
-		.queue         = queue,
-		.section_num   = 0,
-		.place         = 0,
-		.old_sections  = g_menu_model_get_n_items(G_MENU_MODEL(menu)),
-		.first_changed = -1,
-		.last_changed  = -1,
-		.old_sec_items = get_section_item_count(menu, 0),
+		.menu            = menu,
+		.queue           = queue,
+		.pending_section = NULL,
+		.section_num     = 0,
+		.place           = 0,
+		.old_sections    = g_menu_model_get_n_items(G_MENU_MODEL(menu)),
+		.first_changed   = -1,
+		.last_changed    = -1,
+		.old_sec_items   = get_section_item_count(menu, 0),
 	};
 
 	g_variant_iter_init(&iter, items);
@@ -417,6 +429,10 @@ static void layout_parse_items(DBusMenuModel *menu, GVariant *items)
 		parse_single_child(&ctx, child);
 		g_variant_unref(child);
 	}
+
+	// Discard trailing separator if no items followed it
+	g_clear_pointer(&ctx.pending_section, dbus_menu_item_free);
+
 	uint new_sections = ctx.section_num + 1;
 	int secdiff       = (int)ctx.old_sections - (int)new_sections;
 
@@ -426,6 +442,7 @@ static void layout_parse_items(DBusMenuModel *menu, GVariant *items)
 		GSequenceIter *section_iter = dbus_menu_model_find_place(menu, new_sections, -1);
 		g_sequence_remove_range(section_iter, g_sequence_get_end_iter(menu->items));
 	}
+
 	// We need to manage last section's changes. And check its validity
 	if (secdiff >= 0)
 	{
