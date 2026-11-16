@@ -12,6 +12,7 @@ names = [
     'radio-bypass',
     'radio-selection',
     'submenu',
+    'submenu-immutable-level1',
     'visibility',
     'insert'
 ]
