@@ -124,7 +124,7 @@ static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointe
 	g_object_unref(xml);
 }
 
-static GAction *dbus_menu_submenu_action_new(DBusMenuModel *model)
+G_GNUC_INTERNAL GAction *dbus_menu_submenu_action_new(DBusMenuItem* item, DBusMenuModel *model)
 {
 	uint id;
 	if (model == NULL)
@@ -214,7 +214,7 @@ G_GNUC_INTERNAL GAction *dbus_menu_action_reference(DBusMenuItem* item, DBusMenu
 	if (ret == NULL || !check_parameter)
 	{
 		if (is_submenu && submenu)
-			ret = dbus_menu_submenu_action_new(submenu);
+			ret = dbus_menu_submenu_action_new(item,submenu);
 		else if (is_submenu)
 			return ret;
 		else

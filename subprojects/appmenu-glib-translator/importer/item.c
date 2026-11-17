@@ -132,12 +132,12 @@ G_GNUC_INTERNAL void dbus_menu_item_init_ordinary(DBusMenuItem* item)
 }
 
 
-G_GNUC_INTERNAL bool dbus_menu_item_init_submenu(DBusMenuItem* item, DBusMenuModel *parent)
+G_GNUC_INTERNAL bool dbus_menu_set_submenu_status(DBusMenuItem* item, DBusMenuModel *parent)
 {
 	g_autoptr(DBusMenuXml) xml = NULL;
 	DBusMenuModel *submenu = NULL;
 	g_object_get(parent, "xml", &xml, NULL);
-	if (dbus_menu_item_is_submenu(item))
+	if (dbus_menu_item_is_submenu(item) && !dbus_menu_item_get_submenu(item))
 	{
 		if (item->toggled)
 			item->enabled = true;
@@ -148,7 +148,13 @@ G_GNUC_INTERNAL bool dbus_menu_item_init_submenu(DBusMenuItem* item, DBusMenuMod
 										xml,
 										item->ref_action_group);
 		g_hash_table_insert(item->links, submenu_str(item->enabled), submenu);
+		if(!item->ref_submenu)
+			item->ref_submenu = dbus_menu_submenu_action_new(item,submenu);
+		g_action_map_add_action(G_ACTION_MAP(item->ref_action_group), item->ref_submenu);
 		return true;
+	} else if (dbus_menu_item_get_submenu(item) && !dbus_menu_item_is_submenu(item)) {
+		g_hash_table_remove(item->links, submenu_str(item->enabled));
+		g_action_map_remove_action(G_ACTION_MAP(item->ref_action_group), g_action_get_name(item->ref_submenu));
 	}
 	return false;
 }

@@ -98,6 +98,8 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_create(u_int32_t id, GActionGro
 G_GNUC_INTERNAL char *dbus_menu_item_get_action_name(DBusMenuItem *item, bool for_submenu,
                                                      bool use_prefix);
 
+G_GNUC_INTERNAL bool dbus_menu_set_submenu_status(DBusMenuItem* item, DBusMenuModel *parent);
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(DBusMenuItem, dbus_menu_item_free)
 
 G_END_DECLS

@@ -41,6 +41,7 @@ G_GNUC_INTERNAL void dbus_menu_action_replace_signals(GAction *action, DBusMenuX
 
 G_GNUC_INTERNAL void dbus_menu_action_lock(GAction *action);
 G_GNUC_INTERNAL void dbus_menu_action_unlock(GAction *action);
+G_GNUC_INTERNAL GAction *dbus_menu_submenu_action_new(DBusMenuItem* item, DBusMenuModel *model);
 
 G_END_DECLS
 
