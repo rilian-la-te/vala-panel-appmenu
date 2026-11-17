@@ -78,6 +78,52 @@ static bool dbus_menu_item_is_submenu(DBusMenuItem *item)
 	return true;
 }
 
+G_GNUC_INTERNAL DBusMenuActionType dbus_menu_item_find_action_type(GVariant *props)
+{
+	GVariantIter iter;
+	const char *prop;
+	GVariant *value;
+	DBusMenuActionType action_type = DBUS_MENU_ACTION_NORMAL;
+	g_variant_iter_init(&iter, props);
+	// We evaluate only properties, which affects action type - sorry for second pass of variant
+	while (g_variant_iter_next(&iter, "{&sv}", &prop, &value))
+	{
+		g_autoptr(GVariant) raii = value;
+		if (g_strcmp0(prop, DBUS_MENU_PROP_CHILDREN_DISPLAY) == 0)
+		{
+			if (g_str_equal(g_variant_get_string(value, NULL), DBUS_MENU_CHILDREN_DISPLAY_SUBMENU))
+				action_type =
+				    dbus_menu_item_update_action_type(action_type,
+				                                      DBUS_MENU_ACTION_SUBMENU);
+		}
+		else if (g_strcmp0(prop, DBUS_MENU_PROP_TOGGLE_TYPE) == 0)
+		{
+			const char *val = g_variant_get_string(value, NULL);
+			if (g_str_equal(val, DBUS_MENU_TOGGLE_TYPE_CHECK))
+				action_type =
+				    dbus_menu_item_update_action_type(action_type,
+				                                      DBUS_MENU_ACTION_CHECKMARK);
+			if (g_str_equal(val, DBUS_MENU_TOGGLE_TYPE_RADIO))
+				action_type =
+				    dbus_menu_item_update_action_type(action_type,
+				                                      DBUS_MENU_ACTION_RADIO);
+		}
+		else if (g_strcmp0(prop, DBUS_MENU_PROP_TYPE) == 0)
+		{
+			const char *type = g_variant_get_string(value, NULL);
+			if (g_str_equal(type, DBUS_MENU_TYPE_SEPARATOR))
+				return DBUS_MENU_ACTION_SECTION;
+		}
+		else if (g_strcmp0(prop, DBUS_MENU_PROP_KDE_TITLE) == 0)
+		{
+			gboolean section = g_variant_get_boolean(value);
+			if (section)
+				return DBUS_MENU_ACTION_SECTION;
+		}
+	}
+	return action_type;
+}
+
 G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *parent_model,
                                                  GVariant *props)
 {

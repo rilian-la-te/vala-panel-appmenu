@@ -90,6 +90,11 @@ G_GNUC_INTERNAL int dbus_menu_item_id_compare_func(const DBusMenuItem *a, gconst
 
 G_GNUC_INTERNAL int dbus_menu_item_compare_func(const DBusMenuItem *a, const DBusMenuItem *b,
                                                 gpointer user_data);
+
+G_GNUC_INTERNAL DBusMenuActionType dbus_menu_item_find_action_type(GVariant *props);
+
+G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_create(u_int32_t id, GActionGroup *action_group);
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(DBusMenuItem, dbus_menu_item_free)
 
 G_END_DECLS
