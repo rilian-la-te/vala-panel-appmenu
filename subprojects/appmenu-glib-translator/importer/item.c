@@ -353,12 +353,7 @@ G_GNUC_INTERNAL DBusMenuUpdaterFlags dbus_menu_item_update_props(DBusMenuItem *i
 	g_variant_iter_init(&iter, props);
 	while (g_variant_iter_loop(&iter, "{&sv}", &prop, &value))
 	{
-		if (g_strcmp0(prop, DBUS_MENU_PROP_ACCESSIBLE_DESC) == 0)
-		{
-			// TODO: Can we supported this property?
-			// properties_is_updated = true;
-		}
-		else if (g_strcmp0(prop, DBUS_MENU_PROP_ENABLED) == 0)
+		if (g_strcmp0(prop, DBUS_MENU_PROP_ENABLED) == 0)
 		{
 			bool enabled = g_variant_get_boolean(value);
 			properties_is_updated |= dbus_menu_item_update_enabled(item, enabled);
