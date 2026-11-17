@@ -218,7 +218,7 @@ G_GNUC_INTERNAL GVariant *dbus_menu_exporter_item_get_variant_for_prop(DBusMenuE
 		if (self->is_submenu)
 			return g_variant_new_string(DBUS_MENU_CHILDREN_DISPLAY_SUBMENU);
 	}
-	if (g_str_equal(prop, "is-visible") || g_str_equal(prop, DBUS_MENU_PROP_VISIBLE))
+	if (g_str_equal(prop, DBUS_MENU_PROP_VISIBLE))
 	{
 		return g_variant_new_boolean(dbus_menu_exporter_tracker_item_get_is_visible(item));
 	}
