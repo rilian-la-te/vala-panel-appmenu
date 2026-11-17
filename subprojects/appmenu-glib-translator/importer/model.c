@@ -360,7 +360,7 @@ static void handle_regular_item(LayoutParseContext *ctx, DBusMenuItem *new_item,
 
 	DBusMenuItem *old = (DBusMenuItem *)g_sequence_get(old_iter);
 	// We should compare properties of old and new item
-	if (dbus_menu_item_update_props(old, cprops))
+	if (!dbus_menu_item_compare_immutable(old, new_item) || dbus_menu_item_update_props(old, cprops))
 	{
 		mark_item_changed(ctx);
 		menu_item_copy_and_load(ctx->menu, old, new_item);
@@ -647,24 +647,18 @@ static bool items_properties_loop(DBusMenuModel *menu, GVariant *up_props, GQueu
 		DBusMenuUpdaterFlags is_item_updated = DBUS_MENU_UPDATER_NONE;
 		if (item != NULL)
 		{
-			// It is the best what we can do to update a section
-			if (item->action_type == DBUS_MENU_ACTION_SECTION)
+			is_item_updated = !is_removal
+									? dbus_menu_item_update_props(item, owned_props)
+									: dbus_menu_item_remove_props(item, owned_props);
+			if (is_item_updated & DBUS_MENU_UPDATER_IMMUTABLE)
 				return true;
-			else
-			{
-				is_item_updated = !is_removal
-				                      ? dbus_menu_item_update_props(item, owned_props)
-				                      : dbus_menu_item_remove_props(item, owned_props);
-				if (is_item_updated & DBUS_MENU_UPDATER_IMMUTABLE)
-					return true;
-				else if (is_item_updated)
-					add_signal_to_queue(menu,
-					                    signal_queue,
-					                    item->section_num,
-					                    item->place,
-					                    1,
-					                    1);
-			}
+			else if (is_item_updated)
+				add_signal_to_queue(menu,
+									signal_queue,
+									item->section_num,
+									item->place,
+									1,
+									1);
 		}
 	}
 	return false;

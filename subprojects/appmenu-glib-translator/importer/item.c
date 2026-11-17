@@ -533,9 +533,20 @@ G_GNUC_INTERNAL DBusMenuUpdaterFlags dbus_menu_item_update_props(DBusMenuItem *i
 				}
 			}
 		}
-		else if ((g_strcmp0(prop, DBUS_MENU_PROP_TYPE) == 0) ||
-		         (g_strcmp0(prop, DBUS_MENU_PROP_KDE_TITLE) == 0) ||
-		         (g_strcmp0(prop, DBUS_MENU_PROP_TOGGLE_TYPE) == 0) ||
+		else if (g_strcmp0(prop, DBUS_MENU_PROP_TYPE) == 0)
+		{
+			bool is_section = g_str_equal(g_variant_get_string(value, NULL),
+			                              DBUS_MENU_TYPE_SEPARATOR);
+			immutable |= ((is_section && item->action_type != DBUS_MENU_ACTION_SECTION) ||
+			            (!is_section && item->action_type == DBUS_MENU_ACTION_SECTION));
+		}
+		else if (g_strcmp0(prop, DBUS_MENU_PROP_KDE_TITLE) == 0)
+		{
+			bool is_section = g_variant_get_boolean(value);
+			immutable |= ((is_section && item->action_type != DBUS_MENU_ACTION_SECTION) ||
+			            (!is_section && item->action_type == DBUS_MENU_ACTION_SECTION));
+		}
+		else if ((g_strcmp0(prop, DBUS_MENU_PROP_TOGGLE_TYPE) == 0) ||
 		         (g_strcmp0(prop, DBUS_MENU_PROP_CHILDREN_DISPLAY) == 0))
 		{
 			immutable = true;
@@ -608,8 +619,11 @@ G_GNUC_INTERNAL DBusMenuUpdaterFlags dbus_menu_item_remove_props(DBusMenuItem *i
 			properties_is_updated = true;
 		}
 		else if ((g_strcmp0(prop, DBUS_MENU_PROP_TYPE) == 0) ||
-		         (g_strcmp0(prop, DBUS_MENU_PROP_KDE_TITLE) == 0) ||
-		         (g_strcmp0(prop, DBUS_MENU_PROP_TOGGLE_TYPE) == 0) ||
+		         (g_strcmp0(prop, DBUS_MENU_PROP_KDE_TITLE) == 0))
+		{
+			immutable |= item->action_type == DBUS_MENU_ACTION_SECTION;
+		}
+		else if ((g_strcmp0(prop, DBUS_MENU_PROP_TOGGLE_TYPE) == 0) ||
 		         (g_strcmp0(prop, DBUS_MENU_PROP_CHILDREN_DISPLAY) == 0))
 		{
 			immutable = true;
