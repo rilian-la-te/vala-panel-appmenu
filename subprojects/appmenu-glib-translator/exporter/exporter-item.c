@@ -314,6 +314,11 @@ G_GNUC_INTERNAL GVariant *dbus_menu_exporter_item_build_representation(
 
 G_GNUC_INTERNAL void dbus_menu_exporter_item_event(DBusMenuExporterItem *self, const char *event)
 {
+	if(!self->tracker_item) {
+		g_debug("Somebody send Event to root. It is nonsense.");
+		return;
+	}
+
 	if (g_str_equal(event, DBUS_MENU_EVENT_ACTIVATED))
 		dbus_menu_exporter_tracker_item_activated(self->tracker_item);
 	if (g_str_equal(event, DBUS_MENU_EVENT_CLOSED))
@@ -324,7 +329,9 @@ G_GNUC_INTERNAL void dbus_menu_exporter_item_event(DBusMenuExporterItem *self, c
 
 G_GNUC_INTERNAL void dbus_menu_exporter_item_about_to_show(DBusMenuExporterItem *self)
 {
-	dbus_menu_exporter_tracker_item_request_submenu_shown(self->tracker_item, TRUE);
+	if(self->tracker_item)
+		dbus_menu_exporter_tracker_item_request_submenu_shown(self->tracker_item, TRUE);
+	g_debug("Somebody send AboutToShow to root. It is nonsense.");
 }
 
 static void on_tracker_item_notify(GObject *object, GParamSpec *pspec, gpointer user_data)
