@@ -88,13 +88,6 @@ static GAction *dbus_menu_action_new(DBusMenuXml *xml, u_int32_t id, DBusMenuAct
 	g_assert_not_reached();
 }
 
-// static bool source_state_false(gpointer *data)
-//{
-//	GSimpleAction *submenu = G_SIMPLE_ACTION(data);
-//	g_simple_action_set_state(submenu, g_variant_new_boolean(false));
-//	return true;
-//}
-
 static void state_submenu_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
 	g_return_if_fail(DBUS_MENU_IS_MODEL(user_data));
