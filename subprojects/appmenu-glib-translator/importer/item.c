@@ -36,12 +36,11 @@ G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data);
 
 static void act_props_try_update(DBusMenuItem *item);
 
-G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id,
-                                                               GActionGroup *action_group)
+G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_create(u_int32_t id, GActionGroup *action_group)
 {
 	DBusMenuItem *item = g_slice_new0(DBusMenuItem);
 	item->id           = id;
-	item->action_type  = DBUS_MENU_ACTION_SECTION;
+	item->action_type  = DBUS_MENU_ACTION_NONE;
 	item->enabled      = false;
 	item->toggled      = false;
 	item->attrs =
@@ -49,6 +48,16 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id,
 	item->links = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, g_object_unref);
 	item->ref_action_group = g_object_ref(action_group);
 	item_set_magic(item);
+	return item;
+}
+
+G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id,
+                                                               GActionGroup *action_group)
+{
+	DBusMenuItem *item = dbus_menu_item_new_create(id, action_group);
+	item->action_type  = DBUS_MENU_ACTION_SECTION;
+	item->section_num = 0;
+	item->place = -1;
 	return item;
 }
 
@@ -72,18 +81,13 @@ static bool dbus_menu_item_is_submenu(DBusMenuItem *item)
 G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *parent_model,
                                                  GVariant *props)
 {
-	DBusMenuItem *item = g_slice_new0(DBusMenuItem);
+	GActionGroup* action_group;
 	GVariantIter iter;
 	const char *prop;
 	GVariant *value;
-	item_set_magic(item);
-	item->enabled = true;
-	item->toggled = false;
-	item->id      = id;
-	item->attrs =
-	    g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)g_variant_unref);
-	item->links = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, g_object_unref);
-	g_object_get(parent_model, "action-group", &item->ref_action_group, NULL);
+	g_object_get(parent_model, "action-group", &action_group, NULL);
+	DBusMenuItem *item = dbus_menu_item_new_create(id, action_group);
+	g_object_unref(action_group);
 	g_variant_iter_init(&iter, props);
 	// Iterate by immutable properties, it is construct_only
 	while (g_variant_iter_loop(&iter, "{&sv}", &prop, &value))

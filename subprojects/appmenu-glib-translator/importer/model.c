@@ -842,8 +842,6 @@ static void dbus_menu_model_constructed(GObject *object)
 
 	DBusMenuItem *first_section =
 	    dbus_menu_item_new_first_section(menu->parent_id, menu->received_action_group);
-	first_section->section_num = 0;
-	first_section->place       = -1;
 	g_hash_table_insert(first_section->links,
 	                    G_MENU_LINK_SECTION,
 	                    dbus_menu_section_model_new(menu, 0));
