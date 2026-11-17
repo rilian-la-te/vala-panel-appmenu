@@ -622,18 +622,6 @@ G_GNUC_INTERNAL DBusMenuUpdaterFlags dbus_menu_item_remove_props(DBusMenuItem *i
 	return (properties_is_updated ? DBUS_MENU_UPDATER_MUTABLE : 0) | (immutable? DBUS_MENU_UPDATER_IMMUTABLE : 0);
 }
 
-G_GNUC_INTERNAL int dbus_menu_item_compare_func(const DBusMenuItem *a, const DBusMenuItem *b,
-                                                gpointer user_data)
-{
-	return b->id - a->id;
-}
-
-G_GNUC_INTERNAL int dbus_menu_item_id_compare_func(const DBusMenuItem *a, gconstpointer b,
-                                                   gpointer user_data)
-{
-	return GPOINTER_TO_UINT(b) - a->id;
-}
-
 G_GNUC_INTERNAL bool dbus_menu_item_compare_immutable(DBusMenuItem *a, DBusMenuItem *b)
 {
 	if (a->id != b->id)
