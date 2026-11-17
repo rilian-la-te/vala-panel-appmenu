@@ -124,6 +124,35 @@ G_GNUC_INTERNAL DBusMenuActionType dbus_menu_item_find_action_type(GVariant *pro
 	return action_type;
 }
 
+G_GNUC_INTERNAL void dbus_menu_item_init_ordinary(DBusMenuItem* item)
+{
+	g_autofree char* name = dbus_menu_action_get_name(item->id, DBUS_MENU_ACTION_NORMAL, true);
+	g_hash_table_insert(item->attrs, g_strdup(G_MENU_ATTRIBUTE_HIDDEN_WHEN), g_variant_new_string(G_MENU_HIDDEN_WHEN_ACTION_MISSING));
+	g_hash_table_insert(item->attrs, g_strdup(G_MENU_ATTRIBUTE_ACTION), g_variant_new_string(name));
+}
+
+
+G_GNUC_INTERNAL bool dbus_menu_item_init_submenu(DBusMenuItem* item, DBusMenuModel *parent)
+{
+	g_autoptr(DBusMenuXml) xml = NULL;
+	DBusMenuModel *submenu = NULL;
+	g_object_get(parent, "xml", &xml, NULL);
+	if (dbus_menu_item_is_submenu(item))
+	{
+		if (item->toggled)
+			item->enabled = true;
+		g_autofree char* name = dbus_menu_action_get_name(item->id, item->action_type, true);
+		g_hash_table_insert(item->attrs, G_MENU_ATTRIBUTE_SUBMENU_ACTION, g_variant_new_string(name));
+		submenu = dbus_menu_model_new(item->id,
+										parent,
+										xml,
+										item->ref_action_group);
+		g_hash_table_insert(item->links, submenu_str(item->enabled), submenu);
+		return true;
+	}
+	return false;
+}
+
 G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *parent_model,
                                                  GVariant *props)
 {
@@ -663,4 +692,13 @@ G_GNUC_INTERNAL void dbus_menu_item_generate_action(DBusMenuItem *item, DBusMenu
 	                                              item->action_type);
 	act_props_try_update(item);
 	g_object_unref(xml);
+}
+
+G_GNUC_INTERNAL char *dbus_menu_item_get_action_name(DBusMenuItem* item, bool use_prefix)
+{
+	bool submenu = dbus_menu_item_is_submenu(item);
+	// const char* name = g_action_get_name(submenu ? item->ref_submenu : item->ref_action);
+	const char* name = g_action_get_name(item->ref_action);
+	return g_strdup_printf("%s%s",
+	                       use_prefix ? DBUS_MENU_ACTION_NAMESPACE_PREFIX : "", name);
 }

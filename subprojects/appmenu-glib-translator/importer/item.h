@@ -95,6 +95,8 @@ G_GNUC_INTERNAL DBusMenuActionType dbus_menu_item_find_action_type(GVariant *pro
 
 G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_create(u_int32_t id, GActionGroup *action_group);
 
+G_GNUC_INTERNAL char *dbus_menu_item_get_action_name(DBusMenuItem* item, bool use_prefix);
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(DBusMenuItem, dbus_menu_item_free)
 
 G_END_DECLS
