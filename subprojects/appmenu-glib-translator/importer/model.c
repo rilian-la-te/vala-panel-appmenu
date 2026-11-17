@@ -628,8 +628,7 @@ static void item_activation_requested_cb(DBusMenuXml *proxy, gint id, guint time
 	DBusMenuItem *item = dbus_menu_model_find(menu, id);
 	if (!item)
 		return; // Not for us
-	g_autofree char *ordinary_name =
-	    dbus_menu_action_get_name(item->id, DBUS_MENU_ACTION_NORMAL, false);
+	g_autofree char *ordinary_name = dbus_menu_item_get_action_name(item, false, false);
 	g_action_group_activate_action(menu->received_action_group, ordinary_name, NULL);
 	g_debug("activation requested: id - %d, timestamp - %d", id, timestamp);
 }

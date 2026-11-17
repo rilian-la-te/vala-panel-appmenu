@@ -694,11 +694,10 @@ G_GNUC_INTERNAL void dbus_menu_item_generate_action(DBusMenuItem *item, DBusMenu
 	g_object_unref(xml);
 }
 
-G_GNUC_INTERNAL char *dbus_menu_item_get_action_name(DBusMenuItem* item, bool use_prefix)
+G_GNUC_INTERNAL char *dbus_menu_item_get_action_name(DBusMenuItem *item, bool for_submenu,
+                                                     bool use_prefix)
 {
-	bool submenu = dbus_menu_item_is_submenu(item);
-	// const char* name = g_action_get_name(submenu ? item->ref_submenu : item->ref_action);
-	const char* name = g_action_get_name(item->ref_action);
-	return g_strdup_printf("%s%s",
-	                       use_prefix ? DBUS_MENU_ACTION_NAMESPACE_PREFIX : "", name);
+	bool submenu     = dbus_menu_item_is_submenu(item) && for_submenu;
+	const char *name = g_action_get_name(submenu ? item->ref_submenu : item->ref_action);
+	return g_strdup_printf("%s%s", use_prefix ? DBUS_MENU_ACTION_NAMESPACE_PREFIX : "", name);
 }
