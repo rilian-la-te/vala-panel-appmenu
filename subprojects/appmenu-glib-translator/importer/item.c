@@ -67,7 +67,7 @@ static inline DBusMenuActionType dbus_menu_item_update_action_type(DBusMenuActio
 	return current > requested ? current : requested;
 }
 
-static bool dbus_menu_item_is_submenu(DBusMenuItem *item)
+G_GNUC_INTERNAL bool dbus_menu_item_is_submenu(DBusMenuItem *item)
 {
 	if (!item)
 		return false;

@@ -94,6 +94,8 @@ G_GNUC_INTERNAL char *dbus_menu_item_get_action_name(DBusMenuItem *item, bool fo
 
 G_GNUC_INTERNAL bool dbus_menu_set_submenu_status(DBusMenuItem* item, DBusMenuModel *parent);
 
+G_GNUC_INTERNAL bool dbus_menu_item_is_submenu(DBusMenuItem *item);
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(DBusMenuItem, dbus_menu_item_free)
 
 G_END_DECLS
