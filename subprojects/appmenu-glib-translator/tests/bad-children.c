@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: LGPL-3.0-or-later */
 
 #include "comparator.h"
+#include "definitions.h"
 #include "glib.h"
 #include "glibconfig.h"
 
@@ -89,7 +90,7 @@ static char *find_submenu_action(GActionGroup *group)
     char *result = NULL;
     for (int i = 0; actions[i] != NULL; i++)
     {
-        if (g_str_has_prefix(actions[i], "submenu-"))
+        if (g_str_has_prefix(actions[i], SUBMENU_PREFIX))
         {
             result = g_strdup(actions[i]);
             break;

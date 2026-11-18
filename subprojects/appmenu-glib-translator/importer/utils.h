@@ -35,6 +35,8 @@ G_GNUC_INTERNAL GAction *dbus_menu_action_reference(DBusMenuItem* item, DBusMenu
 
 G_GNUC_INTERNAL char *dbus_menu_action_get_name(uint id, DBusMenuActionType action_type,
                                                 bool use_prefix);
+G_GNUC_INTERNAL char *dbus_menu_action_name(DBusMenuModel *parent, DBusMenuItem *item,
+                                            bool for_submenu, bool use_prefix);
 G_GNUC_INTERNAL void dbus_menu_action_replace_signals(GAction *action, DBusMenuXml *xml,
                                                       DBusMenuModel *submenu,
                                                       DBusMenuActionType action_type);

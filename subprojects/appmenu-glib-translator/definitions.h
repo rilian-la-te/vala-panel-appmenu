@@ -23,7 +23,8 @@
 #define DBUS_MENU_ACTION_NAMESPACE_PREFIX DBUS_MENU_ACTION_NAMESPACE "."
 
 #define ACTION_PREFIX "id-"
-#define SUBMENU_PREFIX "submenu-"
+#define ORDINARY_PREFIX "ord-"
+#define SUBMENU_PREFIX "sub-"
 #define CURRENT_TIME 0L
 #define HAS_ICON_NAME "has-icon-name"
 

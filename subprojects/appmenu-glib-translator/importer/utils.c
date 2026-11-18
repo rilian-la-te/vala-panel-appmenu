@@ -138,6 +138,17 @@ G_GNUC_INTERNAL GAction *dbus_menu_submenu_action_new(DBusMenuItem* item, DBusMe
 	return G_ACTION(ret);
 }
 
+G_GNUC_INTERNAL char *dbus_menu_action_name(DBusMenuModel *parent, DBusMenuItem *item,
+                                            bool for_submenu, bool use_prefix)
+{
+	return g_strdup_printf("%s%s%p-%u-%u",
+	                       use_prefix ? DBUS_MENU_ACTION_NAMESPACE_PREFIX : "",
+	                       for_submenu ? SUBMENU_PREFIX : ORDINARY_PREFIX,
+	                       parent,
+	                       item->section_num,
+	                       item->place);
+}
+
 G_GNUC_INTERNAL char *dbus_menu_action_get_name(uint id, DBusMenuActionType action_type,
                                                 bool use_prefix)
 {
