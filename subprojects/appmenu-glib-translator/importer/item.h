@@ -59,7 +59,7 @@ static void updater_queue_free(UpdaterQueue *q)
 }
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(UpdaterQueue, updater_queue_free)
 
-G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *parent_model,
+G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_init(DBusMenuItem *item, DBusMenuModel *parent_model,
                                                  GVariant *props);
 G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id,
                                                                GActionGroup *action_group);

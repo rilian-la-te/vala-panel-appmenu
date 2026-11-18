@@ -202,7 +202,6 @@ static void menu_item_schedule_preload(DBusMenuItem* item) {
 static void menu_item_copy_and_load(DBusMenuModel *menu, DBusMenuItem *old, DBusMenuItem *new_item)
 {
 	bool new_submenu = dbus_menu_item_copy_submenu(old, new_item, menu);
-	dbus_menu_item_generate_action(new_item, menu);
 	/* It is a preload hack. If this is a toplevel menu, we need to fetch menu under toplevel to
 	 * avoid menu jumping bug. Now we need to use it for all menus - no menus are preloaded,
 	 * AFAIK. But always enabled make sense only for submenus.
@@ -352,6 +351,8 @@ static void handle_regular_item(LayoutParseContext *ctx, DBusMenuItem *new_item,
 	if (!old_iter)
 	{
 		mark_item_changed(ctx);
+		dbus_menu_item_generate_action(new_item, ctx->menu);
+		dbus_menu_item_init(new_item, ctx->menu, cprops);
 		menu_item_copy_and_load(ctx->menu, NULL, new_item);
 		insert_menu_item(ctx->menu, new_item);
 		ctx->place++;
@@ -360,20 +361,26 @@ static void handle_regular_item(LayoutParseContext *ctx, DBusMenuItem *new_item,
 
 	DBusMenuItem *old = (DBusMenuItem *)g_sequence_get(old_iter);
 	// We should compare properties of old and new item
-	if (!dbus_menu_item_compare_immutable(old, new_item) || dbus_menu_item_update_props(old, cprops))
+	if (!dbus_menu_item_compare_immutable(old, new_item))
 	{
 		mark_item_changed(ctx);
+		dbus_menu_item_generate_action(new_item, ctx->menu);
+		dbus_menu_item_init(new_item, ctx->menu, cprops);
 		menu_item_copy_and_load(ctx->menu, old, new_item);
 		g_sequence_remove(old_iter);
 		insert_menu_item(ctx->menu, new_item);
 	}
 	else
 	{
+		old->id = new_item->id;
+		//Immutable checked earlier - we do not need to mark changed unchanged submenu
+		if (dbus_menu_item_update_props(old, cprops) & DBUS_MENU_UPDATER_MUTABLE)
+			mark_item_changed(ctx);
 		// Schedule reloading on child
 		DBusMenuModel *submenu = dbus_menu_item_get_submenu(old);
 		if (submenu)
 		{
-			submenu->layout_update_required = true;
+			g_object_set(submenu, "parent-id", old->id, NULL);
 			menu_item_schedule_preload(old);
 		}
 		// Free unneeded item
@@ -393,7 +400,8 @@ static void parse_single_child(LayoutParseContext *ctx, GVariant *child)
 	if (!cprops)
 		return;
 
-	DBusMenuItem *new_item = dbus_menu_item_new(cid, ctx->menu, cprops);
+	DBusMenuItem *new_item = dbus_menu_item_new_create(cid, ctx->menu->received_action_group);
+	new_item->action_type  = dbus_menu_item_find_action_type(cprops);
 
 	// We receive a section (separator or x-kde-title)
 	if (new_item->action_type == DBUS_MENU_ACTION_SECTION)

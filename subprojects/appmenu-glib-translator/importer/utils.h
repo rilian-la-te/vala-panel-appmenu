@@ -28,18 +28,12 @@ G_BEGIN_DECLS
 
 typedef struct _DBusMenuItem DBusMenuItem;
 
-G_GNUC_INTERNAL GAction *dbus_menu_action_reference(DBusMenuItem* item, DBusMenuXml *xml,
-                                                    DBusMenuModel *submenu,
-                                                    GActionMap *action_group,
-                                                    DBusMenuActionType type);
+G_GNUC_INTERNAL GAction *dbus_menu_action_reference(DBusMenuModel *parent, DBusMenuItem *item);
 
-G_GNUC_INTERNAL char *dbus_menu_action_get_name(uint id, DBusMenuActionType action_type,
-                                                bool use_prefix);
 G_GNUC_INTERNAL char *dbus_menu_action_name(DBusMenuModel *parent, DBusMenuItem *item,
                                             bool for_submenu, bool use_prefix);
-G_GNUC_INTERNAL void dbus_menu_action_replace_signals(GAction *action, DBusMenuXml *xml,
-                                                      DBusMenuModel *submenu,
-                                                      DBusMenuActionType action_type);
+G_GNUC_INTERNAL void dbus_menu_action_replace_signals(GAction *action, DBusMenuItem *item,
+                                                      DBusMenuModel *parent);
 
 G_GNUC_INTERNAL void dbus_menu_action_lock(GAction *action);
 G_GNUC_INTERNAL void dbus_menu_action_unlock(GAction *action);
