@@ -69,8 +69,10 @@ G_GNUC_INTERNAL void test_func(void)
 
 	/* --- Initial state: "small" is selected. --- */
 	check_source_state(action_group, "small");
-	check_importer_radio(importer_group, "id-1", FALSE);
-	check_importer_radio(importer_group, "id-2", TRUE);
+	g_autofree char* small_name = extract_bare_action(f.target, "Small");
+	g_autofree char* large_name = extract_bare_action(f.target, "Large");
+	check_importer_radio(importer_group, large_name, FALSE);
+	check_importer_radio(importer_group, small_name, TRUE);
 
 	/* --- Activate the second radio item ("Large"). --- */
 	g_action_group_activate_action(G_ACTION_GROUP(action_group),
@@ -79,8 +81,8 @@ G_GNUC_INTERNAL void test_func(void)
 	test_wait();
 
 	check_source_state(action_group, "large");
-	check_importer_radio(importer_group, "id-1", TRUE);
-	check_importer_radio(importer_group, "id-2", FALSE);
+	check_importer_radio(importer_group, large_name, TRUE);
+	check_importer_radio(importer_group, small_name, FALSE);
 
 	/* --- Activate the first radio item ("Small") again. --- */
 	g_action_group_activate_action(G_ACTION_GROUP(action_group),
@@ -89,8 +91,8 @@ G_GNUC_INTERNAL void test_func(void)
     test_wait();
 
 	check_source_state(action_group, "small");
-	check_importer_radio(importer_group, "id-1", FALSE);
-	check_importer_radio(importer_group, "id-2", TRUE);
+	check_importer_radio(importer_group, large_name, FALSE);
+	check_importer_radio(importer_group, small_name, TRUE);
 
 	g_object_unref(importer_group);
 	g_object_unref(importer_model);

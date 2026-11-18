@@ -60,10 +60,11 @@ G_GNUC_INTERNAL void test_func(void)
 	g_object_get(f.importer, "model", &importer_model, "action-group", &importer_group, NULL);
 	g_assert_nonnull(importer_model);
 	g_assert_nonnull(importer_group);
+	g_autofree char* name = extract_bare_action(f.target, "Check");
 
 	/* --- Initial state: the checkbox is unchecked. --- */
 	check_source_state(action_group, FALSE);
-	check_importer_checkbox(importer_group, "id-1", FALSE);
+	check_importer_checkbox(importer_group, name, FALSE);
 
 	/* --- Activate the source action without a parameter: it toggles
 	 * FALSE -> TRUE. The importer's synthesized checkbox action must
@@ -72,23 +73,23 @@ G_GNUC_INTERNAL void test_func(void)
 	test_wait();
 
 	check_source_state(action_group, TRUE);
-	check_importer_checkbox(importer_group, "id-1", TRUE);
+	check_importer_checkbox(importer_group, name, TRUE);
 
 	/* --- Activate the importer's synthesized action without a parameter:
 	 * it toggles TRUE -> FALSE. This must propagate back to the source
 	 * action and flip it to FALSE too. --- */
-	g_action_group_activate_action(importer_group, "id-1", NULL);
+	g_action_group_activate_action(importer_group, name, NULL);
 	test_wait();
 
 	check_source_state(action_group, FALSE);
-	check_importer_checkbox(importer_group, "id-1", FALSE);
+	check_importer_checkbox(importer_group, name, FALSE);
 
 	/* --- And once more through the importer, to cover FALSE -> TRUE. --- */
-	g_action_group_activate_action(importer_group, "id-1", NULL);
+	g_action_group_activate_action(importer_group, name, NULL);
 	test_wait();
 
 	check_source_state(action_group, TRUE);
-	check_importer_checkbox(importer_group, "id-1", TRUE);
+	check_importer_checkbox(importer_group, name, TRUE);
 
 	g_object_unref(importer_group);
 	g_object_unref(importer_model);

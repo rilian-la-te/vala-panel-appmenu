@@ -82,24 +82,6 @@ static void on_items_properties_updated(GDBusConnection *conn,
     g_variant_iter_free(removed);
 }
 
-/* The importer synthesizes "dbusmenu.submenu-<id>" for each
- * submenu-owning item.  We have exactly one, so pick it. */
-static char *find_submenu_action(GActionGroup *group)
-{
-    gchar **actions = g_action_group_list_actions(group);
-    char *result = NULL;
-    for (int i = 0; actions[i] != NULL; i++)
-    {
-        if (g_str_has_prefix(actions[i], SUBMENU_PREFIX))
-        {
-            result = g_strdup(actions[i]);
-            break;
-        }
-    }
-    g_strfreev(actions);
-    return result;
-}
-
 G_GNUC_INTERNAL void test_func(void)
 {
     GMenu *root    = g_menu_new();
@@ -154,7 +136,7 @@ G_GNUC_INTERNAL void test_func(void)
 
     /* Activate the synthesized submenu action on the importer side,
      * simulating a user click on the submenu-owning item. */
-    char *submenu_action = find_submenu_action(importer_group);
+    char *submenu_action = extract_submenu_action(f.target, "Toggleable");
     g_assert_nonnull(submenu_action);
     g_action_group_activate_action(importer_group,
                                    submenu_action,

@@ -68,33 +68,35 @@ G_GNUC_INTERNAL void test_func(void)
 	g_assert_nonnull(importer_model);
 	g_assert_nonnull(importer_group);
 
+	g_autofree char* small_name = extract_bare_action(f.target, "Small");
+	g_autofree char* large_name = extract_bare_action(f.target, "Large");
 	/* --- Initial state: "small" is selected via id-2 (Large is not). --- */
 	check_source_state(action_group, "small");
-	check_importer_radio(importer_group, "id-1", FALSE);
-	check_importer_radio(importer_group, "id-2", TRUE);
+	check_importer_radio(importer_group, large_name, FALSE);
+	check_importer_radio(importer_group, small_name, TRUE);
 
 	/* --- Activate id-1 from the importer side. ---
 	 * This must propagate to the source "size" action AND flip id-2 to
 	 * unselected in the same go. Otherwise the two radios desync and
 	 * both end up selected/unselected together. */
 	g_action_group_activate_action(importer_group,
-	                               "id-1",
+	                               large_name,
 	                               g_variant_new_string(DBUS_MENU_ACTION_RADIO_SELECTED));
 	test_wait();
 
 	check_source_state(action_group, "large");
-	check_importer_radio(importer_group, "id-1", TRUE);
-	check_importer_radio(importer_group, "id-2", FALSE);
+	check_importer_radio(importer_group, large_name, TRUE);
+	check_importer_radio(importer_group, small_name, FALSE);
 
 	/* --- Now activate id-2 from the importer side. --- */
 	g_action_group_activate_action(importer_group,
-	                               "id-2",
+	                               small_name,
 	                               g_variant_new_string(DBUS_MENU_ACTION_RADIO_SELECTED));
 	test_wait();
 
 	check_source_state(action_group, "small");
-	check_importer_radio(importer_group, "id-1", FALSE);
-	check_importer_radio(importer_group, "id-2", TRUE);
+	check_importer_radio(importer_group, large_name, FALSE);
+	check_importer_radio(importer_group, small_name, TRUE);
 
 	g_object_unref(importer_group);
 	g_object_unref(importer_model);
