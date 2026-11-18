@@ -422,9 +422,11 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 	DBusMenuModel *menu            = DBUS_MENU_MODEL(user_data);
 	g_autoptr(GError) error        = NULL;
 	g_autoptr(GVariant) old_layout = menu->current_layout;
+	GVariant* new_layout = NULL;
+	menu->current_layout = NULL;
 	dbus_menu_xml_call_get_layout_finish((DBusMenuXml *)(source_object),
 	                                     &revision,
-	                                     &menu->current_layout,
+	                                     &new_layout,
 	                                     res,
 	                                     &error);
 	if (error != NULL)
@@ -434,6 +436,7 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 		g_object_unref(menu);
 		return;
 	}
+	menu->current_layout = new_layout;
 	menu->layout_update_required = false;
 	bool layout_changed          = !(old_layout && menu->current_layout &&
 	                                 g_variant_equal(old_layout, menu->current_layout));
@@ -733,6 +736,7 @@ static void dbus_menu_model_init(DBusMenuModel *menu)
 	menu->layout_update_required = true;
 	menu->parse_pending          = 0;
 	menu->current_revision       = 0;
+	menu->current_layout		 = NULL;
 }
 
 static void dbus_menu_model_constructed(GObject *object)
