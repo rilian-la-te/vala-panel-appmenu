@@ -28,6 +28,7 @@ public class AppmenuPlugin : Xfce.PanelPlugin {
         GLib.Intl.bindtextdomain(Config.GETTEXT_PACKAGE,Config.LOCALE_DIR);
         GLib.Intl.bind_textdomain_codeset(Config.GETTEXT_PACKAGE,"UTF-8");
         GLib.Intl.textdomain(Config.GETTEXT_PACKAGE);
+        Appmenu.Backend.title_filter = xfce_title_filter;
         var layout = new MenuWidget();
         widget = layout;
         add(widget);
@@ -78,6 +79,37 @@ public class AppmenuPlugin : Xfce.PanelPlugin {
     {
         widget.get_preferred_width(null, out minimum_height);
         natural_height = minimum_height;
+    }
+    private static string? xfce_title_filter(int64 pid, string? class_name, string? window_name)
+    {
+        if (class_name == "xfce4-panel")
+        {
+            if (window_name != null && window_name != "" && window_name != "xfce4-panel")
+                return window_name;
+            return null;
+        }
+        if (pid <= 0)
+            return null;
+        uint8[] data;
+        try
+        {
+            FileUtils.get_data("/proc/" + pid.to_string() + "/cmdline", out data);
+        }
+        catch (FileError e)
+        {
+            return null;
+        }
+        for (int i = 0; i < data.length; i++)
+        {
+            if (data[i] == 0)
+                data[i] = (uint8) '\n';
+        }
+        string[] args = ((string) data).split("\n");
+        if (args.length < 6 || !Path.get_basename(args[0]).has_prefix("wrapper-"))
+            return null;
+        if (args[5] == "")
+            return null;
+        return args[5];
     }
     private Xfconf.Channel channel;
     private unowned MenuWidget widget;

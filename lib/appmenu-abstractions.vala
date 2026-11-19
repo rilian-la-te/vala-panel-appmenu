@@ -29,6 +29,8 @@ namespace Appmenu
         MENUMODEL,
         DBUSMENU
     }
+    [CCode (has_target = false)]
+    public delegate string? TitleFilter(int64 pid, string? class_name, string? window_name);
     internal abstract class Helper: Object
     {
 
@@ -37,6 +39,7 @@ namespace Appmenu
     {
         protected ModelType type = ModelType.NONE;
         protected static DBusMenuRegistrarProxy proxy;
+        public static TitleFilter? title_filter = null;
         static construct
         {
             proxy = new DBusMenuRegistrarProxy();

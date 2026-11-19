@@ -123,6 +123,12 @@ namespace Appmenu
                 else
                     title = win.get_name();
             }
+            if (title_filter != null)
+            {
+                string? filtered = title_filter(win.get_pid(), win.get_class_instance_name(), win.get_name());
+                if (filtered != null)
+                    title = filtered;
+            }
             return new DBusAppMenu(w,title,null,info);
         }
         private void register_menu_window(uint window_id, string sender, ObjectPath menu_object_path)
