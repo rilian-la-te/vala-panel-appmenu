@@ -582,13 +582,17 @@ fail:
 	g_free(ctx);
 }
 
-G_GNUC_INTERNAL void dbus_menu_model_load(DBusMenuModel* self, GSimpleAction* action) {
+G_GNUC_INTERNAL void dbus_menu_model_load(DBusMenuModel* self, GSimpleAction* action)
+{
+	/* Open only on actual open or if there is no items preloaded */
+	bool open = action || !g_menu_model_get_n_items(G_MENU_MODEL(self));
 	/* Async preload now. Just fire-and-forget */
-	dbus_menu_xml_call_event(self->xml, self->parent_id,
-							DBUS_MENU_EVENT_OPENED,
-							g_variant_new("v", g_variant_new_int32(0)),
-							CURRENT_TIME,
-							NULL, NULL, NULL);
+	if(open)
+		dbus_menu_xml_call_event(self->xml, self->parent_id,
+								DBUS_MENU_EVENT_OPENED,
+								g_variant_new("v", g_variant_new_int32(0)),
+								CURRENT_TIME,
+								NULL, NULL, NULL);
 	struct AboutToShowCtx* ctx = g_malloc0(sizeof(*ctx));
 	ctx->model = g_object_ref(self);
 	ctx->submenu_action = action ? g_object_ref(action) : NULL;
