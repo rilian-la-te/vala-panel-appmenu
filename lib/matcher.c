@@ -18,6 +18,8 @@
 
 #include "matcher.h"
 
+#include <string.h>
+
 struct _ValaPanelMatcher
 {
 	GObject parent_instance;
@@ -214,6 +216,58 @@ ValaPanelMatcher *vala_panel_matcher_get()
 	return (default_matcher = g_object_new(vala_panel_matcher_get_type(), NULL));
 }
 
+static GDesktopAppInfo *matcher_lookup_name(ValaPanelMatcher *self, const char *name)
+{
+	g_autofree char *base  = g_path_get_basename(name);
+	g_autofree char *down  = g_utf8_strdown(base, -1);
+	g_autofree char *dname = g_strdup_printf("%s.desktop", down);
+	if (g_hash_table_contains(self->desktops, dname))
+		return G_DESKTOP_APP_INFO(g_hash_table_lookup(self->desktops, dname));
+	const char *id = (const char *)g_hash_table_lookup(self->exec_cache, down);
+	if (id == NULL)
+		return NULL;
+	g_autofree char *down_id = g_utf8_strdown(id, -1);
+	return G_DESKTOP_APP_INFO(g_hash_table_lookup(self->desktops, down_id));
+}
+
+static bool matcher_is_interpreter(const char *name)
+{
+	static const char *const interpreters[] = { "sh",   "bash", "dash", "env", "perl",
+		                                    "ruby", "node", "gjs",  "lua", NULL };
+	g_autofree char *base = g_path_get_basename(name);
+	if (g_str_has_prefix(base, "python"))
+		return true;
+	return g_strv_contains(interpreters, base);
+}
+
+static GDesktopAppInfo *matcher_match_cmdline(ValaPanelMatcher *self, int64_t pid)
+{
+	if (pid <= 0)
+		return NULL;
+	g_autofree char *path     = g_strdup_printf("/proc/%" G_GINT64_FORMAT "/cmdline", pid);
+	g_autofree char *contents = NULL;
+	gsize len                 = 0;
+	if (!g_file_get_contents(path, &contents, &len, NULL) || len == 0)
+		return NULL;
+	bool after_interpreter = false;
+	for (gsize pos = 0; pos < len;)
+	{
+		const char *arg = contents + pos;
+		pos += strlen(arg) + 1;
+		if (arg[0] == '\0')
+			continue;
+		if (after_interpreter && arg[0] == '-')
+			continue;
+		if (matcher_is_interpreter(arg))
+		{
+			after_interpreter = true;
+			continue;
+		}
+		return matcher_lookup_name(self, arg);
+	}
+	return NULL;
+}
+
 GDesktopAppInfo *vala_panel_matcher_match_arbitrary(ValaPanelMatcher *self, const char *class,
                                                     const char *group, const char *gtk, int64_t pid)
 {
@@ -258,6 +312,10 @@ GDesktopAppInfo *vala_panel_matcher_match_arbitrary(ValaPanelMatcher *self, cons
 		if (g_hash_table_contains(self->desktops, gtk_id))
 			return G_DESKTOP_APP_INFO(g_hash_table_lookup(self->desktops, gtk_id));
 	}
+
+	GDesktopAppInfo *by_cmdline = matcher_match_cmdline(self, pid);
+	if (by_cmdline != NULL)
+		return by_cmdline;
 
 	/* Check hardcoded matches */
 	if (group)
