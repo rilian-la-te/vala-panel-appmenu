@@ -184,7 +184,7 @@ static gboolean dbus_menu_exporter_flush_layouts_cb(gpointer user_data)
 	g_hash_table_iter_init(&iter, self->pending_layouts);
 	while (g_hash_table_iter_next(&iter, &id, &id2))
 		dbus_menu_xml_emit_layout_updated(self->xml,
-		                                  self->revision++,
+		                                  ++self->revision,
 		                                  GPOINTER_TO_UINT(id));
 	g_hash_table_remove_all(self->pending_layouts);
 	self->layout_timeout_id = 0;

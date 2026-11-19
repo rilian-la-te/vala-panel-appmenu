@@ -6,6 +6,7 @@ names = [
     'basic',
     'check',
     'dynamic',
+    'exporter-rev-bump',
     'layout-updated',
     'nonexistent',
     'ordinary',
