@@ -432,13 +432,11 @@ G_GNUC_INTERNAL DBusMenuUpdaterFlags dbus_menu_item_update_props(DBusMenuItem *i
 			{
 				g_autoptr(GIcon) icon = g_icon_new_pixbuf_from_variant(value);
 				GVariant *value       = g_icon_serialize(icon);
-				properties_is_updated =
-				    properties_is_updated ||
+				properties_is_updated |=
                     attr_update_checked(item,
 				                                       G_MENU_ATTRIBUTE_ICON,
 				                                       value);
-				properties_is_updated =
-				    properties_is_updated ||
+				properties_is_updated |=
                     attr_update_checked(item,
 				                                       G_MENU_ATTRIBUTE_VERB_ICON,
 				                                       value);
@@ -450,29 +448,25 @@ G_GNUC_INTERNAL DBusMenuUpdaterFlags dbus_menu_item_update_props(DBusMenuItem *i
 			    g_themed_icon_new(g_variant_get_string(value, NULL));
 			GVariant *value             = g_icon_serialize(icon);
 			g_autoptr(GVariant) boolvar = g_variant_new_boolean(true);
-			properties_is_updated =
-			    properties_is_updated ||
+			properties_is_updated |=
                 attr_update_checked(item, G_MENU_ATTRIBUTE_ICON, value);
-			properties_is_updated =
-			    properties_is_updated ||
+			properties_is_updated |=
                 attr_update_checked(item,
 			                                       G_MENU_ATTRIBUTE_VERB_ICON,
 			                                       value);
-			properties_is_updated =
-			    properties_is_updated ||
+			properties_is_updated |=
                 attr_update_checked(item, HAS_ICON_NAME, boolvar);
 		}
 #endif
 		else if (g_strcmp0(prop, DBUS_MENU_PROP_LABEL) == 0)
 		{
-			properties_is_updated =
-			    attr_update_checked(item, G_MENU_ATTRIBUTE_LABEL, value) ||
-			    properties_is_updated;
+			properties_is_updated |=
+			    attr_update_checked(item, G_MENU_ATTRIBUTE_LABEL, value);
 		}
 		else if (g_strcmp0(prop, DBUS_MENU_PROP_SHORTCUT) == 0)
 		{
-			properties_is_updated =
-			    dbus_menu_item_update_shortcut(item, value) || properties_is_updated;
+			properties_is_updated |=
+			    dbus_menu_item_update_shortcut(item, value);
 		}
 		else if (g_strcmp0(prop, DBUS_MENU_PROP_TOGGLE_STATE) == 0)
 		{
