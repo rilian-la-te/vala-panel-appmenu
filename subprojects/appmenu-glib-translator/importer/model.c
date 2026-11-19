@@ -31,6 +31,7 @@ struct _DBusMenuModel
 
 	uint parent_id;
 	uint current_revision;
+	uint pending_revision;
 	GCancellable *cancellable;
 	DBusMenuXml *xml;
 	GActionGroup *received_action_group;
@@ -240,6 +241,15 @@ static void mark_item_changed(LayoutParseContext *ctx)
 	if (ctx->first_changed == -1)
 		ctx->first_changed = (int)ctx->place;
 	ctx->last_changed = (int)ctx->place;
+}
+
+static bool is_parsing_required(DBusMenuModel* self) {
+	return !self->pending_revision || self->pending_revision > self->current_revision;
+}
+
+static void update_revision(DBusMenuModel* self) {
+	if (is_parsing_required(self))
+		self->current_revision = self->pending_revision;
 }
 
 static GSequenceIter *insert_menu_item(DBusMenuModel *menu, DBusMenuItem *item)
@@ -488,6 +498,7 @@ static void layout_parse(DBusMenuModel *menu, GVariant* layout) {
 		return;
 	g_variant_get(layout, "(i@a{sv}@av)", &id, &props, &items);
 	if (id == menu->parent_id) {
+		update_revision(menu);
 		layout_parse_items(menu, items);
 		return;
 	}
@@ -537,6 +548,7 @@ static void get_layout_cb(GObject *source_object, GAsyncResult *res, gpointer us
 	}
 	menu->current_layout = new_layout;
 	menu->layout_update_required = false;
+	menu->pending_revision = revision;
 	if (!menu->parse_pending)
 		menu->parse_pending = g_timeout_add_full(G_PRIORITY_HIGH,
 		                                         100,
@@ -618,17 +630,16 @@ static void layout_updated_cb(DBusMenuXml *proxy, guint revision, gint parent, D
 {
 	if (!DBUS_MENU_IS_XML(proxy))
 		return;
-	if (((uint)parent == menu->parent_id) && menu->current_revision < revision)
+	menu->pending_revision = revision;
+	if (((uint)parent == menu->parent_id) && is_parsing_required(menu))
 	{
 		g_debug("Remote attempt to update %u with rev %u", parent, revision);
 		dbus_menu_model_update_layout(menu, 0);
-		menu->current_revision = revision;
 		return;
 	}
 	DBusMenuItem *item = dbus_menu_model_find(menu, (uint)parent);
-	if (item != NULL && menu->current_revision < revision) {
+	if (item != NULL && is_parsing_required(menu)) {
 		dbus_menu_model_update_layout(menu, menu->parse_pending ? 0 : item->id);
-		menu->current_revision = revision;
 	}
 }
 
@@ -837,6 +848,7 @@ static void dbus_menu_model_init(DBusMenuModel *menu)
 	menu->layout_update_required = true;
 	menu->parse_pending          = 0;
 	menu->current_revision       = 0;
+	menu->pending_revision       = 0;
 	menu->current_layout		 = NULL;
 }
 
