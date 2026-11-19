@@ -481,12 +481,14 @@ G_GNUC_INTERNAL DBusMenuUpdaterFlags dbus_menu_item_update_props(DBusMenuItem *i
 		}
 		else if (g_strcmp0(prop, DBUS_MENU_PROP_VISIBLE) == 0)
 		{
+			bool old_vis = item->visible;
 			bool vis = g_variant_get_boolean(value);
+			item->visible = vis;
 			if (item->action_type == DBUS_MENU_ACTION_SECTION)
 			{
 				item->toggled = !vis;
 			}
-			else if (vis)
+			else if (vis && !old_vis)
 			{
 				g_autofree char *name =
 				    dbus_menu_item_get_action_name(item, false, true);
@@ -501,7 +503,7 @@ G_GNUC_INTERNAL DBusMenuUpdaterFlags dbus_menu_item_update_props(DBusMenuItem *i
 					properties_is_updated = true;
 				}
 			}
-			else
+			else if(!vis && old_vis)
 			{
 				bool found = g_hash_table_contains(item->attrs,
 				                                   G_MENU_ATTRIBUTE_HIDDEN_WHEN);
@@ -596,13 +598,15 @@ G_GNUC_INTERNAL DBusMenuUpdaterFlags dbus_menu_item_remove_props(DBusMenuItem *i
 		}
 		else if (g_strcmp0(prop, DBUS_MENU_PROP_VISIBLE) == 0)
 		{
+			bool old_vis = item->visible;
 			g_autofree char *name =
 			    dbus_menu_item_get_action_name(item, false, true);
 			g_hash_table_remove(item->attrs, G_MENU_ATTRIBUTE_HIDDEN_WHEN);
 			g_hash_table_insert(item->attrs,
 			                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
 			                    g_variant_ref_sink(g_variant_new_string(name)));
-			properties_is_updated = true;
+			item->visible = true;
+			properties_is_updated = old_vis != item->visible;
 		}
 		else if ((g_strcmp0(prop, DBUS_MENU_PROP_TYPE) == 0) ||
 		         (g_strcmp0(prop, DBUS_MENU_PROP_KDE_TITLE) == 0))
