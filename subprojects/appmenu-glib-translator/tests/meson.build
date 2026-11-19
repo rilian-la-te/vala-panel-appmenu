@@ -7,6 +7,7 @@ names = [
     'check',
     'dynamic',
     'layout-updated',
+    'nonexistent',
     'radio',
     'radio-bypass',
     'radio-selection',
