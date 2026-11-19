@@ -118,6 +118,12 @@ static void matcher_reload_ids(ValaPanelMatcher *self)
 		g_clear_pointer(&try_exec, g_free);
 		try_exec = g_path_get_basename(exec);
 		g_clear_pointer(&exec, g_free);
+		if (g_desktop_app_info_get_nodisplay(dinfo) &&
+		    g_hash_table_contains(self->exec_cache, try_exec))
+		{
+			g_free(try_exec);
+			continue;
+		}
 		g_hash_table_insert(self->exec_cache, try_exec, g_strdup(id));
 	}
 	g_list_free(app_info_list);
