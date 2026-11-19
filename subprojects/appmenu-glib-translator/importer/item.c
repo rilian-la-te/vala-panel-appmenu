@@ -232,17 +232,6 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 				    dbus_menu_item_update_action_type(item->action_type,
 				                                      DBUS_MENU_ACTION_SECTION);
 			}
-			else if (!g_strcmp0(type, DBUS_MENU_TYPE_NORMAL))
-			{
-				item->action_type =
-				    dbus_menu_item_update_action_type(item->action_type,
-				                                      DBUS_MENU_ACTION_NORMAL);
-				g_autofree char *name =
-				    dbus_menu_action_get_name(id, item->action_type, true);
-				g_hash_table_insert(item->attrs,
-				                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
-				                    g_variant_ref_sink(g_variant_new_string(name)));
-			}
 		}
 		else if (g_strcmp0(prop, DBUS_MENU_PROP_KDE_TITLE) == 0)
 		{
@@ -254,7 +243,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, DBusMenuModel *pa
 			                    g_variant_ref_sink(value));
 		}
 	}
-	if (item->action_type == DBUS_MENU_ACTION_NONE)
+	if (item->action_type < DBUS_MENU_ACTION_CHECKMARK)
 	{
 		item->action_type     = DBUS_MENU_ACTION_NORMAL;
 		g_autofree char *name = dbus_menu_action_get_name(id, item->action_type, true);
