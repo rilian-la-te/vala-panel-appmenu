@@ -8,6 +8,7 @@ names = [
     'dynamic',
     'layout-updated',
     'nonexistent',
+    'ordinary',
     'radio',
     'radio-bypass',
     'radio-selection',
