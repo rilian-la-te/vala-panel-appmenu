@@ -211,7 +211,12 @@ namespace Appmenu
                     if (uniquename != null)
                     {
                         this.active_window = win;
-                        this.type = ModelType.MENUMODEL;
+                        if (win.get_window_type() == Wnck.WindowType.DESKTOP
+                            && libwnck_aux_get_utf8_prop (xid, "_GTK_MENUBAR_OBJECT_PATH") == null
+                            && libwnck_aux_get_utf8_prop (xid, "_GTK_APP_MENU_OBJECT_PATH") == null)
+                            this.type = ModelType.DESKTOP;
+                        else
+                            this.type = ModelType.MENUMODEL;
                     }
                 }
                 if (type == ModelType.NONE && window.get_window_type() == Wnck.WindowType.DESKTOP)
