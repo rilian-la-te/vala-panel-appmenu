@@ -216,10 +216,8 @@ ValaPanelMatcher *vala_panel_matcher_get()
 	return (default_matcher = g_object_new(vala_panel_matcher_get_type(), NULL));
 }
 
-static GDesktopAppInfo *matcher_lookup_name(ValaPanelMatcher *self, const char *name)
+static GDesktopAppInfo *matcher_lookup_basename(ValaPanelMatcher *self, const char *down)
 {
-	g_autofree char *base  = g_path_get_basename(name);
-	g_autofree char *down  = g_utf8_strdown(base, -1);
 	g_autofree char *dname = g_strdup_printf("%s.desktop", down);
 	if (g_hash_table_contains(self->desktops, dname))
 		return G_DESKTOP_APP_INFO(g_hash_table_lookup(self->desktops, dname));
@@ -228,6 +226,21 @@ static GDesktopAppInfo *matcher_lookup_name(ValaPanelMatcher *self, const char *
 		return NULL;
 	g_autofree char *down_id = g_utf8_strdown(id, -1);
 	return G_DESKTOP_APP_INFO(g_hash_table_lookup(self->desktops, down_id));
+}
+
+static GDesktopAppInfo *matcher_lookup_name(ValaPanelMatcher *self, const char *name)
+{
+	static const char *const script_exts[] = { ".py", ".pl", ".sh", ".rb", ".js", ".lua", NULL };
+	g_autofree char *base = g_path_get_basename(name);
+	g_autofree char *down = g_utf8_strdown(base, -1);
+	GDesktopAppInfo *found = matcher_lookup_basename(self, down);
+	if (found != NULL)
+		return found;
+	char *dot = strrchr(down, '.');
+	if (dot == NULL || dot == down || !g_strv_contains(script_exts, dot))
+		return NULL;
+	*dot = '\0';
+	return matcher_lookup_basename(self, down);
 }
 
 static bool matcher_is_interpreter(const char *name)
