@@ -15,6 +15,7 @@ names = [
     'radio-selection',
     'submenu',
     'submenu-immutable-level1',
+    'submenu-immutable-level2',
     'visibility',
     'insert'
 ]
