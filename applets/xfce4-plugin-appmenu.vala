@@ -39,6 +39,12 @@ public class AppmenuPlugin : Xfce.PanelPlugin {
             Xfconf.Property.bind(channel,this.get_property_base()+"/"+Key.COMPACT_MODE,typeof(bool),widget,Key.COMPACT_MODE);
             Xfconf.Property.bind(channel,this.get_property_base()+"/"+Key.BOLD_APPLICATION_NAME,typeof(bool),widget,Key.BOLD_APPLICATION_NAME);
             Xfconf.Property.bind(channel,this.get_property_base()+"/"+"expand",typeof(bool),this,"expand");
+            GLib.Idle.add(() => {
+                bool expand_state = this.expand;
+                this.expand = !expand_state;
+                this.expand = expand_state;
+                return GLib.Source.REMOVE;
+            });
             this.menu_show_configure();
         } catch (Xfconf.Error e) {
             stderr.printf("Xfconf init failed. Configuration will not be saved.\n");
