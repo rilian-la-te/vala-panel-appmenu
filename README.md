@@ -37,12 +37,12 @@ Post-Build Instructions
 To install and enable unity-gtk-module for your distro:
 
  **UBUNTU-BASED DISTROS**
- - Install unity-gtk-module by typing `sudo apt-get install unity-gtk-module-common unity-gtk2-module unity-gtk3-module`
+ - Install appmenu-gtk-module by typing `sudo apt-get install appmenu-gtk-module-common appmenu-gtk2-module appmenu-gtk3-module`
  - Follow instructions in (appmenu-gtk-module) [README](subprojects/appmenu-gtk-module/README.md), but replace any occurence of `appmenu-gtk-module` to `unity-gtk-module`
 
  **ARCH-BASED DISTROS**
 * Install from AUR [appmenu-gtk-module-git](https://aur.archlinux.org/packages/appmenu-gtk-module-git/) for GTK applications to work
-* Install [Appmenu](https://aur.archlinux.org/packages/appmenu-qt4) to get appmenu for Qt4 Applications to work. Qt 5.7 must work out of the box.
+* Install [Appmenu](https://aur.archlinux.org/packages/appmenu-qt4) to get appmenu for Qt4 Applications to work. Qt 5.7 and 6 must work out of the box.
 * Install these [libdbusmenu-glib](https://archlinux.org/packages/libdbusmenu-glib/) [libdbusmenu-gtk3](https://archlinux.org/packages/libdbusmenu-gtk3/) [libdbusmenu-gtk2](https://archlinux.org/packages/libdbusmenu-gtk2/) to get Chromium/Google Chrome to work
  - Follow instructions in the (appmenu-gtk-module) [README](subprojects/appmenu-gtk-module/README.md), if it is not enabled automatically.
 
@@ -101,21 +101,6 @@ export _JAVA_OPTIONS="${_JAVA_OPTIONS} -javaagent:/usr/share/java/jayatanaag.jar
 export JAYATANA_FORCE=1
 ```
 
----
-Dependency Packages
----
-**Ubuntu 18.04**
-
-*All variants require:* `git build-essential cmake bamfdaemon libdbusmenu-glib-dev libgtk2.0-dev gobject-introspection libbamf3-dev libdbus-glib-1-dev libffi-dev libgirepository1.0-dev libpeas-dev libstartup-notification0-dev libwnck-3-dev libwnck-common libwnck22 libxml2-utils libxres-dev libvala-0.40-0 valac valac-0.40-vapi`
-
-*Ubuntu Budgie also needs:* `budgie-core-dev gir1.2-budgie-1.0 libbudgie-plugin0 libbudgietheme0 libraven0`
-
-*Ubuntu MATE also needs:* `libmate-panel-applet-dev`
-
-*Xubuntu also needs:* `exo-utils libexo-1-0 libexo-2-0 libexo-common libexo-helpers libgarcon-1-0 libgarcon-common libxfce4panel-2.0-4 libxfce4panel-2.0-dev libxfce4ui-1-0 libxfce4ui-2-0 libxfce4ui-common libxfce4util7 libxfce4util-common libxfce4util-dev libxfconf-0-2 libxfconf-0-dev xfce4-panel xfce4-panel-dev xfconf`
-
-*Vala Panel also needs:* `libvalapanel0 libvalapanel-dev`
-
 Author
 ===
- * Athor <ria.freelander@gmail.com>
+ * Rilian La Te aka Athor <ria.freelander@gmail.com>

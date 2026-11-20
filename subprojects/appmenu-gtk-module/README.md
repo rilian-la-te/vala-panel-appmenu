@@ -18,7 +18,19 @@ Ubuntu users now does not need to install this.
 
 *Demos*
  * valac (>= 0.24.0)
- 
+
+*Wayland support*
+ * appmenu-glib-translator (>= 26.11)
+ * libwayland-client
+ * wayland-scanner
+
+---
+Backends
+---
+This module now provides 3 backends. X11 - working as before. Gtk-Shell - usable only for Gnome-Shell applets or on Wayfire.
+Kwin-wayland - usable on KDE and Wayfire. When dbus_annotations will be merged, there would be third backend for Wayland.
+Backend requests are welcome - module is now modular. And yes - it capable to export GMenuModel as DBusMenu now, thanks glib-translator.
+
 ---
 Usage Instructions
 ---
@@ -29,6 +41,10 @@ Usage Instructions
 **BUDGIE***
 - Type following into your console:
 `gsettings set org.gnome.settings-daemon.plugins.xsettings enabled-gtk-modules "['appmenu-gtk-module']"`
+
+**SYSTEMD SERVICE**
+- Type following into your console:
+`systemctl --user enable --now appmenu-gtk-module.service`
 
 **OTHER**
 - Create file .gtkrc-2.0 into your home directory, if it do not exists already
