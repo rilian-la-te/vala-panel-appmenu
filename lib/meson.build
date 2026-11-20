@@ -8,23 +8,20 @@ sources = files(
     'helper-menumodel.vala',
     'launcher.vapi',
     'launcher.c',
-    'launcher.h'
+    'launcher.h',
+    'matcher.c',
+    'matcher.h',
+    'matcher.vapi',
 )
 
 wnck_src = files(
     'appmenu-wnck.vala',
-    'matcher.c',
-    'matcher.h',
     'libwnck-aux.c',
     'libwnck-aux.vapi',
     'libwnck-aux.h',
-    'matcher.vapi'
 )
 
 wayfire_src = files(
-    'matcher.c',
-    'matcher.h',
-    'matcher.vapi',
     'appmenu-wayfire.vala'
 ) 
 
