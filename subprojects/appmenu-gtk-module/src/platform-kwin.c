@@ -115,6 +115,7 @@ static WindowData *establish_window_data_kwin(GtkWindow *window)
 	application = gtk_window_get_application(window);
 
 	window_data->action_group = unity_gtk_action_group_new(G_ACTION_GROUP(NULL));
+	GMenuModel *old_menu_model = NULL;
 
 	if (GTK_IS_APPLICATION(application))
 	{
@@ -122,6 +123,14 @@ static WindowData *establish_window_data_kwin(GtkWindow *window)
 		object_path = g_strdup_printf("%s/menus/dbusmenu/%d",
 		                              g_application_get_dbus_object_path(gApp),
 		                              window_data->window_id);
+		old_menu_model = gtk_application_get_menubar(application);
+		if (old_menu_model != NULL && g_menu_model_get_n_items(old_menu_model) != 0)
+		{
+			window_data->old_model = G_MENU_MODEL(g_object_ref(old_menu_model));
+			g_menu_append_section(window_data->menu_model,
+			                      NULL,
+			                      G_MENU_MODEL(old_menu_model));
+		}
 	}
 	else
 	{
@@ -134,6 +143,22 @@ static WindowData *establish_window_data_kwin(GtkWindow *window)
 	                                    G_ACTION_GROUP(window_data->action_group),
 	                                    unique_bus_name,
 	                                    object_path));
+
+	g_autofree const gchar **prefixes = gtk_widget_list_action_prefixes(GTK_WIDGET(window));
+	if (prefixes)
+	{
+		for (gint i = 0; prefixes[i] != NULL; i++)
+		{
+			const gchar *prefix = prefixes[i];
+			GActionGroup *group =
+			    gtk_widget_get_action_group(GTK_WIDGET(window), prefix);
+
+			if (group)
+				dbus_menu_exporter_insert(DBUS_MENU_EXPORTER(window_data->exporter),
+				                          prefix,
+				                          group);
+		}
+	}
 
 	wl_surface = gdk_wayland_window_get_wl_surface(gdk_win);
 
