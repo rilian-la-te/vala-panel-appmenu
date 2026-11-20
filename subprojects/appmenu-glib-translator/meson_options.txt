@@ -1,1 +1,2 @@
 option('tests', type : 'boolean', value : false, description: 'Parser tests')
+option('docs', type : 'boolean', value : false, description: 'Library documentation')

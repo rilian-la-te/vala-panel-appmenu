@@ -1,0 +1,21 @@
+[library]
+version = "26.11"
+description = "AppMenu GLib Translator - small library to import DBusMenu as Gio.MenuModel, or export Gio.MenuModel as DBusMenu"
+authors = "Konstantin <ria.freelander@gmail.com>"
+license = "LGPL-3.0-or-later"
+website_url = "https://gitlab.com/vala-panel-project/vala-panel-appmenu"
+browse_url = "https://gitlab.com/vala-panel-project/vala-panel-appmenu/-/tree/master/subprojects/appmenu-glib-translator"
+repository_url = "https://gitlab.com/vala-panel-project/vala-panel-appmenu.git"
+dependencies = ["GObject-2.0", "Gio-2.0"]
+devhelp = true
+search_index = true
+
+[dependencies."GObject-2.0"]
+name = "GObject"
+description = "The base type system library"
+docs_url = "https://docs.gtk.org/gobject/"
+
+[dependencies."Gio-2.0"]
+name = "Gio"
+description = "GObject Interfaces and Objects"
+docs_url = "https://docs.gtk.org/gio/"
