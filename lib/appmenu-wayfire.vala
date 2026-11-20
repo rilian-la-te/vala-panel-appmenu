@@ -220,7 +220,7 @@ namespace Appmenu
         }
     }
 
-    internal class BackendImpl : Backend
+    internal class BackendWayfire : Backend
     {
         private static string[] PROP_NAMES = {
             "kde-appmenu-service-name",
@@ -257,6 +257,16 @@ namespace Appmenu
         private int  menu_update_delay = 500;
         private uint delayed_menu_update_id = 0;
 
+        public static BackendWayfire get_backend()
+        {
+            return new BackendWayfire();
+        }
+        public static bool is_applicable() {
+            string? wf_socket = Environment.get_variable("WAYFIRE_SOCKET");
+            if (!(wf_socket == null || wf_socket == ""))
+                return true;
+            return false;
+        }
         construct
         {
             matcher = ValaPanel.Matcher.get();

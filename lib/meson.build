@@ -9,6 +9,7 @@ sources = files(
     'launcher.vapi',
     'launcher.c',
     'launcher.h',
+    'register.c',
     'matcher.c',
     'matcher.h',
     'matcher.vapi',
@@ -38,8 +39,9 @@ importer_dep = dependency('appmenu-glib-translator', fallback : ['appmenu-glib-t
 appmenu_deps = [giounix, gtk, importer_dep, posix_dep]
 appmenu_cflags = []
 if backend_wnck
+    gdkx_dep = valac.find_library('gdk-x11-3.0')
     sources += wnck_src
-    appmenu_deps += wnck
+    appmenu_deps += [wnck, gdkx_dep]
     appmenu_cflags += ['-DWNCK_I_KNOW_THIS_IS_UNSTABLE']
 endif
 

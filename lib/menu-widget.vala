@@ -26,6 +26,8 @@ namespace Key
 
 namespace Appmenu
 {
+    [CCode (cname = "appmenu_get_applicable_backend")]
+    private extern static Backend? register_backend ();
     public class MenuWidget: Gtk.Bin
     {
         public bool compact_mode {get; set; default = false;}
@@ -35,7 +37,7 @@ namespace Appmenu
         private Gtk.CssProvider provider;
         private GLib.MenuModel? appmenu = null;
         private GLib.MenuModel? menubar = null;
-        private Backend backend = new BackendImpl();
+        private Backend backend;
         private Gtk.MenuBar mwidget = new Gtk.MenuBar();
         private ulong backend_connector = 0;
         private ulong compact_connector = 0;
@@ -47,6 +49,7 @@ namespace Appmenu
             context.add_class("-vala-panel-appmenu-core");
             unowned Gtk.StyleContext mcontext = mwidget.get_style_context();
             Signal.connect(this,"notify",(GLib.Callback)restock,null);
+            backend = register_backend();
             backend_connector = backend.active_model_changed.connect(()=>{
                 Timeout.add(50,()=>{
                     backend.set_active_window_menu(this);

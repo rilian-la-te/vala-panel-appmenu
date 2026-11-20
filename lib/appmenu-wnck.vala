@@ -21,7 +21,7 @@ using Gtk;
 
 namespace Appmenu
 {
-    internal class BackendImpl : Backend
+    internal class BackendX11 : Backend
     {
         private HashTable<uint,unowned Wnck.Window> desktop_menus;
         private ValaPanel.Matcher matcher = ValaPanel.Matcher.get();
@@ -30,6 +30,16 @@ namespace Appmenu
         private int menu_update_delay = 500; // should be close enough to avoid flickering
         private uint delayed_menu_update_id = 0;
         private unowned Wnck.Screen screen;
+        public static BackendX11 get_backend()
+        {
+            return new BackendX11();
+        }
+        public static bool is_applicable() {
+            var display = Gdk.Display.get_default ();
+            if (display != null && display is Gdk.X11.Display)
+                return true;
+            return false;
+        }
         construct
         {
             desktop_menus = new HashTable<uint,unowned Wnck.Window>(direct_hash,direct_equal);
@@ -46,11 +56,7 @@ namespace Appmenu
                 on_window_opened(window);
             on_active_window_changed(screen.get_active_window());
         }
-        public BackendImpl()
-        {
-            Object();
-        }
-        ~BackendImpl()
+        ~BackendX11()
         {
             SignalHandler.disconnect_by_data(proxy,this);
             SignalHandler.disconnect_by_data(screen,this);
