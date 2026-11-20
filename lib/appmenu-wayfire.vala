@@ -9,7 +9,7 @@ namespace Appmenu
 {
     internal class WayfireClient : Object
     {
-        public signal void view_focused  (int id, string title);
+        public signal void view_focused  (int id, string title, string app_id, int pid);
         public signal void view_unmapped (int id);
         public signal void view_property (int view_id, string prop, string? value);
 
@@ -184,12 +184,15 @@ namespace Appmenu
             if (!view.has_member("id"))
                 return;
             int id = (int) view.get_int_member("id");
-
+            int pid = (int) view.get_int_member("pid");
             string title = "";
+            string app_id = "";
             if (view.has_member("title") && !view.get_member("title").is_null())
                 title = view.get_string_member("title");
+            if (view.has_member("app-id") && !view.get_member("app-id").is_null())
+                app_id = view.get_string_member("app-id");
 
-            view_focused(id, title);
+            view_focused(id, title, app_id, pid);
         }
 
         private void dispatch_unmapped(Json.Object msg)
@@ -232,6 +235,8 @@ namespace Appmenu
         private class ViewProps
         {
             public string  title = "";
+            public string  app_id = "";
+            public int pid = 0;
             public string? kde_service_name     = null;
             public string? kde_object_path      = null;
             public string? gtk_unique_bus_name  = null;
@@ -283,7 +288,7 @@ namespace Appmenu
             }
         }
 
-        private void on_view_focused(int id, string title)
+        private void on_view_focused(int id, string title, string app_id, int pid)
         {
             if (id == active_view_id)
                 return;
@@ -292,7 +297,9 @@ namespace Appmenu
 
             active_view_id = id;
             active_props = new ViewProps();
-            active_props.title = title;
+            active_props.title  = title;
+            active_props.app_id = app_id;
+            active_props.pid = pid;
             pending_props = PROP_NAMES.length;
 
             if (wayfire == null)
@@ -327,6 +334,22 @@ namespace Appmenu
             }
         }
 
+        private DesktopAppInfo? resolve_app(ViewProps props)
+        {
+            if (props == null || props.app_id == "")
+                return null;
+            return matcher.match_arbitrary(props.title,
+                                        props.app_id,
+                                        props.app_id,
+                                        props.pid);
+        }
+        private string get_title(DesktopAppInfo? info, ViewProps props) {
+            if (info != null)
+                return info.get_name();
+            if (props.app_id != null)
+                return props.app_id;
+            return props.title;
+        }
         private void on_view_unmapped(int id)
         {
             if (id != active_view_id)
@@ -371,6 +394,8 @@ namespace Appmenu
 
         private MenuModelHelper get_menu_model_helper(MenuWidget w, ViewProps props)
         {
+            DesktopAppInfo? app = resolve_app(props);
+            string title = get_title(app, props);
             return new MenuModelHelper(w,
                 props.gtk_unique_bus_name,
                 props.gtk_app_menu_path,
@@ -378,22 +403,26 @@ namespace Appmenu
                 props.gtk_application_path,
                 props.gtk_window_path,
                 props.gtk_menubar_path,
-                props.title,
-                null);
+                title,
+                app);
         }
 
         private DBusMenuHelper get_dbus_menu_helper(MenuWidget w, ViewProps props)
         {
+            DesktopAppInfo? app = resolve_app(props);
+            string title = get_title(app, props);
             return new DBusMenuHelper(w,
                 props.kde_service_name,
                 (ObjectPath) props.kde_object_path,
-                props.title,
-                null);
+                title,
+                app);
         }
 
         private DBusAppMenu get_stub_helper(MenuWidget w, ViewProps props)
         {
-            return new DBusAppMenu(w, props.title, null, null);
+            DesktopAppInfo? app = resolve_app(props);
+            string title = get_title(app, props);
+            return new DBusAppMenu(w, title, null, app);
         }
     }
 }
