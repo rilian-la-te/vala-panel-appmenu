@@ -209,8 +209,7 @@ G_GNUC_INTERNAL void dbus_menu_exporter_queue_layout_updated(DBusMenuExporter *s
 
 static gboolean check_invocation(DBusMenuExporter *self, GDBusMethodInvocation *invocation, gint id)
 {
-	DBusMenuExporterItem *item;
-	if (id < 0 || (item = dbus_menu_exporter_get_by_id(self, id)) == NULL)
+	if (id < 0 || (dbus_menu_exporter_get_by_id(self, id)) == NULL)
 	{
 		g_dbus_method_invocation_return_error(invocation,
 		                                      G_DBUS_ERROR,
