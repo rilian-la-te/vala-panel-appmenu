@@ -65,7 +65,7 @@ public class GlobalMenuApplet: Applet
     {
         Object(uuid: uuid);
         settings_schema = "org.valapanel.appmenu";
-        settings_prefix = "/com/solus-project/budgie-panel/instance/appmenu";
+        settings_prefix = "/org/buddiesofbudgie/budgie-panel/instance/appmenu";
         settings = get_applet_settings(uuid);
         var layout = new Appmenu.MenuWidget();
         layout.add.connect_after((w)=>{

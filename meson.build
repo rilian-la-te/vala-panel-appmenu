@@ -77,7 +77,7 @@ xp = dependency('libxfce4panel-2.0', required: get_option('xfce'))
 xc = dependency('libxfconf-0', required: get_option('xfce'))
 xfce_found = xp.found() and xc.found()
 
-bp = dependency('budgie-1.0', required: get_option('budgie'))
+bp = dependency(['budgie-3.0', 'budgie-2.0', 'budgie-1.0'], required: get_option('budgie'))
 budgie_found = bp.found()
 
 
