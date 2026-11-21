@@ -1,0 +1,165 @@
+name: CI
+
+on:
+  push:
+  workflow_dispatch:
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build-applet-alpine:
+    runs-on: ubuntu-latest
+    container: alpine:edge
+    steps:
+      - name: Install dependencies
+        shell: sh
+        run: apk add --no-cache nodejs git meson ninja build-base xz gobject-introspection-dev gtk+3.0-dev vala libwnck3-dev wayland-protocols wayland-dev json-glib-dev
+      - name: Fix git safe.directory
+        shell: sh
+        run: git config --global --add safe.directory '*'
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Build vala-panel-appmenu
+        shell: sh
+        run: |
+          git clone https://gitlab.com/vala-panel-project/vala-panel.git
+          meson --prefix=/usr vp-build vala-panel && meson install -C vp-build && rm -rf vala-panel vp-build
+          meson --prefix=/usr -Dregistrar=disabled -Djayatana=disabled -Dappmenu-gtk-module=disabled build
+          meson compile -C build
+          meson install -C build --no-rebuild
+          meson dist -C build --no-tests
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v5
+#        uses: https://code.forgejo.org/forgejo/upload-artifact@v5
+        with:
+          name: vala-panel-appmenu
+          path: build/meson-dist/vala-panel-appmenu*.tar.xz
+          retention-days: 7
+
+  build-gtk-module-main:
+    runs-on: ubuntu-latest
+    container: alpine:edge
+    env:
+      XDG_RUNTIME_DIR: /tmp/runtime-dir
+      GDK_BACKEND: wayland
+      NO_AT_BRIDGE: '1'
+    steps:
+      - name: Install dependencies
+        shell: sh
+        run: apk add --no-cache nodejs python3 glib-dev meson ninja xz build-base git curl gtk+3.0-dev gtk+2.0-dev libwnck3-dev wayland-protocols wayland-dev gobject-introspection-dev vala weston mutter dbus nodejs
+      - name: Fix git safe.directory
+        shell: sh
+        run: git config --global --add safe.directory '*'
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Build and test appmenu-gtk-module
+        shell: sh
+        run: |
+          export VERSION=$(git describe --abbrev=0)
+          mkdir -p -m 700 "$XDG_RUNTIME_DIR"
+          mkdir -p subprojects/appmenu-gtk-module/subprojects
+          ln -s ../../appmenu-glib-translator subprojects/appmenu-gtk-module/subprojects/appmenu-glib-translator
+          meson --prefix=/usr -Dtests=true build subprojects/appmenu-gtk-module
+          meson compile -C build
+          dbus-run-session -- mutter --headless --wayland --no-x11 --virtual-monitor 1024x768 -- meson test -C build --verbose
+          meson install -C build --no-rebuild
+          meson dist -C build --no-tests
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v5
+#        uses: https://code.forgejo.org/forgejo/upload-artifact@v5
+        with:
+          name: appmenu-gtk-module
+          path: build/meson-dist/appmenu-gtk-module*.tar.xz
+          retention-days: 7
+
+  build-glib-translator-main:
+    runs-on: ubuntu-latest
+    container: alpine:edge
+    steps:
+      - name: Install dependencies
+        shell: sh
+        run: apk add --no-cache nodejs python3 glib-dev meson ninja xz build-base git curl gobject-introspection-dev vala dbus
+      - name: Fix git safe.directory
+        shell: sh
+        run: git config --global --add safe.directory '*'
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Build and test appmenu-glib-translator
+        shell: sh
+        run: |
+          export VERSION=$(git describe --abbrev=0)
+          meson --prefix=/usr -Dtests=true build subprojects/appmenu-glib-translator
+          meson compile -C build
+          meson test -C build --verbose
+          meson install -C build --no-rebuild
+          meson dist -C build --no-tests
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v5
+#        uses: https://code.forgejo.org/forgejo/upload-artifact@v5
+        with:
+          name: appmenu-glib-translator
+          path: build/meson-dist/appmenu-glib-translator*.tar.xz
+          retention-days: 7
+
+  build-registrar-main:
+    runs-on: ubuntu-latest
+    container: alpine:edge
+    steps:
+      - name: Install dependencies
+        shell: sh
+        run: apk add --no-cache python3 glib-dev meson ninja xz build-base git curl
+      - name: Fix git safe.directory
+        shell: sh
+        run: git config --global --add safe.directory '*'
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Build registrar
+        shell: sh
+        run: |
+          export VERSION=$(git describe --abbrev=0)
+          meson --prefix=/usr --libexecdir=lib build subprojects/registrar
+          meson compile -C build
+          meson install -C build --no-rebuild
+          meson dist -C build --no-tests
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v5
+#        uses: https://code.forgejo.org/forgejo/upload-artifact@v5
+        with:
+          name: registrar
+          path: build/meson-dist/registrar*.tar.xz
+          retention-days: 7
+
+  build-jayatana-main:
+    runs-on: ubuntu-latest
+    container: alpine:edge
+    steps:
+      - name: Install dependencies
+        shell: sh
+        run: apk add --no-cache python3 glib-dev meson ninja xz build-base git curl libdbusmenu-glib-dev libxkbcommon-dev libx11-dev java-common openjdk21-jdk
+      - name: Fix git safe.directory
+        shell: sh
+        run: git config --global --add safe.directory '*'
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Build jayatana
+        shell: sh
+        run: |
+          export VERSION=$(git describe --abbrev=0)
+          meson --prefix=/usr --libexecdir=lib build subprojects/jayatana
+          meson compile -C build
+          meson install -C build --no-rebuild
+          meson dist -C build --no-tests
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v5
+#        uses: https://code.forgejo.org/forgejo/upload-artifact@v5
+        with:
+          name: jayatana
+          path: build/meson-dist/jayatana*.tar.xz
+          retention-days: 7
