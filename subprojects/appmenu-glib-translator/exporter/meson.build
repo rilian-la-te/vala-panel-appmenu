@@ -19,4 +19,5 @@ exp_internal_sources = files(
 
 exp_sources = exp_internal_sources
 exp_public = ['exporter/exporter.h']
+exp_for_gir = ['exporter.h']
 exp_inc = include_directories('.')

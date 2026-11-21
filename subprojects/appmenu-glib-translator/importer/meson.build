@@ -12,4 +12,5 @@ imp_sources = files(
     )
 
 imp_public = ['importer/importer.h']
+imp_for_gir = ['importer.h']
 imp_inc = include_directories('.')

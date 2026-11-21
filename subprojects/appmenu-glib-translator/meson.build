@@ -40,6 +40,15 @@ translator_name = 'appmenu-glib-translator'
 translator_public = [imp_public, exp_public]
 translator_inc = [include_directories('.'), imp_inc, exp_inc]
 
+translator_gir_headers = []
+foreach h : translator_public
+    translator_gir_headers += configure_file(
+        input: h,
+        output: '@PLAINNAME@',
+        copy: true
+    )
+endforeach
+
 translator_lib = library(translator_name,
 common_sources, translator_enums_gen, translator_dbus, imp_sources, exp_sources,
     dependencies: [giounix, gdkpixbuf],
@@ -61,9 +70,9 @@ pkgconfig.generate(translator_lib,
             )
 
 translator_gir = gnome.generate_gir(translator_lib,
-                    sources: translator_public,
+                    sources: translator_gir_headers,
                     includes: ['GObject-2.0', 'Gio-2.0'],
-                    header: translator_public,
+                    header: [imp_for_gir, exp_for_gir],
                     namespace: 'AppmenuGLibTranslator',
                     identifier_prefix: 'DBusMenu',
                     symbol_prefix: 'dbus_menu',
