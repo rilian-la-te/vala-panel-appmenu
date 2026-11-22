@@ -54,6 +54,21 @@ Add to this file:
     - If it is just created, `[Settings]`
     - And then ``gtk-modules="appmenu-gtk-module"``
 
+**IF ABOVE DOES NOT WORK AND YOU ARE USING SYSTEMD**
+* Add file with this contents to /usr/lib/systemd/user-environment-generators/
+
+```sh
+#!/bin/sh
+
+case ":$GTK_MODULES:" in
+    *:appmenu-gtk-module:*) echo "GTK_MODULES=$GTK_MODULES" ;;
+    *) echo "GTK_MODULES=${GTK_MODULES:+$GTK_MODULES:}appmenu-gtk-module" ;;
+esac
+
+[ -z "$UBUNTU_MENUPROXY" ] && echo "UBUNTU_MENUPROXY=1"
+exit 0
+```
+
 **IF ABOVE DOES NOT WORK**
 * Add to .profile or .bashrc:
 
