@@ -45,8 +45,7 @@ namespace Appmenu
         };
         public DesktopHelper(MenuWidget w)
         {
-    //            if(window != null)
-    //                base(w,null,window);
+
             this.widget = w;
             var group = new SimpleActionGroup();
             group.add_action_entries(menu_entries,this);
@@ -72,15 +71,15 @@ namespace Appmenu
         }
         internal void activate_menu_id(SimpleAction action, Variant? param)
         {
-            Launcher.activate_menu_launch_id(action,param,this);
+            Launcher.activate_menu_launch_id(action,param,widget);
         }
         internal void activate_menu_uri(SimpleAction action, Variant? param)
         {
-            Launcher.activate_menu_launch_uri(action,param,this);
+            Launcher.activate_menu_launch_uri(action,param,widget);
         }
         internal void activate_menu_command(SimpleAction action, Variant? param)
         {
-            Launcher.activate_menu_launch_command(action,param,this);
+            Launcher.activate_menu_launch_command(action,param,widget);
         }
         public void activate_menu_launch_type(SimpleAction action, Variant? param)
         {
