@@ -22,7 +22,7 @@
  *          Lester Carballo Perez <lestcape@gmail.com>
  */
 
-#include <gtk/gtk.h>
+#include <gio/gio.h>
 
 #include "blacklist.h"
 #include "consts.h"
