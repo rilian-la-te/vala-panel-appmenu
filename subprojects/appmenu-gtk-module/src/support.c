@@ -25,20 +25,6 @@
 #include <gdk/gdk.h>
 #include <gtk/gtk.h>
 
-#if (GTK_MAJOR_VERSION < 3) || defined(GDK_WINDOWING_X11)
-#include <gdk/gdkx.h>
-#else
-#define GDK_IS_X11_DISPLAY(display) 0
-#endif
-
-#if GTK_MAJOR_VERSION >= 3
-#ifdef GDK_WINDOWING_WAYLAND
-#include <gdk/gdkwayland.h>
-#else
-#define GDK_IS_WAYLAND_DISPLAY(display) 0
-#endif
-#endif
-
 #include <appmenu-gtk-action-group.h>
 #include <appmenu-gtk-menu-shell.h>
 
