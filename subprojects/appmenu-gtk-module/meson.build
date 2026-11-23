@@ -65,5 +65,7 @@ subdir('wayland')
 subdir('lib')
 subdir('src')
 subdir('data')
-subdir('docs')
+if get_option('docs') and build_gtk3
+    subdir('docs')
+endif
 subdir('tests')

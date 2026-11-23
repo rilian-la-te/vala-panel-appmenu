@@ -22,10 +22,12 @@
  * @short_description: Action group collector
  * @include: unity-gtk-parser.h
  *
- * A #UnityGtkActionGroup is a #GActionGroup that accumulates the
- * actions of multiple #UnityGtkMenuShell<!-- -->s into a single object.
- * This can be used for purposes such as exporting actions over DBus
- * with g_dbus_connection_export_action_group ().
+ * A [UnityGtkActionGroup](class.ActionGroup.html) is a
+ * [GActionGroup](https://docs.gtk.org/gio/interface.ActionGroup.html) that
+ * accumulates the actions of multiple
+ * [UnityGtkMenuShell](class.MenuShell.html)s into a single object. This can be
+ * used for purposes such as exporting actions over DBus with
+ * `g_dbus_connection_export_action_group()`.
  */
 
 #include "unity-gtk-action-group-private.h"
@@ -698,16 +700,15 @@ static void unity_gtk_action_group_init(UnityGtkActionGroup *self)
 
 /**
  * unity_gtk_action_group_new:
- * @old_group: a fallback #GActionGroup.
+ * @old_group: a fallback [GActionGroup](https://docs.gtk.org/gio/interface.ActionGroup.html).
  *
- * Creates a new #UnityGtkMenuShell based on the contents of the given
- * @menu_shell. Any subsequent changes to @menu_shell are reflected in
- * the returned #UnityGtkMenuShell.
+ * Creates a new [UnityGtkActionGroup](class.ActionGroup.html) that collects the
+ * actions of any attached [UnityGtkMenuShell](class.MenuShell.html)s.
  *
- * Actions not found in an attached #UnityGtkMenuShell are queried in
- * @old_group before failing.
+ * Actions not found in an attached [UnityGtkMenuShell](class.MenuShell.html)
+ * are queried in @old_group before failing.
  *
- * Returns: a new #UnityGtkActionGroup.
+ * Returns: (transfer full): a new [UnityGtkActionGroup](class.ActionGroup.html).
  */
 UnityGtkActionGroup *unity_gtk_action_group_new(GActionGroup *old_group)
 {
@@ -1246,8 +1247,8 @@ void unity_gtk_action_group_disconnect_item(UnityGtkActionGroup *group, UnityGtk
 
 /**
  * unity_gtk_action_group_connect_shell:
- * @group: a #UnityGtkActionGroup.
- * @shell: a #UnityGtkMenuShell.
+ * @group: a [UnityGtkActionGroup](class.ActionGroup.html).
+ * @shell: a [UnityGtkMenuShell](class.MenuShell.html).
  *
  * Creates actions for all menu items in @shell and adds them to @group.
  * Subsequent changes to @shell also affect @group.
@@ -1294,8 +1295,8 @@ void unity_gtk_action_group_connect_shell(UnityGtkActionGroup *group, UnityGtkMe
 
 /**
  * unity_gtk_action_group_disconnect_shell:
- * @group: a #UnityGtkActionGroup.
- * @shell: a #UnityGtkMenuShell.
+ * @group: a [UnityGtkActionGroup](class.ActionGroup.html).
+ * @shell: a [UnityGtkMenuShell](class.MenuShell.html).
  *
  * Removes the actions for @shell from @group.
  */

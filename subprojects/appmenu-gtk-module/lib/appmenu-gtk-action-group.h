@@ -36,7 +36,8 @@ G_BEGIN_DECLS
 /**
  * UnityGtkActionGroup:
  *
- * Opaque action group collector for #UnityGtkMenuShell.
+ * Opaque action group collector for
+ * [UnityGtkMenuShell](class.MenuShell.html).
  */
 struct _UnityGtkActionGroup
 {

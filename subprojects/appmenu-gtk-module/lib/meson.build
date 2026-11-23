@@ -69,3 +69,17 @@ endif
 if build_gtk2 or build_gtk3
     install_headers(lib_headers, subdir: 'appmenu-gtk-parser')
 endif
+
+# gi-docgen consumes a GObject-Introspection GIR; generate one from the GTK3
+# parser library (the public API is identical across GTK versions).
+if build_gtk3 and get_option('docs')
+    parser_gir = gnome.generate_gir(gtk3_parser_lib,
+        sources: lib_headers + lib_sources,
+        includes: [ 'GObject-2.0', 'Gio-2.0', 'Gtk-3.0' ],
+        namespace: 'AppmenuGtkParser',
+        identifier_prefix: 'UnityGtk',
+        symbol_prefix: 'unity_gtk',
+        nsversion: meson.project_version(),
+        install: true
+    )
+endif

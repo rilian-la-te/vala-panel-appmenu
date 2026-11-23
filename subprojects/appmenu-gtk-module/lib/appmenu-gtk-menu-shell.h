@@ -36,7 +36,8 @@ G_BEGIN_DECLS
 /**
  * UnityGtkMenuShell:
  *
- * Opaque #GMenuModel proxy for #GtkMenuShell.
+ * Opaque [GMenuModel](https://docs.gtk.org/gio/class.MenuModel.html) proxy for
+ * [GtkMenuShell](https://docs.gtk.org/gtk3/class.MenuShell.html).
  */
 struct _UnityGtkMenuShell
 {

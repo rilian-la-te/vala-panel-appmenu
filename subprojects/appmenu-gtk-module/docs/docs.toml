@@ -1,0 +1,29 @@
+[library]
+version = "26.11"
+description = "appmenu-gtk-module parser - small library to parse a GtkMenuShell into a Gio.MenuModel"
+authors = "Canonical Ltd.; Konstantin Pugin <ria.freelander@gmail.com>"
+license = "LGPL-3.0-or-later"
+website_url = "https://gitlab.com/vala-panel-project/vala-panel-appmenu"
+browse_url = "https://gitlab.com/vala-panel-project/vala-panel-appmenu/-/tree/master/subprojects/appmenu-gtk-module"
+repository_url = "https://gitlab.com/vala-panel-project/vala-panel-appmenu.git"
+dependencies = ["GObject-2.0", "Gio-2.0", "Gtk-3.0"]
+devhelp = true
+search_index = true
+
+[extra]
+content_files = ["overview.md"]
+
+[dependencies."GObject-2.0"]
+name = "GObject"
+description = "The base type system library"
+docs_url = "https://docs.gtk.org/gobject/"
+
+[dependencies."Gio-2.0"]
+name = "Gio"
+description = "GObject Interfaces and Objects"
+docs_url = "https://docs.gtk.org/gio/"
+
+[dependencies."Gtk-3.0"]
+name = "GTK+ 3"
+description = "The GTK+ user interface toolkit"
+docs_url = "https://docs.gtk.org/gtk3/"
