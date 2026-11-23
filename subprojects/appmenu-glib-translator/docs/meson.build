@@ -6,14 +6,13 @@ custom_target(
   'appmenu-glib-translator-doc',
   input: [
     'docs.toml',
-    translator_gir[0], # Если gir_target — это массив из .gir и .typelib, берем первый элемент (.gir)
+    translator_gir[0],
   ],
-  output: 'AppmenuGLibTranslator-26.11',
+  output: 'AppmenuGLibTranslator-@0@'.format(meson.project_version()),
   command: [
     gidocgen,
     'generate',
     '--quiet',
-    '--add-include-path=@0@'.format(meson.current_build_dir() / '..'),
     '--config=@INPUT0@',
     '--output-dir=@OUTPUT@',
     '--no-namespace-dir',
