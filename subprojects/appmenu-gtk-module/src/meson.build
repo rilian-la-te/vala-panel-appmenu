@@ -11,6 +11,8 @@ module_sources = files(
     'blacklist.h',
     'platform.c',
     'platform.h',
+    'settings.c',
+    'settings.h',
     'consts.h'
 )
 

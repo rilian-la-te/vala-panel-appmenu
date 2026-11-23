@@ -22,7 +22,6 @@ pkgconfig = import('pkgconfig')
 prefix = get_option('prefix')
 datadir = get_option('datadir')
 localedir = get_option('localedir')
-schema_dir = join_paths(get_option('datadir'), 'glib-2.0', 'schemas')
 docdir = join_paths(prefix,datadir, 'doc')
 
 ################

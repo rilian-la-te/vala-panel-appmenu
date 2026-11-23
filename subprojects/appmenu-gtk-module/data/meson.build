@@ -1,6 +1,8 @@
-install_data([
-    'org.appmenu.gtk-module.gschema.xml'
-], install_dir: schema_dir)
+sysconf_xdg_dir = join_paths(get_option('sysconfdir'), 'xdg')
+
+install_data('appmenu-gtk-module.conf',
+    install_dir: sysconf_xdg_dir
+)
 
 systemd = dependency('systemd', required: false)
 

@@ -26,6 +26,7 @@
 
 #include "blacklist.h"
 #include "consts.h"
+#include "settings.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -51,9 +52,17 @@ bool is_blacklisted(const char *name) {
 	if (!name)
 		return false;
 
-	g_autoptr(GSettings) settings = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
-	g_autoptr(GVariant) arrayv = g_settings_get_value(settings, BLACKLIST_KEY);
-	g_autofree const char** array = g_variant_get_strv(arrayv, NULL);
+	bool hardcoded_blacklist = g_strv_contains(BLACKLIST, name);
 
-	return g_strv_contains(BLACKLIST, name) || g_strv_contains(array, name); 
+	GKeyFile *settings = appmenu_settings_get();
+	GError *error      = NULL;
+	g_auto(GStrv) array =
+	    g_key_file_get_string_list(settings, APPMENU_CORE_CONFIG, BLACKLIST_KEY, NULL, &error);
+	if (error)
+	{
+		g_clear_error(&error);
+		return hardcoded_blacklist;
+	}
+
+	return hardcoded_blacklist || g_strv_contains((const char *const *)array, name);
 }

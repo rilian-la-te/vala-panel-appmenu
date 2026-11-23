@@ -25,7 +25,8 @@
 #ifndef CONSTS_H
 #define CONSTS_H
 
-#define UNITY_GTK_MODULE_SCHEMA "org.appmenu.gtk-module"
+#define APPMENU_CONFIG_FILE "appmenu-gtk-module.conf"
+#define APPMENU_CORE_CONFIG "Core"
 #define BLACKLIST_KEY "blacklist"
 #define SHELL_OVERRIDE_KEY "shell-override"
 #define BACKENDS_ALLOWED "backends-allowed"

@@ -32,6 +32,7 @@
 #include "consts.h"
 #include "support.h"
 #include "platform.h"
+#include "settings.h"
 
 static bool is_true(const char *value)
 {
@@ -168,8 +169,17 @@ static bool set_gtk_shell_shows_menubar(bool shows)
 	GParamSpec *pspec =
 	    g_object_class_find_property(G_OBJECT_GET_CLASS(settings), "gtk-shell-shows-menubar");
 
-	g_autoptr(GSettings) gsettings = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
-	bool override                  = g_settings_get_boolean(gsettings, SHELL_OVERRIDE_KEY);
+	GKeyFile *gsettings = appmenu_settings_get();
+	bool override       = true;
+	GError *error = NULL;
+	gboolean value = g_key_file_get_boolean(gsettings,
+												APPMENU_CORE_CONFIG,
+												SHELL_OVERRIDE_KEY,
+												&error);
+	if (error)
+		g_clear_error(&error);
+	else
+		override = value;
 
 	if (pspec && pspec->value_type == G_TYPE_BOOLEAN && override)
 		g_object_set(settings, "gtk-shell-shows-menubar", shows, NULL);

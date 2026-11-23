@@ -26,6 +26,7 @@
 #include "consts.h"
 #include "datastructs-private.h"
 #include "datastructs.h"
+#include "settings.h"
 
 extern const ModuleBackend x11_platform __attribute__((weak));
 extern const ModuleBackend gtk_shell_platform __attribute__((weak));
@@ -39,8 +40,22 @@ static const ModuleBackend *const backends[] = {
 };
 
 static bool is_backend_allowed(const ModuleBackend* backend) {
-	g_autoptr(GSettings) gsettings = g_settings_new(UNITY_GTK_MODULE_SCHEMA);
-	g_auto(GStrv) backends_allowed = g_settings_get_strv(gsettings, BACKENDS_ALLOWED);
+	GKeyFile *gsettings = appmenu_settings_get();
+	if (!gsettings)
+	    return true;
+
+	GError *error = NULL;
+	g_auto(GStrv) backends_allowed = g_key_file_get_string_list(gsettings,
+	                                                            APPMENU_CORE_CONFIG,
+	                                                            BACKENDS_ALLOWED,
+	                                                            NULL,
+	                                                            &error);
+	if (error) {
+		/* No configuration means all implemented backends are allowed. */
+		g_clear_error(&error);
+		return true;
+	}
+
 	return g_strv_contains((const gchar * const*)backends_allowed, backend->name);
 }
 
