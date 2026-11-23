@@ -12,11 +12,11 @@ lib_private_headers = [
     'unity-gtk-menu-section-private.h',
     'unity-gtk-menu-item-private.h',
 ]
-lib_headers = files(
+lib_headers = [
 	'appmenu-gtk-action-group.h',
 	'appmenu-gtk-menu-shell.h',
 	'appmenu-gtk-parser.h'
-)
+]
 
 parser_inc = include_directories('.')
 parser_kwargs = {
@@ -70,13 +70,12 @@ if build_gtk2 or build_gtk3
     install_headers(lib_headers, subdir: 'appmenu-gtk-parser')
 endif
 
-# gi-docgen consumes a GObject-Introspection GIR; generate one from the GTK3
-# parser library (the public API is identical across GTK versions).
-if build_gtk3 and get_option('docs')
+if build_gtk3
     parser_gir = gnome.generate_gir(gtk3_parser_lib,
         sources: lib_headers + lib_sources,
         includes: [ 'GObject-2.0', 'Gio-2.0', 'Gtk-3.0' ],
         namespace: 'AppmenuGtkParser',
+        header: lib_headers,
         identifier_prefix: 'UnityGtk',
         symbol_prefix: 'unity_gtk',
         nsversion: meson.project_version(),
