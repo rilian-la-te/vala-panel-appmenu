@@ -48,8 +48,6 @@ struct _UnityGtkActionGroup
 	GHashTable *names_by_radio_menu_item;
 };
 
-GType unity_gtk_action_group_get_type(void);
-
 UnityGtkActionGroup *unity_gtk_action_group_new(GActionGroup *old_group);
 
 void unity_gtk_action_group_connect_shell(UnityGtkActionGroup *group, UnityGtkMenuShell *shell);
