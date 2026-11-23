@@ -25,7 +25,7 @@
 #ifndef CONSTS_H
 #define CONSTS_H
 
-#define APPMENU_CONFIG_DIR "appmenu-gtk-module"
+#define APPMENU_CONFIG_DIR "@PROJECT_NAME@"
 #define APPMENU_DEFAULT_CONFIG "default.conf"
 #define APPMENU_CORE_CONFIG "Core"
 #define BLACKLIST_KEY "blacklist"

@@ -1,7 +1,7 @@
 sysconf_xdg_dir = join_paths(get_option('sysconfdir'), 'xdg')
 
 install_data('default.conf',
-    install_dir: join_paths(sysconf_xdg_dir, 'appmenu-gtk-module')
+    install_dir: join_paths(sysconf_xdg_dir, meson.project_name())
 )
 
 systemd = dependency('systemd', required: false)

@@ -13,8 +13,17 @@ module_sources = files(
     'platform.h',
     'settings.c',
     'settings.h',
-    'consts.h'
 )
+
+conf_data = configuration_data()
+conf_data.set('PROJECT_NAME', meson.project_name())
+appmenu_config_h = configure_file(
+    input: 'consts.h.in',
+    output: 'consts.h',
+    configuration: conf_data
+)
+module_sources += appmenu_config_h
+appmenu_inc = include_directories('.')
 
 x11_sources = files(
     'platform-x11.c'
