@@ -1,7 +1,7 @@
 sysconf_xdg_dir = join_paths(get_option('sysconfdir'), 'xdg')
 
-install_data('appmenu-gtk-module.conf',
-    install_dir: sysconf_xdg_dir
+install_data('default.conf',
+    install_dir: join_paths(sysconf_xdg_dir, 'appmenu-gtk-module')
 )
 
 systemd = dependency('systemd', required: false)

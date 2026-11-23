@@ -37,12 +37,13 @@ static void merge_config_file(GKeyFile *key_file, const char *path)
 		merge_keyfile(key_file, file);
 }
 
-/* Handle XDG_CURRENT_DESKTOP to allow per-desktop settings*/
+/* Handle XDG_CURRENT_DESKTOP to allow per-desktop settings. The file lives in
+ * APPMENU_CONFIG_DIR as "<lowercase-desktop>.conf". */
 static void load_desktop_config(GKeyFile *key_file, const char *dir, const char *desktop)
 {
 	g_autofree char *lower = g_ascii_strdown(desktop, -1);
-	g_autofree char *name  = g_strdup_printf("%s-%s", lower, APPMENU_CONFIG_FILE);
-	g_autofree char *path  = g_build_filename(dir, name, NULL);
+	g_autofree char *name  = g_strdup_printf("%s.conf", lower);
+	g_autofree char *path  = g_build_filename(dir, APPMENU_CONFIG_DIR, name, NULL);
 	merge_config_file(key_file, path);
 }
 
@@ -62,7 +63,7 @@ static void load_desktop_config_for_dir(GKeyFile *key_file, const char *dir)
 
 static void load_generic_config(GKeyFile *key_file, const char *dir)
 {
-	g_autofree char *path = g_build_filename(dir, APPMENU_CONFIG_FILE, NULL);
+	g_autofree char *path = g_build_filename(dir, APPMENU_CONFIG_DIR, APPMENU_DEFAULT_CONFIG, NULL);
 	merge_config_file(key_file, path);
 }
 
