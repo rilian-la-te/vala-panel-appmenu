@@ -278,9 +278,17 @@ static void unity_gtk_menu_shell_hide_item(UnityGtkMenuShell *shell, UnityGtkMen
 				else
 					g_warn_if_reached();
 			}
-
-			unity_gtk_action_group_disconnect_item(shell->action_group, item);
 		}
+
+		/* The item's own action is disconnected only *after* the model below
+		 * emits its "items-changed". Removing it beforehand retires the action
+		 * provider, so when the exporter tracker reacts to that change by closing
+		 * a submenu opener (see gtk_action_node_change_state in the vendored
+		 * gtkmenutrackeritem) the provider route is already gone and nothing sinks
+		 * the floating close-state variant - leaking it. Upstream GTK3 avoids this
+		 * by tearing its menu tracker down before its muxer; we mirror that here by
+		 * closing openers (via items-changed) while the provider is still live,
+		 * then dropping the action. */
 
 		if (separator_indices != NULL)
 		{
@@ -395,6 +403,11 @@ static void unity_gtk_menu_shell_hide_item(UnityGtkMenuShell *shell, UnityGtkMen
 			else
 				g_warn_if_reached();
 		}
+
+		/* Now that the model has reported the removal and any submenu openers are
+		 * closed with their provider still resolvable, retire the action. */
+		if (shell->action_group != NULL)
+			unity_gtk_action_group_disconnect_item(shell->action_group, item);
 	}
 }
 

@@ -1183,11 +1183,24 @@ void unity_gtk_action_group_disconnect_item(UnityGtkActionGroup *group, UnityGtk
 						                    item->menu_item);
 					else
 						g_warn_if_reached();
-
+					/* Retire the primary action first, then the submenu action used
+					 * to detect opening and closing. The vendored exporter tracker
+					 * closes a parent submenu opener by calling change_state on the
+					 * parent route when its provider is removed; if we dropped the
+					 * submenu action first that route would already be unresolved and
+					 * the close-state variant would leak. Removing name before subname
+					 * keeps the provider live through the cascade. */
 					if (g_hash_table_size(action->items_by_name) == 0)
 					{
-						/* Remove the submenu action used to detect opening
-						 * and closing. */
+						if (group->actions_by_name != NULL)
+							g_hash_table_remove(group->actions_by_name,
+							                    action->name);
+						else
+							g_warn_if_reached();
+
+						g_action_group_action_removed(G_ACTION_GROUP(group),
+						                              action->name);
+
 						if (action->subname != NULL)
 						{
 							if (group->actions_by_name != NULL)
@@ -1200,15 +1213,6 @@ void unity_gtk_action_group_disconnect_item(UnityGtkActionGroup *group, UnityGtk
 							g_action_group_action_removed(
 							    G_ACTION_GROUP(group), action->subname);
 						}
-
-						if (group->actions_by_name != NULL)
-							g_hash_table_remove(group->actions_by_name,
-							                    action->name);
-						else
-							g_warn_if_reached();
-
-						g_action_group_action_removed(G_ACTION_GROUP(group),
-						                              action->name);
 					}
 				}
 				else
@@ -1219,6 +1223,16 @@ void unity_gtk_action_group_disconnect_item(UnityGtkActionGroup *group, UnityGtk
 		}
 		else
 		{
+			/* Primary action first, submenu action second - see the note above:
+			 * closing a parent submenu opener resolves through this provider, so it
+			 * must still be live when the primary removal cascades. */
+			if (group->actions_by_name != NULL)
+				g_hash_table_remove(group->actions_by_name, action->name);
+			else
+				g_warn_if_reached();
+
+			g_action_group_action_removed(G_ACTION_GROUP(group), action->name);
+
 			/* Remove the submenu action used to detect opening and closing. */
 			if (action->subname != NULL)
 			{
@@ -1231,13 +1245,6 @@ void unity_gtk_action_group_disconnect_item(UnityGtkActionGroup *group, UnityGtk
 				g_action_group_action_removed(G_ACTION_GROUP(group),
 				                              action->subname);
 			}
-
-			if (group->actions_by_name != NULL)
-				g_hash_table_remove(group->actions_by_name, action->name);
-			else
-				g_warn_if_reached();
-
-			g_action_group_action_removed(G_ACTION_GROUP(group), action->name);
 		}
 	}
 
