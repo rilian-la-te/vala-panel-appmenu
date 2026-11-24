@@ -18,6 +18,16 @@ invasive_fixture_dep = declare_dependency(
 )
 
 names = [
+    'kde-title',
+    'kde-title-relabelled',
+    'kde-title-cleared',
+    'kde-title-two-items',
+    'kde-title-shrink',
+    'kde-title-run',
+    'kde-title-hidden',
+    'kde-title-leading',
+    'kde-title-leading-cleared',
+    'kde-title-leading-hidden',
     'dummy-labels-only',
     'separator-run'
 ]
