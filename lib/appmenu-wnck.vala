@@ -25,7 +25,6 @@ namespace Appmenu
     {
         private HashTable<uint,unowned Wnck.Window> desktop_menus;
         private ValaPanel.Matcher matcher = ValaPanel.Matcher.get();
-        private Helper helper;
         private Wnck.Window active_window;
         private int menu_update_delay = 500; // should be close enough to avoid flickering
         private uint delayed_menu_update_id = 0;

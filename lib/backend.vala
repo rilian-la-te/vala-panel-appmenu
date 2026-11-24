@@ -25,6 +25,7 @@ namespace Appmenu
     {
         protected ModelType type = ModelType.NONE;
         protected static DBusMenuRegistrarProxy proxy;
+        protected Helper? helper = null;
         public static TitleFilter? title_filter = null;
         static construct
         {

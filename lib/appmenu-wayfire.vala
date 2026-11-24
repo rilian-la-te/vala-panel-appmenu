@@ -248,7 +248,6 @@ namespace Appmenu
 
         private WayfireClient? wayfire = null;
         private ValaPanel.Matcher matcher;
-        private Helper? helper = null;
 
         private int        active_view_id = -1;
         private ViewProps? active_props   = null;

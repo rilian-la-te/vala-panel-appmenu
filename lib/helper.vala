@@ -14,7 +14,7 @@ namespace Appmenu
     }
     [CCode (has_target = false)]
     public delegate string? TitleFilter(int64 pid, string? class_name, string? window_name);
-    internal abstract class Helper: Object
+    public abstract class Helper: Object
     {
         protected static GLib.MenuModel create_model(GLib.MenuModel? appmenu, GLib.MenuModel? menubar, bool compact_mode)
         {
