@@ -308,7 +308,7 @@ static void dbus_menu_item_update_section_label(DBusMenuItem *item, GVariant **l
 {
 	if (*label)
 		g_hash_table_insert(item->attrs,
-		                     g_strdup(G_MENU_ATTRIBUTE_LABEL),
+		                     G_MENU_ATTRIBUTE_LABEL,
 		                     g_steal_pointer(label));
 	else
 		g_hash_table_remove_all(item->attrs);

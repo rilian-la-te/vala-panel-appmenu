@@ -45,7 +45,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, GActionGroup *act
 	item->enabled      = true;
 	item->toggled      = false;
 	item->attrs =
-	    g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)g_variant_unref);
+	    g_hash_table_new_full(g_str_hash, g_str_equal, NULL, (GDestroyNotify)g_variant_unref);
 	item->links = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, g_object_unref);
 	item->ref_action_group = g_object_ref(action_group);
 	item_set_magic(item);
@@ -128,8 +128,8 @@ G_GNUC_INTERNAL DBusMenuActionType dbus_menu_item_find_action_type(GVariant *pro
 G_GNUC_INTERNAL void dbus_menu_item_init_ordinary(DBusMenuModel *parent, DBusMenuItem *item)
 {
 	g_autofree char* name = dbus_menu_action_name(parent, item, false, true);
-	g_hash_table_insert(item->attrs, g_strdup(G_MENU_ATTRIBUTE_HIDDEN_WHEN), g_variant_new_string(G_MENU_HIDDEN_WHEN_ACTION_MISSING));
-	g_hash_table_insert(item->attrs, g_strdup(G_MENU_ATTRIBUTE_ACTION), g_variant_new_string(name));
+	g_hash_table_insert(item->attrs, G_MENU_ATTRIBUTE_HIDDEN_WHEN, g_variant_new_string(G_MENU_HIDDEN_WHEN_ACTION_MISSING));
+	g_hash_table_insert(item->attrs, G_MENU_ATTRIBUTE_ACTION, g_variant_new_string(name));
 }
 
 
@@ -187,7 +187,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_init(DBusMenuItem *item, DBusMenuMo
 				g_autofree char *name =
 				    dbus_menu_action_name(parent_model, item, true, true);
 				g_hash_table_insert(item->attrs,
-				                    g_strdup(G_MENU_ATTRIBUTE_SUBMENU_ACTION),
+				                    G_MENU_ATTRIBUTE_SUBMENU_ACTION,
 				                    g_variant_ref_sink(g_variant_new_string(name)));
 			}
 		}
@@ -202,22 +202,22 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_init(DBusMenuItem *item, DBusMenuMo
 				    dbus_menu_item_update_action_type(item->action_type,
 				                                      DBUS_MENU_ACTION_CHECKMARK);
 				g_hash_table_insert(item->attrs,
-				                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
+				                    G_MENU_ATTRIBUTE_ACTION,
 				                    g_variant_ref_sink(g_variant_new_string(name)));
-			}
-			else if (g_strcmp0(g_variant_get_string(value, NULL),
-			                   DBUS_MENU_TOGGLE_TYPE_RADIO) == 0)
+		}
+		else if (g_strcmp0(g_variant_get_string(value, NULL),
+		                   DBUS_MENU_TOGGLE_TYPE_RADIO) == 0)
 			{
 				item->action_type =
 				    dbus_menu_item_update_action_type(item->action_type,
 				                                      DBUS_MENU_ACTION_RADIO);
 				g_hash_table_insert(item->attrs,
-				                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
+				                    G_MENU_ATTRIBUTE_ACTION,
 				                    g_variant_ref_sink(g_variant_new_string(name)));
-				GVariant *vstr =
+			GVariant *vstr =
 				    g_variant_new_string(DBUS_MENU_ACTION_RADIO_SELECTED);
 				g_hash_table_insert(item->attrs,
-				                    g_strdup(G_MENU_ATTRIBUTE_TARGET),
+				                    G_MENU_ATTRIBUTE_TARGET,
 				                    g_variant_ref_sink(vstr));
 			}
 		}
@@ -237,7 +237,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_init(DBusMenuItem *item, DBusMenuMo
 			    dbus_menu_item_update_action_type(item->action_type,
 			                                      DBUS_MENU_ACTION_SECTION);
 			g_hash_table_insert(item->attrs,
-			                    g_strdup(G_MENU_ATTRIBUTE_LABEL),
+			                    G_MENU_ATTRIBUTE_LABEL,
 			                    g_variant_ref_sink(value));
 		}
 	}
@@ -246,12 +246,12 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_init(DBusMenuItem *item, DBusMenuMo
 		item->action_type     = DBUS_MENU_ACTION_NORMAL;
 		g_autofree char *name = dbus_menu_action_name(parent_model, item, false, true);
 		g_hash_table_insert(item->attrs,
-		                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
+		                    G_MENU_ATTRIBUTE_ACTION,
 		                    g_variant_ref_sink(g_variant_new_string(name)));
 	}
 	if (item->action_type != DBUS_MENU_ACTION_SECTION)
 		g_hash_table_insert(item->attrs,
-		                    g_strdup(G_MENU_ATTRIBUTE_LABEL),
+		                    G_MENU_ATTRIBUTE_LABEL,
 		                    g_variant_ref_sink(g_variant_new_string("")));
 	dbus_menu_item_update_props(item, props);
 	return item;
@@ -280,7 +280,7 @@ static bool attr_update_checked(DBusMenuItem *item, const char *key, GVariant *v
 		are_equal = g_variant_equal(old, value);
 	if (!are_equal)
 	{
-		g_hash_table_insert(item->attrs, g_strdup(key), g_variant_ref_sink(value));
+		g_hash_table_insert(item->attrs, (gpointer) key, g_variant_ref_sink(value));
 		return true;
 	}
 	return false;
@@ -341,7 +341,7 @@ G_GNUC_INTERNAL bool dbus_menu_item_update_enabled(DBusMenuItem *item, bool enab
 			else
 			{
 				g_hash_table_insert(item->attrs,
-				                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
+				                    G_MENU_ATTRIBUTE_ACTION,
 				                    g_variant_ref_sink(g_variant_new_string(
 				                        DBUS_MENU_DISABLED_ACTION)));
 			}
@@ -494,7 +494,7 @@ G_GNUC_INTERNAL DBusMenuUpdaterFlags dbus_menu_item_update_props(DBusMenuItem *i
 				if (found)
 				{
 					g_hash_table_insert(item->attrs,
-					                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
+					                    G_MENU_ATTRIBUTE_ACTION,
 					                    g_variant_ref_sink(g_variant_new_string(name)));
 					properties_is_updated = true;
 				}
@@ -506,11 +506,11 @@ G_GNUC_INTERNAL DBusMenuUpdaterFlags dbus_menu_item_update_props(DBusMenuItem *i
 				if (!found)
 				{
 					g_hash_table_insert(item->attrs,
-					                    g_strdup(G_MENU_ATTRIBUTE_HIDDEN_WHEN),
+					                    G_MENU_ATTRIBUTE_HIDDEN_WHEN,
 					                    g_variant_ref_sink(g_variant_new_string(
 					                        G_MENU_HIDDEN_WHEN_ACTION_MISSING)));
 					g_hash_table_insert(item->attrs,
-					                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
+					                    G_MENU_ATTRIBUTE_ACTION,
 					                    g_variant_ref_sink(g_variant_new_string(
 					                        DBUS_MENU_DISABLED_ACTION)));
 					properties_is_updated = true;
@@ -599,7 +599,7 @@ G_GNUC_INTERNAL DBusMenuUpdaterFlags dbus_menu_item_remove_props(DBusMenuItem *i
 			    dbus_menu_item_get_action_name(item, false, true);
 			g_hash_table_remove(item->attrs, G_MENU_ATTRIBUTE_HIDDEN_WHEN);
 			g_hash_table_insert(item->attrs,
-			                    g_strdup(G_MENU_ATTRIBUTE_ACTION),
+			                    G_MENU_ATTRIBUTE_ACTION,
 			                    g_variant_ref_sink(g_variant_new_string(name)));
 			item->visible = true;
 			properties_is_updated = old_vis != item->visible;
