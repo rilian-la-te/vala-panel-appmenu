@@ -41,7 +41,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_create(u_int32_t id, GActionGro
 	DBusMenuItem *item = g_slice_new0(DBusMenuItem);
 	item->id           = id;
 	item->action_type  = DBUS_MENU_ACTION_NONE;
-	item->enabled      = false;
+	item->enabled      = true;
 	item->toggled      = false;
 	item->attrs =
 	    g_hash_table_new_full(g_str_hash, g_str_equal, g_free, (GDestroyNotify)g_variant_unref);
