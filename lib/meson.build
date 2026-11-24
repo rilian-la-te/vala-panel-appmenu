@@ -1,5 +1,5 @@
 sources = files(
-    'appmenu-abstractions.vala',
+    'backend.vala',
     'registrar.vala',
     'menu-widget.vala',
     'helper.vala',
