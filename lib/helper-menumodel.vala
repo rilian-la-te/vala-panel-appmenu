@@ -58,7 +58,7 @@ namespace Appmenu
                 w.set_appmenu(appmenu);
             }
             else
-                dbus_helper = new DBusAppMenu(w, title, gtk_unique_bus_name, info);
+                dbus_helper = new DBusAppMenu.with_connection(w, title, gtk_unique_bus_name, info);
             if (menubar_path != null)
             {
                 var menubar = DBusMenuModel.get(dbusconn,gtk_unique_bus_name,menubar_path);

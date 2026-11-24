@@ -28,7 +28,7 @@ namespace Appmenu
         private ulong connect_handler = 0;
         public DBusMenuHelper(MenuWidget w, string name, ObjectPath path, string? title, DesktopAppInfo? info)
         {
-            dbus_helper = new DBusAppMenu(w, title, name, info);
+            dbus_helper = new DBusAppMenu.with_connection(w, title, name, info);
             importer = new DBusMenu.Importer(name,(string)path);
             connect_handler = Signal.connect(importer,"notify::model",(GLib.Callback)on_model_changed_cb,w);
         }

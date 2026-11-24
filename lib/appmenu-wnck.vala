@@ -135,7 +135,7 @@ namespace Appmenu
                 if (filtered != null)
                     title = filtered;
             }
-            return new DBusAppMenu(w,title,null,info);
+            return new DBusAppMenu(w,title,win.get_pid(),info);
         }
         private void register_menu_window(uint window_id, string sender, ObjectPath menu_object_path)
         {

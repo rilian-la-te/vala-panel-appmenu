@@ -432,7 +432,7 @@ namespace Appmenu
         {
             DesktopAppInfo? app = resolve_app(props);
             string title = get_title(app, props);
-            return new DBusAppMenu(w, title, null, app);
+            return new DBusAppMenu(w, title, props.pid, app);
         }
     }
 }

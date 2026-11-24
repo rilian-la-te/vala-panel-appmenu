@@ -39,12 +39,25 @@ namespace Appmenu
         private const string UNITY_QUICKLISTS_TARGET_VALUE = "Unity";
 
 
-        private DBusMain dbus;
+        private static WeakRef shared_dbus;
+        private DBusMain? dbus = null;
         private DesktopAppInfo? info = null;
-        private string? connection = null;
+        private Posix.pid_t pid = 0;
         private unowned MenuWidget widget;
         private GLib.Menu all_menu = new GLib.Menu();
 
+        private static DBusMain? get_dbus () {
+            var proxy = (DBusMain?) shared_dbus.get ();
+            if (proxy == null) {
+                try {
+                    proxy = Bus.get_proxy_sync (BusType.SESSION, DBUS_DEFAULT_NAME, DBUS_DEFAULT_PATH);
+                    shared_dbus.set (proxy);
+                } catch (Error e) {
+                    debug ("%s\n", e.message);
+                }
+            }
+            return proxy;
+        }
         private const GLib.ActionEntry[] entries =
         {
             {"new", activate_new, null, null, null},
@@ -54,13 +67,21 @@ namespace Appmenu
         };
         construct
         {
-            try {
-                dbus = Bus.get_proxy_sync(BusType.SESSION, DBUS_DEFAULT_NAME, DBUS_DEFAULT_PATH);
-            } catch (Error e) {
-                debug("%s\n",e.message);
-            }
+            this.dbus = get_dbus();
         }
-        public DBusAppMenu(MenuWidget w, string? name, string? connection, DesktopAppInfo? info)
+        public DBusAppMenu.with_connection(MenuWidget w, string? name, string? connection, DesktopAppInfo? info) {
+            Posix.pid_t tmp_pid = 0;
+            var proxy = get_dbus();
+            if (connection != null && proxy != null) {
+                try {
+                    tmp_pid = (Posix.pid_t) proxy.get_connection_unix_process_id (connection);
+                } catch (Error e) {
+                    debug ("%s\n", e.message);
+                }
+            }
+            this(w, name, tmp_pid, info);
+        }
+        public DBusAppMenu(MenuWidget w, string? name, Posix.pid_t pid, DesktopAppInfo? info)
         {
             this.widget = w;
             var configurator = new SimpleActionGroup();
@@ -68,9 +89,7 @@ namespace Appmenu
             var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
             builder.set_translation_domain(Config.GETTEXT_PACKAGE);
             unowned GLib.Menu menu = builder.get_object("appmenu-stub") as GLib.Menu;
-            if(connection != null)
-                this.connection = connection;
-            else
+            if(pid <= 0)
                 (configurator.lookup_action("quit") as SimpleAction).set_enabled(false);
             if (info != null)
             {
@@ -94,7 +113,7 @@ namespace Appmenu
                     debug("%s\n",e.message);
                 }
             }
-            else if (connection == null)
+            else if (pid <= 0)
             {
                 (configurator.lookup_action("new") as SimpleAction).set_enabled(false);
             }
@@ -112,11 +131,11 @@ namespace Appmenu
             {
                 MenuMaker.launch(info,new List<string>(),widget);
             }
-            else if (connection != null)
+            else if (pid > 0)
             {
                 //FIXME: Now using only first part, not parameters
                 try {
-                    string str = "/proc/%u/cmdline".printf(dbus.get_connection_unix_process_id(this.connection));
+                    string str = "/proc/%u/cmdline".printf(this.pid);
                     string exec = Launcher.posix_get_cmdline_string(str);
                     var appinfo  = AppInfo.create_from_commandline(exec,null,0) as DesktopAppInfo;
                     MenuMaker.launch(appinfo,new List<string>(),widget);
@@ -127,11 +146,7 @@ namespace Appmenu
         }
         private void activate_quit(GLib.SimpleAction action, Variant? param)
         {
-            try {
-                Posix.kill((Posix.pid_t)dbus.get_connection_unix_process_id(this.connection), Posix.Signal.QUIT);
-            } catch (Error e) {
-                stderr.printf("%s\n",e.message);
-            }
+            Posix.kill(this.pid, Posix.Signal.QUIT);
         }
         private void activate_action(GLib.SimpleAction action, Variant? param)
         {
