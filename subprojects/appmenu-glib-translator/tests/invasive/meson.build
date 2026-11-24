@@ -24,7 +24,7 @@ names = [
 
 foreach name : names
     exe = executable(name, name + '.c', test_main,
-        dependencies: invasive_dep
+        dependencies: invasive_fixture_dep
     )
     test(name, exe, suite: 'invasive')
 endforeach
