@@ -45,5 +45,7 @@ namespace Appmenu
             return name ?? GLib.dgettext(Config.GETTEXT_PACKAGE, "Compact Menu");
         }
 
+        protected GLib.MenuModel menu;
+        protected GLib.HashTable<unowned string, GLib.ActionGroup> actions;
     }
 }
