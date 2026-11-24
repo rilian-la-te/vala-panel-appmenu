@@ -2,6 +2,7 @@ sources = files(
     'appmenu-abstractions.vala',
     'registrar.vala',
     'menu-widget.vala',
+    'helper.vala',
     'helper-desktop.vala',
     'helper-dbus.vala',
     'helper-dbusmenu.vala',

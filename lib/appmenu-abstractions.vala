@@ -21,20 +21,6 @@ using Gtk;
 
 namespace Appmenu
 {
-    public enum ModelType
-    {
-        NONE,
-        STUB,
-        DESKTOP,
-        MENUMODEL,
-        DBUSMENU
-    }
-    [CCode (has_target = false)]
-    public delegate string? TitleFilter(int64 pid, string? class_name, string? window_name);
-    internal abstract class Helper: Object
-    {
-
-    }
     public abstract class Backend : Object
     {
         protected ModelType type = ModelType.NONE;
