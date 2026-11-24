@@ -4,3 +4,14 @@ invasive_dep = declare_dependency(
     include_directories: invasive_inc,
     dependencies: [giounix, test_obj_dep]
 )
+
+names = [
+    'dummy-labels-only'
+]
+
+foreach name : names
+    exe = executable(name, name + '.c', test_main,
+        dependencies: invasive_dep
+    )
+    test(name, exe, suite: 'invasive')
+endforeach
