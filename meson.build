@@ -49,17 +49,11 @@ backend_wnck =  'wnck' in backend_opt
 backend_wayfire = 'wayfire' in backend_opt
 
 wnck_ver = '>=3.4.8'
-wnck = dependency('libwnck-3.0', version: wnck_ver, required: backend_wayfire)
+wnck = dependency('libwnck-3.0', version: wnck_ver, required: false)
+backend_wnck = backend_wnck and wnck.found()
 
-if(wnck.found())
-    backend_wnck = true
-endif
-
-json_glib = dependency('json-glib-1.0', required: backend_wnck)
-
-if(json_glib.found())
-    backend_wayfire = true
-endif
+json_glib = dependency('json-glib-1.0', required: false)
+backend_wayfire = backend_wayfire and json_glib.found()
 
 if(not (backend_wnck) and not(backend_wayfire))
     error('No backend available (libwnck3 or json-glib required)')
