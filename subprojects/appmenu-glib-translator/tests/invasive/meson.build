@@ -5,6 +5,18 @@ invasive_dep = declare_dependency(
     dependencies: [giounix, test_obj_dep]
 )
 
+invasive_fixture = static_library(
+    'invasive-fixture',
+    'invasive-fixture.c', 'invasive-fixture.h',
+    include_directories: [invasive_inc, translator_inc],
+    dependencies: invasive_dep,
+)
+invasive_fixture_dep = declare_dependency(
+    link_with: invasive_fixture,
+    include_directories: [invasive_inc, translator_inc],
+    dependencies: invasive_dep,
+)
+
 names = [
     'dummy-labels-only',
     'separator-run'
