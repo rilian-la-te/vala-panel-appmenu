@@ -6,7 +6,8 @@ invasive_dep = declare_dependency(
 )
 
 names = [
-    'dummy-labels-only'
+    'dummy-labels-only',
+    'separator-run'
 ]
 
 foreach name : names
