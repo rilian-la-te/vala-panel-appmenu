@@ -79,15 +79,13 @@ G_GNUC_INTERNAL bool dbus_menu_item_is_firefox_stub(DBusMenuItem *item);
 G_GNUC_INTERNAL bool dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem *dst,
                                                  DBusMenuModel *parent);
 
-G_GNUC_INTERNAL void dbus_menu_item_generate_action(DBusMenuItem *item, DBusMenuModel *parent);
-
 G_GNUC_INTERNAL DBusMenuModel *dbus_menu_item_get_submenu(DBusMenuItem *item);
 
 G_GNUC_INTERNAL void dbus_menu_item_preload(DBusMenuItem *item);
 
 G_GNUC_INTERNAL DBusMenuActionType dbus_menu_item_find_action_type(GVariant *props);
 
-G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_create(u_int32_t id, GActionGroup *action_group);
+G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, GActionGroup *action_group);
 
 G_GNUC_INTERNAL char *dbus_menu_item_get_action_name(DBusMenuItem *item, bool for_submenu,
                                                      bool use_prefix);

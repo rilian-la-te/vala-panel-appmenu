@@ -361,7 +361,6 @@ static void handle_regular_item(LayoutParseContext *ctx, DBusMenuItem *new_item,
 	if (!old_iter)
 	{
 		mark_item_changed(ctx);
-		dbus_menu_item_generate_action(new_item, ctx->menu);
 		dbus_menu_item_init(new_item, ctx->menu, cprops);
 		menu_item_copy_and_load(ctx->menu, NULL, new_item);
 		insert_menu_item(ctx->menu, new_item);
@@ -374,7 +373,6 @@ static void handle_regular_item(LayoutParseContext *ctx, DBusMenuItem *new_item,
 	if (!dbus_menu_item_compare_immutable(old, new_item))
 	{
 		mark_item_changed(ctx);
-		dbus_menu_item_generate_action(new_item, ctx->menu);
 		dbus_menu_item_init(new_item, ctx->menu, cprops);
 		menu_item_copy_and_load(ctx->menu, old, new_item);
 		g_sequence_remove(old_iter);
@@ -410,7 +408,7 @@ static void parse_single_child(LayoutParseContext *ctx, GVariant *child)
 	if (!cprops)
 		return;
 
-	DBusMenuItem *new_item = dbus_menu_item_new_create(cid, ctx->menu->received_action_group);
+	DBusMenuItem *new_item = dbus_menu_item_new(cid, ctx->menu->received_action_group);
 	new_item->action_type  = dbus_menu_item_find_action_type(cprops);
 
 	// We receive a section (separator or x-kde-title)

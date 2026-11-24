@@ -35,8 +35,9 @@ G_GNUC_INTERNAL void dbus_menu_item_free(gpointer data);
 #endif
 
 static void act_props_try_update(DBusMenuItem *item);
+static void dbus_menu_item_generate_action(DBusMenuItem *item, DBusMenuModel *parent);
 
-G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_create(u_int32_t id, GActionGroup *action_group)
+G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new(u_int32_t id, GActionGroup *action_group)
 {
 	DBusMenuItem *item = g_slice_new0(DBusMenuItem);
 	item->id           = id;
@@ -54,7 +55,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_create(u_int32_t id, GActionGro
 G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_new_first_section(u_int32_t id,
                                                                GActionGroup *action_group)
 {
-	DBusMenuItem *item = dbus_menu_item_new_create(id, action_group);
+	DBusMenuItem *item = dbus_menu_item_new(id, action_group);
 	item->action_type  = DBUS_MENU_ACTION_SECTION;
 	item->section_num = 0;
 	item->place = -1;
@@ -165,6 +166,7 @@ G_GNUC_INTERNAL DBusMenuItem *dbus_menu_item_init(DBusMenuItem *item, DBusMenuMo
 	GVariantIter iter;
 	const char *prop;
 	GVariant *value;
+	dbus_menu_item_generate_action(item, parent_model);
 	g_variant_iter_init(&iter, props);
 	// Iterate by immutable properties, it is construct_only
 	while (g_variant_iter_loop(&iter, "{&sv}", &prop, &value))
@@ -663,7 +665,7 @@ G_GNUC_INTERNAL bool dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem
 	return false;
 }
 
-G_GNUC_INTERNAL void dbus_menu_item_generate_action(DBusMenuItem *item, DBusMenuModel *parent)
+static void dbus_menu_item_generate_action(DBusMenuItem *item, DBusMenuModel *parent)
 {
 	if (item->action_type == DBUS_MENU_ACTION_SECTION)
 		return;
