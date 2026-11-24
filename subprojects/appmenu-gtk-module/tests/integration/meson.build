@@ -41,6 +41,7 @@ names = [
     'radio-source',
     'radio-target',
     'dynamic-bypass',
+    'importer-churn',
     'regular-activate'
 ]
 
