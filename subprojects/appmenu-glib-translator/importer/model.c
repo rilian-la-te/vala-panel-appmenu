@@ -218,6 +218,8 @@ typedef struct
 	DBusMenuModel *menu;
 	GQueue *queue;
 	DBusMenuItem *pending_section;
+	GVariant* pending_label;
+	bool commited;
 	uint section_num;
 	uint place;
 	uint old_sections;
@@ -302,10 +304,28 @@ static void finalize_section(LayoutParseContext *ctx, GSequenceIter *end_iter)
 	}
 }
 
+static void dbus_menu_item_update_section_label(DBusMenuItem *item, GVariant **label)
+{
+	if (*label)
+		g_hash_table_insert(item->attrs,
+		                     g_strdup(G_MENU_ATTRIBUTE_LABEL),
+		                     g_steal_pointer(label));
+	else
+		g_hash_table_remove_all(item->attrs);
+}
+
 static void commit_pending_section(LayoutParseContext *ctx)
 {
 	if (!ctx->pending_section)
+	{
+		//It is for first section
+		if (ctx->place == 0 && !ctx->commited) {
+			DBusMenuItem *old = dbus_menu_model_find_section(ctx->menu, ctx->section_num);
+			dbus_menu_item_update_section_label(old, &ctx->pending_label);
+			ctx->commited = true;
+		}
 		return;
+	}
 
 	DBusMenuItem *sec_item = ctx->pending_section;
 	ctx->pending_section   = NULL;
@@ -325,11 +345,15 @@ static void commit_pending_section(LayoutParseContext *ctx)
 	else
 		dbus_menu_item_free(sec_item);
 
+	DBusMenuItem *old = (DBusMenuItem *)g_sequence_get(old_iter);
+	dbus_menu_item_update_section_label(old, &ctx->pending_label);
+
 	finalize_section(ctx, old_iter);
 
 	// Ensure next section
 	ctx->section_num   = next_section;
 	ctx->place         = 0;
+	ctx->commited      = true;
 	ctx->first_changed = -1;
 	ctx->last_changed  = -1;
 	ctx->old_sec_items = (ctx->section_num < ctx->old_sections)
@@ -337,9 +361,24 @@ static void commit_pending_section(LayoutParseContext *ctx)
 	                         : 0;
 }
 
-static void handle_section_item(LayoutParseContext *ctx, DBusMenuItem *new_item)
+static void handle_section_item(LayoutParseContext *ctx, DBusMenuItem *new_item, GVariant *cprops)
 {
-	bool is_valid_section = !new_item->toggled && ctx->place > 0 && !ctx->pending_section;
+	// Section does not use update_props here - so reject invisible ones from lables.
+	g_autoptr(GVariant) visible =
+	    g_variant_lookup_value(cprops, DBUS_MENU_PROP_VISIBLE, G_VARIANT_TYPE_BOOLEAN);
+	bool hidden = visible && !g_variant_get_boolean(visible);
+
+	bool not_toggled = !new_item->toggled && !hidden;
+	bool is_valid_section = not_toggled && ctx->place > 0 && !ctx->pending_section;
+	//We must get labels from invalid section - last takes precedence
+	if(not_toggled) {
+		g_autoptr(GVariant) label = g_variant_lookup_value(cprops, DBUS_MENU_PROP_LABEL, G_VARIANT_TYPE_STRING);
+		if (label)
+		{
+			g_clear_pointer(&ctx->pending_label, g_variant_unref);
+			ctx->pending_label = g_variant_ref(label);
+		}
+	}
 
 	// If section was invalid, just free received item.
 	if (!is_valid_section)
@@ -413,7 +452,7 @@ static void parse_single_child(LayoutParseContext *ctx, GVariant *child)
 
 	// We receive a section (separator or x-kde-title)
 	if (new_item->action_type == DBUS_MENU_ACTION_SECTION)
-		handle_section_item(ctx, new_item);
+		handle_section_item(ctx, new_item, cprops);
 	else if (!dbus_menu_item_is_firefox_stub(new_item))
 		handle_regular_item(ctx, new_item, cprops);
 	else
@@ -435,6 +474,8 @@ static void layout_parse_items(DBusMenuModel *menu, GVariant *items)
 		.menu            = menu,
 		.queue           = queue,
 		.pending_section = NULL,
+		.pending_label   = NULL,
+		.commited        = false,
 		.section_num     = 0,
 		.place           = 0,
 		.old_sections    = g_menu_model_get_n_items(G_MENU_MODEL(menu)),
@@ -452,6 +493,7 @@ static void layout_parse_items(DBusMenuModel *menu, GVariant *items)
 
 	// Discard trailing separator if no items followed it
 	g_clear_pointer(&ctx.pending_section, dbus_menu_item_free);
+	g_clear_pointer(&ctx.pending_label, g_variant_unref);
 
 	uint new_sections = ctx.section_num + 1;
 	int secdiff       = (int)ctx.old_sections - (int)new_sections;
