@@ -453,7 +453,7 @@ static void parse_single_child(LayoutParseContext *ctx, GVariant *child)
 	// We receive a section (separator or x-kde-title)
 	if (new_item->action_type == DBUS_MENU_ACTION_SECTION)
 		handle_section_item(ctx, new_item, cprops);
-	else if (!dbus_menu_item_is_firefox_stub(new_item))
+	else if (!dbus_menu_item_is_firefox_stub(cprops))
 		handle_regular_item(ctx, new_item, cprops);
 	else
 		// Just free unnedeed item

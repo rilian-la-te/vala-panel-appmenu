@@ -74,7 +74,7 @@ G_GNUC_INTERNAL DBusMenuUpdaterFlags dbus_menu_item_remove_props(DBusMenuItem *i
 
 G_GNUC_INTERNAL bool dbus_menu_item_compare_immutable(DBusMenuItem *a, DBusMenuItem *b);
 
-G_GNUC_INTERNAL bool dbus_menu_item_is_firefox_stub(DBusMenuItem *item);
+G_GNUC_INTERNAL bool dbus_menu_item_is_firefox_stub(GVariant* props);
 
 G_GNUC_INTERNAL bool dbus_menu_item_copy_submenu(DBusMenuItem *src, DBusMenuItem *dst,
                                                  DBusMenuModel *parent);

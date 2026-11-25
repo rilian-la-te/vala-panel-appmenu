@@ -286,17 +286,16 @@ static bool attr_update_checked(DBusMenuItem *item, const char *key, GVariant *v
 	return false;
 }
 
-G_GNUC_INTERNAL bool dbus_menu_item_is_firefox_stub(DBusMenuItem *item)
+G_GNUC_INTERNAL bool dbus_menu_item_is_firefox_stub(GVariant *props)
 {
-    GVariant *hidden_when_v = g_hash_table_lookup(item->attrs, G_MENU_ATTRIBUTE_HIDDEN_WHEN);
-    GVariant *action_v = g_hash_table_lookup(item->attrs, G_MENU_ATTRIBUTE_ACTION);
-    GVariant *label_v = g_hash_table_lookup(item->attrs, G_MENU_ATTRIBUTE_LABEL);
-    const char *hidden_when = hidden_when_v ? g_variant_get_string(hidden_when_v, NULL) : NULL;
-    const char *action = action_v ? g_variant_get_string(action_v, NULL) : NULL;
-    const char *label = label_v ? g_variant_get_string(label_v, NULL) : NULL;
-	if (!g_strcmp0(hidden_when, G_MENU_HIDDEN_WHEN_ACTION_MISSING) &&
-	    !g_strcmp0(action, DBUS_MENU_DISABLED_ACTION) && !g_strcmp0(label, "Label Empty"))
-		return true;
+	g_autoptr(GVariant) labelv =
+	    g_variant_lookup_value(props, DBUS_MENU_PROP_LABEL, G_VARIANT_TYPE_STRING);
+	g_autoptr(GVariant) visv =
+	    g_variant_lookup_value(props, DBUS_MENU_PROP_VISIBLE, G_VARIANT_TYPE_BOOLEAN);
+	if (labelv && visv)
+		if (g_str_equal(g_variant_get_string(labelv, NULL), "Label Empty") &&
+		    !g_variant_get_boolean(visv))
+			return true;
 	return false;
 }
 
