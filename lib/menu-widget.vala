@@ -37,6 +37,7 @@ namespace Appmenu
         private Gtk.CssProvider provider;
         private GLib.MenuModel? appmenu = null;
         private GLib.MenuModel? menubar = null;
+        private GLib.HashTable<unowned string, GLib.ActionGroup?> action_groups;
         private Backend backend;
         private Gtk.MenuBar mwidget = new Gtk.MenuBar();
         private ulong backend_connector = 0;
@@ -78,6 +79,33 @@ namespace Appmenu
         public MenuWidget()
         {
             Object();
+        }
+        private void restock_from_model(GLib.MenuModel model, GLib.HashTable<unowned string, GLib.ActionGroup?> new_actions)
+        {
+            var iter = HashTableIter<unowned string, GLib.ActionGroup?> (this.action_groups);
+            this.menubar = model;
+            unowned string key;
+            unowned GLib.ActionGroup? val;
+            while (iter.next (out key, out val)) {
+                this.insert_action_group(key, null);
+                iter.remove ();
+            }
+            new_actions.foreach ((tkey, tval) => {
+                this.insert_action_group(tkey, tval);
+                this.action_groups.insert(tkey, tval);
+            });
+            mwidget.bind_model(this.menubar,null,true);
+            unowned Gtk.StyleContext mcontext = mwidget.get_style_context();
+            if(this.menubar != null && this.menubar.get_n_items() > 0)
+            {
+                var children = mwidget.get_children();
+                if(children.length() > 0)
+                    children.nth_data(0).get_style_context().add_class("-vala-panel-appmenu-application-name");
+            }
+            if(bold_application_name)
+                mcontext.add_class("-vala-panel-appmenu-bold");
+            else
+                mcontext.remove_class("-vala-panel-appmenu-bold");
         }
         private void restock()
         {
