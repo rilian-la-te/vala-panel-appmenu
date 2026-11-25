@@ -43,7 +43,7 @@ namespace Appmenu
         private DBusMain? dbus = null;
         private DesktopAppInfo? info = null;
         private Posix.pid_t pid = 0;
-        private unowned MenuWidget widget;
+        private GLib.AppLaunchContext ctx;
         private GLib.Menu all_menu = new GLib.Menu();
 
         private static DBusMain? get_dbus () {
@@ -69,7 +69,7 @@ namespace Appmenu
         {
             this.dbus = get_dbus();
         }
-        public DBusAppMenu.with_connection(MenuWidget w, string? name, string? connection, DesktopAppInfo? info) {
+        public DBusAppMenu.with_connection(GLib.AppLaunchContext ctx, string? name, string? connection, DesktopAppInfo? info) {
             Posix.pid_t tmp_pid = 0;
             var proxy = get_dbus();
             if (connection != null && proxy != null) {
@@ -79,11 +79,10 @@ namespace Appmenu
                     debug ("%s\n", e.message);
                 }
             }
-            this(w, name, tmp_pid, info);
+            this(ctx, name, tmp_pid, info);
         }
-        public DBusAppMenu(MenuWidget w, string? name, Posix.pid_t pid, DesktopAppInfo? info)
+        public DBusAppMenu(GLib.AppLaunchContext ctx, string? name, Posix.pid_t pid, DesktopAppInfo? info)
         {
-            this.widget = w;
             var configurator = new SimpleActionGroup();
             configurator.add_action_entries(entries,this);
             var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
@@ -122,14 +121,15 @@ namespace Appmenu
                 res_name = name[0:25]+"...";
             all_menu.append_submenu(res_name,menu);
             all_menu.freeze();
-            widget.insert_action_group("conf",configurator);
-            widget.set_appmenu(all_menu);
+            this.menu = all_menu;
+            this.actions.insert("conf", configurator);
+            this.content_updated();
         }
         private void activate_new(GLib.SimpleAction action, Variant? param)
         {
             if (info != null)
             {
-                MenuMaker.launch(info,new List<string>(),widget);
+                MenuMaker.launch_with_context(info,new List<string>(),ctx);
             }
             else if (pid > 0)
             {
@@ -138,7 +138,7 @@ namespace Appmenu
                     string str = "/proc/%u/cmdline".printf(this.pid);
                     string exec = Launcher.posix_get_cmdline_string(str);
                     var appinfo  = AppInfo.create_from_commandline(exec,null,0) as DesktopAppInfo;
-                    MenuMaker.launch(appinfo,new List<string>(),widget);
+                    MenuMaker.launch_with_context(appinfo,new List<string>(),ctx);
                 } catch (Error e) {
                     stderr.printf("%s\n",e.message);
                 }
@@ -151,7 +151,7 @@ namespace Appmenu
         private void activate_action(GLib.SimpleAction action, Variant? param)
         {
             var action_name = param.get_string();
-            info.launch_action(action_name,widget.get_display().get_app_launch_context());
+            info.launch_action(action_name,ctx);
         }
         private void activate_unity(GLib.SimpleAction action, Variant? param)
         {
@@ -161,7 +161,7 @@ namespace Appmenu
                 keyfile.load_from_file(info.get_filename(),KeyFileFlags.NONE);
                 var exec = keyfile.get_string(UNITY_QUICKLISTS_SHORTCUT_GROUP_NAME.printf(action_name),KeyFileDesktop.KEY_EXEC);
                 var appinfo  = AppInfo.create_from_commandline(exec,null,0) as DesktopAppInfo;
-                MenuMaker.launch(appinfo,new List<string>(),widget);
+                MenuMaker.launch_with_context(appinfo,new List<string>(),ctx);
             } catch (Error e) {
                 stderr.printf("%s\n",e.message);
             }

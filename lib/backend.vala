@@ -17,15 +17,13 @@
  */
 
 using GLib;
-using Gtk;
-
 namespace Appmenu
 {
     public abstract class Backend : Object
     {
         protected ModelType type = ModelType.NONE;
         protected static DBusMenuRegistrarProxy proxy;
-        protected Helper? helper = null;
+        public Helper? helper = null;
         public static TitleFilter? title_filter = null;
         static construct
         {
@@ -68,6 +66,6 @@ namespace Appmenu
             }
         }
         public signal void active_model_changed();
-        public abstract void set_active_window_menu(MenuWidget widget);
+        protected abstract void update_helper();
     }
 }

@@ -17,7 +17,6 @@
  */
 
 using GLib;
-using Gtk;
 
 namespace Appmenu
 {
@@ -60,22 +59,24 @@ namespace Appmenu
             SignalHandler.disconnect_by_data(proxy,this);
             SignalHandler.disconnect_by_data(screen,this);
         }
-        public override void set_active_window_menu(MenuWidget widget)
+        public override void update_helper()
         {
+            var ctx = Gdk.Display.get_default().get_app_launch_context();
             helper = null;
             if(type == ModelType.MENUMODEL)
-                helper = get_menu_model_helper_with_wnck(widget, active_window);
+                helper = get_menu_model_helper_with_wnck(ctx, active_window);
             else if(type == ModelType.DBUSMENU)
-               create_dbusmenu_for_wnck_window(widget,active_window);
+               create_dbusmenu_for_wnck_window(ctx,active_window);
             else if(type == ModelType.DESKTOP)
-                helper = new DesktopHelper(widget);
+                helper = new DesktopHelper(ctx);
             else if(type == ModelType.STUB)
-            {
-                helper = get_stub_helper_with_wnck(widget,active_window);
-                widget.set_menubar(null);
-            }
+                helper = get_stub_helper_with_wnck(ctx,active_window);
+            if(helper != null)
+                helper.content_updated.connect(()=>{
+                    active_model_changed();
+                });
         }
-        DBusMenuHelper get_dbus_menu_helper_with_wnck(MenuWidget w, string name, ObjectPath path, Wnck.Window win)
+        DBusMenuHelper get_dbus_menu_helper_with_wnck(GLib.AppLaunchContext ctx, string name, ObjectPath path, Wnck.Window win)
         {
             string? title = null;
             DesktopAppInfo? info = libwnck_aux_match_wnck_window(matcher, win);
@@ -89,9 +90,9 @@ namespace Appmenu
                 else
                     title = win.get_name();
             }
-            return new DBusMenuHelper(w,name,path,title,info);
+            return new DBusMenuHelper(ctx,name,path,title,info);
         }
-        MenuModelHelper get_menu_model_helper_with_wnck(MenuWidget w, Wnck.Window win)
+        MenuModelHelper get_menu_model_helper_with_wnck(GLib.AppLaunchContext ctx, Wnck.Window win)
         {
             ulong xid = win.get_xid();
             var gtk_unique_bus_name = libwnck_aux_get_utf8_prop(xid,"_GTK_UNIQUE_BUS_NAME");
@@ -112,9 +113,9 @@ namespace Appmenu
                 else
                     title = win.get_name();
             }
-            return new MenuModelHelper(w,gtk_unique_bus_name,app_menu_path,menubar_path,application_path,window_path,unity_path,title,info);
+            return new MenuModelHelper(ctx,gtk_unique_bus_name,app_menu_path,menubar_path,application_path,window_path,unity_path,title,info);
         }
-        DBusAppMenu get_stub_helper_with_wnck(MenuWidget w, Wnck.Window win)
+        DBusAppMenu get_stub_helper_with_wnck(GLib.AppLaunchContext ctx, Wnck.Window win)
         {
             string? title = null;
             DesktopAppInfo? info = libwnck_aux_match_wnck_window(ValaPanel.Matcher.get(), win);
@@ -134,7 +135,7 @@ namespace Appmenu
                 if (filtered != null)
                     title = filtered;
             }
-            return new DBusAppMenu(w,title,win.get_pid(),info);
+            return new DBusAppMenu(ctx,title,win.get_pid(),info);
         }
         private void register_menu_window(uint window_id, string sender, ObjectPath menu_object_path)
         {
@@ -148,13 +149,13 @@ namespace Appmenu
         {
             desktop_menus.remove(window_id);
         }
-        private void create_dbusmenu_for_wnck_window(MenuWidget menu,Wnck.Window window)
+        private void create_dbusmenu_for_wnck_window(GLib.AppLaunchContext ctx,Wnck.Window window)
         {
             ulong xid = window.get_xid();
             string name;
             ObjectPath path;
             proxy.get_menu_for_window((uint)xid,out name, out path);
-            helper = get_dbus_menu_helper_with_wnck(menu,name,path, window);
+            helper = get_dbus_menu_helper_with_wnck(ctx,name,path, window);
         }
         private void on_window_opened(Wnck.Window window)
         {

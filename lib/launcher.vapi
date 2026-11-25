@@ -34,8 +34,6 @@ namespace Launcher
 [CCode (cprefix="")]
 namespace MenuMaker
 {
-    [CCode (cheader_filename="launcher.h",cname="vala_panel_launch")]
-    public static bool launch(DesktopAppInfo info, GLib.List<string>? uris, Gtk.Widget parent);
     [CCode (cheader_filename="launcher.h",cname="vala_panel_launch_with_context")]
     public static bool launch_with_context(DesktopAppInfo info, GLib.List<string>? uris, GLib.AppLaunchContext? cxt);
     [CCode (cheader_filename="launcher.h",cname="vala_panel_get_default_for_uri")]

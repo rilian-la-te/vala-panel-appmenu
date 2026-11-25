@@ -54,13 +54,6 @@ bool vala_panel_launch_with_context(GDesktopAppInfo *app_info, GList *uris, GApp
 	return ret;
 }
 
-bool vala_panel_launch(GDesktopAppInfo *app_info, GList *uris, GtkWidget *parent)
-{
-	g_autoptr(GAppLaunchContext) cxt = G_APP_LAUNCH_CONTEXT(
-	    gdk_display_get_app_launch_context(gtk_widget_get_display(parent)));
-	return vala_panel_launch_with_context(app_info, uris, cxt);
-}
-
 GAppInfo *vala_panel_get_default_for_uri(const char *uri)
 {
 	/* g_file_query_default_handler() calls
@@ -83,8 +76,7 @@ void menu_launch_id(GSimpleAction *action, GVariant *param, gpointer user_data)
 {
 	const char *id                  = g_variant_get_string(param, NULL);
 	g_autoptr(GDesktopAppInfo) info = g_desktop_app_info_new(id);
-	GtkWidget *window               = GTK_WIDGET(user_data);
-	vala_panel_launch(info, NULL, GTK_WIDGET(window));
+	vala_panel_launch_with_context(info, NULL, G_APP_LAUNCH_CONTEXT(user_data));
 }
 
 void menu_launch_uri(GSimpleAction *action, GVariant *param, gpointer user_data)
@@ -92,8 +84,7 @@ void menu_launch_uri(GSimpleAction *action, GVariant *param, gpointer user_data)
 	const char *uri                 = g_variant_get_string(param, NULL);
 	g_autoptr(GList) uris           = g_list_append(NULL, (gpointer)uri);
 	g_autoptr(GDesktopAppInfo) info = G_DESKTOP_APP_INFO(vala_panel_get_default_for_uri(uri));
-	GtkWidget *window               = GTK_WIDGET(user_data);
-	vala_panel_launch(info, uris, GTK_WIDGET(window));
+	vala_panel_launch_with_context(info, NULL, G_APP_LAUNCH_CONTEXT(user_data));
 }
 
 void menu_launch_command(GSimpleAction *action, GVariant *param, gpointer user_data)
@@ -107,8 +98,7 @@ void menu_launch_command(GSimpleAction *action, GVariant *param, gpointer user_d
 	                                       &err));
 	if (err)
 		g_warning("%s\n", err->message);
-	GtkWidget *window = GTK_WIDGET(user_data);
-	vala_panel_launch(info, NULL, GTK_WIDGET(window));
+	vala_panel_launch_with_context(info, NULL, G_APP_LAUNCH_CONTEXT(user_data));
 }
 
 // FIXME: reads only first section

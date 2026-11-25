@@ -17,7 +17,6 @@
  */
 
 using GLib;
-using Gtk;
 
 namespace Appmenu
 {
@@ -26,16 +25,18 @@ namespace Appmenu
         private DBusMenu.Importer importer = null;
         private Helper dbus_helper = null;
         private ulong connect_handler = 0;
-        public DBusMenuHelper(MenuWidget w, string name, ObjectPath path, string? title, DesktopAppInfo? info)
+        public DBusMenuHelper(GLib.AppLaunchContext ctx, string name, ObjectPath path, string? title, DesktopAppInfo? info)
         {
-            dbus_helper = new DBusAppMenu.with_connection(w, title, name, info);
+            dbus_helper = new DBusAppMenu.with_connection(ctx, title, name, info);
             importer = new DBusMenu.Importer(name,(string)path);
-            connect_handler = Signal.connect(importer,"notify::model",(GLib.Callback)on_model_changed_cb,w);
+            connect_handler = Signal.connect(importer,"notify::model",(GLib.Callback)on_model_changed_cb,this);
         }
-        private static void on_model_changed_cb(DBusMenu.Importer importer, GLib.ParamSpec pspec, MenuWidget w)
+        private static void on_model_changed_cb(DBusMenu.Importer importer, GLib.ParamSpec pspec, DBusMenuHelper self)
         {
-            w.insert_action_group("dbusmenu",importer.action_group);
-            w.set_menubar(importer.model);
+            self.actions.insert("dbusmenu",importer.action_group);
+            self.menu = create_model(self.dbus_helper.menu, importer.model, false);
+            merge_actions(self.dbus_helper.actions, self.actions);
+            self.content_updated();
         }
         ~DBusMenuHelper()
         {

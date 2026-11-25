@@ -17,14 +17,13 @@
  */
 
 using GLib;
-using Gtk;
 
 namespace Appmenu
 {
     internal class MenuModelHelper: Helper
     {
         private Helper dbus_helper = null;
-        public MenuModelHelper(MenuWidget w,
+        public MenuModelHelper(GLib.AppLaunchContext ctx,
                                string? gtk_unique_bus_name,
                                string? app_menu_path,
                                string? menubar_path,
@@ -51,27 +50,25 @@ namespace Appmenu
             if (window_path != null)
                 menubar_actions = DBusActionGroup.get(dbusconn,gtk_unique_bus_name,window_path);
             GLib.MenuModel? appmenu = null;
+            GLib.MenuModel? menubar = null;
             if (app_menu_path != null)
             {
                 appmenu = new GLib.Menu();
                 (appmenu as GLib.Menu).append_submenu(title,DBusMenuModel.get(dbusconn,gtk_unique_bus_name,app_menu_path));
-                w.set_appmenu(appmenu);
             }
             else
-                dbus_helper = new DBusAppMenu.with_connection(w, title, gtk_unique_bus_name, info);
-            if (menubar_path != null)
             {
-                var menubar = DBusMenuModel.get(dbusconn,gtk_unique_bus_name,menubar_path);
-                w.set_menubar(menubar);
+                dbus_helper = new DBusAppMenu.with_connection(ctx, title, gtk_unique_bus_name, info);
+                appmenu = dbus_helper.menu;
+                merge_actions(dbus_helper.actions, this.actions);
             }
-            else
-                w.set_menubar(null);
-            if (appmenu_actions != null)
-                w.insert_action_group("app",appmenu_actions);
-            if (menubar_actions != null)
-                w.insert_action_group("win",menubar_actions);
-            if (unity_actions != null)
-                w.insert_action_group("unity",unity_actions);
+            if (menubar_path != null)
+                menubar = DBusMenuModel.get(dbusconn,gtk_unique_bus_name,menubar_path);
+            this.menu = create_model(appmenu, menubar, false);
+            this.actions.insert ("app", appmenu_actions);
+            this.actions.insert ("win", menubar_actions);
+            this.actions.insert ("unity", unity_actions);
+            this.content_updated();
         }
     }
 }

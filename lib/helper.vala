@@ -36,6 +36,13 @@ namespace Appmenu
             return combined;
         }
 
+        protected static void merge_actions(GLib.HashTable<unowned string, GLib.ActionGroup> src, GLib.HashTable<unowned string, GLib.ActionGroup> dst)
+        {
+            src.foreach ((key, val) => {
+                dst.insert (key, val);
+            });
+        }
+
         private static string resolve_compact_label(GLib.MenuModel? appmenu)
         {
             string? name = null;
@@ -45,7 +52,8 @@ namespace Appmenu
             return name ?? GLib.dgettext(Config.GETTEXT_PACKAGE, "Compact Menu");
         }
 
-        protected GLib.MenuModel menu;
-        protected GLib.HashTable<unowned string, GLib.ActionGroup> actions;
+        public GLib.MenuModel menu;
+        public GLib.HashTable<unowned string, GLib.ActionGroup> actions = new HashTable<unowned string, GLib.ActionGroup>(str_hash, str_equal);
+        public signal void content_updated();
     }
 }

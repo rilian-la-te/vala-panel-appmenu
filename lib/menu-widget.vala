@@ -37,7 +37,7 @@ namespace Appmenu
         private Gtk.CssProvider provider;
         private GLib.MenuModel? appmenu = null;
         private GLib.MenuModel? menubar = null;
-        private GLib.HashTable<unowned string, GLib.ActionGroup?> action_groups;
+        private GLib.HashTable<unowned string, GLib.ActionGroup?> action_groups = new GLib.HashTable<unowned string, GLib.ActionGroup?>(str_hash, str_equal);
         private Backend backend;
         private Gtk.MenuBar mwidget = new Gtk.MenuBar();
         private ulong backend_connector = 0;
@@ -52,10 +52,7 @@ namespace Appmenu
             Signal.connect(this,"notify",(GLib.Callback)restock,null);
             backend = register_backend();
             backend_connector = backend.active_model_changed.connect(()=>{
-                Timeout.add(50,()=>{
-                    backend.set_active_window_menu(this);
-                    return Source.REMOVE;
-                });
+                restock();
             });
             mcontext.add_class("-vala-panel-appmenu-private");
             Gtk.StyleContext.add_provider_for_screen(this.get_screen(), provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
@@ -109,61 +106,10 @@ namespace Appmenu
         }
         private void restock()
         {
-            var menu = new GLib.Menu();
-            if (this.appmenu != null)
-                menu.append_section(null,this.appmenu);
-            if (this.menubar != null)
-                menu.append_section(null,this.menubar);
-
-            int items = -1;
-            if (this.menubar != null)
-                items = this.menubar.get_n_items();
-
-            if (this.compact_mode && items == 0)
-            {
-                compact_connector = this.menubar.items_changed.connect((a,b,c)=>{
-                    restock();
-                });
-            }
-            if (this.compact_mode && items > 0)
-            {
-                if(compact_connector > 0)
-                {
-                    this.menubar.disconnect(compact_connector);
-                    compact_connector = 0;
-                }
-                var compact = new GLib.Menu();
-                string? name = null;
-                if(this.appmenu != null)
-                    this.appmenu.get_item_attribute(0,"label","s",&name);
-                else
-                    name = GLib.dgettext(Config.GETTEXT_PACKAGE,"Compact Menu");
-                compact.append_submenu(name,menu);
-                mwidget.bind_model(compact,null,true);
-            }
+            if(this.backend != null && this.backend.helper != null && this.backend.helper.menu != null)
+                this.restock_from_model(backend.helper.menu, backend.helper.actions);
             else
-                mwidget.bind_model(menu,null,true);
-            unowned Gtk.StyleContext mcontext = mwidget.get_style_context();
-            if(this.appmenu != null && this.appmenu.get_n_items() > 0)
-            {
-                var children = mwidget.get_children();
-                if(children.length() > 0)
-                    children.nth_data(0).get_style_context().add_class("-vala-panel-appmenu-application-name");
-            }
-            if(bold_application_name)
-                mcontext.add_class("-vala-panel-appmenu-bold");
-            else
-                mcontext.remove_class("-vala-panel-appmenu-bold");
-        }
-        public void set_appmenu(GLib.MenuModel? appmenu_model)
-        {
-            this.appmenu = appmenu_model;
-            this.restock();
-        }
-        public void set_menubar(GLib.MenuModel? menubar_model)
-        {
-            this.menubar = menubar_model;
-            this.restock();
+                mwidget.bind_model(null, null, false);
         }
         protected bool on_scroll_event(Gtk.Widget w, Gdk.EventScroll event)
         {

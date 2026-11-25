@@ -28,7 +28,7 @@ namespace Appmenu
         private GLib.Menu pictures_menu;
         private GLib.Menu music_menu;
         private GLib.Menu videos_menu;
-        private unowned MenuWidget widget;
+        private GLib.AppLaunchContext ctx;
         private const GLib.ActionEntry[] menu_entries =
         {
             {"launch-id", activate_menu_id, "s", null, null},
@@ -43,13 +43,12 @@ namespace Appmenu
             {"populate-picts", null, "b", "false", state_populate_picts},
             {"populate-video", null, "b", "false", state_populate_video}
         };
-        public DesktopHelper(MenuWidget w)
+        public DesktopHelper(GLib.AppLaunchContext ctx)
         {
-
-            this.widget = w;
+            this.ctx = ctx;
             var group = new SimpleActionGroup();
             group.add_action_entries(menu_entries,this);
-            w.insert_action_group("menu",group);
+            this.actions.insert("menu", group);
             var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
             builder.set_translation_domain(Config.GETTEXT_PACKAGE);
             unowned GLib.Menu gmenu = builder.get_object("appmenu-desktop") as GLib.Menu;
@@ -57,9 +56,7 @@ namespace Appmenu
             string? name = GLib.dgettext(Config.GETTEXT_PACKAGE,"_Desktop");
             menu.append_submenu(name,gmenu);
             menu.freeze();
-            widget.set_appmenu(menu);
             GLib.Menu append_menu = new GLib.Menu();
-            widget.set_menubar(append_menu);
             files_menu = builder.get_object("files") as GLib.Menu;
             documents_menu = builder.get_object("docs") as GLib.Menu;
             music_menu = builder.get_object("music") as GLib.Menu;
@@ -68,24 +65,26 @@ namespace Appmenu
             gmenu = builder.get_object("menubar") as GLib.Menu;
             append_menu.append_section(null,gmenu);
             append_menu.freeze();
+            this.menu = create_model(menu, append_menu, false);
+            this.content_updated();
         }
         internal void activate_menu_id(SimpleAction action, Variant? param)
         {
-            Launcher.activate_menu_launch_id(action,param,widget);
+            Launcher.activate_menu_launch_id(action,param,ctx);
         }
         internal void activate_menu_uri(SimpleAction action, Variant? param)
         {
-            Launcher.activate_menu_launch_uri(action,param,widget);
+            Launcher.activate_menu_launch_uri(action,param,ctx);
         }
         internal void activate_menu_command(SimpleAction action, Variant? param)
         {
-            Launcher.activate_menu_launch_command(action,param,widget);
+            Launcher.activate_menu_launch_command(action,param,ctx);
         }
         public void activate_menu_launch_type(SimpleAction action, Variant? param)
         {
             unowned string type = param.get_string();
             var info = GLib.AppInfo.get_default_for_type(type,false) as DesktopAppInfo;
-            MenuMaker.launch(info,null,widget);
+            MenuMaker.launch_with_context(info,null,ctx);
         }
         public void activate_desktop(SimpleAction action, Variant? param)
         {
@@ -117,7 +116,7 @@ namespace Appmenu
                         AppInfoCreateFlags.SUPPORTS_STARTUP_NOTIFICATION) as DesktopAppInfo;
                         break;
                 }
-                MenuMaker.launch(info,null,widget);
+                MenuMaker.launch_with_context(info,null,ctx);
             } catch (GLib.Error e){stderr.printf("%s\n",e.message);}
         }
         public void activate_control(SimpleAction action, Variant? param)
@@ -154,7 +153,7 @@ namespace Appmenu
                         AppInfoCreateFlags.SUPPORTS_STARTUP_NOTIFICATION) as DesktopAppInfo;
                         break;
                 }
-                MenuMaker.launch(info,null,widget);
+                MenuMaker.launch_with_context(info,null,ctx);
             } catch (GLib.Error e){stderr.printf("%s\n",e.message);}
         }
         public void state_populate_files(SimpleAction action, Variant? param)

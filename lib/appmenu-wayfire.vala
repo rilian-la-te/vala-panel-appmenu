@@ -3,7 +3,6 @@
  */
 
 using GLib;
-using Gtk;
 
 namespace Appmenu
 {
@@ -281,20 +280,24 @@ namespace Appmenu
             }
         }
 
-        public override void set_active_window_menu(MenuWidget widget)
+        public override void update_helper()
         {
+            var ctx = new GLib.AppLaunchContext();
             helper = null;
 
             if (type == ModelType.MENUMODEL && active_props != null)
-                helper = get_menu_model_helper(widget, active_props);
+                helper = get_menu_model_helper(ctx, active_props);
             else if (type == ModelType.DBUSMENU && active_props != null)
-                helper = get_dbus_menu_helper(widget, active_props);
+                helper = get_dbus_menu_helper(ctx, active_props);
             else if (type == ModelType.DESKTOP)
-                helper = new DesktopHelper(widget);
+                helper = new DesktopHelper(ctx);
             else if (type == ModelType.STUB && active_props != null) {
-                helper = get_stub_helper(widget, active_props);
-                widget.set_menubar(null);
+                helper = get_stub_helper(ctx, active_props);
             }
+            if(helper != null)
+                helper.content_updated.connect(()=>{
+                    active_model_changed();
+                });
         }
 
         private void on_view_focused(int id, string title, string app_id, int pid)
@@ -339,6 +342,7 @@ namespace Appmenu
 
             if (pending_props == 0) {
                 lookup_menu(active_props);
+                update_helper();
                 active_model_changed();
             }
         }
@@ -372,7 +376,7 @@ namespace Appmenu
             reset_menu_update_timeout();
             delayed_menu_update_id = Timeout.add((uint) menu_update_delay, () => {
                 delayed_menu_update_id = 0;
-                active_model_changed();
+                update_helper();
                 return false;
             });
         }
@@ -401,11 +405,11 @@ namespace Appmenu
             type = ModelType.STUB;
         }
 
-        private MenuModelHelper get_menu_model_helper(MenuWidget w, ViewProps props)
+        private MenuModelHelper get_menu_model_helper(GLib.AppLaunchContext ctx, ViewProps props)
         {
             DesktopAppInfo? app = resolve_app(props);
             string title = get_title(app, props);
-            return new MenuModelHelper(w,
+            return new MenuModelHelper(ctx,
                 props.gtk_unique_bus_name,
                 props.gtk_app_menu_path,
                 props.gtk_menubar_path,
@@ -416,22 +420,22 @@ namespace Appmenu
                 app);
         }
 
-        private DBusMenuHelper get_dbus_menu_helper(MenuWidget w, ViewProps props)
+        private DBusMenuHelper get_dbus_menu_helper(GLib.AppLaunchContext ctx, ViewProps props)
         {
             DesktopAppInfo? app = resolve_app(props);
             string title = get_title(app, props);
-            return new DBusMenuHelper(w,
+            return new DBusMenuHelper(ctx,
                 props.kde_service_name,
                 (ObjectPath) props.kde_object_path,
                 title,
                 app);
         }
 
-        private DBusAppMenu get_stub_helper(MenuWidget w, ViewProps props)
+        private DBusAppMenu get_stub_helper(GLib.AppLaunchContext ctx, ViewProps props)
         {
             DesktopAppInfo? app = resolve_app(props);
             string title = get_title(app, props);
-            return new DBusAppMenu(w, title, props.pid, app);
+            return new DBusAppMenu(ctx, title, props.pid, app);
         }
     }
 }
