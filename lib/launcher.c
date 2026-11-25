@@ -110,6 +110,7 @@ char *posix_get_cmdline_string(const char *filename)
 	char *ret = (char *)g_malloc0(1024);
 	int fd    = open(filename, O_RDONLY);
 	bool rr   = read(fd, ret, 1024);
+	close(fd);
 	if (rr)
 		return ret;
 	else
