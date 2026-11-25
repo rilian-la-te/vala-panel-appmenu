@@ -40,7 +40,7 @@ namespace Appmenu
         {
             string? name = null;
             if (appmenu != null && appmenu.get_n_items() > 0)
-                appmenu.get_item_attribute(0, "label", "s", &name);
+                appmenu.get_item_attribute(0, GLib.Menu.ATTRIBUTE_LABEL, "s", &name);
 
             return name ?? GLib.dgettext(Config.GETTEXT_PACKAGE, "Compact Menu");
         }

@@ -19,7 +19,6 @@
 #ifndef LAUNCHER_H
 #define LAUNCHER_H
 
-#include <gdk/gdk.h>
 #include <gio/gdesktopappinfo.h>
 #include <gtk/gtk.h>
 #include <stdbool.h>
