@@ -17,7 +17,6 @@
  */
 
 using GLib;
-using Gtk;
 
 namespace Appmenu
 {
@@ -43,27 +42,40 @@ namespace Appmenu
             {"populate-picts", null, "b", "false", state_populate_picts},
             {"populate-video", null, "b", "false", state_populate_video}
         };
+        private GLib.Menu get_submenu_from_model(GLib.MenuModel parent, string name)
+        {
+            var item = DBusMenu.parsed_find_item_by_id(parent, name);
+            return item.get_link(GLib.Menu.LINK_SUBMENU) as GLib.Menu;
+        }
         public DesktopHelper(GLib.AppLaunchContext ctx)
         {
             this.ctx = ctx;
             var group = new SimpleActionGroup();
             group.add_action_entries(menu_entries,this);
             this.actions.insert("menu", group);
-            var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-appmenu.ui");
-            builder.set_translation_domain(Config.GETTEXT_PACKAGE);
-            unowned GLib.Menu gmenu = builder.get_object("appmenu-desktop") as GLib.Menu;
+            GLib.MenuModel gmenu;
+            try {
+                var file = GLib.resources_lookup_data("/org/vala-panel/appmenu/desktop-appmenu.ui", GLib.ResourceLookupFlags.NONE);
+                gmenu = DBusMenu.parse_one((string) file.get_data(), Config.GETTEXT_PACKAGE);
+            } catch (Error e) {
+                assert_not_reached();
+            }
             var menu = new GLib.Menu();
             string? name = GLib.dgettext(Config.GETTEXT_PACKAGE,"_Desktop");
             menu.append_submenu(name,gmenu);
             menu.freeze();
+            try {
+                var file = GLib.resources_lookup_data("/org/vala-panel/appmenu/desktop-menubar.ui", GLib.ResourceLookupFlags.NONE);
+                gmenu = DBusMenu.parse_one((string) file.get_data(), Config.GETTEXT_PACKAGE);
+            } catch (Error e) {
+                assert_not_reached();
+            }
             GLib.Menu append_menu = new GLib.Menu();
-            files_menu = builder.get_object("files") as GLib.Menu;
-            documents_menu = builder.get_object("docs") as GLib.Menu;
-            music_menu = builder.get_object("music") as GLib.Menu;
-            pictures_menu = builder.get_object("picts") as GLib.Menu;
-            videos_menu = builder.get_object("video") as GLib.Menu;
-            var bar_builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menubar.ui");
-            gmenu = bar_builder.get_object("menubar") as GLib.Menu;
+            files_menu = get_submenu_from_model(gmenu, "files");
+            documents_menu = get_submenu_from_model(gmenu,"docs");
+            music_menu = get_submenu_from_model(gmenu,"music");
+            pictures_menu = get_submenu_from_model(gmenu,"picts");
+            videos_menu = get_submenu_from_model(gmenu,"video");
             append_menu.append_section(null,gmenu);
             append_menu.freeze();
             this.menu = create_model(menu, append_menu);

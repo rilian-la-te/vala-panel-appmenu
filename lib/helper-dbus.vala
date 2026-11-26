@@ -17,7 +17,6 @@
  */
 
 using GLib;
-using Gtk;
 
 namespace Appmenu
 {
@@ -85,20 +84,26 @@ namespace Appmenu
         {
             var configurator = new SimpleActionGroup();
             configurator.add_action_entries(entries,this);
-            var builder = new Builder.from_resource("/org/vala-panel/appmenu/appmenu-stub.ui");
-            builder.set_translation_domain(Config.GETTEXT_PACKAGE);
-            unowned GLib.Menu menu = builder.get_object("appmenu-stub") as GLib.Menu;
+            GLib.MenuModel menu;
+            try {
+                var file = GLib.resources_lookup_data("/org/vala-panel/appmenu/appmenu-stub.ui", GLib.ResourceLookupFlags.NONE);
+                menu = DBusMenu.parse_one((string) file.get_data(), Config.GETTEXT_PACKAGE);
+            } catch (Error e) {
+                assert_not_reached();
+            }
             if(pid <= 0)
                 (configurator.lookup_action("quit") as SimpleAction).set_enabled(false);
             if (info != null)
             {
                 this.info = info;
-                unowned GLib.Menu section = builder.get_object("desktop-actions") as GLib.Menu;
+                GLib.MenuItem item = DBusMenu.parsed_find_item_by_id(menu, "desktop-actions");
+                GLib.Menu section = item.get_link(GLib.Menu.LINK_SECTION) as GLib.Menu;
                 foreach(unowned string action in info.list_actions())
                     section.append(info.get_action_name(action),"conf.activate-action('%s')".printf(action));
                 section.freeze();
                 try{
-                    section = builder.get_object("unity-actions") as GLib.Menu;
+                    item = DBusMenu.parsed_find_item_by_id(menu, "unity-actions");
+                    section = item.get_link(GLib.Menu.LINK_SECTION) as GLib.Menu;
                     var keyfile = new KeyFile();
                     keyfile.load_from_file(info.get_filename(),KeyFileFlags.NONE);
                     var unity_list = keyfile.get_string_list(KeyFileDesktop.GROUP,UNITY_QUICKLISTS_KEY);
