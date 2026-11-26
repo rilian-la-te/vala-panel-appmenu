@@ -1,8 +1,8 @@
 project(
   'appmenu-glib-translator',
   'c',
-version : '26.11',
-meson_version : '>=0.61.0',
+version : '26.12',
+meson_version : '>=1.2.0',
 license : 'LGPL-3.0-or-later',
 default_options : ['c_std=gnu11', 'buildtype=debugoptimized', 'warning_level=1']
 )
