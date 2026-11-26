@@ -22,4 +22,5 @@
 #include <gio/gio.h>
 void dbus_menu_print_stdout(GMenuModel *menu);
 char* dbus_menu_print_string(GMenuModel *menu);
+GMenuModel *dbus_menu_parse_one(const char *markup, const char *gettext_package, GError **error);
 #endif // DEBUG_H

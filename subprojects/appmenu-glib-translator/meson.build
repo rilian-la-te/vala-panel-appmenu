@@ -18,6 +18,7 @@ common_sources = files(
     'definitions.h',
     'debug.c',
     'debug.h',
+    'markup-parse.c',
 )
 
 common_headers = files('definitions.h')

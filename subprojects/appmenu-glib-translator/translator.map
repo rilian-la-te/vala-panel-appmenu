@@ -2,6 +2,7 @@
   global:
     dbus_menu_print_stdout;
     dbus_menu_print_string;
+    dbus_menu_parse_one;
     dbus_menu_exporter_get_type;
     dbus_menu_exporter_new;
     dbus_menu_exporter_insert;
