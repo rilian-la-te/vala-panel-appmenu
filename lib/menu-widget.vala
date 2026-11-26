@@ -26,8 +26,6 @@ namespace Key
 
 namespace Appmenu
 {
-    [CCode (cname = "appmenu_get_applicable_backend")]
-    private extern static Backend? register_backend ();
     public class MenuWidget: Gtk.Bin
     {
         public bool compact_mode {get; set; default = false;}
@@ -37,7 +35,7 @@ namespace Appmenu
         private Gtk.CssProvider provider;
         private GLib.MenuModel? menubar = null;
         private GLib.HashTable<unowned string, GLib.ActionGroup?> action_groups = new GLib.HashTable<unowned string, GLib.ActionGroup?>(str_hash, str_equal);
-        private Backend backend;
+        private MenuProvider menu_provider = new MenuProvider();
         private Gtk.MenuBar mwidget = new Gtk.MenuBar();
         private ulong backend_connector = 0;
         private ulong compact_connector = 0;
@@ -49,8 +47,7 @@ namespace Appmenu
             context.add_class("-vala-panel-appmenu-core");
             unowned Gtk.StyleContext mcontext = mwidget.get_style_context();
             Signal.connect(this,"notify",(GLib.Callback)restock,null);
-            backend = register_backend();
-            backend_connector = backend.active_model_changed.connect(()=>{
+            backend_connector = menu_provider.content_updated.connect(()=>{
                 restock();
             });
             mcontext.add_class("-vala-panel-appmenu-private");
@@ -129,8 +126,10 @@ namespace Appmenu
         }
         private void restock()
         {
-            if(this.backend != null && this.backend.helper != null && this.backend.helper.menu != null)
-                this.restock_from_model(backend.helper.menu, backend.helper.actions);
+            var menu = menu_provider.get_menu();
+            var actions = menu_provider.get_actions();
+            if(menu != null && actions != null)
+                this.restock_from_model(menu, actions);
             else
                 mwidget.bind_model(null, null, false);
         }

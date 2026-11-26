@@ -1,6 +1,7 @@
 sources = files(
     'backend.vala',
     'registrar.vala',
+    'menu-provider.vala',
     'menu-widget.vala',
     'helper.vala',
     'helper-desktop.vala',
