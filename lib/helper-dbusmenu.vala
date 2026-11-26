@@ -34,7 +34,7 @@ namespace Appmenu
         private static void on_model_changed_cb(DBusMenu.Importer importer, GLib.ParamSpec pspec, DBusMenuHelper self)
         {
             self.actions.insert("dbusmenu",importer.action_group);
-            self.menu = create_model(self.dbus_helper.menu, importer.model, false);
+            self.menu = create_model(self.dbus_helper.menu, importer.model);
             merge_actions(self.dbus_helper.actions, self.actions);
             self.content_updated();
         }

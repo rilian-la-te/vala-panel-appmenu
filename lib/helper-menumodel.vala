@@ -64,7 +64,7 @@ namespace Appmenu
             }
             if (menubar_path != null)
                 menubar = DBusMenuModel.get(dbusconn,gtk_unique_bus_name,menubar_path);
-            this.menu = create_model(appmenu, menubar, false);
+            this.menu = create_model(appmenu, menubar);
             this.actions.insert ("app", appmenu_actions);
             this.actions.insert ("win", menubar_actions);
             this.actions.insert ("unity", unity_actions);

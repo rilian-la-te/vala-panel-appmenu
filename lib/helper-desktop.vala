@@ -65,7 +65,7 @@ namespace Appmenu
             gmenu = builder.get_object("menubar") as GLib.Menu;
             append_menu.append_section(null,gmenu);
             append_menu.freeze();
-            this.menu = create_model(menu, append_menu, false);
+            this.menu = create_model(menu, append_menu);
             this.content_updated();
         }
         internal void activate_menu_id(SimpleAction action, Variant? param)

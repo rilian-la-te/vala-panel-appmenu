@@ -35,7 +35,6 @@ namespace Appmenu
         private Gtk.Adjustment? scroll_adj = null;
         private Gtk.ScrolledWindow? scroller = null;
         private Gtk.CssProvider provider;
-        private GLib.MenuModel? appmenu = null;
         private GLib.MenuModel? menubar = null;
         private GLib.HashTable<unowned string, GLib.ActionGroup?> action_groups = new GLib.HashTable<unowned string, GLib.ActionGroup?>(str_hash, str_equal);
         private Backend backend;
@@ -91,6 +90,18 @@ namespace Appmenu
                 this.insert_action_group(tkey, tval);
                 this.action_groups.insert(tkey, tval);
             });
+            bool has_menubar_items = (menubar != null && menubar.get_n_items() > 0);
+            if (compact_mode && has_menubar_items)
+            {
+                var compact = new GLib.Menu();
+                string name = resolve_compact_label(menubar);
+                compact.append_submenu(name, model);
+                this.menubar = compact;
+            } else if (compact_mode) {
+                compact_connector = menubar.items_changed.connect((a,b,c)=>{
+                    restock();
+                });
+            }
             mwidget.bind_model(this.menubar,null,true);
             unowned Gtk.StyleContext mcontext = mwidget.get_style_context();
             if(this.menubar != null && this.menubar.get_n_items() > 0)
@@ -103,6 +114,18 @@ namespace Appmenu
                 mcontext.add_class("-vala-panel-appmenu-bold");
             else
                 mcontext.remove_class("-vala-panel-appmenu-bold");
+        }
+        private static string resolve_compact_label(GLib.MenuModel? appmenu)
+        {
+            string? name = null;
+            if (appmenu != null && appmenu.get_n_items() > 0) {
+                GLib.MenuModel? section = appmenu.get_item_link(0, GLib.Menu.LINK_SECTION);
+                if(section != null)
+                    section.get_item_attribute(0, GLib.Menu.ATTRIBUTE_LABEL, "s", &name);
+                else
+                    appmenu.get_item_attribute(0, GLib.Menu.ATTRIBUTE_LABEL, "s", &name);
+            }
+            return name ?? GLib.dgettext(Config.GETTEXT_PACKAGE, "Compact Menu");
         }
         private void restock()
         {

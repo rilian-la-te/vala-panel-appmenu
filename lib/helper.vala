@@ -16,23 +16,13 @@ namespace Appmenu
     public delegate string? TitleFilter(int64 pid, string? class_name, string? window_name);
     public abstract class Helper: Object
     {
-        protected static GLib.MenuModel create_model(GLib.MenuModel? appmenu, GLib.MenuModel? menubar, bool compact_mode)
+        protected static GLib.MenuModel create_model(GLib.MenuModel? appmenu, GLib.MenuModel? menubar)
         {
             var combined = new GLib.Menu();
             if (appmenu != null)
                 combined.append_section(null, appmenu);
             if (menubar != null)
                 combined.append_section(null, menubar);
-
-            bool has_menubar_items = (menubar != null && menubar.get_n_items() > 0);
-            if (compact_mode && has_menubar_items)
-            {
-                var compact = new GLib.Menu();
-                string name = resolve_compact_label(appmenu);
-                compact.append_submenu(name, combined);
-                return compact;
-            }
-
             return combined;
         }
 
@@ -42,16 +32,6 @@ namespace Appmenu
                 dst.insert (key, val);
             });
         }
-
-        private static string resolve_compact_label(GLib.MenuModel? appmenu)
-        {
-            string? name = null;
-            if (appmenu != null && appmenu.get_n_items() > 0)
-                appmenu.get_item_attribute(0, GLib.Menu.ATTRIBUTE_LABEL, "s", &name);
-
-            return name ?? GLib.dgettext(Config.GETTEXT_PACKAGE, "Compact Menu");
-        }
-
         public GLib.MenuModel menu;
         public GLib.HashTable<unowned string, GLib.ActionGroup> actions = new HashTable<unowned string, GLib.ActionGroup>(str_hash, str_equal);
         public signal void content_updated();
