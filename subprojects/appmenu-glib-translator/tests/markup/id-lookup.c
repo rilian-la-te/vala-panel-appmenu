@@ -3,7 +3,9 @@
 #include <gio/gio.h>
 
 #include "comparator.h"
-#include "debug.h"
+#include "parser.h"
+
+#define DBUS_MENU_ATTRIBUTE_TRANSLATOR_ID "x-translator-id"
 
 /* A GtkBuilder-style UI file where several elements declare id=. The handles must
  * end up on the items as DBUS_MENU_ATTRIBUTE_TRANSLATOR_ID, for ordinary items

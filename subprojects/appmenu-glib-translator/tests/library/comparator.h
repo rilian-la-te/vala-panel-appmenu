@@ -4,7 +4,7 @@
 
 #include <gio/gio.h>
 
-#include "debug.h"
+#include "parser.h"
 #include "definitions.h"
 #include "exporter/exporter.h"
 #include "importer/importer.h"

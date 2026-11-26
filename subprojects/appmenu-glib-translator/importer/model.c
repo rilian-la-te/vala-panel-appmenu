@@ -18,7 +18,7 @@
 
 #include <inttypes.h>
 
-#include "debug.h"
+#include "parser.h"
 #include "definitions.h"
 #include "item.h"
 #include "model.h"

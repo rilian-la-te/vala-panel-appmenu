@@ -41,7 +41,7 @@
  * them directly, exactly as GtkBuilder does.
  */
 
-#include "debug.h"
+#include "parser.h"
 #include "definitions.h"
 #include <libintl.h>
 #include <stdarg.h>

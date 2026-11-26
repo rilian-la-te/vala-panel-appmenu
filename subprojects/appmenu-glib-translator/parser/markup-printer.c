@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "debug.h"
+#include "parser.h"
 #include <gio/gio.h>
 #include <stdbool.h>
 /* Markup printing {{{1 */

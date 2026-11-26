@@ -16,9 +16,6 @@ gdkpixbuf = dependency('gdk-pixbuf-2.0', required: false)
 
 common_sources = files(
     'definitions.h',
-    'debug.c',
-    'debug.h',
-    'markup-parse.c',
 )
 
 common_headers = files('definitions.h')
@@ -36,10 +33,11 @@ translator_dbus = gnome.gdbus_codegen(
 
 subdir('importer')
 subdir('exporter')
+subdir('parser')
 
 translator_name = 'appmenu-glib-translator'
-translator_public = [imp_public, exp_public]
-translator_inc = [include_directories('.'), imp_inc, exp_inc]
+translator_public = [imp_public, exp_public, parser_public]
+translator_inc = [include_directories('.'), imp_inc, exp_inc, parser_inc]
 
 translator_gir_headers = []
 foreach h : translator_public
@@ -51,7 +49,7 @@ foreach h : translator_public
 endforeach
 
 translator_lib = library(translator_name,
-common_sources, translator_enums_gen, translator_dbus, imp_sources, exp_sources,
+    common_sources, translator_enums_gen, translator_dbus, imp_sources, exp_sources, parser_sources,
     dependencies: [giounix, gdkpixbuf],
     include_directories: translator_inc,
     version: meson.project_version(),
@@ -60,7 +58,7 @@ common_sources, translator_enums_gen, translator_dbus, imp_sources, exp_sources,
     link_args: ['-Wl,--version-script=' + meson.current_source_dir() / 'translator.map'],
     pic : true
 )
-install_headers(translator_public + 'debug.h', subdir : translator_name)
+install_headers(translator_public, subdir : translator_name)
 
 pkgconfig.generate(translator_lib,
              name: translator_name,
@@ -73,7 +71,7 @@ pkgconfig.generate(translator_lib,
 translator_gir = gnome.generate_gir(translator_lib,
                     sources: translator_gir_headers,
                     includes: ['GObject-2.0', 'Gio-2.0'],
-                    header: [imp_for_gir, exp_for_gir],
+                    header: [imp_for_gir, exp_for_gir, parser_for_gir],
                     namespace: 'AppmenuGLibTranslator',
                     identifier_prefix: 'DBusMenu',
                     symbol_prefix: 'dbus_menu',

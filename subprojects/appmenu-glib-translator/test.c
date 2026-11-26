@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "debug.h"
+#include "parser.h"
 #include "importer.h"
 #include <gtk/gtk.h>
 #include <stdbool.h>

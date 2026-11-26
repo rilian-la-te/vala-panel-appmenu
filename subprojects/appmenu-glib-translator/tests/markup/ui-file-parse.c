@@ -3,7 +3,7 @@
 #include <gio/gio.h>
 
 #include "comparator.h"
-#include "debug.h"
+#include "parser.h"
 
 /* The markup the debug printer emits (dbus_menu_print_string) only ever uses
  * inline string attributes and non-empty items.  GtkBuilder UI files use a

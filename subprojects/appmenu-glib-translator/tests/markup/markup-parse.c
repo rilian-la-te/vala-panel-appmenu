@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 #include "comparator.h"
-#include "debug.h"
+#include "parser.h"
 
 /* Build a representative menu, print it with the markup printer (captured from
  * stderr), parse that text back with dbus_menu_parse_one(), then compare
