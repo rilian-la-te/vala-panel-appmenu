@@ -29,6 +29,7 @@ names = [
     'kde-title-leading-cleared',
     'kde-title-leading-hidden',
     'dummy-labels-only',
+    'firefox-stubs',
     'separator-run'
 ]
 
