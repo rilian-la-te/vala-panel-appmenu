@@ -49,41 +49,11 @@ static GMenuModel *build_source(void)
 	return G_MENU_MODEL(root);
 }
 
-/* dbus_menu_print_stdout writes with g_printerr(), i.e. to fd 2.
- * Capture that output through a pipe so we can feed it back to the parser. */
-static char *capture_markup(GMenuModel *model)
-{
-	int fds[2];
-
-	if (pipe(fds) != 0)
-		return NULL;
-
-	int saved = dup(2);
-	dup2(fds[1], 2);
-
-	dbus_menu_print_stdout(model);
-
-	fflush(stderr);
-	dup2(saved, 2);
-	close(saved);
-	close(fds[1]); /* writer closed -> read() below sees EOF */
-
-	GString *out = g_string_new(NULL);
-	char buf[4096];
-	ssize_t n;
-
-	while ((n = read(fds[0], buf, sizeof buf)) > 0)
-		g_string_append_len(out, buf, n);
-
-	close(fds[0]);
-	return g_string_free(out, FALSE);
-}
-
 G_GNUC_INTERNAL void test_func(void)
 {
 	GMenuModel *source = build_source();
 
-	char *markup = capture_markup(source);
+	char *markup = dbus_menu_print_string(source);
 	g_assert_nonnull(markup);
 	g_assert_true(markup[0] != '\0');
 
