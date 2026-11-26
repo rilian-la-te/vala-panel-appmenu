@@ -2,7 +2,6 @@
 
 #include "appmenu-gtk-parser.h"
 #include "comparator.h"
-#include <debug.h>
 #include <gtk/gtk.h>
 
 typedef struct {
