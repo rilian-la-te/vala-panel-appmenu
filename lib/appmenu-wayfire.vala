@@ -11,9 +11,16 @@ namespace Appmenu
         public signal void view_focused  (int id, string title, string app_id, int pid);
         public signal void view_unmapped (int id);
         public signal void view_property (int view_id, string prop, string? value);
+        public signal void views_listed (Json.Array views);
+
+        private enum ReplyType {
+            VIEW_PROPERTY,
+            LIST_VIEWS
+        }
 
         private class PendingReply
         {
+            public ReplyType type;
             public int    view_id;
             public string prop_name = "";
         }
@@ -144,7 +151,11 @@ namespace Appmenu
                     var parser = new Json.Parser();
                     if (!parser.load_from_data((string) body, (ssize_t) L))
                         continue;
-                    process_message(parser.get_root().get_object());
+                    var root_node = parser.get_root();
+                    if (root_node.get_node_type() == Json.NodeType.ARRAY)
+                        process_array_reply(root_node.get_array());
+                    else
+                        process_message(root_node.get_object());
                 } catch (Error e) {
                     warning("Wayfire parse failed: %s", e.message);
                 }
@@ -172,6 +183,15 @@ namespace Appmenu
                 value = msg.get_string_member("value");
 
             view_property(reply.view_id, reply.prop_name, value);
+        }
+        private void process_array_reply(Json.Array arr)
+        {
+            var reply = reply_queue.pop_head();
+            if (reply == null || reply.type != ReplyType.LIST_VIEWS) {
+                warning("Wayfire: unexpected array reply");
+                return;
+            }
+            views_listed(arr);
         }
 
         private void dispatch_focused(Json.Object msg)
@@ -213,8 +233,18 @@ namespace Appmenu
             send_msg("window-rules/get-view-property", data);
 
             var r = new PendingReply();
+            r.type      = VIEW_PROPERTY;
             r.view_id   = view_id;
             r.prop_name = prop;
+            reply_queue.push_tail(r);
+        }
+
+        public void list_views()
+        {
+            send_msg("window-rules/list-views", null);
+
+            var r = new PendingReply();
+            r.type = ReplyType.LIST_VIEWS;
             reply_queue.push_tail(r);
         }
     }
@@ -274,6 +304,7 @@ namespace Appmenu
                 wf.view_focused  .connect(on_view_focused);
                 wf.view_unmapped .connect(on_view_unmapped);
                 wf.view_property .connect(on_view_property);
+                wf.views_listed  .connect(on_views_listed);
                 wayfire = wf;
             } catch (Error e) {
                 critical("Wayfire backend init failed: %s", e.message);
@@ -376,9 +407,36 @@ namespace Appmenu
             reset_menu_update_timeout();
             delayed_menu_update_id = Timeout.add((uint) menu_update_delay, () => {
                 delayed_menu_update_id = 0;
-                update_helper();
+                if (wayfire != null) {
+                    wayfire.list_views();
+                } else {
+                    update_helper();
+                }
                 return false;
             });
+        }
+
+        private void on_views_listed(Json.Array views)
+        {
+            if (active_view_id != -1)
+                return;
+
+            bool has_toplevel = false;
+            views.foreach_element((arr, index, node) => {
+                var view = node.get_object();
+                string role = view.has_member("role") ? view.get_string_member("role") : "";
+                bool mapped = view.has_member("mapped") ? view.get_boolean_member("mapped") : false;
+                bool minimized = view.has_member("minimized") ? view.get_boolean_member("minimized") : false;
+
+                // Exclude layer-shell ("desktop-environment"), unmapped, and minimized windows
+                if (role == "toplevel" && mapped && !minimized) {
+                    has_toplevel = true;
+                }
+            });
+
+            type = has_toplevel ? ModelType.NONE : ModelType.DESKTOP;
+            update_helper();
+            active_model_changed();
         }
 
         private void reset_menu_update_timeout()
