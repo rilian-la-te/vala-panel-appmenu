@@ -26,16 +26,6 @@
  * release because it wasn't generally useful.  We want it here, though.
  */
 
-G_GNUC_INTERNAL GString *g_menu_markup_print_string(GString *string, GMenuModel *model, gint indent,
-                                                    gint tabstop);
-
-void g_menu_markup_print_to_console(GMenuModel *menu)
-{
-	GString *str = g_string_new(NULL);
-	g_menu_markup_print_string(str, menu, 4, 4);
-	g_autofree char *cstr = g_string_free(str, false);
-	g_printerr("%s\n", cstr);
-}
 
 static void indent_string(GString *string, gint indent)
 {
@@ -151,4 +141,19 @@ G_GNUC_INTERNAL GString *g_menu_markup_print_string(GString *string, GMenuModel 
 	}
 
 	return string;
+}
+
+void dbus_menu_print_stdout(GMenuModel *menu)
+{
+	GString *str = g_string_new(NULL);
+	g_menu_markup_print_string(str, menu, 4, 4);
+	g_autofree char *cstr = g_string_free(str, false);
+	g_printerr("%s\n", cstr);
+}
+
+char* dbus_menu_print_string(GMenuModel *menu)
+{
+	GString *str = g_string_new(NULL);
+	g_menu_markup_print_string(str, menu, 4, 4);
+	return g_string_free(str, false);
 }

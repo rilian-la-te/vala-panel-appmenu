@@ -65,9 +65,9 @@ G_GNUC_INTERNAL void test_func(void)
 	{
 		g_printerr("Models differ:\n%s\n", errors->str);
 		g_printerr("--- source ---\n");
-		g_menu_markup_print_to_console(source);
+		dbus_menu_print_stdout(source);
 		g_printerr("--- parsed ---\n");
-		g_menu_markup_print_to_console(target);
+		dbus_menu_print_stdout(target);
 	}
 
 	g_string_free(errors, TRUE);

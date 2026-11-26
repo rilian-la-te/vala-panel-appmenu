@@ -93,9 +93,9 @@ int main(int argc, char *argv[])
 	{
 		g_printerr("Models differ:\n%s\n", errors->str);
 		g_printerr("--- source ---\n");
-		g_menu_markup_print_to_console(source);
+		dbus_menu_print_stdout(source);
 		g_printerr("--- parsed ---\n");
-		g_menu_markup_print_to_console(G_MENU_MODEL(shell));
+		dbus_menu_print_stdout(G_MENU_MODEL(shell));
 	}
 
 	g_string_free(errors, TRUE);

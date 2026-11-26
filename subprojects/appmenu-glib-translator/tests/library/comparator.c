@@ -265,10 +265,10 @@ void dump_models(const char *tag, GMenuModel *source, GMenuModel *target)
 {
 	g_printerr("\n===== %s =====\n", tag);
 	g_printerr("--- source ---\n");
-	g_menu_markup_print_to_console(source);
+	dbus_menu_print_stdout(source);
 	g_printerr("--- target ---\n");
 	if (target)
-		g_menu_markup_print_to_console(target);
+		dbus_menu_print_stdout(target);
 	else
 		g_printerr("(NULL)\n");
 	g_printerr("===== end %s =====\n\n", tag);
@@ -278,9 +278,9 @@ void dump_and_report(const char *tag, Fixture *f, GString *errors)
 {
 	g_printerr("%s failed:\n%s\n", tag, errors->str);
 	g_printerr("--- source ---\n");
-	g_menu_markup_print_to_console(f->source);
+	dbus_menu_print_stdout(f->source);
 	g_printerr("--- parsed ---\n");
-	g_menu_markup_print_to_console(f->target);
+	dbus_menu_print_stdout(f->target);
 }
 
 static void check_has_any_action(GMenuModel *model, gboolean *found)

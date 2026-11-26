@@ -214,7 +214,7 @@ u_int32_t invasive_section_item_id(DBusMenuModel *model, int section_index)
 void invasive_dump(const char *tag, GMenuModel *target)
 {
 	g_print("--- %s ---\n", tag);
-	g_menu_markup_print_to_console(target);
+	dbus_menu_print_stdout(target);
 }
 
 /* --- driving the mock server ----------------------------------------------- */

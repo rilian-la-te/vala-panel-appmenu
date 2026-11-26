@@ -20,5 +20,6 @@
 #define DEBUG_H
 
 #include <gio/gio.h>
-void g_menu_markup_print_to_console(GMenuModel *menu);
+void dbus_menu_print_stdout(GMenuModel *menu);
+char* dbus_menu_print_string(GMenuModel *menu);
 #endif // DEBUG_H

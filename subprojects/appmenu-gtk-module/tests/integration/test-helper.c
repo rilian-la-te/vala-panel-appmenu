@@ -60,9 +60,9 @@ void dump_e2e(const char *tag, E2E *e)
 	g_string_free(errors, TRUE);
 
 	g_printerr("--- source ---\n");
-	g_menu_markup_print_to_console(e->source);
+	dbus_menu_print_stdout(e->source);
 	g_printerr("--- parsed ---\n");
-	g_menu_markup_print_to_console(e->imported_model);
+	dbus_menu_print_stdout(e->imported_model);
 
 	dump_actions(G_ACTION_GROUP(e->actions), "source");
 	dump_actions(G_ACTION_GROUP(e->unity_actions), "unity-bridge");
@@ -141,9 +141,9 @@ void assert_models(E2E *e, const char *tag)
 		g_printerr("%s FAILED:\n", tag);
 		g_printerr("Models differ:\n%s\n", errors->str);
 		g_printerr("--- source ---\n");
-		g_menu_markup_print_to_console(e->source);
+		dbus_menu_print_stdout(e->source);
 		g_printerr("--- parsed ---\n");
-		g_menu_markup_print_to_console(e->imported_model);
+		dbus_menu_print_stdout(e->imported_model);
 		dump_actions(G_ACTION_GROUP(e->actions), "source");
 		dump_actions(G_ACTION_GROUP(e->unity_actions), "unity-bridge");
 		dump_actions(e->imported_actions, "imported");

@@ -65,9 +65,9 @@ dump_and_report(const char *tag, Fixture *f, GString *errors)
 {
 	g_printerr("%s failed:\n%s\n", tag, errors->str);
 	g_printerr("--- source ---\n");
-	g_menu_markup_print_to_console(f->source);
+	dbus_menu_print_stdout(f->source);
 	g_printerr("--- parsed ---\n");
-	g_menu_markup_print_to_console(G_MENU_MODEL(f->shell));
+	dbus_menu_print_stdout(G_MENU_MODEL(f->shell));
 }
 
 /* ------------------------------------------------------------------ */
