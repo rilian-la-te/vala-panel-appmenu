@@ -2,6 +2,7 @@
 names = [
     'markup-parse',
     'ui-file-parse',
+    'id-lookup'
 ]
 
 foreach name : names

@@ -26,6 +26,13 @@
  * through dgettext() with the parser's gettext package (kept verbatim when no
  * package is set).
  *
+ * An element's id= becomes a menu item attribute (see
+ * DBUS_MENU_ATTRIBUTE_TRANSLATOR_ID), which is how a parsed tree can be searched
+ * for a handle later without GTK. It applies to every element that produces an
+ * item: plain <item> inline attrs are free-form, so id= is renamed there, while
+ * the section/submenu wrapper items get it from the id= captured at their start
+ * tag. A <link> keeps its own name= and never gets the attribute.
+ *
  * Parsing uses GLib's GMarkupParser event API: XML well-formedness, entity
  * unescaping and attribute tokenising come for free. A frame stack (as in GTK's
  * gtkbuilder-menus.c) tracks the model/item being filled; a <item> tag's
@@ -35,9 +42,12 @@
  */
 
 #include "debug.h"
+#include "definitions.h"
 #include <libintl.h>
 #include <stdarg.h>
 #include <string.h>
+
+#define DBUS_MENU_ATTRIBUTE_TRANSLATOR_ID "x-translator-id"
 
 /* Parser state ------------------------------------------------------------ */
 
@@ -136,27 +146,46 @@ static void start_item(MarkupParser *ps, const char **names, const char **values
 
 	/* Inline attrs are free-form string attributes. g_markup_collect_attributes
 	 * cannot enumerate unknown names, so iterate the pairs directly (as
-	 * GtkBuilder does). "translatable" is a meta-attribute, not a menu one. */
+	 * GtkBuilder does). "translatable" is a meta-attribute, not a menu one; "id"
+	 * is GtkBuilder's handle and is stored under its own attribute name so it can
+	 * be found with dbus_menu_parsed_find_item_by_id(). */
 	for (const char **p = names; *p != NULL; p++)
 	{
 		guint i = (guint)(p - names);
+		const char *nm = *p;
 
-		if (strcmp(*p, "translatable") == 0)
+		if (strcmp(nm, "translatable") == 0)
 			continue;
 
+		const char *attr = strcmp(nm, "id") == 0 ? DBUS_MENU_ATTRIBUTE_TRANSLATOR_ID : nm;
+
 		GVariant *v = g_variant_ref_sink(g_variant_new_string(values[i]));
-		g_menu_item_set_attribute_value(item, *p, v);
+		g_menu_item_set_attribute_value(item, attr, v);
 		g_variant_unref(v); /* set_attribute_value does not sink our ref */
 	}
 
 	push_frame(ps, NULL, item);
 }
 
-static void start_group(MarkupParser *ps, gboolean is_submenu)
+static void start_group(MarkupParser *ps, const char **names, const char **values,
+                        gboolean is_submenu)
 {
 	GMenu *child = g_menu_new();
 	GMenuItem *gitem = is_submenu ? g_menu_item_new_submenu(NULL, G_MENU_MODEL(child))
 	                              : g_menu_item_new_section(NULL, G_MENU_MODEL(child));
+
+	for (const char **p = names; *p != NULL; p++)
+	{
+		guint i = (guint)(p - names);
+
+		if (strcmp(*p, "id") == 0)
+		{
+			GVariant *v = g_variant_ref_sink(g_variant_new_string(values[i]));
+			g_menu_item_set_attribute_value(gitem, DBUS_MENU_ATTRIBUTE_TRANSLATOR_ID, v);
+			g_variant_unref(v);
+		}
+		/* GtkBuilder groups carry no other attributes; ignore the rest. */
+	}
 
 	push_frame(ps, child, gitem);
 	g_object_unref(child); /* the wrapper item holds the model ref; appended on pop */
@@ -265,8 +294,8 @@ static void start_element(GMarkupParseContext *c, const char *element,
 		return;
 	}
 
-	if (strcmp(element, "section") == 0) { start_group(ps, FALSE); return; }
-	if (strcmp(element, "submenu") == 0) { start_group(ps, TRUE); return; }
+	if (strcmp(element, "section") == 0) { start_group(ps, names, values, FALSE); return; }
+	if (strcmp(element, "submenu") == 0) { start_group(ps, names, values, TRUE); return; }
 
 	fail(ps, error, "element <%s> not allowed here", element);
 }
@@ -411,4 +440,96 @@ GMenuModel *dbus_menu_parse_one(const char *markup, const char *gettext_package,
 
 	g_markup_parse_context_free(ps.ctx);
 	return G_MENU_MODEL(root);
+}
+
+/* Builds a standalone GMenuItem that mirrors item @i of @model: its scalar
+ * attributes are copied, but its submenu/section links point at the very same
+ * sub-models the model already holds (borrowed refs - no copies). That is what
+ * lets an id name either an ordinary item or a group and still let the caller
+ * walk/edit the real tree behind it. g_menu_item_new_from_model() cannot be used
+ * here because its link table owns its sub-models, whereas we want to keep only
+ * borrowed pointers to the live ones (the container stays with the model). */
+static GMenuItem *item_wrapper_borrowing_links(GMenuModel *model, int i)
+{
+	GMenuItem *item = g_menu_item_new(NULL, NULL);
+
+	GMenuAttributeIter *attrs = g_menu_model_iterate_item_attributes(model, i);
+	const char *name;
+	GVariant *value;
+	while (g_menu_attribute_iter_get_next(attrs, &name, &value))
+	{
+		/* set_attribute_value takes its own ref; drop the one get_next handed us. */
+		g_menu_item_set_attribute_value(item, name, value);
+		g_variant_unref(value);
+	}
+	g_object_unref(attrs);
+
+	GMenuLinkIter *links = g_menu_model_iterate_item_links(model, i);
+	const char *link_name;
+	GMenuModel *sub;
+	while (g_menu_link_iter_get_next(links, &link_name, &sub))
+	{
+		/* set_link takes its own ref; the returned sub-model ref is ours to drop,
+		 * so the wrapper keeps only borrowed pointers to the live sub-models. */
+		g_menu_item_set_link(item, link_name, sub);
+		g_object_unref(sub);
+	}
+	g_object_unref(links);
+
+	return item;
+}
+
+/* Depth-first search for the item whose id attribute (set from a markup element's
+ * id=, see DBUS_MENU_ATTRIBUTE_TRANSLATOR_ID) equals @id. A section/submenu is
+ * matched through the item that links it, never by naming the model behind the
+ * link - that keeps one lookup rule for every kind of element.
+ *
+ * The returned GMenuItem is new (transfer container): its own attributes are a
+ * private copy, but its submenu/section links are the same live sub-models the
+ * tree holds, so the caller can reach and modify the real groups behind them. It
+ * borrows those sub-models, so it must not outlive the model it was found in. */
+GMenuItem *dbus_menu_parsed_find_item_by_id(GMenuModel *model, const char *id)
+{
+	if (!model || !id)
+		return NULL;
+
+	int n = g_menu_model_get_n_items(model);
+
+	for (int i = 0; i < n; i++)
+	{
+		g_autofree char *item_id = NULL;
+
+		if (g_menu_model_get_item_attribute(model, i, DBUS_MENU_ATTRIBUTE_TRANSLATOR_ID, "s", &item_id) &&
+		    g_strcmp0(item_id, id) == 0)
+			return item_wrapper_borrowing_links(model, i);
+
+		/* Recurse into submenu and section links (the only two GMenuLinkIter can
+		 * yield; an item may carry both). Also handle our DBUS_MENU_DISABLED_SUBMENU links */
+		for (int l = 0; l < 3; l++)
+		{
+			const char	*link;
+			switch (l) {
+				case 0:
+					link = G_MENU_LINK_SUBMENU;
+					break;
+				case 1:
+					link = G_MENU_LINK_SECTION;
+					break;
+				default:
+					link = DBUS_MENU_DISABLED_SUBMENU;
+			}
+			GMenuModel *sub  = g_menu_model_get_item_link(model, i, link);
+
+			if (sub == NULL)
+				continue;
+
+			GMenuItem *found = dbus_menu_parsed_find_item_by_id(sub, id);
+			g_object_unref(sub);
+
+			if (found)
+				return found;
+		}
+	}
+
+	return NULL;
 }
