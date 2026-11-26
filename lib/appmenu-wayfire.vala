@@ -11,6 +11,7 @@ namespace Appmenu
         public signal void view_focused  (int id, string title, string app_id, int pid);
         public signal void view_unmapped (int id);
         public signal void view_property (int view_id, string prop, string? value);
+        public signal void view_minimized(int id, bool minimized);
         public signal void views_listed (Json.Array views);
 
         private enum ReplyType {
@@ -59,6 +60,7 @@ namespace Appmenu
             var events = new Json.Array();
             events.add_string_element("view-focused");
             events.add_string_element("view-unmapped");
+            events.add_string_element("view-minimized");
 
             var data = new Json.Object();
             data.set_array_member("events", events);
@@ -169,6 +171,7 @@ namespace Appmenu
                 string ev = msg.get_string_member("event");
                 if      (ev == "view-focused")  dispatch_focused(msg);
                 else if (ev == "view-unmapped") dispatch_unmapped(msg);
+                else if (ev == "view-minimized") dispatch_minimized(msg);
                 return;
             }
 
@@ -223,6 +226,20 @@ namespace Appmenu
             if (!view.has_member("id"))
                 return;
             view_unmapped((int) view.get_int_member("id"));
+        }
+
+        private void dispatch_minimized(Json.Object msg)
+        {
+            if (!msg.has_member("view") || msg.get_member("view").is_null())
+                return;
+
+            var view = msg.get_object_member("view");
+            if (!view.has_member("id"))
+                return;
+
+            int id = (int) view.get_int_member("id");
+            bool minimized = view.has_member("minimized") ? view.get_boolean_member("minimized") : true;
+            view_minimized(id, minimized);
         }
 
         public void get_view_property(int view_id, string prop)
@@ -303,6 +320,7 @@ namespace Appmenu
                 var wf = new WayfireClient();
                 wf.view_focused  .connect(on_view_focused);
                 wf.view_unmapped .connect(on_view_unmapped);
+                wf.view_minimized .connect(on_view_minimized);
                 wf.view_property .connect(on_view_property);
                 wf.views_listed  .connect(on_views_listed);
                 wayfire = wf;
@@ -410,6 +428,29 @@ namespace Appmenu
                 if (wayfire != null) {
                     wayfire.list_views();
                 } else {
+                    update_helper();
+                }
+                return false;
+            });
+        }
+
+        private void on_view_minimized(int id, bool minimized)
+        {
+            if (id != active_view_id || !minimized)
+                return;
+
+            active_view_id = -1;
+            active_props   = null;
+            pending_props  = 0;
+            type           = ModelType.NONE;
+
+            reset_menu_update_timeout();
+            delayed_menu_update_id = Timeout.add((uint) menu_update_delay, () => {
+                delayed_menu_update_id = 0;
+                if (wayfire != null) {
+                    wayfire.list_views();
+                } else {
+                    type = ModelType.DESKTOP;
                     update_helper();
                 }
                 return false;
