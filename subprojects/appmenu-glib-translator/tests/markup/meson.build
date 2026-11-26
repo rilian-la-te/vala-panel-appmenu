@@ -2,6 +2,7 @@
 names = [
     'markup-parse',
     'ui-file-parse',
+    'interface-wrap',
     'id-lookup'
 ]
 

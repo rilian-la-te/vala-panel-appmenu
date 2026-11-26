@@ -8,12 +8,14 @@
  * printer emits plus the GtkBuilder UI-file superset:
  *
  *   model      := ( item | section | submenu )*
+ *   ui-file    := <interface [domain]> menu* </interface>
+ *   menu       := <menu id='NAME'> model </menu>
  *   item       := <item string-attrs* ( "/>" | ">" body "</item>" )
  *   body       := ( attribute | link )*
  *   attribute  := <attribute name='X' [type='T'] [translatable] >text</attribute>
  *   link       := <link name='submenu|section'> model </link>
- *   section    := <section [id]> model </section>
- *   submenu    := <submenu [id]> model </submenu>
+ *   section    := <section [id]> ( attribute* model )? </section>
+ *   submenu    := <submenu [id]> ( attribute* model )? </submenu>
  *
  * String attributes are emitted inline on the <item> tag and come back as
  * strings; non-string attributes become <attribute> children whose text is a
@@ -22,9 +24,11 @@
  *
  * UI-file <section>/<submenu> mirror the link form: each becomes its own nested
  * GMenu wrapped in an item linked as "section"/"submenu", so empty groups are
- * preserved rather than collapsed. translatable="yes" attribute text is run
- * through dgettext() with the parser's gettext package (kept verbatim when no
- * package is set).
+ * preserved rather than collapsed. Such a group may also declare its label,
+ * action or submenu-action as <attribute> children (GtkBuilder's lazy-submenu
+ * form); those annotate the wrapper item, exactly as the inline attributes of an
+ * <item> do. translatable="yes" attribute text is run through dgettext() with the
+ * parser's gettext package (kept verbatim when no package is set).
  *
  * An element's id= becomes a menu item attribute (see
  * DBUS_MENU_ATTRIBUTE_TRANSLATOR_ID), which is how a parsed tree can be searched
@@ -39,6 +43,12 @@
  * free-form string attributes are read straight from the names/values arrays
  * g_markup_collect_attributes() cannot enumerate unknown names, so we iterate
  * them directly, exactly as GtkBuilder does.
+ *
+ * A GtkBuilder UI file is accepted as it is: <interface> and the <menu id=NAME>
+ * that holds one menu's content are both stepped over, since neither describes a
+ * model - they name the file and the menu inside it. Their own attributes
+ * (domain=, id=) carry no meaning for the model and are ignored; a file usually
+ * holds one <menu>, which is all a single root frame can hold.
  */
 
 #include "parser.h"
@@ -73,6 +83,10 @@ typedef struct
 	char *attr_type_str;     /* owned copy of type=, for diagnostics */
 	gboolean attr_translatable;
 	GString *attr_text;
+	/* The item an in-progress <attribute> belongs to. Inside an <item> that is the
+	 * item of the enclosing frame; directly inside a <section>/<submenu> it is the
+	 * group's own wrapper item, which is why it cannot come from the frame alone. */
+	GMenuItem *attr_item;
 } MarkupParser;
 
 static void push_frame(MarkupParser *ps, GMenu *menu, GMenuItem *item)
@@ -184,7 +198,8 @@ static void start_group(MarkupParser *ps, const char **names, const char **value
 			g_menu_item_set_attribute_value(gitem, DBUS_MENU_ATTRIBUTE_TRANSLATOR_ID, v);
 			g_variant_unref(v);
 		}
-		/* GtkBuilder groups carry no other attributes; ignore the rest. */
+		/* A UI-file group may also carry label/action/submenu-action inline, but
+		 * usually declares them as <attribute> children (see start_element). */
 	}
 
 	push_frame(ps, child, gitem);
@@ -193,12 +208,8 @@ static void start_group(MarkupParser *ps, const char **names, const char **value
 
 static void start_attribute(MarkupParser *ps, const char **names, const char **values, GError **error)
 {
-	if (!in_item(ps))
-	{
-		fail(ps, error, "<attribute> must be inside an <item>");
-		return;
-	}
-
+	/* start_element only routes an <attribute> here when some item owns it, and
+	 * records that item in ps->attr_item for end_attribute to use. */
 	const char *name = NULL, *type = NULL, *translatable = NULL;
 	gboolean seen_name = FALSE, seen_type = FALSE, seen_trans = FALSE;
 
@@ -244,8 +255,6 @@ static void start_attribute(MarkupParser *ps, const char **names, const char **v
 	ps->attr_type         = type ? g_variant_type_new(type) : NULL;
 	ps->attr_type_str     = type ? g_strdup(type) : NULL;
 	ps->attr_text         = g_string_new(NULL);
-
-	push_frame(ps, NULL, NULL); /* sentinel frame so text() routes into attr_text */
 }
 
 static void start_link(MarkupParser *ps, const char **names, const char **values, GError **error)
@@ -285,8 +294,26 @@ static void start_element(GMarkupParseContext *c, const char *element,
 	(void)c;
 
 	if (strcmp(element, "item") == 0)      { start_item(ps, names, values, error); return; }
-	if (strcmp(element, "attribute") == 0) { start_attribute(ps, names, values, error); return; }
 	if (strcmp(element, "link") == 0)      { start_link(ps, names, values, error); return; }
+
+	/* An <attribute> belongs to the nearest item: its own body for an <item>, or
+	 * the wrapper item of a <section>/<submenu> whose label/submenu-action/...
+	 * are given as children. The element handlers cannot see each other's frames,
+	 * so which item that is gets recorded when the attribute opens. */
+	if (strcmp(element, "attribute") == 0)
+	{
+		ps->attr_item = ps->frame.item;
+		start_attribute(ps, names, values, error);
+		return;
+	}
+
+	/* A GtkBuilder UI file wraps its menu content in <interface>, and names that
+	 * content with <menu id=NAME>. Neither describes a model: they are containers
+	 * for the file and for one menu inside it, so both are stepped over and their
+	 * attributes (domain=, id=) ignored. The markup within parses exactly as it
+	 * would without them. */
+	if (strcmp(element, "interface") == 0 || strcmp(element, "menu") == 0)
+		return;
 
 	if (in_item(ps))
 	{
@@ -319,7 +346,7 @@ static void end_attribute(MarkupParser *ps, GError **error)
 		}
 	}
 
-	GMenuItem *item  = ps->frame.prev->item; /* the item being annotated */
+	GMenuItem *item  = ps->attr_item; /* the item named when the attribute opened */
 	GVariant *value  = NULL;
 
 	if (ps->attr_type == NULL) /* UI-file plain-string form (no type=) */
@@ -351,13 +378,16 @@ static void end_attribute(MarkupParser *ps, GError **error)
 	g_clear_pointer(&ps->attr_type, g_variant_type_free);
 	g_clear_pointer(&ps->attr_type_str, g_free);
 	g_clear_pointer(&ps->attr_name, g_free);
-	pop_frame(ps);
+	ps->attr_item = NULL;
 }
 
 static void end_element(GMarkupParseContext *c, const char *element, gpointer user, GError **error)
 {
 	MarkupParser *ps = user;
 	(void)c;
+
+	if (strcmp(element, "interface") == 0 || strcmp(element, "menu") == 0)
+		return; /* matches the containers skipped in start_element */
 
 	if (ps->attr_text != NULL && strcmp(element, "attribute") == 0)
 	{
