@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface domain="vala-panel-appmenu">
+  <menu id="appmenu-stub">
+      <section>
+		  <item>
+		      <attribute name="label" translatable="yes">_New</attribute>
+		      <attribute name="action">conf.new</attribute>
+		      <attribute name="hidden-when">action-missing</attribute>
+		  </item>
+	  </section>
+	  <section id="desktop-actions">
+	  </section>
+	  <section id="unity-actions">
+	  </section>
+      <section>
+		  <item>
+		      <attribute name="label" translatable="yes">_Quit</attribute>
+		      <attribute name="action">conf.quit</attribute>
+		      <attribute name="hidden-when">action-missing</attribute>
+		  </item>
+	  </section>
+  </menu>
+</interface>

@@ -49,7 +49,7 @@ namespace Appmenu
             var group = new SimpleActionGroup();
             group.add_action_entries(menu_entries,this);
             this.actions.insert("menu", group);
-            var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
+            var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-appmenu.ui");
             builder.set_translation_domain(Config.GETTEXT_PACKAGE);
             unowned GLib.Menu gmenu = builder.get_object("appmenu-desktop") as GLib.Menu;
             var menu = new GLib.Menu();
@@ -62,7 +62,8 @@ namespace Appmenu
             music_menu = builder.get_object("music") as GLib.Menu;
             pictures_menu = builder.get_object("picts") as GLib.Menu;
             videos_menu = builder.get_object("video") as GLib.Menu;
-            gmenu = builder.get_object("menubar") as GLib.Menu;
+            var bar_builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menubar.ui");
+            gmenu = bar_builder.get_object("menubar") as GLib.Menu;
             append_menu.append_section(null,gmenu);
             append_menu.freeze();
             this.menu = create_model(menu, append_menu);

@@ -85,7 +85,7 @@ namespace Appmenu
         {
             var configurator = new SimpleActionGroup();
             configurator.add_action_entries(entries,this);
-            var builder = new Builder.from_resource("/org/vala-panel/appmenu/desktop-menus.ui");
+            var builder = new Builder.from_resource("/org/vala-panel/appmenu/appmenu-stub.ui");
             builder.set_translation_domain(Config.GETTEXT_PACKAGE);
             unowned GLib.Menu menu = builder.get_object("appmenu-stub") as GLib.Menu;
             if(pid <= 0)

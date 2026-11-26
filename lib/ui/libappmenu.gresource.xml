@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<gresources>
+  <gresource prefix="/org/vala-panel/appmenu">
+    <file compressed="true" preprocess="xml-stripblanks">desktop-appmenu.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">desktop-menubar.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">appmenu-stub.ui</file>
+    <file compressed="true">appmenu.css</file>
+  </gresource>
+</gresources>

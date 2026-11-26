@@ -29,8 +29,8 @@ wayfire_src = files(
 ) 
 
 libres = gnome.compile_resources(
-    'lib', 'libappmenu.gresource.xml',
-    source_dir: '.',
+    'lib', 'ui/libappmenu.gresource.xml',
+    source_dir: 'ui',
     c_name: 'lib'
 )
 valac = meson.get_compiler('vala')
