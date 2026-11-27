@@ -17,11 +17,14 @@ sources = files(
     'matcher.vapi',
 )
 
-wnck_src = files(
-    'appmenu-wnck.vala',
-    'libwnck-aux.c',
-    'libwnck-aux.vapi',
-    'libwnck-aux.h',
+xcb_src = files(
+    'appmenu-x11.vala',
+    'xcb-aux.vapi',
+)
+
+xcb_c_src = files(
+    'xcb-aux.c',
+    'xcb-aux.h',
 )
 
 wayfire_src = files(
@@ -40,11 +43,11 @@ importer_dep = dependency('appmenu-glib-translator', version: '>=26.12', fallbac
 
 appmenu_deps = [giounix, gtk, importer_dep, posix_dep]
 appmenu_cflags = []
-if backend_wnck
-    gdkx_dep = valac.find_library('gdk-x11-3.0')
-    sources += wnck_src
-    appmenu_deps += [wnck, gdkx_dep]
-    appmenu_cflags += ['-DWNCK_I_KNOW_THIS_IS_UNSTABLE']
+if backend_x11
+    xcb_lib = static_library('xcb', xcb_c_src, dependencies: [xcb, xcb_icccm, xcb_ewmh, giounix])
+    xcb_inline = declare_dependency(include_directories: include_directories('.'), link_whole: xcb_lib)
+    sources += xcb_src
+	appmenu_deps += xcb_inline
 endif
 
 if backend_wayfire

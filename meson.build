@@ -45,18 +45,19 @@ gtk_ver = '>=3.22.0'
 gtk = dependency('gtk+-3.0', version: gtk_ver)
 
 backend_opt = get_option('wm_backend')
-backend_wnck =  'wnck' in backend_opt
+backend_x11 =  'x11' in backend_opt
 backend_wayfire = 'wayfire' in backend_opt
 
-wnck_ver = '>=3.4.8'
-wnck = dependency('libwnck-3.0', version: wnck_ver, required: false)
-backend_wnck = backend_wnck and wnck.found()
+xcb = dependency('xcb', required: false)
+xcb_icccm = dependency('xcb-icccm', required: false)
+xcb_ewmh = dependency('xcb-ewmh', required: false)
+backend_x11 = backend_x11 and xcb.found() and xcb_icccm.found() and xcb_ewmh.found()
 
 json_glib = dependency('json-glib-1.0', required: false)
 backend_wayfire = backend_wayfire and json_glib.found()
 
-if(not (backend_wnck) and not(backend_wayfire))
-    error('No backend available (libwnck3 or json-glib required)')
+if(not (backend_x11) and not(backend_wayfire))
+    error('No backend available (xcb or json-glib required)')
 endif
 
 vp_ver = '>=24.03'
