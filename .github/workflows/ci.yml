@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Install dependencies
         shell: sh
-        run: apk add --no-cache nodejs git meson ninja build-base xz gobject-introspection-dev gtk+3.0-dev vala libwnck3-dev wayland-protocols wayland-dev json-glib-dev
+        run: apk add --no-cache nodejs git meson ninja build-base xz gobject-introspection-dev gtk+3.0-dev vala wayland-protocols wayland-dev gtk-layer-shell-dev json-glib-dev libxcb-dev xcb-util-wm-dev
       - name: Fix git safe.directory
         shell: sh
         run: git config --global --add safe.directory '*'
@@ -25,7 +25,7 @@ jobs:
         shell: sh
         run: |
           git clone https://gitlab.com/vala-panel-project/vala-panel.git
-          meson --prefix=/usr vp-build vala-panel && meson install -C vp-build && rm -rf vala-panel vp-build
+          meson --prefix=/usr -Dplatforms=wayland vp-build vala-panel && meson install -C vp-build && rm -rf vala-panel vp-build
 
       - name: Build vala-panel-appmenu
         shell: sh
@@ -53,7 +53,7 @@ jobs:
     steps:
       - name: Install dependencies
         shell: sh
-        run: apk add --no-cache nodejs python3 glib-dev meson ninja xz build-base git curl gtk+3.0-dev gtk+2.0-dev libwnck3-dev wayland-protocols wayland-dev gobject-introspection-dev vala weston mutter dbus nodejs
+        run: apk add --no-cache nodejs python3 glib-dev meson ninja xz build-base git curl gtk+3.0-dev gtk+2.0-dev wayland-protocols wayland-dev gobject-introspection-dev vala weston mutter dbus nodejs
       - name: Fix git safe.directory
         shell: sh
         run: git config --global --add safe.directory '*'
