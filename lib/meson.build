@@ -2,11 +2,12 @@ sources = files(
     'backend.vala',
     'registrar.vala',
     'menu-provider.vala',
-    'helper.vala',
     'helper-desktop.vala',
     'helper-dbus.vala',
     'helper-dbusmenu.vala',
     'helper-menumodel.vala',
+    'helper.c',
+    'helper.h',
     'launcher.c',
     'launcher.h',
     'register.c',
@@ -62,5 +63,6 @@ appmenu_inc = include_directories('.')
 appmenu_dep = declare_dependency(
     include_directories: appmenu_inc,
     dependencies: [giounix],
+    sources: [files('ccode.vapi')],
     link_with: appmenu_lib
 )

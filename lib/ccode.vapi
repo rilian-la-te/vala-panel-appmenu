@@ -47,3 +47,25 @@ public class ValaPanel.Matcher : GLib.Object
     public static Matcher @get();
     public unowned GLib.DesktopAppInfo match_arbitrary(string class, string group, string gtk_id, int pid);
 }
+
+[CCode(cheader_filename="helper.h")]
+public enum Appmenu.ModelType
+{
+    NONE,
+    STUB,
+    DESKTOP,
+    MENUMODEL,
+    DBUSMENU
+}
+
+[CCode(cheader_filename="helper.h", type_id = "appmenu_helper_get_type()")]
+public abstract class Appmenu.Helper: Object
+{
+    protected static GLib.MenuModel create_model(GLib.MenuModel? appmenu, GLib.MenuModel? menubar);
+    protected static void merge_actions(GLib.HashTable<unowned string, GLib.ActionGroup> src, GLib.HashTable<unowned string, GLib.ActionGroup> dst);
+    [CCode (has_construct_function = false)]
+    protected Helper();
+    public GLib.MenuModel menu;
+    public GLib.HashTable<unowned string, GLib.ActionGroup> actions;
+    public signal void content_updated();
+}

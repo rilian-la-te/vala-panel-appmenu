@@ -19,6 +19,8 @@
 using GLib;
 namespace Appmenu
 {
+    [CCode (has_target = false)]
+    public delegate string? TitleFilter(int64 pid, string? class_name, string? window_name);
     public abstract class Backend : Object
     {
         protected ModelType type = ModelType.NONE;
