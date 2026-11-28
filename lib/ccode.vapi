@@ -39,3 +39,11 @@ namespace MenuMaker
     public static AppInfo get_default_for_uri(string uri);
 }
 
+[CCode(cheader_filename="matcher.h")]
+public class ValaPanel.Matcher : GLib.Object
+{
+    [CCode (has_construct_function = false)]
+    private Matcher();
+    public static Matcher @get();
+    public unowned GLib.DesktopAppInfo match_arbitrary(string class, string group, string gtk_id, int pid);
+}

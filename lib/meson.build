@@ -7,13 +7,12 @@ sources = files(
     'helper-dbus.vala',
     'helper-dbusmenu.vala',
     'helper-menumodel.vala',
-    'launcher.vapi',
     'launcher.c',
     'launcher.h',
     'register.c',
     'matcher.c',
     'matcher.h',
-    'matcher.vapi',
+    'ccode.vapi',
 )
 
 xcb_src = files(
