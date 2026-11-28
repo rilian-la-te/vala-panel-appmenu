@@ -42,7 +42,7 @@ namespace Appmenu
         construct
         {
             provider = new Gtk.CssProvider();
-            provider.load_from_resource("/org/vala-panel/appmenu/appmenu.css");
+            provider.load_from_resource("/org/vala-panel/menuwidget/appmenu.css");
             unowned Gtk.StyleContext context = this.get_style_context();
             context.add_class("-vala-panel-appmenu-core");
             unowned Gtk.StyleContext mcontext = mwidget.get_style_context();

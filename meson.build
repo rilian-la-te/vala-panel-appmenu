@@ -103,6 +103,7 @@ subproject('jayatana', required: get_option('jayatana'))
 subproject('appmenu-gtk-module', required: get_option('appmenu-gtk-module'))
 
 subdir('lib')
+subdir('gtk-3.0')
 subdir('applets')
 subdir('data')
 subdir('po')

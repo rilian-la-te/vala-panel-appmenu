@@ -2,7 +2,6 @@ sources = files(
     'backend.vala',
     'registrar.vala',
     'menu-provider.vala',
-    'menu-widget.vala',
     'helper.vala',
     'helper-desktop.vala',
     'helper-dbus.vala',
@@ -41,8 +40,7 @@ posix_dep = valac.find_library('posix')
 
 importer_dep = dependency('appmenu-glib-translator', version: '>=26.12', fallback : ['appmenu-glib-translator', 'translator_dep'])
 
-appmenu_deps = [giounix, gtk, importer_dep, posix_dep]
-appmenu_cflags = []
+appmenu_deps = [giounix, importer_dep, posix_dep]
 if backend_x11
     xcb_lib = static_library('xcb', xcb_c_src, dependencies: [xcb, xcb_icccm, xcb_ewmh, giounix])
     xcb_inline = declare_dependency(include_directories: include_directories('.'), link_whole: xcb_lib)
@@ -55,16 +53,15 @@ if backend_wayfire
     appmenu_deps += json_glib
 endif
 
-appmenu_lib = static_library('libappmenu',
+appmenu_lib = static_library('libmenuprovider',
         sources, config,
         dependencies: appmenu_deps,
-        c_args: appmenu_cflags,
         pic: true
     )
 appmenu_inc = include_directories('.')
 
 appmenu_dep = declare_dependency(
     include_directories: appmenu_inc,
-    dependencies: [gtk, giounix],
-    link_whole: appmenu_lib
+    dependencies: [giounix],
+    link_with: appmenu_lib
 )
